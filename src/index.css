@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Brutalist Design System */
+:root {
+  --color-background: #0a0f0a;
+  --color-primary: #0df20d;
+  --color-primary-dark: #102310;
+  --color-secondary: #224922;
+  --color-text: #ffffff;
+  --color-text-secondary: #a0a0a0;
+  --color-border: #224922;
+  --color-border-hover: #0df20d;
+  
+  font-family: 'Courier New', monospace;
+  line-height: 1.5;
+  font-weight: 400;
+  
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  background-image: 
+    linear-gradient(rgba(13, 242, 13, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 242, 13, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-secondary);
+  border: 1px solid var(--color-border);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Brutalist button styles */
+.btn-brutalist {
+  @apply border-2 border-green-500 bg-transparent text-green-400 font-mono uppercase tracking-wider;
+  @apply hover:bg-green-500 hover:text-black transition-all duration-200;
+  @apply active:transform active:scale-95;
+}
+
+/* Neon glow effect */
+.neon-glow {
+  box-shadow: 0 0 10px rgba(13, 242, 13, 0.5), 0 0 20px rgba(13, 242, 13, 0.3);
+}
+
+.neon-glow-strong {
+  box-shadow: 0 0 20px rgba(13, 242, 13, 0.7), 0 0 40px rgba(13, 242, 13, 0.5);
+}
+
+/* Grid pattern overlay */
+.grid-overlay {
+  position: relative;
+}
+
+.grid-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(13, 242, 13, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 242, 13, 0.1) 1px, transparent 1px);
+  background-size: 10px 10px;
+  pointer-events: none;
+  z-index: 1;
+}
