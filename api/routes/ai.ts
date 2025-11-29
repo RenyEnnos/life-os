@@ -48,7 +48,7 @@ router.post('/daily-summary', authenticateToken, async (req: AuthRequest, res: R
   if (!date) return res.status(400).json({ error: 'date required' })
   try {
     const { data: entries } = await supabase.from('journal_entries').select('content').eq('user_id', req.user!.id).eq('entry_date', date)
-    const content = (entries ?? []).map(e => e.content).join('\n')
+    const content = (entries ?? []).map((e: any) => e.content).join('\n')
     const text = await aiService.callGroq(req.user!.id, 'daily-summary', [
       { role: 'system', content: 'Resuma o dia em 3–5 bullet points curtos em português.' },
       { role: 'user', content }

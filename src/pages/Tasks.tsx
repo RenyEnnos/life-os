@@ -1,120 +1,224 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
+import { Plus, Calendar, Tag, CheckCircle, Circle, Trash2 } from 'lucide-react'
 import { apiFetch } from '../lib/api'
-import { Input } from '../components/ui/Input'
-import Button from '../components/ui/Button'
-import SectionTitle from '../components/ui/SectionTitle'
-import { Task } from '../../shared/types'
+
+interface Task {
+  id: string
+  title: string
+  description: string
+  due_date: string
+  completed: boolean
+  tags: string[]
+  projects?: {
+    name: string
+    color: string
+  }
+}
 
 const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [title, setTitle] = useState('')
-  const [dueDate, setDueDate] = useState('')
-  const [page, setPage] = useState(1)
+  const [showNewTaskForm, setShowNewTaskForm] = useState(false)
+  const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    due_date: new Date().toISOString().split('T')[0],
+    tags: ''
+  })
 
-  const load = async () => {
+  useEffect(() => {
+    fetchTasks()
+  }, [])
+
+  const fetchTasks = async () => {
     try {
-      setLoading(true)
-      const data = await apiFetch(`/api/tasks?page=${page}&pageSize=20`)
-      setTasks(data)
-      setError(null)
-    } catch (e: any) {
-      setError(e.message)
+      const data = await apiFetch('/api/tasks')
+      if (data.success) {
+        setTasks(data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching tasks:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => { load() }, [page])
-
-  const createTask = async (e: React.FormEvent) => {
+  const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title.trim()) return
     try {
-      await apiFetch('/api/tasks', {
+      const tagsArray = newTask.tags.split(',').map(t => t.trim()).filter(t => t)
+
+      const data = await apiFetch('/api/tasks', {
         method: 'POST',
-        body: JSON.stringify({ title, due_date: dueDate || null, tags: [] })
+        body: JSON.stringify({
+          ...newTask,
+          tags: tagsArray
+        })
       })
-      setTitle('')
-      setDueDate('')
-      await load()
-    } catch (e: any) {
-      setError(e.message)
+
+      if (data.success) {
+        fetchTasks() // Refresh to get project details if needed, or just append
+        setShowNewTaskForm(false)
+        setNewTask({
+          title: '',
+          description: '',
+          due_date: new Date().toISOString().split('T')[0],
+          tags: ''
+        })
+      }
+    } catch (error) {
+      console.error('Error creating task:', error)
     }
   }
 
-  const toggleComplete = async (task: Task) => {
+  const toggleTaskCompletion = async (id: string, currentStatus: boolean) => {
     try {
-      await apiFetch(`/api/tasks/${task.id}`, {
+      const data = await apiFetch(`/api/tasks/${id}`, {
         method: 'PUT',
-        body: JSON.stringify({ completed: !task.completed })
+        body: JSON.stringify({ completed: !currentStatus })
       })
-      await load()
-    } catch (e: any) {
-      setError(e.message)
+
+      if (data.success) {
+        setTasks(tasks.map(t => t.id === id ? { ...t, completed: !currentStatus } : t))
+      }
+    } catch (error) {
+      console.error('Error updating task:', error)
     }
   }
 
-  const removeTask = async (task: Task) => {
+  const handleDeleteTask = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir esta tarefa?')) return
     try {
-      await apiFetch(`/api/tasks/${task.id}`, { method: 'DELETE' })
-      await load()
-    } catch (e: any) {
-      setError(e.message)
+      const data = await apiFetch(`/api/tasks/${id}`, {
+        method: 'DELETE'
+      })
+
+      if (data.success) {
+        setTasks(tasks.filter(t => t.id !== id))
+      }
+    } catch (error) {
+      console.error('Error deleting task:', error)
     }
   }
 
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto">
-        <SectionTitle className="text-3xl mb-4">TAREFAS & CALENDÁRIO</SectionTitle>
-        {error && <div className="border border-red-600 text-red-400 p-3 mb-4 font-mono">{error}</div>}
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-green-400 font-mono">TAREFAS</h1>
+          <button
+            onClick={() => setShowNewTaskForm(!showNewTaskForm)}
+            className="btn-brutalist px-4 py-2 flex items-center gap-2"
+          >
+            <Plus size={20} />
+            NOVA TAREFA
+          </button>
+        </div>
 
-        <form onSubmit={createTask} className="border border-green-700 p-4 mb-6 bg-black/40">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Input
-              placeholder="Título da tarefa"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <Input
-              type="datetime-local"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-            />
-            <Button type="submit">Nova tarefa</Button>
-          </div>
-        </form>
-        {loading ? (
-          <div className="text-gray-400">Carregando...</div>
-        ) : (
-          <ul className="space-y-2">
-            {tasks.map(t => (
-              <li key={t.id} className="flex items-center justify-between border border-green-700 p-3 bg-black/40">
+        {showNewTaskForm && (
+          <Card className="border-green-500/50">
+            <CardHeader>
+              <CardTitle>Nova Tarefa</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleCreateTask} className="space-y-4">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => toggleComplete(t)}
-                      className={`w-4 h-4 border ${t.completed ? 'bg-green-500 border-green-500' : 'border-green-600'} mr-2`}
-                      aria-label="Completar"
+                  <label className="block text-sm font-mono text-gray-400 mb-1">Título</label>
+                  <input
+                    type="text"
+                    value={newTask.title}
+                    onChange={e => setNewTask({ ...newTask, title: e.target.value })}
+                    className="w-full bg-black border border-green-900 focus:border-green-400 text-white p-2 rounded font-mono"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-mono text-gray-400 mb-1">Data</label>
+                    <input
+                      type="date"
+                      value={newTask.due_date}
+                      onChange={e => setNewTask({ ...newTask, due_date: e.target.value })}
+                      className="w-full bg-black border border-green-900 focus:border-green-400 text-white p-2 rounded font-mono"
                     />
-                    <span className={`font-mono ${t.completed ? 'line-through text-green-700' : 'text-green-300'}`}>{t.title}</span>
                   </div>
-                  {t.due_date && (
-                    <div className="text-xs text-gray-400 mt-1 font-mono">{new Date(t.due_date).toLocaleString('pt-BR')}</div>
+                  <div>
+                    <label className="block text-sm font-mono text-gray-400 mb-1">Tags (sep. por vírgula)</label>
+                    <input
+                      type="text"
+                      value={newTask.tags}
+                      onChange={e => setNewTask({ ...newTask, tags: e.target.value })}
+                      className="w-full bg-black border border-green-900 focus:border-green-400 text-white p-2 rounded font-mono"
+                      placeholder="trabalho, urgente"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowNewTaskForm(false)}
+                    className="px-4 py-2 text-gray-400 hover:text-white font-mono"
+                  >
+                    CANCELAR
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-brutalist px-4 py-2"
+                  >
+                    SALVAR
+                  </button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="space-y-2">
+          {tasks.map(task => (
+            <div
+              key={task.id}
+              className={`flex items-center gap-4 p-4 border rounded transition-all ${task.completed
+                ? 'border-gray-800 bg-gray-900/20 opacity-60'
+                : 'border-gray-700 hover:border-green-400 bg-black'
+                }`}
+            >
+              <button
+                onClick={() => toggleTaskCompletion(task.id, task.completed)}
+                className={`text-green-400 hover:scale-110 transition-transform`}
+              >
+                {task.completed ? <CheckCircle size={24} /> : <Circle size={24} />}
+              </button>
+
+              <div className="flex-1">
+                <h3 className={`font-mono text-lg ${task.completed ? 'line-through text-gray-500' : 'text-white'}`}>
+                  {task.title}
+                </h3>
+                <div className="flex items-center gap-4 mt-1 text-xs text-gray-400 font-mono">
+                  {task.due_date && (
+                    <span className="flex items-center gap-1">
+                      <Calendar size={12} />
+                      {new Date(task.due_date).toLocaleDateString()}
+                    </span>
+                  )}
+                  {task.tags && task.tags.length > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Tag size={12} />
+                      {task.tags.join(', ')}
+                    </span>
                   )}
                 </div>
-                <Button variant="danger" onClick={() => removeTask(t)}>Remover</Button>
-              </li>
-            ))}
-          </ul>
-        )}
-        <div className="flex justify-between mt-4">
-          <Button onClick={()=> setPage(Math.max(1, page-1))}>Anterior</Button>
-          <div className="text-green-300 font-mono">Página {page}</div>
-          <Button onClick={()=> setPage(page+1)}>Próxima</Button>
+              </div>
+
+              <button
+                onClick={() => handleDeleteTask(task.id)}
+                className="text-gray-600 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+              >
+                <Trash2 size={18} />
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     </Layout>

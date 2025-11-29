@@ -1,6 +1,7 @@
 import { Router, type Response } from 'express'
 import { authenticateToken, AuthRequest } from '../middleware/auth'
 import { supabase } from '../lib/supabase'
+// @ts-ignore
 import { Parser } from 'json2csv'
 
 const router = Router()

@@ -1,6 +1,6 @@
 import request from 'supertest'
 import { describe, it, expect, beforeAll } from 'vitest'
-import app from '../app'
+import app from '../app.ts'
 import jwt from 'jsonwebtoken'
 
 const token = jwt.sign({ userId: 'u1', email: 'user@example.com' }, 'your-secret-key')
