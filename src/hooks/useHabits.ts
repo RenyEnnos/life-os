@@ -1,64 +1,58 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiClient } from '../lib/api-client'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
+import { apiFetch } from '@/lib/api';
+import { Habit } from '@/shared/types';
 
-export interface Habit {
-    id: string
-    user_id: string
-    title: string
-    description?: string
-    schedule: { frequency: 'daily' | 'weekly'; days?: number[] }
-    type: 'binary' | 'metric'
-    goal?: number
-    active: boolean
-    created_at: string
-}
+export function useHabits() {
+    const { user } = useAuth();
+    const queryClient = useQueryClient();
 
-export function useHabits(filters?: any) {
-    const queryClient = useQueryClient()
-    const queryKey = ['habits', filters]
+    const { data: habits, isLoading } = useQuery({
+        queryKey: ['habits', user?.id],
+        queryFn: async () => {
+            return apiFetch('/api/habits');
+        },
+        enabled: !!user,
+    });
 
-    const query = useQuery({
-        queryKey,
-        queryFn: () => apiClient.get(`/api/habits?${new URLSearchParams(filters).toString()}`),
-    })
+    const { data: logs } = useQuery({
+        queryKey: ['habit-logs', user?.id],
+        queryFn: async () => {
+            const today = new Date().toISOString().split('T')[0];
+            return apiFetch(`/api/habits/logs?date=${today}`);
+        },
+        enabled: !!user,
+    });
 
     const createHabit = useMutation({
-        mutationFn: (newHabit: Partial<Habit>) => apiClient.post('/api/habits', newHabit),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['habits'] })
+        mutationFn: async (newHabit: Partial<Habit>) => {
+            return apiFetch('/api/habits', {
+                method: 'POST',
+                body: JSON.stringify(newHabit),
+            });
         },
-    })
-
-    const updateHabit = useMutation({
-        mutationFn: ({ id, ...updates }: { id: string } & Partial<Habit>) =>
-            apiClient.put(`/api/habits/${id}`, updates),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['habits'] })
+            queryClient.invalidateQueries({ queryKey: ['habits'] });
         },
-    })
-
-    const deleteHabit = useMutation({
-        mutationFn: (id: string) => apiClient.delete(`/api/habits/${id}`),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['habits'] })
-        },
-    })
+    });
 
     const logHabit = useMutation({
-        mutationFn: ({ id, value, date }: { id: string; value: number; date: string }) =>
-            apiClient.post(`/api/habits/${id}/log`, { value, date }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['habits', 'logs'] })
+        mutationFn: async ({ id, value, date }: { id: string; value: number; date: string }) => {
+            return apiFetch(`/api/habits/${id}/log`, {
+                method: 'POST',
+                body: JSON.stringify({ value, date }),
+            });
         },
-    })
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['habit-logs'] });
+        },
+    });
 
     return {
-        habits: query.data as Habit[] | undefined,
-        isLoading: query.isLoading,
-        error: query.error,
+        habits,
+        logs,
+        isLoading,
         createHabit,
-        updateHabit,
-        deleteHabit,
         logHabit,
-    }
+    };
 }

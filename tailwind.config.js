@@ -14,13 +14,20 @@ export default {
     extend: {
       colors: {
         background: "#0a0f0a",
+        surface: "#111a11",
+        muted: "#1a2f1a",
         primary: {
           DEFAULT: "#0df20d",
           dark: "#102310",
+          foreground: "#0a0f0a",
         },
-        secondary: "#224922",
+        secondary: {
+          DEFAULT: "#224922",
+          foreground: "#0df20d",
+        },
         border: "#224922",
         "border-hover": "#0df20d",
+        destructive: "#ff4444",
       },
       fontFamily: {
         mono: ["Courier New", "monospace"],

@@ -1,23 +1,56 @@
-import { repoFactory, type BaseRepo } from '../repositories/factory'
-import type { JournalEntry } from '../../shared/types'
+import { supabase } from '../lib/supabase'
 
-import { getPagination } from '../lib/pagination'
+export const journalService = {
+  async list(userId: string, query: any) {
+    const { date } = query
+    let q = supabase
+      .from('journal_entries')
+      .select('*')
+      .eq('user_id', userId)
+      .order('entry_date', { ascending: false })
 
-export class JournalService {
-  private repo: BaseRepo<JournalEntry>
-  constructor(repo?: BaseRepo<JournalEntry>) { this.repo = repo ?? repoFactory.get('journal_entries') }
-  async list(userId: string, filters: any = {}) {
-    const data = await this.repo.list(userId)
-    if (process.env.NODE_ENV === 'test') return data
-    const { from, to } = getPagination(filters)
-    return data.slice(from, to + 1)
+    if (date) {
+      q = q.eq('entry_date', date)
+    }
+
+    const { data, error } = await q
+
+    if (error) throw error
+    return data
+  },
+
+  async create(userId: string, payload: any) {
+    const { data, error } = await supabase
+      .from('journal_entries')
+      .insert([{ ...payload, user_id: userId }])
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  async update(userId: string, id: string, payload: any) {
+    const { data, error } = await supabase
+      .from('journal_entries')
+      .update(payload)
+      .eq('id', id)
+      .eq('user_id', userId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  async remove(userId: string, id: string) {
+    const { error } = await supabase
+      .from('journal_entries')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', userId)
+
+    if (error) throw error
+    return true
   }
-  async create(userId: string, payload: Partial<JournalEntry>) {
-    if (!payload.entry_date) throw new Error('Entry date is required')
-    return this.repo.create(userId, { ...payload, tags: payload.tags ?? [] })
-  }
-  update(userId: string, id: string, payload: Partial<JournalEntry>) { return this.repo.update(userId, id, payload) }
-  remove(userId: string, id: string) { return this.repo.remove(userId, id) }
 }
-
-export const journalService = new JournalService()

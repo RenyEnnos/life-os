@@ -29,18 +29,25 @@ router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response)
 
 // SWOT entries
 router.get('/:id/swot', authenticateToken, async (req: AuthRequest, res: Response) => {
-  const data = await projectsService.listSwot(req.user!.id, req.params.id)
-  res.json(data)
+  try {
+    const data = await projectsService.listSwot(req.user!.id, req.params.id)
+    res.json(data)
+  } catch (e: any) {
+    res.status(404).json({ error: e.message })
+  }
 })
+
 router.post('/:id/swot', authenticateToken, async (req: AuthRequest, res: Response) => {
   try { const data = await projectsService.addSwot(req.user!.id, req.params.id, req.body || {}); res.status(201).json(data) }
   catch (e: any) { res.status(400).json({ error: e.message }) }
 })
+
 router.put('/swot/:swotId', authenticateToken, async (req: AuthRequest, res: Response) => {
   const data = await projectsService.updateSwot(req.user!.id, req.params.swotId, req.body || {})
   if (!data) return res.status(404).json({ error: 'SWOT not found' })
   res.json(data)
 })
+
 router.delete('/swot/:swotId', authenticateToken, async (req: AuthRequest, res: Response) => {
   const ok = await projectsService.removeSwot(req.user!.id, req.params.swotId)
   if (!ok) return res.status(404).json({ error: 'SWOT not found' })

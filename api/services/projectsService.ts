@@ -1,37 +1,121 @@
-import { repoFactory, type BaseRepo } from '../repositories/factory'
-import type { Project } from '../../shared/types'
+import { supabase } from '../lib/supabase'
 
-import { getPagination } from '../lib/pagination'
+export const projectsService = {
+  async list(userId: string, query: any) {
+    const { status, limit } = query
+    let q = supabase
+      .from('projects')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
 
-export interface SWOTEntry { id: string; project_id: string; category: 'strength' | 'weakness' | 'opportunity' | 'threat'; content: string; created_at: string }
+    if (status) q = q.eq('active', status === 'active')
+    if (limit) q = q.limit(Number(limit))
 
-export class ProjectsService {
-  private repo: BaseRepo<Project>
-  private swot: BaseRepo<SWOTEntry>
-  constructor(projectRepo?: BaseRepo<Project>, swotRepo?: BaseRepo<SWOTEntry>) {
-    this.repo = projectRepo ?? repoFactory.get('projects')
-    this.swot = swotRepo ?? repoFactory.get('swot_entries')
-  }
-  async list(userId: string, filters: any = {}) {
-    const data = await this.repo.list(userId)
-    if (process.env.NODE_ENV === 'test') return data
-    const { from, to } = getPagination(filters)
-    return data.slice(from, to + 1)
-  }
-  async create(userId: string, payload: Partial<Project>) {
-    if (!payload.name) throw new Error('name is required')
-    return this.repo.create(userId, { ...payload, active: true, tags: payload.tags ?? [], area_of_life: payload.area_of_life ?? [] })
-  }
-  update(userId: string, id: string, payload: Partial<Project>) { return this.repo.update(userId, id, payload) }
-  remove(userId: string, id: string) { return this.repo.remove(userId, id) }
+    const { data, error } = await q
+    if (error) throw error
+    return data
+  },
 
-  listSwot(userId: string, projectId: string) { return this.swot.list(userId).then(items => items.filter(i => i.project_id === projectId)) }
-  addSwot(userId: string, projectId: string, payload: Partial<SWOTEntry>) {
-    if (!payload.category || !payload.content) throw new Error('category and content required')
-    return this.swot.create(userId, { ...payload, project_id: projectId })
+  async create(userId: string, payload: any) {
+    const { data, error } = await supabase
+      .from('projects')
+      .insert([{ ...payload, user_id: userId }])
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  async update(userId: string, id: string, payload: any) {
+    const { data, error } = await supabase
+      .from('projects')
+      .update(payload)
+      .eq('id', id)
+      .eq('user_id', userId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  async remove(userId: string, id: string) {
+    const { error } = await supabase
+      .from('projects')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', userId)
+
+    if (error) throw error
+    return true
+  },
+
+  // SWOT
+  async listSwot(userId: string, projectId: string) {
+    // Verify project ownership first
+    const { data: project } = await supabase
+      .from('projects')
+      .select('id')
+      .eq('id', projectId)
+      .eq('user_id', userId)
+      .single()
+
+    if (!project) throw new Error('Project not found or access denied')
+
+    const { data, error } = await supabase
+      .from('swot_entries')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('created_at', { ascending: true })
+
+    if (error) throw error
+    return data
+  },
+
+  async addSwot(userId: string, projectId: string, payload: any) {
+    // Verify project ownership
+    const { data: project } = await supabase
+      .from('projects')
+      .select('id')
+      .eq('id', projectId)
+      .eq('user_id', userId)
+      .single()
+
+    if (!project) throw new Error('Project not found or access denied')
+
+    const { data, error } = await supabase
+      .from('swot_entries')
+      .insert([{ ...payload, project_id: projectId }])
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  async updateSwot(userId: string, swotId: string, payload: any) {
+    // RLS handles permission check via project_id join, but we can double check if needed.
+    // For simplicity rely on RLS policies defined in migration.
+    const { data, error } = await supabase
+      .from('swot_entries')
+      .update(payload)
+      .eq('id', swotId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  async removeSwot(userId: string, swotId: string) {
+    const { error } = await supabase
+      .from('swot_entries')
+      .delete()
+      .eq('id', swotId)
+
+    if (error) throw error
+    return true
   }
-  updateSwot(userId: string, id: string, payload: Partial<SWOTEntry>) { return this.swot.update(userId, id, payload) }
-  removeSwot(userId: string, id: string) { return this.swot.remove(userId, id) }
 }
-
-export const projectsService = new ProjectsService()

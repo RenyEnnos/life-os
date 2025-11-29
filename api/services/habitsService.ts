@@ -1,56 +1,101 @@
-import { repoFactory, type BaseRepo } from '../repositories/factory'
-import type { Habit, HabitLog } from '../../shared/types'
+import { supabase } from '../lib/supabase'
+import { Habit } from '../../shared/types'
 
-import { getPagination } from '../lib/pagination'
+export const habitsService = {
+  async list(userId: string, query: any) {
+    const { data, error } = await supabase
+      .from('habits')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true })
 
-export class HabitsService {
-  private repo: BaseRepo<Habit>
-  private logsRepo: BaseRepo<HabitLog>
-  constructor(repo?: BaseRepo<Habit>, logsRepo?: BaseRepo<HabitLog>) {
-    this.repo = repo ?? repoFactory.get('habits')
-    this.logsRepo = logsRepo ?? repoFactory.get('habit_logs')
-  }
-  async list(userId: string, filters: any = {}) {
-    const data = await this.repo.list(userId)
-    if (process.env.NODE_ENV === 'test') return data
+    if (error) throw error
+    return data
+  },
 
-    const { from, to } = getPagination(filters)
-    return data.slice(from, to + 1)
-  }
-  async create(userId: string, payload: Partial<Habit>) {
-    if (!payload.title) throw new Error('Title is required')
-    const schedule = payload.schedule ?? { frequency: 'daily' }
-    const type = payload.type ?? 'binary'
-    const goal = payload.goal ?? 1
-    return this.repo.create(userId, { ...payload, schedule, type, goal, active: true })
-  }
-  update(userId: string, id: string, payload: Partial<Habit>) { return this.repo.update(userId, id, payload) }
-  remove(userId: string, id: string) { return this.repo.remove(userId, id) }
+  async create(userId: string, payload: any) {
+    const { data, error } = await supabase
+      .from('habits')
+      .insert([{ ...payload, user_id: userId }])
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  async update(userId: string, id: string, payload: any) {
+    const { data, error } = await supabase
+      .from('habits')
+      .update(payload)
+      .eq('id', id)
+      .eq('user_id', userId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  async remove(userId: string, id: string) {
+    const { error } = await supabase
+      .from('habits')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', userId)
+
+    if (error) throw error
+    return true
+  },
+
+  async getLogs(userId: string, query: any) {
+    const { date } = query
+    let q = supabase.from('habit_logs').select('*').eq('user_id', userId)
+
+    if (date) {
+      q = q.eq('logged_date', date)
+    }
+
+    const { data, error } = await q
+
+    if (error) throw error
+    return data
+  },
 
   async log(userId: string, habitId: string, value: number, date: string) {
-    // Check if habit exists
-    // const habit = await this.repo.list(userId).then(list => list.find(h => h.id === habitId))
-    // if (!habit) throw new Error('Habit not found')
+    // Check if log exists
+    const { data: existing } = await supabase
+      .from('habit_logs')
+      .select('*')
+      .eq('habit_id', habitId)
+      .eq('logged_date', date)
+      .single()
 
-    // Check if log already exists for this date? For now just insert.
-    // Ideally we should update if exists, but BaseRepo doesn't support complex queries easily.
-    // We'll just create a new log entry.
-    return this.logsRepo.create(userId, { habit_id: habitId, value, date })
-  }
-
-  async getLogs(userId: string, filters: any = {}) {
-    const logs = await this.logsRepo.list(userId)
-    // Filter by date range if provided
-    const { startDate, endDate } = filters
-    if (startDate || endDate) {
-      return logs.filter(l => {
-        if (startDate && l.date < startDate) return false
-        if (endDate && l.date > endDate) return false
-        return true
-      })
+    if (existing) {
+      // Update or delete if value is 0 (toggle off)
+      if (value === 0) {
+        await supabase.from('habit_logs').delete().eq('id', existing.id)
+        return null
+      } else {
+        const { data, error } = await supabase
+          .from('habit_logs')
+          .update({ value })
+          .eq('id', existing.id)
+          .select()
+          .single()
+        if (error) throw error
+        return data
+      }
+    } else {
+      // Create
+      if (value === 0) return null
+      const { data, error } = await supabase
+        .from('habit_logs')
+        .insert([{ habit_id: habitId, user_id: userId, value, logged_date: date }])
+        .select()
+        .single()
+      if (error) throw error
+      return data
     }
-    return logs
   }
 }
-
-export const habitsService = new HabitsService()

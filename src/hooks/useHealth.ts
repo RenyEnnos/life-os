@@ -1,35 +1,81 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiClient } from '../lib/api-client'
-import { HealthMetric } from '../../shared/types'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
+import { apiFetch } from '@/lib/api';
 
-export function useHealth(filters?: any) {
-    const queryClient = useQueryClient()
-    const queryKey = ['health', filters]
+export function useHealth() {
+    const { user } = useAuth();
+    const queryClient = useQueryClient();
 
-    const query = useQuery({
-        queryKey,
-        queryFn: () => apiClient.get(`/api/health?${new URLSearchParams(filters).toString()}`),
-    })
+    const { data: metrics, isLoading: loadingMetrics } = useQuery({
+        queryKey: ['health-metrics', user?.id],
+        queryFn: async () => {
+            return apiFetch('/api/health');
+        },
+        enabled: !!user,
+    });
+
+    const { data: medications, isLoading: loadingMedications } = useQuery({
+        queryKey: ['medications', user?.id],
+        queryFn: async () => {
+            return apiFetch('/api/health/medications');
+        },
+        enabled: !!user,
+    });
 
     const createMetric = useMutation({
-        mutationFn: (newMetric: Partial<HealthMetric>) => apiClient.post('/api/health', newMetric),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['health'] })
+        mutationFn: async (data: any) => {
+            return apiFetch('/api/health', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
         },
-    })
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['health-metrics'] });
+        },
+    });
 
-    const deleteMetric = useMutation({
-        mutationFn: (id: string) => apiClient.delete(`/api/health/${id}`),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['health'] })
+    const createMedication = useMutation({
+        mutationFn: async (data: any) => {
+            return apiFetch('/api/health/medications', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
         },
-    })
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['medications'] });
+        },
+    });
+
+    const updateMedication = useMutation({
+        mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
+            return apiFetch(`/api/health/medications/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(updates),
+            });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['medications'] });
+        },
+    });
+
+    const deleteMedication = useMutation({
+        mutationFn: async (id: string) => {
+            return apiFetch(`/api/health/medications/${id}`, {
+                method: 'DELETE',
+            });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['medications'] });
+        },
+    });
 
     return {
-        metrics: query.data as HealthMetric[] | undefined,
-        isLoading: query.isLoading,
-        error: query.error,
+        metrics,
+        medications,
+        isLoading: loadingMetrics || loadingMedications,
         createMetric,
-        deleteMetric,
-    }
+        createMedication,
+        updateMedication,
+        deleteMedication,
+    };
 }

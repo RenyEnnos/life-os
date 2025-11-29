@@ -185,4 +185,38 @@ router.get('/verify', async (req: Request, res: Response): Promise<void> => {
   }
 })
 
+/**
+ * Update Profile
+ * PUT /api/auth/profile
+ */
+router.put('/profile', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization
+    const token = authHeader && authHeader.split(' ')[1]
+    if (!token) {
+      res.status(401).json({ error: 'Access token required' })
+      return
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const { preferences } = req.body
+
+    const { data: user, error } = await supabase
+      .from('users')
+      .update({ preferences })
+      .eq('id', decoded.userId)
+      .select()
+      .single()
+
+    if (error) {
+      res.status(500).json({ error: 'Failed to update profile' })
+      return
+    }
+
+    res.json(user)
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 export default router

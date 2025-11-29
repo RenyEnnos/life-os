@@ -1,13 +1,40 @@
-import React from 'react'
+import { HTMLAttributes, forwardRef } from 'react';
+import { cn } from '@/lib/utils';
 
-type Props = { children: React.ReactNode; color?: 'green'|'gray'|'red' } & React.HTMLAttributes<HTMLSpanElement>
-
-export default function Tag({ children, color='green', className='', ...props }: Props) {
-  const base = 'inline-flex items-center px-2 py-1 text-xs font-mono border '
-  const variants: Record<string,string> = {
-    green: 'border-green-700 text-green-400',
-    gray: 'border-gray-700 text-gray-400',
-    red: 'border-red-700 text-red-400'
-  }
-  return <span {...props} className={`${base}${variants[color]} ${className}`.trim()}>{children}</span>
+interface TagProps extends HTMLAttributes<HTMLSpanElement> {
+  variant?: 'default' | 'outline' | 'success' | 'warning' | 'error';
+  size?: 'sm' | 'md';
 }
+
+const Tag = forwardRef<HTMLSpanElement, TagProps>(
+  ({ className, variant = 'default', size = 'md', ...props }, ref) => {
+    const variants = {
+      default: 'bg-muted text-primary border-transparent',
+      outline: 'text-primary border-primary',
+      success: 'bg-green-900/30 text-green-400 border-green-900',
+      warning: 'bg-yellow-900/30 text-yellow-400 border-yellow-900',
+      error: 'bg-red-900/30 text-red-400 border-red-900',
+    };
+
+    const sizes = {
+      sm: 'px-2 py-0.5 text-[10px]',
+      md: 'px-2.5 py-0.5 text-xs',
+    };
+
+    return (
+      <span
+        ref={ref}
+        className={cn(
+          'inline-flex items-center rounded-full border font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 font-mono',
+          variants[variant],
+          sizes[size],
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+);
+Tag.displayName = 'Tag';
+
+export { Tag };

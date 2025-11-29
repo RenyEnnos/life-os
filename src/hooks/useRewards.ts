@@ -1,44 +1,64 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiClient } from '../lib/api-client'
-import { Reward } from '../../shared/types'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
+import { apiFetch } from '@/lib/api';
 
 export function useRewards() {
-    const queryClient = useQueryClient()
-    const queryKey = ['rewards']
+    const { user } = useAuth();
+    const queryClient = useQueryClient();
 
-    const query = useQuery({
-        queryKey,
-        queryFn: () => apiClient.get('/api/rewards'),
-    })
+    const { data: rewards, isLoading: loadingRewards } = useQuery({
+        queryKey: ['rewards', user?.id],
+        queryFn: async () => {
+            return apiFetch('/api/rewards');
+        },
+        enabled: !!user,
+    });
+
+    const { data: achievements, isLoading: loadingAchievements } = useQuery({
+        queryKey: ['achievements', user?.id],
+        queryFn: async () => {
+            return apiFetch('/api/rewards/achievements');
+        },
+        enabled: !!user,
+    });
+
+    const { data: lifeScore, isLoading: loadingScore } = useQuery({
+        queryKey: ['life-score', user?.id],
+        queryFn: async () => {
+            return apiFetch('/api/rewards/score');
+        },
+        enabled: !!user,
+    });
 
     const createReward = useMutation({
-        mutationFn: (newReward: Partial<Reward>) => apiClient.post('/api/rewards', newReward),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey })
+        mutationFn: async (data: any) => {
+            return apiFetch('/api/rewards', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
         },
-    })
-
-    const updateReward = useMutation({
-        mutationFn: ({ id, ...updates }: { id: string } & Partial<Reward>) =>
-            apiClient.put(`/api/rewards/${id}`, updates),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey })
+            queryClient.invalidateQueries({ queryKey: ['rewards'] });
         },
-    })
+    });
 
     const deleteReward = useMutation({
-        mutationFn: (id: string) => apiClient.delete(`/api/rewards/${id}`),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey })
+        mutationFn: async (id: string) => {
+            return apiFetch(`/api/rewards/${id}`, {
+                method: 'DELETE',
+            });
         },
-    })
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['rewards'] });
+        },
+    });
 
     return {
-        rewards: query.data as Reward[] | undefined,
-        isLoading: query.isLoading,
-        error: query.error,
+        rewards,
+        achievements,
+        lifeScore,
+        isLoading: loadingRewards || loadingAchievements || loadingScore,
         createReward,
-        updateReward,
         deleteReward,
-    }
+    };
 }

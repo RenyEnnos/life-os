@@ -7,13 +7,14 @@ import express, {
 import cors from 'cors'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import authRoutes from './routes/auth.js'
-import habitsRoutes from './routes/habits.js'
-import tasksRoutes from './routes/tasks.js'
-import financesRoutes from './routes/finances.js'
-import healthRoutes from './routes/health.js'
-import aiRoutes from './routes/ai.js'
-import exportRoutes from './routes/export.js'
+import authRoutes from './routes/auth'
+import habitsRoutes from './routes/habits'
+import tasksRoutes from './routes/tasks'
+import financesRoutes from './routes/finances'
+import healthRoutes from './routes/health'
+import aiRoutes from './routes/ai'
+import exportRoutes from './routes/export'
+import journalRoutes from './routes/journal'
 
 // for esm mode
 const __filename = fileURLToPath(import.meta.url)
@@ -35,19 +36,9 @@ app.use('/api/finances', financesRoutes)
 app.use('/api/health', healthRoutes)
 app.use('/api/ai', aiRoutes)
 app.use('/api/export', exportRoutes)
+app.use('/api/journal', journalRoutes)
 
-/**
- * health
- */
-app.use(
-  '/api/health',
-  (req: Request, res: Response, next: NextFunction): void => {
-    res.status(200).json({
-      success: true,
-      message: 'ok',
-    })
-  },
-)
+
 
 /**
  * error handler middleware

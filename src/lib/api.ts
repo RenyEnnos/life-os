@@ -1,15 +1,20 @@
-export async function apiFetch(path: string, init: RequestInit = {}) {
-  const token = localStorage.getItem('token')
-  const headers: Record<string, string> = {
+export async function apiFetch<T = any>(url: string, options: RequestInit = {}): Promise<T> {
+  const token = localStorage.getItem('token');
+  const headers = {
     'Content-Type': 'application/json',
-    ...(init.headers as Record<string, string> || {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...options.headers,
+  };
+
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(error.error || `Request failed with status ${response.status}`);
   }
-  if (token) headers['Authorization'] = `Bearer ${token}`
-  const res = await fetch(path, { ...init, headers })
-  if (!res.ok) {
-    let msg = 'Request failed'
-    try { const body = await res.json(); msg = body.error || msg } catch {}
-    throw new Error(msg)
-  }
-  return res.json()
+
+  return response.json();
 }

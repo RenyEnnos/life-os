@@ -1,57 +1,60 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiClient } from '../lib/api-client'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
+import { apiFetch } from '@/lib/api';
+import { Task } from '@/shared/types';
 
-export interface Task {
-    id: string
-    user_id: string
-    title: string
-    description?: string
-    due_date?: string
-    priority: 'low' | 'medium' | 'high'
-    completed: boolean
-    tags: string[]
-    project_id?: string
-    created_at: string
-}
+export function useTasks() {
+    const { user } = useAuth();
+    const queryClient = useQueryClient();
 
-export function useTasks(filters?: any) {
-    const queryClient = useQueryClient()
-
-    const queryKey = ['tasks', filters]
-
-    const query = useQuery({
-        queryKey,
-        queryFn: () => apiClient.get(`/api/tasks?${new URLSearchParams(filters).toString()}`),
-    })
+    const { data: tasks, isLoading } = useQuery({
+        queryKey: ['tasks', user?.id],
+        queryFn: async () => {
+            return apiFetch('/api/tasks');
+        },
+        enabled: !!user,
+    });
 
     const createTask = useMutation({
-        mutationFn: (newTask: Partial<Task>) => apiClient.post('/api/tasks', newTask),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['tasks'] })
+        mutationFn: async (newTask: Partial<Task>) => {
+            return apiFetch('/api/tasks', {
+                method: 'POST',
+                body: JSON.stringify(newTask),
+            });
         },
-    })
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        },
+    });
 
     const updateTask = useMutation({
-        mutationFn: ({ id, ...updates }: { id: string } & Partial<Task>) =>
-            apiClient.put(`/api/tasks/${id}`, updates),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['tasks'] })
+        mutationFn: async ({ id, updates }: { id: string; updates: Partial<Task> }) => {
+            return apiFetch(`/api/tasks/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(updates),
+            });
         },
-    })
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        },
+    });
 
     const deleteTask = useMutation({
-        mutationFn: (id: string) => apiClient.delete(`/api/tasks/${id}`),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['tasks'] })
+        mutationFn: async (id: string) => {
+            return apiFetch(`/api/tasks/${id}`, {
+                method: 'DELETE',
+            });
         },
-    })
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        },
+    });
 
     return {
-        tasks: query.data as Task[] | undefined,
-        isLoading: query.isLoading,
-        error: query.error,
+        tasks,
+        isLoading,
         createTask,
         updateTask,
         deleteTask,
-    }
+    };
 }
