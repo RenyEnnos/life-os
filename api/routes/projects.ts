@@ -1,14 +1,13 @@
 import { Router, type Response } from 'express'
 import { authenticateToken, AuthRequest } from '../middleware/auth'
 import { projectsService } from '../services/projectsService'
-import { getPagination } from '../lib/pagination'
+
 
 const router = Router()
 
 router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
-  const data = await projectsService.list(req.user!.id)
-  const { from, to } = getPagination(req.query)
-  res.json(data.slice(from, to + 1))
+  const data = await projectsService.list(req.user!.id, req.query)
+  res.json(data)
 })
 
 router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {

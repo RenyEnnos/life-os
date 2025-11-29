@@ -1,106 +1,55 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Layout from '../components/Layout'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
-import { Plus, Check, X, Trash2 } from 'lucide-react'
-import { apiFetch } from '../lib/api'
-
-interface Habit {
-  id: string
-  title: string
-  description: string
-  type: 'binary' | 'numeric'
-  goal: number
-  schedule: any
-  active: boolean
-}
+import Button from '../components/ui/Button'
+import { Plus, Check, Trash2 } from 'lucide-react'
+import { useHabits } from '../hooks/useHabits'
 
 const Habits: React.FC = () => {
-  const [habits, setHabits] = useState<Habit[]>([])
-  const [loading, setLoading] = useState(true)
+  const { habits, isLoading, createHabit, deleteHabit, logHabit } = useHabits()
   const [showNewHabitForm, setShowNewHabitForm] = useState(false)
   const [newHabit, setNewHabit] = useState({ title: '', description: '', type: 'binary', goal: 1 })
 
-  useEffect(() => {
-    fetchHabits()
-  }, [])
-
-  const fetchHabits = async () => {
-    try {
-      const data = await apiFetch('/api/habits')
-      if (data.success) {
-        setHabits(data.data)
-      }
-    } catch (error) {
-      console.error('Error fetching habits:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const handleCreateHabit = async (e: React.FormEvent) => {
     e.preventDefault()
-    try {
-      const data = await apiFetch('/api/habits', {
-        method: 'POST',
-        body: JSON.stringify(newHabit)
-      })
-
-      if (data.success) {
-        setHabits([data.data, ...habits])
+    createHabit.mutate({
+      ...newHabit,
+      type: newHabit.type as 'binary' | 'metric',
+      active: true,
+      schedule: { frequency: 'daily' }
+    }, {
+      onSuccess: () => {
         setShowNewHabitForm(false)
         setNewHabit({ title: '', description: '', type: 'binary', goal: 1 })
       }
-    } catch (error) {
-      console.error('Error creating habit:', error)
-    }
+    })
   }
 
-  const handleDeleteHabit = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este hábito?')) return
-    try {
-      const data = await apiFetch(`/api/habits/${id}`, {
-        method: 'DELETE'
-      })
-
-      if (data.success) {
-        setHabits(habits.filter(h => h.id !== id))
-      }
-    } catch (error) {
-      console.error('Error deleting habit:', error)
-    }
+  const handleLogHabit = (id: string, value: number) => {
+    const today = new Date().toISOString().split('T')[0]
+    logHabit.mutate({ id, value, date: today }, {
+      onSuccess: () => alert('Hábito registrado!')
+    })
   }
 
-  const logHabit = async (id: string, value: number) => {
-    try {
-      const data = await apiFetch(`/api/habits/${id}/log`, {
-        method: 'POST',
-        body: JSON.stringify({ value, date: new Date().toISOString().split('T')[0] })
-      })
-
-      if (data.success) {
-        alert('Hábito registrado!')
-      }
-    } catch (error) {
-      console.error('Error logging habit:', error)
-    }
-  }
+  if (isLoading) return <Layout><div className="text-primary font-mono">Carregando hábitos...</div></Layout>
 
   return (
     <Layout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-green-400 font-mono">HÁBITOS</h1>
-          <button
+          <h1 className="text-3xl font-bold text-primary font-mono">HÁBITOS</h1>
+          <Button
             onClick={() => setShowNewHabitForm(!showNewHabitForm)}
-            className="btn-brutalist px-4 py-2 flex items-center gap-2"
+            className="flex items-center gap-2"
           >
             <Plus size={20} />
             NOVO HÁBITO
-          </button>
+          </Button>
         </div>
 
         {showNewHabitForm && (
-          <Card className="border-green-500/50">
+          <Card className="border-primary/50">
             <CardHeader>
               <CardTitle>Criar Novo Hábito</CardTitle>
             </CardHeader>
@@ -112,7 +61,7 @@ const Habits: React.FC = () => {
                     type="text"
                     value={newHabit.title}
                     onChange={e => setNewHabit({ ...newHabit, title: e.target.value })}
-                    className="w-full bg-black border border-green-900 focus:border-green-400 text-white p-2 rounded font-mono"
+                    className="w-full bg-black border border-secondary focus:border-primary text-white p-2 rounded font-mono outline-none"
                     required
                   />
                 </div>
@@ -122,23 +71,20 @@ const Habits: React.FC = () => {
                     type="text"
                     value={newHabit.description}
                     onChange={e => setNewHabit({ ...newHabit, description: e.target.value })}
-                    className="w-full bg-black border border-green-900 focus:border-green-400 text-white p-2 rounded font-mono"
+                    className="w-full bg-black border border-secondary focus:border-primary text-white p-2 rounded font-mono outline-none"
                   />
                 </div>
                 <div className="flex justify-end gap-2">
-                  <button
+                  <Button
                     type="button"
+                    variant="danger"
                     onClick={() => setShowNewHabitForm(false)}
-                    className="px-4 py-2 text-gray-400 hover:text-white font-mono"
                   >
                     CANCELAR
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn-brutalist px-4 py-2"
-                  >
+                  </Button>
+                  <Button type="submit">
                     SALVAR
-                  </button>
+                  </Button>
                 </div>
               </form>
             </CardContent>
@@ -146,12 +92,14 @@ const Habits: React.FC = () => {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {habits.map(habit => (
-            <Card key={habit.id} className="hover:border-green-400 transition-colors">
+          {habits?.map(habit => (
+            <Card key={habit.id} className="hover:border-primary transition-colors">
               <CardHeader className="flex flex-row justify-between items-start">
                 <CardTitle className="text-xl">{habit.title}</CardTitle>
                 <button
-                  onClick={() => handleDeleteHabit(habit.id)}
+                  onClick={() => {
+                    if (confirm('Tem certeza?')) deleteHabit.mutate(habit.id)
+                  }}
                   className="text-gray-600 hover:text-red-500 transition-colors"
                 >
                   <Trash2 size={16} />
@@ -164,8 +112,8 @@ const Habits: React.FC = () => {
                     {habit.type === 'binary' ? 'SIM/NÃO' : `META: ${habit.goal}`}
                   </div>
                   <button
-                    onClick={() => logHabit(habit.id, 1)}
-                    className="flex items-center gap-2 bg-green-900/30 hover:bg-green-900/50 text-green-400 px-3 py-1 rounded transition-colors"
+                    onClick={() => handleLogHabit(habit.id, 1)}
+                    className="flex items-center gap-2 bg-green-900/30 hover:bg-green-900/50 text-primary px-3 py-1 rounded transition-colors"
                   >
                     <Check size={16} />
                     MARCAR

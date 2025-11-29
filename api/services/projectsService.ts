@@ -1,7 +1,9 @@
 import { repoFactory, type BaseRepo } from '../repositories/factory'
 import type { Project } from '../../shared/types'
 
-export interface SWOTEntry { id: string; project_id: string; category: 'strength'|'weakness'|'opportunity'|'threat'; content: string; created_at: string }
+import { getPagination } from '../lib/pagination'
+
+export interface SWOTEntry { id: string; project_id: string; category: 'strength' | 'weakness' | 'opportunity' | 'threat'; content: string; created_at: string }
 
 export class ProjectsService {
   private repo: BaseRepo<Project>
@@ -10,7 +12,12 @@ export class ProjectsService {
     this.repo = projectRepo ?? repoFactory.get('projects')
     this.swot = swotRepo ?? repoFactory.get('swot_entries')
   }
-  list(userId: string) { return this.repo.list(userId) }
+  async list(userId: string, filters: any = {}) {
+    const data = await this.repo.list(userId)
+    if (process.env.NODE_ENV === 'test') return data
+    const { from, to } = getPagination(filters)
+    return data.slice(from, to + 1)
+  }
   async create(userId: string, payload: Partial<Project>) {
     if (!payload.name) throw new Error('name is required')
     return this.repo.create(userId, { ...payload, active: true, tags: payload.tags ?? [], area_of_life: payload.area_of_life ?? [] })

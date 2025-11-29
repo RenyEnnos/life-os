@@ -1,50 +1,92 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import Layout from '../components/Layout'
-import { apiFetch } from '../lib/api'
-import type { JournalEntry } from '../../shared/types'
 import { Input, TextArea } from '../components/ui/Input'
 import Button from '../components/ui/Button'
 import SectionTitle from '../components/ui/SectionTitle'
+import { useJournal } from '../hooks/useJournal'
+import { Sparkles } from 'lucide-react'
 
 const Journal: React.FC = () => {
-  const [entries, setEntries] = useState<JournalEntry[]>([])
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0,10))
+  const { entries, isLoading, createEntry, generateSummary } = useJournal()
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [content, setContent] = useState('')
   const [summary, setSummary] = useState<string>('')
-  const [error, setError] = useState<string|null>(null)
-  const load = async () => {
-    try { setEntries(await apiFetch('/api/journal')) } catch (e:any) { setError(e.message) }
-  }
-  useEffect(() => { load() }, [])
-  const createEntry = async (e: React.FormEvent) => {
+
+  const handleCreateEntry = async (e: React.FormEvent) => {
     e.preventDefault()
-    try { await apiFetch('/api/journal', { method: 'POST', body: JSON.stringify({ entry_date: date, content }) }); setContent(''); await load() } catch (e:any) { setError(e.message) }
+    createEntry.mutate({ entry_date: date, content }, {
+      onSuccess: () => {
+        setContent('')
+      }
+    })
   }
-  const generateSummary = async () => {
-    try { const r = await apiFetch('/api/ai/daily-summary', { method: 'POST', body: JSON.stringify({ date }) }); setSummary(r.summary) } catch (e:any) { setError(e.message) }
+
+  const handleGenerateSummary = () => {
+    generateSummary.mutate(date, {
+      onSuccess: (data: any) => {
+        setSummary(data.summary)
+      }
+    })
   }
+
+  if (isLoading) return <Layout><div className="text-primary font-mono">Carregando diário...</div></Layout>
+
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto">
-        <SectionTitle className="text-3xl mb-4">DIÁRIO</SectionTitle>
-        {error && <div className="border border-red-700 text-red-400 p-2 font-mono mb-4">{error}</div>}
-        <form onSubmit={createEntry} className="border border-green-700 p-3 mb-4 bg-black/40">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-            <Input type="date" value={date} onChange={(e)=>setDate(e.target.value)} />
-            <Button type="button" onClick={generateSummary}>Resumo por IA</Button>
-            <Button>Salvar entrada</Button>
+      <div className="max-w-3xl mx-auto space-y-6">
+        <SectionTitle className="text-3xl">DIÁRIO</SectionTitle>
+
+        <form onSubmit={handleCreateEntry} className="border border-green-700 p-4 bg-black/40 rounded-lg space-y-4">
+          <div className="flex flex-col md:flex-row gap-4">
+            <Input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full md:w-auto"
+            />
+            <Button
+              type="button"
+              onClick={handleGenerateSummary}
+              disabled={generateSummary.isPending}
+              className="flex items-center gap-2"
+            >
+              <Sparkles size={16} />
+              {generateSummary.isPending ? 'Gerando...' : 'Resumo por IA'}
+            </Button>
+            <div className="flex-1"></div>
+            <Button type="submit" disabled={createEntry.isPending}>
+              {createEntry.isPending ? 'Salvando...' : 'Salvar entrada'}
+            </Button>
           </div>
-          <TextArea className="w-full" rows={6} placeholder="Escreva seu diário..." value={content} onChange={(e)=>setContent(e.target.value)} />
+          <TextArea
+            className="w-full min-h-[150px]"
+            placeholder="Escreva seu diário..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
         </form>
-        {summary && <div className="border border-green-700 p-3 text-green-300 font-mono mb-4">{summary}</div>}
-        <ul className="space-y-2">
-          {entries.map(en => (
-            <li key={en.id} className="border border-green-700 p-3 bg-black/40">
-              <div className="text-green-300 font-mono">{en.entry_date} — {en.title || 'Entrada'}</div>
-              {en.content && <div className="text-gray-300 mt-1 whitespace-pre-wrap">{en.content}</div>}
-            </li>
+
+        {summary && (
+          <div className="border border-green-500/50 bg-green-900/10 p-4 rounded-lg">
+            <h3 className="text-green-400 font-mono font-bold mb-2 flex items-center gap-2">
+              <Sparkles size={16} />
+              RESUMO DO DIA
+            </h3>
+            <p className="text-green-300 font-mono text-sm leading-relaxed">{summary}</p>
+          </div>
+        )}
+
+        <div className="space-y-4">
+          {entries?.map(en => (
+            <div key={en.id} className="border border-gray-800 p-4 bg-black/40 rounded-lg hover:border-green-700 transition-colors">
+              <div className="text-green-400 font-mono font-bold mb-2 border-b border-gray-800 pb-2">
+                {new Date(en.entry_date).toLocaleDateString()}
+                {en.title && <span className="text-gray-500 ml-2">— {en.title}</span>}
+              </div>
+              {en.content && <div className="text-gray-300 font-mono text-sm whitespace-pre-wrap">{en.content}</div>}
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     </Layout>
   )

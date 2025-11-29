@@ -37,6 +37,15 @@ export interface Habit {
   updated_at: string
 }
 
+export interface HabitLog {
+  id: string
+  habit_id: string
+  user_id: string
+  value: number
+  date: string
+  created_at: string
+}
+
 export interface Task {
   id: string
   user_id: string
@@ -110,7 +119,7 @@ export interface Routine {
   id: string
   user_id: string
   name: string
-  period: 'morning'|'afternoon'|'evening'
+  period: 'morning' | 'afternoon' | 'evening'
   schedule: Record<string, any>
   created_at: string
 }
@@ -137,7 +146,7 @@ export interface Achievement {
 
 export interface LifeScore {
   score: number
-  trend: 'up'|'down'|'stable'
+  trend: 'up' | 'down' | 'stable'
   statusText: string
 }
 

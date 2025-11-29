@@ -7,7 +7,7 @@ import { Parser } from 'json2csv'
 const router = Router()
 
 router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
-    const data = await financeService.list(req.user!.id)
+    const data = await financeService.list(req.user!.id, req.query)
     res.json(data)
 })
 

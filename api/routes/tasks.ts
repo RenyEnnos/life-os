@@ -1,8 +1,6 @@
 import { Router, type Request, type Response } from 'express'
 import { authenticateToken, AuthRequest } from '../middleware/auth'
 import { tasksService } from '../services/tasksService'
-import { supabase } from '../lib/supabase'
-import { getPagination } from '../lib/pagination'
 import { calendarService } from '../services/calendarService'
 
 const router = Router()
@@ -10,22 +8,11 @@ const router = Router()
 // List tasks for authenticated user
 router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   const userId = req.user!.id
-  const { from, to } = getPagination(req.query)
-  const { startDate, endDate, completed, tag, projectId } = req.query as any
-  if (process.env.NODE_ENV === 'test') {
-    const data = await tasksService.list(userId)
-    res.json(data.slice(from, to + 1))
-  } else {
-    let q = supabase.from('tasks').select('*').eq('user_id', userId)
-    if (startDate) q = q.gte('due_date', startDate)
-    if (endDate) q = q.lte('due_date', endDate)
-    if (projectId) q = q.eq('project_id', projectId)
-    if (typeof completed !== 'undefined') q = q.eq('completed', completed === 'true')
-    if (tag) q = q.contains('tags', [tag])
-    q = q.order('due_date', { nulls: 'last' }).order('created_at', { ascending: false }).range(from, to)
-    const { data, error } = await q
-    if (error) { res.status(400).json({ error: error.message }); return }
-    res.json(data ?? [])
+  try {
+    const data = await tasksService.list(userId, req.query)
+    res.json(data)
+  } catch (error: any) {
+    res.status(400).json({ error: error.message })
   }
 })
 
@@ -40,7 +27,7 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response): Pro
         const client = await calendarService.getCalendarClient(userId)
         await client.events.insert({ calendarId: 'primary', requestBody: { summary: data.title, description: data.description, start: { dateTime: data.due_date }, end: { dateTime: data.due_date }, } })
       }
-    } catch {}
+    } catch { }
     res.status(201).json(data)
   } catch (e: any) {
     res.status(400).json({ error: e.message })

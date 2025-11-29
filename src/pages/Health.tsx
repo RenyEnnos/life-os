@@ -1,20 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Layout from '../components/Layout'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
+import Button from '../components/ui/Button'
 import { Plus, Activity, Heart, Moon, Footprints, Trash2 } from 'lucide-react'
-import { apiFetch } from '../lib/api'
-
-interface HealthMetric {
-  id: string
-  metric_type: string
-  value: number
-  unit: string
-  recorded_date: string
-}
+import { useHealth } from '../hooks/useHealth'
 
 const Health: React.FC = () => {
-  const [metrics, setMetrics] = useState<HealthMetric[]>([])
-  const [loading, setLoading] = useState(true)
+  const { metrics, isLoading, createMetric, deleteMetric } = useHealth()
   const [showNewForm, setShowNewForm] = useState(false)
   const [newMetric, setNewMetric] = useState({
     metric_type: 'steps',
@@ -23,36 +15,13 @@ const Health: React.FC = () => {
     recorded_date: new Date().toISOString().split('T')[0]
   })
 
-  useEffect(() => {
-    fetchMetrics()
-  }, [])
-
-  const fetchMetrics = async () => {
-    try {
-      const data = await apiFetch('/api/health')
-      if (data.success) {
-        setMetrics(data.data)
-      }
-    } catch (error) {
-      console.error('Error fetching health metrics:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const handleCreateMetric = async (e: React.FormEvent) => {
     e.preventDefault()
-    try {
-      const data = await apiFetch('/api/health', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...newMetric,
-          value: Number(newMetric.value)
-        })
-      })
-
-      if (data.success) {
-        setMetrics([data.data, ...metrics])
+    createMetric.mutate({
+      ...newMetric,
+      value: Number(newMetric.value)
+    }, {
+      onSuccess: () => {
         setShowNewForm(false)
         setNewMetric({
           metric_type: 'steps',
@@ -61,24 +30,7 @@ const Health: React.FC = () => {
           recorded_date: new Date().toISOString().split('T')[0]
         })
       }
-    } catch (error) {
-      console.error('Error creating metric:', error)
-    }
-  }
-
-  const handleDeleteMetric = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este registro?')) return
-    try {
-      const data = await apiFetch(`/api/health/${id}`, {
-        method: 'DELETE'
-      })
-
-      if (data.success) {
-        setMetrics(metrics.filter(m => m.id !== id))
-      }
-    } catch (error) {
-      console.error('Error deleting metric:', error)
-    }
+    })
   }
 
   const getIconForMetric = (type: string) => {
@@ -100,22 +52,24 @@ const Health: React.FC = () => {
     }
   }
 
+  if (isLoading) return <Layout><div className="text-primary font-mono">Carregando métricas...</div></Layout>
+
   return (
     <Layout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-green-400 font-mono">SAÚDE</h1>
-          <button
+          <h1 className="text-3xl font-bold text-primary font-mono">SAÚDE</h1>
+          <Button
             onClick={() => setShowNewForm(!showNewForm)}
-            className="btn-brutalist px-4 py-2 flex items-center gap-2"
+            className="flex items-center gap-2"
           >
             <Plus size={20} />
             NOVO REGISTRO
-          </button>
+          </Button>
         </div>
 
         {showNewForm && (
-          <Card className="border-green-500/50">
+          <Card className="border-primary/50">
             <CardHeader>
               <CardTitle>Novo Registro de Saúde</CardTitle>
             </CardHeader>
@@ -135,7 +89,7 @@ const Health: React.FC = () => {
                         if (type === 'weight') unit = 'kg'
                         setNewMetric({ ...newMetric, metric_type: type, unit })
                       }}
-                      className="w-full bg-black border border-green-900 focus:border-green-400 text-white p-2 rounded font-mono"
+                      className="w-full bg-black border border-secondary focus:border-primary text-white p-2 rounded font-mono outline-none"
                     >
                       <option value="steps">Passos</option>
                       <option value="sleep">Sono</option>
@@ -150,7 +104,7 @@ const Health: React.FC = () => {
                       step="0.01"
                       value={newMetric.value}
                       onChange={e => setNewMetric({ ...newMetric, value: e.target.value })}
-                      className="w-full bg-black border border-green-900 focus:border-green-400 text-white p-2 rounded font-mono"
+                      className="w-full bg-black border border-secondary focus:border-primary text-white p-2 rounded font-mono outline-none"
                       required
                     />
                   </div>
@@ -161,23 +115,20 @@ const Health: React.FC = () => {
                     type="date"
                     value={newMetric.recorded_date}
                     onChange={e => setNewMetric({ ...newMetric, recorded_date: e.target.value })}
-                    className="w-full bg-black border border-green-900 focus:border-green-400 text-white p-2 rounded font-mono"
+                    className="w-full bg-black border border-secondary focus:border-primary text-white p-2 rounded font-mono outline-none"
                   />
                 </div>
                 <div className="flex justify-end gap-2">
-                  <button
+                  <Button
                     type="button"
+                    variant="danger"
                     onClick={() => setShowNewForm(false)}
-                    className="px-4 py-2 text-gray-400 hover:text-white font-mono"
                   >
                     CANCELAR
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn-brutalist px-4 py-2"
-                  >
+                  </Button>
+                  <Button type="submit">
                     SALVAR
-                  </button>
+                  </Button>
                 </div>
               </form>
             </CardContent>
@@ -185,8 +136,8 @@ const Health: React.FC = () => {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {metrics.map(metric => (
-            <Card key={metric.id} className="hover:border-green-400 transition-colors">
+          {metrics?.map(metric => (
+            <Card key={metric.id} className="hover:border-primary transition-colors">
               <CardContent className="pt-6">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
@@ -203,7 +154,9 @@ const Health: React.FC = () => {
                     </div>
                   </div>
                   <button
-                    onClick={() => handleDeleteMetric(metric.id)}
+                    onClick={() => {
+                      if (confirm('Tem certeza?')) deleteMetric.mutate(metric.id)
+                    }}
                     className="text-gray-600 hover:text-red-500 transition-colors"
                   >
                     <Trash2 size={16} />

@@ -1,14 +1,13 @@
 import { Router, type Response } from 'express'
 import { authenticateToken, AuthRequest } from '../middleware/auth'
 import { habitsService } from '../services/habitsService'
-import { getPagination } from '../lib/pagination'
+
 
 const router = Router()
 
 router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
-  const data = await habitsService.list(req.user!.id)
-  const { from, to } = getPagination(req.query)
-  res.json(data.slice(from, to + 1))
+  const data = await habitsService.list(req.user!.id, req.query)
+  res.json(data)
 })
 
 router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
@@ -24,6 +23,21 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
   const data = await habitsService.update(req.user!.id, req.params.id, req.body || {})
   if (!data) return res.status(404).json({ error: 'Habit not found' })
   res.json(data)
+})
+
+router.get('/logs', authenticateToken, async (req: AuthRequest, res: Response) => {
+  const data = await habitsService.getLogs(req.user!.id, req.query)
+  res.json(data)
+})
+
+router.post('/:id/log', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const { value, date } = req.body
+    const data = await habitsService.log(req.user!.id, req.params.id, value, date)
+    res.status(201).json(data)
+  } catch (e: any) {
+    res.status(400).json({ error: e.message })
+  }
 })
 
 router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {

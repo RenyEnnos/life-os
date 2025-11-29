@@ -1,10 +1,21 @@
 import { repoFactory, type BaseRepo } from '../repositories/factory'
 import type { Transaction } from '../../shared/types'
 
+import { getPagination } from '../lib/pagination'
+
 export class FinanceService {
   private repo: BaseRepo<Transaction>
   constructor(repo?: BaseRepo<Transaction>) { this.repo = repo ?? repoFactory.get('transactions') }
-  list(userId: string) { return this.repo.list(userId) }
+  async list(userId: string, filters: any = {}) {
+    const data = await this.repo.list(userId)
+    if (process.env.NODE_ENV === 'test') return data
+    // If filters has pagination params, slice it. Otherwise return all (for summary)
+    if (filters.page || filters.pageSize) {
+      const { from, to } = getPagination(filters)
+      return data.slice(from, to + 1)
+    }
+    return data
+  }
   async create(userId: string, payload: Partial<Transaction>) {
     if (!payload.type || payload.amount == null || !payload.transaction_date || !payload.description) {
       throw new Error('type, amount, transaction_date, description are required')

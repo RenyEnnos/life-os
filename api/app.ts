@@ -1,7 +1,4 @@
-/**
- * This is a API server
- */
-
+import 'dotenv/config'
 import express, {
   type Request,
   type Response,
@@ -9,7 +6,6 @@ import express, {
 } from 'express'
 import cors from 'cors'
 import path from 'path'
-import dotenv from 'dotenv'
 import { fileURLToPath } from 'url'
 import authRoutes from './routes/auth.js'
 import habitsRoutes from './routes/habits.js'
@@ -17,13 +13,11 @@ import tasksRoutes from './routes/tasks.js'
 import financesRoutes from './routes/finances.js'
 import healthRoutes from './routes/health.js'
 import aiRoutes from './routes/ai.js'
+import exportRoutes from './routes/export.js'
 
 // for esm mode
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-
-// load env
-dotenv.config()
 
 const app: express.Application = express()
 
@@ -40,6 +34,7 @@ app.use('/api/tasks', tasksRoutes)
 app.use('/api/finances', financesRoutes)
 app.use('/api/health', healthRoutes)
 app.use('/api/ai', aiRoutes)
+app.use('/api/export', exportRoutes)
 
 /**
  * health

@@ -8,11 +8,11 @@ interface CardProps {
 }
 
 export const Card: React.FC<CardProps> = ({ children, className, variant = 'default' }) => {
-  const baseClasses = 'border bg-transparent backdrop-blur-sm'
-  
+  const baseClasses = 'border bg-background backdrop-blur-sm'
+
   const variantClasses = {
-    default: 'border-green-500/30 hover:border-green-500/50',
-    neon: 'border-green-400 shadow-lg shadow-green-400/20 hover:shadow-green-400/30',
+    default: 'border-border hover:border-border-hover',
+    neon: 'border-primary shadow-lg shadow-primary/20 hover:shadow-primary/30',
     minimal: 'border-gray-700 hover:border-gray-600'
   }
 
@@ -43,7 +43,7 @@ interface CardTitleProps {
 
 export const CardTitle: React.FC<CardTitleProps> = ({ children, className }) => {
   return (
-    <h3 className={cn('text-lg font-mono text-green-400', className)}>
+    <h3 className={cn('text-lg font-mono text-primary', className)}>
       {children}
     </h3>
   )
