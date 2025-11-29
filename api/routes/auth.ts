@@ -153,4 +153,36 @@ router.post('/logout', async (req: Request, res: Response): Promise<void> => {
   res.json({ message: 'Logged out successfully' })
 })
 
+/**
+ * Token Verify
+ * GET /api/auth/verify
+ */
+router.get('/verify', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization
+    const token = authHeader && authHeader.split(' ')[1]
+    if (!token) {
+      res.status(401).json({ error: 'Access token required' })
+      return
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET) as any
+
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id, email, name, preferences, theme, created_at, updated_at')
+      .eq('id', decoded.userId)
+      .single()
+
+    if (error || !user) {
+      res.status(401).json({ error: 'Invalid token' })
+      return
+    }
+
+    res.json(user)
+  } catch (error) {
+    res.status(403).json({ error: 'Invalid token' })
+  }
+})
+
 export default router

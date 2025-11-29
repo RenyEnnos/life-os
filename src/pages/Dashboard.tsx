@@ -3,52 +3,21 @@ import Layout from '../components/Layout'
 import LifeScoreCard from '../components/LifeScoreCard'
 import HabitConsistencyChart from '../components/HabitConsistencyChart'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
-import { supabase } from '../lib/supabase'
+import { useDashboardData } from '../hooks/useDashboardData'
+import LineChart from '../components/charts/LineChart'
+import BarChart from '../components/charts/BarChart'
+import DonutChart from '../components/charts/DonutChart'
+import Tabs from '../components/ui/Tabs'
 import { useAuth } from '../contexts/AuthContext'
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth()
-  const [lifeScore, setLifeScore] = useState({
-    score: 78,
-    trend: 'up' as const,
-    statusText: 'Ótimo progresso'
-  })
+  const { lifeScore, agenda, health, finance } = useDashboardData()
   const [habitData, setHabitData] = useState({
     percentage: 85,
     weeklyData: [1, 1, 0, 1, 1, 0, 1]
   })
-  const [todayAgenda, setTodayAgenda] = useState([
-    { time: '09:00', title: 'Reunião de equipe', tag: 'trabalho', color: 'blue' },
-    { time: '14:00', title: 'Exercícios físicos', tag: 'saúde', color: 'green' },
-    { time: '16:00', title: 'Estudar programação', tag: 'educação', color: 'purple' },
-    { time: '20:00', title: 'Meditação', tag: 'bem-estar', color: 'yellow' }
-  ])
-  const [healthSnapshot, setHealthSnapshot] = useState([
-    { label: 'Sono', value: '7.5h', status: 'good' },
-    { label: 'Passos', value: '8,432', status: 'good' },
-    { label: 'FC', value: '72 bpm', status: 'normal' },
-    { label: 'IMC', value: '24.2', status: 'good' }
-  ])
-  const [financeSummary, setFinanceSummary] = useState({
-    balance: 2450.00,
-    expenses: 1250.00,
-    budgetProgress: 65
-  })
-
-  useEffect(() => {
-    // Fetch dashboard data
-    fetchDashboardData()
-  }, [])
-
-  const fetchDashboardData = async () => {
-    try {
-      // This would fetch real data from your API
-      // For now, using mock data
-      console.log('Fetching dashboard data for user:', user?.id)
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error)
-    }
-  }
+  const [period, setPeriod] = useState<'7'|'30'|'90'>('7')
 
   const quickActions = [
     { label: 'Nova Tarefa', action: () => console.log('Nova tarefa') },
@@ -88,16 +57,16 @@ const Dashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {todayAgenda.map((item, index) => (
+                {agenda.map((item: any, index: number) => (
                   <div key={index} className="flex items-center gap-3 p-3 border border-gray-700 rounded">
                     <div className="text-sm font-mono text-gray-400 w-12">
-                      {item.time}
+                      {item.due_date ? new Date(item.due_date).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '--:--'}
                     </div>
                     <div className="flex-1">
                       <div className="font-medium text-white">{item.title}</div>
-                      <div className={`text-xs text-${item.color}-400`}>#{item.tag}</div>
+                      <div className={`text-xs text-green-400`}>#{(item.tags?.[0]||'tarefa')}</div>
                     </div>
-                    <div className={`w-2 h-2 rounded-full bg-${item.color}-400`}></div>
+                    <div className={`w-2 h-2 rounded-full bg-green-400`}></div>
                   </div>
                 ))}
               </div>
@@ -111,22 +80,21 @@ const Dashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-4">
-                {healthSnapshot.map((metric, index) => (
+                {health.slice(-4).map((metric: any, index: number) => (
                   <div key={index} className="text-center p-3 border border-gray-700 rounded">
                     <div className="text-lg font-mono font-bold text-green-400">
                       {metric.value}
                     </div>
                     <div className="text-xs text-gray-400 uppercase tracking-wide">
-                      {metric.label}
+                      {metric.metric_type}
                     </div>
-                    <div className={`text-xs mt-1 ${
-                      metric.status === 'good' ? 'text-green-400' : 
-                      metric.status === 'normal' ? 'text-yellow-400' : 'text-red-400'
-                    }`}>
-                      {metric.status}
-                    </div>
+                    <div className={`text-xs mt-1 text-green-400`}>recente</div>
                   </div>
                 ))}
+              </div>
+              {/* Steps line chart */}
+              <div className="mt-4">
+                <LineChart data={health.filter((m:any)=>m.metric_type==='steps').map((m:any)=>({ day: m.recorded_date, value: Number(m.value) }))} xKey="day" yKey="value" />
               </div>
             </CardContent>
           </Card>
@@ -144,25 +112,34 @@ const Dashboard: React.FC = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Balanço do mês</span>
                   <span className="text-2xl font-mono font-bold text-green-400">
-                    R$ {financeSummary.balance.toFixed(2)}
+                    R$ {finance.balance.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Gastos</span>
                   <span className="text-lg font-mono text-red-400">
-                    R$ {financeSummary.expenses.toFixed(2)}
+                    R$ {finance.expense.toFixed(2)}
                   </span>
                 </div>
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-400">Progresso do orçamento</span>
-                    <span className="text-sm font-mono">{financeSummary.budgetProgress}%</span>
+                    <span className="text-sm font-mono">{Math.min(100, Math.round((finance.expense/(finance.income||1))*100))}%</span>
                   </div>
                   <div className="w-full bg-gray-700 rounded-full h-2">
                     <div 
                       className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${financeSummary.budgetProgress}%` }}
+                      style={{ width: `${Math.min(100, Math.round((finance.expense/(finance.income||1))*100))}%` }}
                     ></div>
+                  </div>
+                  <div className="mt-4">
+                    <Tabs tabs={[{id:'7',label:'7d'},{id:'30',label:'30d'},{id:'90',label:'90d'}]} onChange={(id)=> setPeriod(id as any)} />
+                    <div className="mt-3">
+                      <BarChart data={[{ label: 'Income', value: finance.income }, { label: 'Expense', value: finance.expense }]} xKey="label" yKey="value" />
+                    </div>
+                    <div className="mt-3">
+                      <DonutChart data={[{ name: 'Income', value: finance.income }, { name: 'Expense', value: finance.expense }]} />
+                    </div>
                   </div>
                 </div>
               </div>

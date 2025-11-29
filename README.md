@@ -62,3 +62,23 @@ GOOGLE_REDIRECT_URI=http://localhost:3000/api/calendar/callback
 
 ## License
 MIT
+## Architecture
+
+```
+frontend (React/Vite) ↔ backend (Express/TS) ↔ Supabase (Postgres/RLS)
+                                   ↘ Groq AI
+                                   ↘ Google Calendar
+```
+
+## Routes Overview
+- Front: /dashboard, /tasks, /habits, /journal, /health, /finance, /projects, /rewards, /settings
+- API: /api/auth, /api/user, /api/tasks, /api/habits, /api/journal, /api/health, /api/finance, /api/projects, /api/rewards, /api/ai, /api/calendar, /api/export, /api/score, /api/dev
+
+## Data Model Summary
+- User, Habit, Routine, Task, JournalEntry, Project, SWOTEntry, HealthMetric, MedicationReminder, Transaction, Reward, Achievement, LifeScore, AILog
+
+## Roadmap
+- Strengthen RLS policies and document migrations
+- Complete design system components across pages
+- Calendar bidirectional sync refinements
+- Heuristic-first AI usage with robust caching

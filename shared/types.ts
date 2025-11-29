@@ -105,3 +105,49 @@ export interface Reward {
   achieved_at?: string
   created_at: string
 }
+
+export interface Routine {
+  id: string
+  user_id: string
+  name: string
+  period: 'morning'|'afternoon'|'evening'
+  schedule: Record<string, any>
+  created_at: string
+}
+
+export interface MedicationReminder {
+  id: string
+  user_id: string
+  name: string
+  dosage?: string
+  times: string[]
+  active: boolean
+  created_at: string
+}
+
+export interface Achievement {
+  id: string
+  user_id: string
+  title: string
+  description?: string
+  achieved: boolean
+  achieved_at?: string
+  created_at: string
+}
+
+export interface LifeScore {
+  score: number
+  trend: 'up'|'down'|'stable'
+  statusText: string
+}
+
+export interface AILog {
+  id: string
+  user_id: string
+  function_name: string
+  tokens_used?: number
+  response_time_ms?: number
+  success: boolean
+  error_message?: string
+  created_at: string
+}
