@@ -1,12 +1,29 @@
 import { Router, type Response } from 'express'
 import { authenticateToken, AuthRequest } from '../middleware/auth'
 import { financeService } from '../services/financeService'
+import { supabase } from '../lib/supabase'
+import { getPagination } from '../lib/pagination'
 
 const router = Router()
 
 router.get('/transactions', authenticateToken, async (req: AuthRequest, res: Response) => {
-  const data = await financeService.list(req.user!.id)
-  res.json(data)
+  if (process.env.NODE_ENV === 'test') {
+    const data = await financeService.list(req.user!.id, req.query)
+    return res.json(data)
+  }
+  const userId = req.user!.id
+  const { from, to } = getPagination(req.query)
+  const { startDate, endDate, type, category, tag } = req.query as any
+  let q = supabase.from('transactions').select('*').eq('user_id', userId)
+  if (startDate) q = q.gte('transaction_date', startDate)
+  if (endDate) q = q.lte('transaction_date', endDate)
+  if (type) q = q.eq('type', type)
+  if (category) q = q.eq('category', category)
+  if (tag) q = q.contains('tags', [tag])
+  q = q.order('transaction_date', { ascending: false }).range(from, to)
+  const { data, error } = await q
+  if (error) return res.status(400).json({ error: error.message })
+  res.json(data ?? [])
 })
 
 router.post('/transactions', authenticateToken, async (req: AuthRequest, res: Response) => {

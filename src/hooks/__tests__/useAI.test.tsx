@@ -12,8 +12,8 @@ describe('useAI hook', () => {
     const qc = new QueryClient()
     const wrapper = ({ children }: any) => <QueryClientProvider client={qc}>{children}</QueryClientProvider>
     const { result } = renderHook(() => useAI(), { wrapper })
-    const res = await result.current.generateDailySummary('texto')
-    expect(Array.isArray(res)).toBe(true)
+    const res = await result.current.generateSummary.mutateAsync({ context: 'texto' })
+    expect(Array.isArray(res.summary)).toBe(true)
     spy.mockRestore()
   })
 })
