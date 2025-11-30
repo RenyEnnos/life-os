@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase'
+import type { Reward, Achievement } from '../../shared/types'
 
 export const rewardsService = {
   async list(userId: string) {
@@ -12,7 +13,7 @@ export const rewardsService = {
     return data
   },
 
-  async create(userId: string, payload: any) {
+  async create(userId: string, payload: Partial<Reward>) {
     const { data, error } = await supabase
       .from('rewards')
       .insert([{ ...payload, user_id: userId }])
@@ -23,7 +24,7 @@ export const rewardsService = {
     return data
   },
 
-  async update(userId: string, id: string, payload: any) {
+  async update(userId: string, id: string, payload: Partial<Reward>) {
     const { data, error } = await supabase
       .from('rewards')
       .update(payload)
@@ -58,7 +59,7 @@ export const rewardsService = {
     return data
   },
 
-  async unlockAchievement(userId: string, payload: any) {
+  async unlockAchievement(userId: string, payload: Partial<Achievement> & { key?: string }) {
     // payload: { key, name, description }
     const { data, error } = await supabase
       .from('achievements')

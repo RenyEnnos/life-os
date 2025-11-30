@@ -20,6 +20,10 @@ const SettingsPage = lazy(() => import('@/features/settings'));
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { user, loading } = useAuth();
 
+    if (user) {
+        return <>{children}</>;
+    }
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
@@ -28,11 +32,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         );
     }
 
-    if (!user) {
-        return <Navigate to="/login" replace />;
-    }
-
-    return <>{children}</>;
+    return <Navigate to="/login" replace />;
 }
 
 export function AppRoutes() {

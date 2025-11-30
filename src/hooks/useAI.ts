@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../lib/api';
 
-interface AIResponse<T> {
+interface AIResponse {
     tags?: string[];
     swot?: {
         strengths: string[];
@@ -28,7 +28,7 @@ export function useAI() {
     const generateTags = useMutation({
         mutationFn: async ({ context, type, force }: { context: string; type: 'habit' | 'task' | 'journal' | 'finance'; force?: boolean }) => {
             const q = force ? '?force=true' : '';
-            return apiFetch<AIResponse<string[]>>(`/api/ai/tags${q}`, {
+            return apiFetch<AIResponse>(`/api/ai/tags${q}`, {
                 method: 'POST',
                 body: JSON.stringify({ context, type }),
             });
@@ -41,7 +41,7 @@ export function useAI() {
     const generateSwot = useMutation({
         mutationFn: async ({ context, force }: { context: string; force?: boolean }) => {
             const q = force ? '?force=true' : '';
-            return apiFetch<AIResponse<any>>(`/api/ai/swot${q}`, {
+            return apiFetch<AIResponse>(`/api/ai/swot${q}`, {
                 method: 'POST',
                 body: JSON.stringify({ context }),
             });
@@ -54,7 +54,7 @@ export function useAI() {
     const generatePlan = useMutation({
         mutationFn: async ({ context, force }: { context: string; force?: boolean }) => {
             const q = force ? '?force=true' : '';
-            return apiFetch<AIResponse<any>>(`/api/ai/plan${q}`, {
+            return apiFetch<AIResponse>(`/api/ai/plan${q}`, {
                 method: 'POST',
                 body: JSON.stringify({ context }),
             });
@@ -67,7 +67,7 @@ export function useAI() {
     const generateSummary = useMutation({
         mutationFn: async ({ context, force }: { context: string; force?: boolean }) => {
             const q = force ? '?force=true' : '';
-            return apiFetch<AIResponse<string[]>>(`/api/ai/summary${q}`, {
+            return apiFetch<AIResponse>(`/api/ai/summary${q}`, {
                 method: 'POST',
                 body: JSON.stringify({ context }),
             });

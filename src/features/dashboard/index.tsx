@@ -2,6 +2,7 @@ import { PageTitle } from '@/components/ui/PageTitle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useHabits } from '@/hooks/useHabits';
 import { useTasks } from '@/hooks/useTasks';
+import type { Habit, Task } from '@/shared/types';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Activity, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -42,7 +43,7 @@ export default function DashboardPage() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                {habits?.filter((h: any) => h.active).length || 0}
+                                {habits?.filter((h: Habit) => h.active).length || 0}
                             </div>
                         </CardContent>
                     </Card>
@@ -52,7 +53,7 @@ export default function DashboardPage() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                {tasks?.filter((t: any) => !t.completed).length || 0}
+                                {tasks?.filter((t: Task) => !t.completed).length || 0}
                             </div>
                         </CardContent>
                     </Card>

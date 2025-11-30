@@ -13,8 +13,9 @@ export class ScoreService {
     const m = metrics.data ?? []
     const f = txs.data ?? []
     const today = new Date().toISOString().slice(0, 10)
-    const completedToday = t.filter((x: any) => x.completed && (x.due_date?.slice(0, 10) === today)).length
-    const overdue = t.filter((x: any) => !x.completed && x.due_date && x.due_date < new Date().toISOString()).length
+    type TaskSummary = { completed: boolean; due_date?: string }
+    const completedToday = t.filter((x: TaskSummary) => x.completed && (x.due_date?.slice(0, 10) === today)).length
+    const overdue = t.filter((x: TaskSummary) => !x.completed && x.due_date && x.due_date < new Date().toISOString()).length
     const taskScore = Math.max(0, Math.min(100, 70 + completedToday * 5 - overdue * 10))
     const habitScore = Math.min(100, h.length * 5)
     const stepsAvg = avgMetric(m, 'steps', 7)
@@ -27,7 +28,7 @@ export class ScoreService {
   }
 }
 
-function avgMetric(metrics: any[], type: string, days: number) {
+function avgMetric(metrics: { metric_type: string; recorded_date: string; value: number }[], type: string, days: number) {
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - days)
   const arr = metrics.filter(x => x.metric_type === type && new Date(x.recorded_date) >= cutoff).map(x => Number(x.value) || 0)
   if (!arr.length) return 0

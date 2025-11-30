@@ -1,7 +1,6 @@
 import { Router, type Response } from 'express'
 import { authenticateToken, AuthRequest } from '../middleware/auth'
 import { supabase } from '../lib/supabase'
-// @ts-ignore
 import { Parser } from 'json2csv'
 
 const router = Router()
@@ -10,11 +9,11 @@ router.get('/json', authenticateToken, async (req: AuthRequest, res: Response) =
   const userId = req.user!.id
   const tables = ['habits', 'tasks', 'journal_entries', 'health_metrics', 'transactions', 'projects', 'swot_entries', 'rewards', 'ai_logs']
   if (process.env.NODE_ENV === 'test') {
-    const empty: Record<string, any> = {}
+    const empty: Record<string, unknown[]> = {}
     for (const t of tables) empty[t] = []
     return res.json(empty)
   }
-  const result: Record<string, any> = {}
+  const result: Record<string, unknown[]> = {}
   for (const t of tables) {
     const { data } = await supabase.from(t).select('*').eq('user_id', userId)
     result[t] = data ?? []

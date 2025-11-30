@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { User, AuthResponse, LoginRequest, RegisterRequest } from '../../shared/types'
 
 interface AuthContextType {
@@ -7,6 +7,7 @@ interface AuthContextType {
   login: (credentials: LoginRequest) => Promise<void>
   register: (credentials: RegisterRequest) => Promise<void>
   logout: () => Promise<void>
+  updateThemePreference: (theme: 'light' | 'dark') => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -23,24 +24,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    checkAuth()
-  }, [])
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const token = localStorage.getItem('token')
       if (token) {
-        // Verify token with backend
         const response = await fetch('/api/auth/verify', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         })
-        
+
         if (response.ok) {
           const userData = await response.json()
           setUser(userData)
+          const preferredTheme = (userData?.theme || userData?.preferences?.theme) as 'light' | 'dark' | undefined
+          if (preferredTheme) {
+            localStorage.setItem('theme', preferredTheme)
+            document.documentElement.classList.remove('light', 'dark')
+            document.documentElement.classList.add(preferredTheme)
+          }
         } else {
           localStorage.removeItem('token')
         }
@@ -51,7 +53,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
+
+  
 
   const login = async (credentials: LoginRequest) => {
     const response = await fetch('/api/auth/login', {
@@ -64,7 +72,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (!response.ok) {
       const error = await response.json()
-      throw new Error(error.error || 'Login failed')
+      const code = error.code ? String(error.code) : ''
+      const message = error.error || 'Login failed'
+      throw new Error(code || message)
     }
 
     const data: AuthResponse = await response.json()
@@ -107,12 +117,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
+  const updateThemePreference = async (theme: 'light' | 'dark') => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ preferences: { ...(user?.preferences || {}), theme } }),
+      })
+      if (response.ok) {
+        const updated = await response.json()
+        setUser((prev) => prev ? { ...prev, preferences: updated.preferences, theme: updated.theme } : updated)
+        localStorage.setItem('theme', theme)
+        document.documentElement.classList.remove('light', 'dark')
+        document.documentElement.classList.add(theme)
+      }
+    } catch (error) {
+      console.error('Update theme preference error:', error)
+    }
+  }
+
   const value = {
     user,
     loading,
     login,
     register,
     logout,
+    updateThemePreference,
   }
 
   return (

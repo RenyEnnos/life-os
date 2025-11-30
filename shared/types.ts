@@ -2,7 +2,7 @@ export interface User {
   id: string
   email: string
   name: string
-  preferences: Record<string, any>
+  preferences: Record<string, unknown>
   theme: 'dark' | 'light'
   created_at: string
   updated_at: string
@@ -31,7 +31,7 @@ export interface Habit {
   description?: string
   type: 'binary' | 'numeric'
   goal: number
-  schedule: Record<string, any>
+  schedule: Record<string, unknown>
   active: boolean
   created_at: string
   updated_at: string
@@ -108,7 +108,7 @@ export interface Reward {
   user_id: string
   title: string
   description?: string
-  criteria: Record<string, any>
+  criteria: Record<string, unknown>
   points_required: number
   achieved: boolean
   achieved_at?: string
@@ -120,7 +120,7 @@ export interface Routine {
   user_id: string
   name: string
   period: 'morning' | 'afternoon' | 'evening'
-  schedule: Record<string, any>
+  schedule: Record<string, unknown>
   created_at: string
 }
 

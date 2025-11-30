@@ -5,7 +5,7 @@ import { PageTitle } from '@/components/ui/PageTitle';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useRewards } from '@/hooks/useRewards';
-import { clsx } from 'clsx';
+import type { Reward, Achievement } from '../../../shared/types';
 import {
     RadialBarChart,
     RadialBar,
@@ -68,12 +68,7 @@ export default function RewardsPage() {
                             </div>
                         </div>
 
-                        <div className="w-full space-y-2 mt-4 z-10">
-                            <ScoreRow label="Hábitos" value={lifeScore?.breakdown?.habitScore} max={40} />
-                            <ScoreRow label="Tarefas" value={lifeScore?.breakdown?.taskScore} max={30} />
-                            <ScoreRow label="Saúde" value={lifeScore?.breakdown?.healthScore} max={15} />
-                            <ScoreRow label="Finanças" value={lifeScore?.breakdown?.financeScore} max={15} />
-                        </div>
+                        {/* Se desejar detalhamento por áreas, amplie o tipo LifeScore e ajuste aqui */}
                     </Card>
 
                     <div className="md:col-span-2 space-y-6">
@@ -103,7 +98,7 @@ export default function RewardsPage() {
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                            {rewards.map((r: any) => (
+                                            {rewards.map((r: Reward) => (
                                                 <div key={r.id} className="p-3 bg-surface rounded border border-border flex justify-between items-center group">
                                                     <div>
                                                         <div className="font-bold font-mono text-foreground">{r.title}</div>
@@ -146,12 +141,12 @@ export default function RewardsPage() {
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                            {achievements.map((a: any) => (
+                                            {achievements.map((a: Achievement) => (
                                                 <div key={a.id} className="flex flex-col items-center text-center p-3 bg-surface/50 rounded border border-primary/20">
                                                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2 text-primary">
                                                         <Unlock size={20} />
                                                     </div>
-                                                    <div className="font-bold font-mono text-xs text-foreground">{a.name}</div>
+                                                    <div className="font-bold font-mono text-xs text-foreground">{a.title}</div>
                                                     <div className="text-[10px] text-muted-foreground font-mono mt-1">{a.description}</div>
                                                 </div>
                                             ))}
@@ -181,20 +176,9 @@ export default function RewardsPage() {
     );
 }
 
-function ScoreRow({ label, value, max }: any) {
-    const percentage = Math.min((value / max) * 100, 100);
-    return (
-        <div className="flex items-center gap-2 text-xs font-mono w-full">
-            <span className="w-16 text-muted-foreground">{label}</span>
-            <div className="flex-1 h-2 bg-surface rounded-full overflow-hidden">
-                <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${percentage}%` }} />
-            </div>
-            <span className="w-8 text-right text-foreground">{value}/{max}</span>
-        </div>
-    );
-}
+ 
 
-function RewardModal({ onClose, onSubmit }: any) {
+function RewardModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (payload: Partial<Reward>) => void }) {
     const [title, setTitle] = useState('');
     const [points, setPoints] = useState('');
 
@@ -220,7 +204,7 @@ function RewardModal({ onClose, onSubmit }: any) {
                     <div className="flex gap-2 pt-2">
                         <Button variant="ghost" onClick={onClose} className="flex-1">CANCELAR</Button>
                         <Button onClick={() => {
-                            onSubmit({ title, points_required: Number(points), active: true });
+                            onSubmit({ title, points_required: Number(points) });
                             onClose();
                         }} className="flex-1">SALVAR</Button>
                     </div>

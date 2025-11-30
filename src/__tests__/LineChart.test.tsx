@@ -11,10 +11,10 @@ describe('LineChart', () => {
   })
 })
 vi.mock('recharts', async () => {
-  const actual = await vi.importActual<any>('recharts')
+  const actual = await vi.importActual<typeof import('recharts')>('recharts')
   return {
     ...actual,
-    ResponsiveContainer: ({ children }: any) => <div style={{ width: 400, height: 200 }}>{children}</div>,
+    ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div style={{ width: 400, height: 200 }}>{children}</div>,
   }
 })
 /** @vitest-environment jsdom */

@@ -16,7 +16,7 @@ describe('Supabase RLS policies', () => {
 
   it.skipIf(skip)('anon select returns only allowed rows (none)', async () => {
     const client = createClient(url!, anon!)
-    const { data, error } = await client.from('tasks').select('*')
+    const { error } = await client.from('tasks').select('*')
     expect(error || []).toBeTruthy()
   })
 })

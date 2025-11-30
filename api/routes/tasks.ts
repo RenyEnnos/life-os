@@ -1,4 +1,4 @@
-import { Router, type Request, type Response } from 'express'
+import { Router, type Response } from 'express'
 import { authenticateToken, AuthRequest } from '../middleware/auth'
 import { tasksService } from '../services/tasksService'
 import { calendarService } from '../services/calendarService'
@@ -11,8 +11,9 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Prom
   try {
     const data = await tasksService.list(userId, req.query)
     res.json(data)
-  } catch (error: any) {
-    res.status(400).json({ error: error.message })
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : 'Unknown error'
+    res.status(400).json({ error: msg })
   }
 })
 
@@ -27,10 +28,13 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response): Pro
         const client = await calendarService.getCalendarClient(userId)
         await client.events.insert({ calendarId: 'primary', requestBody: { summary: data.title, description: data.description, start: { dateTime: data.due_date }, end: { dateTime: data.due_date }, } })
       }
-    } catch { }
+    } catch {
+      // noop: falha de sincronização de calendário não deve bloquear criação
+    }
     res.status(201).json(data)
-  } catch (e: any) {
-    res.status(400).json({ error: e.message })
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Unknown error'
+    res.status(400).json({ error: msg })
   }
 })
 

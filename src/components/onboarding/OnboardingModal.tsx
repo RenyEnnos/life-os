@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { X, Check, ArrowRight, Target, Heart, DollarSign } from 'lucide-react';
+import { useState } from 'react';
+import { Check, ArrowRight, Target, Heart, DollarSign } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';

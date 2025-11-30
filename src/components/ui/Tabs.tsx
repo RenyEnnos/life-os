@@ -6,7 +6,7 @@ type Props = { tabs: Tab[]; onChange?: (id: string) => void }
 
 export default function Tabs({ tabs, onChange }: Props) {
   const [active, setActive] = useState(tabs[0]?.id)
-  const click = (id: string) => { setActive(id); onChange && onChange(id) }
+  const click = (id: string) => { setActive(id); if (onChange) onChange(id) }
   return (
     <div className="flex gap-2">
       {tabs.map(t => (

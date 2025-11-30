@@ -4,10 +4,11 @@ import { Trash2, Edit2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Tag } from '@/components/ui/Tag';
+import type { JournalEntry } from '@/shared/types';
 
 interface JournalEntryListProps {
-    entries: any[];
-    onEdit: (entry: any) => void;
+    entries: JournalEntry[];
+    onEdit: (entry: JournalEntry) => void;
     onDelete: (id: string) => void;
 }
 
@@ -49,13 +50,13 @@ export function JournalEntryList({ entries, onEdit, onDelete }: JournalEntryList
                         </p>
                     </div>
 
-                    {entry.tags?.length > 0 && (
+                    {entry.tags?.length && entry.tags.length > 0 ? (
                         <div className="flex gap-2 mt-4 pt-4 border-t border-border/50">
-                            {entry.tags.map((tag: string) => (
+                            {entry.tags?.map((tag: string) => (
                                 <Tag key={tag} variant="outline" size="sm">#{tag}</Tag>
                             ))}
                         </div>
-                    )}
+                    ) : null}
                 </Card>
             ))}
         </div>

@@ -10,6 +10,7 @@ import { clsx } from 'clsx';
 import { Zap } from 'lucide-react';
 import { Loader } from '@/components/ui/Loader';
 import { EmptyState } from '@/components/ui/EmptyState';
+import type { Task } from '@/shared/types';
 
 export default function TasksPage() {
     const { tasks, isLoading, createTask, updateTask, deleteTask } = useTasks();
@@ -26,7 +27,7 @@ export default function TasksPage() {
         }
         setIsGeneratingPlan(true);
         try {
-            const context = tasks.map((t: any) => `${t.title} (Due: ${t.due_date || 'None'})`).join('\n');
+            const context = tasks.map((t: Task) => `${t.title} (Due: ${t.due_date || 'None'})`).join('\n');
             const result = await generatePlan.mutateAsync({ context });
             if (result.plan) {
                 setPlan(result.plan);
@@ -39,7 +40,7 @@ export default function TasksPage() {
         }
     };
 
-    const handleToggle = (task: any) => {
+    const handleToggle = (task: Task) => {
         updateTask.mutate({
             id: task.id,
             updates: { completed: !task.completed }
@@ -55,7 +56,7 @@ export default function TasksPage() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const groupedTasks = tasks?.reduce((acc: any, task: any) => {
+    const groupedTasks = tasks?.reduce((acc: Partial<Record<'completed'|'noDate'|'overdue'|'today'|'upcoming', Task[]>>, task: Task) => {
         if (task.completed) {
             if (!acc.completed) acc.completed = [];
             acc.completed.push(task);
@@ -84,7 +85,7 @@ export default function TasksPage() {
         return acc;
     }, {});
 
-    const renderSection = (title: string, tasks: any[], colorClass = "text-foreground") => {
+    const renderSection = (title: string, tasks: Task[] | undefined, colorClass = "text-foreground") => {
         if (!tasks?.length) return null;
         return (
             <section className="space-y-3">
@@ -92,7 +93,7 @@ export default function TasksPage() {
                     {title} ({tasks.length})
                 </h2>
                 <div className="space-y-2">
-                    {tasks.map((task: any) => (
+                    {tasks.map((task: Task) => (
                         <TaskItem
                             key={task.id}
                             task={task}

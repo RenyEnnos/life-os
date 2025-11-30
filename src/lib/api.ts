@@ -1,4 +1,4 @@
-export async function apiFetch<T = any>(url: string, options: RequestInit = {}): Promise<T> {
+export async function apiFetch<T = unknown>(url: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('token');
   const headers = {
     'Content-Type': 'application/json',

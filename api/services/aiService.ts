@@ -13,7 +13,8 @@ export const aiService = {
       .eq('id', userId)
       .single()
 
-    const lowIA = !!(user?.preferences as any)?.lowIA
+    const prefs = user?.preferences as Record<string, unknown> | undefined
+    const lowIA = typeof prefs?.lowIA === 'boolean' ? (prefs!.lowIA as boolean) : false
     if (lowIA && !force) return false
     // Limit: 20 calls per feature per day
 
@@ -61,7 +62,7 @@ export const aiService = {
       await setCache(userId, 'generateTags', { type, context }, tags)
       await this.logUsage(userId, 'generateTags', true, { tokens: response.tokens, ms: response.ms })
       return tags
-    } catch (e) {
+    } catch {
       await this.logUsage(userId, 'generateTags', false, { errorMessage: 'JSON parse error', tokens: response?.tokens, ms: response?.ms })
       return []
     }
@@ -89,7 +90,7 @@ export const aiService = {
       await setCache(userId, 'generateSwot', { projectContext }, swot)
       await this.logUsage(userId, 'generateSwot', true, { tokens: response.tokens, ms: response.ms })
       return swot
-    } catch (e) {
+    } catch {
       await this.logUsage(userId, 'generateSwot', false, { errorMessage: 'JSON parse error', tokens: response?.tokens, ms: response?.ms })
       throw new Error('Failed to parse AI response')
     }
@@ -118,7 +119,7 @@ export const aiService = {
       await setCache(userId, 'generateWeeklyPlan', { tasksContext }, plan)
       await this.logUsage(userId, 'generateWeeklyPlan', true, { tokens: response.tokens, ms: response.ms })
       return plan
-    } catch (e) {
+    } catch {
       await this.logUsage(userId, 'generateWeeklyPlan', false, { errorMessage: 'JSON parse error', tokens: response?.tokens, ms: response?.ms })
       throw new Error('Failed to parse AI response')
     }
@@ -134,7 +135,7 @@ export const aiService = {
     if (cached) { await this.logUsage(userId, 'generateDailySummary', true); return cached }
     const response = await generateAIResponse(systemPrompt, journalContent)
     if (!response) {
-      const bullets = journalContent.split(/[\.\n]/).map(s => s.trim()).filter(Boolean).slice(0,5)
+      const bullets = journalContent.split(/[.\n]/).map(s => s.trim()).filter(Boolean).slice(0,5)
       await this.logUsage(userId, 'generateDailySummary', true)
       return bullets
     }
@@ -145,7 +146,7 @@ export const aiService = {
       await setCache(userId, 'generateDailySummary', { journalContent }, summary)
       await this.logUsage(userId, 'generateDailySummary', true, { tokens: response.tokens, ms: response.ms })
       return summary
-    } catch (e) {
+    } catch {
       await this.logUsage(userId, 'generateDailySummary', false, { errorMessage: 'JSON parse error', tokens: response?.tokens, ms: response?.ms })
       throw new Error('Failed to parse AI response')
     }

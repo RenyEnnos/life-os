@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useAI } from '@/hooks/useAI';
 import { Tag } from '@/components/ui/Tag';
+import type { JournalEntry } from '@/shared/types';
 
 interface JournalEditorProps {
-    entry?: any;
-    onSave: (data: any) => void;
+    entry?: JournalEntry;
+    onSave: (data: Partial<JournalEntry>) => void;
     onCancel: () => void;
 }
 

@@ -1,7 +1,8 @@
 import { supabase } from '../lib/supabase'
+import type { Project } from '../../shared/types'
 
 export const projectsService = {
-  async list(userId: string, query: any) {
+  async list(userId: string, query: { status?: 'active'|'inactive'; limit?: number }) {
     const { status, limit } = query
     let q = supabase
       .from('projects')
@@ -17,7 +18,7 @@ export const projectsService = {
     return data
   },
 
-  async create(userId: string, payload: any) {
+  async create(userId: string, payload: Partial<Project>) {
     const { data, error } = await supabase
       .from('projects')
       .insert([{ ...payload, user_id: userId }])
@@ -28,7 +29,7 @@ export const projectsService = {
     return data
   },
 
-  async update(userId: string, id: string, payload: any) {
+  async update(userId: string, id: string, payload: Partial<Project>) {
     const { data, error } = await supabase
       .from('projects')
       .update(payload)
@@ -74,7 +75,7 @@ export const projectsService = {
     return data
   },
 
-  async addSwot(userId: string, projectId: string, payload: any) {
+  async addSwot(userId: string, projectId: string, payload: Record<string, unknown>) {
     // Verify project ownership
     const { data: project } = await supabase
       .from('projects')
@@ -95,7 +96,7 @@ export const projectsService = {
     return data
   },
 
-  async updateSwot(userId: string, swotId: string, payload: any) {
+  async updateSwot(userId: string, swotId: string, payload: Record<string, unknown>) {
     // RLS handles permission check via project_id join, but we can double check if needed.
     // For simplicity rely on RLS policies defined in migration.
     const { data, error } = await supabase

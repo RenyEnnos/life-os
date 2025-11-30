@@ -23,6 +23,22 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.light {
+  --color-background: #f6f9f6;
+  --color-primary: #0a8f0a;
+  --color-primary-dark: #0a0f0a;
+  --color-secondary: #2e6f2e;
+  --color-text: #0a0f0a;
+  --color-text-secondary: #333333;
+  --color-border: #2e6f2e;
+  --color-border-hover: #0a8f0a;
+  --surface: #ffffff;
+  --surface-shadow: 0 8px 20px rgba(10, 143, 10, 0.08), 0 2px 6px rgba(10, 143, 10, 0.06);
+  --surface-hover: rgba(10, 143, 10, 0.08);
+  --color-primary-hover: #0bb10b;
+  --color-secondary-hover: #2a622a;
+}
+
 body {
   background-color: var(--color-background);
   color: var(--color-text);
@@ -31,6 +47,15 @@ body {
     linear-gradient(90deg, rgba(13, 242, 13, 0.03) 1px, transparent 1px);
   background-size: 20px 20px;
 }
+
+/* Light theme overrides for utility classes */
+.light .bg-background { background-color: var(--color-background) !important; }
+.light .bg-surface { background-color: #ffffff !important; }
+.light .text-primary { color: var(--color-primary) !important; }
+.light .border-border { border-color: var(--color-border) !important; }
+.light .text-foreground { color: var(--color-text) !important; }
+.light .text-muted-foreground { color: var(--color-text-secondary) !important; }
+.light .hover\:bg-primary\/10:hover { background-color: rgba(10,143,10,0.1) !important; }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
@@ -85,3 +110,8 @@ body {
   pointer-events: none;
   z-index: 1;
 }
+.surface-shadow { box-shadow: var(--surface-shadow); }
+.light .bg-surface { background-color: var(--surface) !important; }
+.light .hover\:bg-primary\/10:hover { background-color: var(--surface-hover) !important; }
+.light .hover\:text-primary:hover { color: var(--color-primary-hover) !important; }
+.light .hover\:border-primary\/20:hover { border-color: var(--color-border-hover) !important; }

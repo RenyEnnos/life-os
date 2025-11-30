@@ -1,0 +1,31 @@
+import request from 'supertest'
+import { describe, it, expect } from 'vitest'
+import app from '../../api/app'
+
+describe('Auth integration flow', () => {
+  it('register, login, verify, update theme, verify, logout', async () => {
+    const email = `user_${Date.now()}@example.com`
+    const password = 'StrongPass1!'
+
+    const reg = await request(app).post('/api/auth/register').send({ email, password, name: 'User' })
+    expect(reg.status).toBe(201)
+
+    const login = await request(app).post('/api/auth/login').send({ email, password })
+    expect(login.status).toBe(200)
+    const userToken = login.body.token
+
+    const verify = await request(app).get('/api/auth/verify').set('Authorization', `Bearer ${userToken}`)
+    expect(verify.status).toBe(200)
+
+    const update = await request(app).put('/api/auth/profile').set('Authorization', `Bearer ${userToken}`).send({ preferences: { theme: 'light' } })
+    expect(update.status).toBe(200)
+    expect(update.body?.preferences?.theme || update.body?.theme).toBe('light')
+
+    const verify2 = await request(app).get('/api/auth/verify').set('Authorization', `Bearer ${userToken}`)
+    expect(verify2.status).toBe(200)
+    expect(verify2.body?.preferences?.theme || verify2.body?.theme).toBe('light')
+
+    const logout = await request(app).post('/api/auth/logout').set('Authorization', `Bearer ${userToken}`)
+    expect(logout.status).toBe(200)
+  })
+})

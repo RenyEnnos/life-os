@@ -33,4 +33,13 @@
     "src",
     "api"
   ]
+  ,
+  "exclude": [
+    "api/tests",
+    "**/__tests__/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.stories.tsx",
+    "src/stories/**"
+  ]
 }

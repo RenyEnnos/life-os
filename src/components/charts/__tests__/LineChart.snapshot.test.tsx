@@ -5,8 +5,8 @@ import { render } from '@testing-library/react'
 import LineChart from '../LineChart'
 
 vi.mock('recharts', async () => {
-  const actual = await vi.importActual<any>('recharts')
-  return { ...actual, ResponsiveContainer: ({ children }: any) => <div style={{ width: 400, height: 200 }}>{children}</div> }
+  const actual = await vi.importActual<typeof import('recharts')>('recharts')
+  return { ...actual, ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div style={{ width: 400, height: 200 }}>{children}</div> }
 })
 
 describe('LineChart snapshot', () => {

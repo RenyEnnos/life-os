@@ -1,7 +1,8 @@
 import { supabase } from '../lib/supabase'
+import type { JournalEntry } from '../../shared/types'
 
 export const journalService = {
-  async list(userId: string, query: any) {
+  async list(userId: string, query: { date?: string }) {
     const { date } = query
     let q = supabase
       .from('journal_entries')
@@ -19,7 +20,7 @@ export const journalService = {
     return data
   },
 
-  async create(userId: string, payload: any) {
+  async create(userId: string, payload: Partial<JournalEntry>) {
     const { data, error } = await supabase
       .from('journal_entries')
       .insert([{ ...payload, user_id: userId }])
@@ -30,7 +31,7 @@ export const journalService = {
     return data
   },
 
-  async update(userId: string, id: string, payload: any) {
+  async update(userId: string, id: string, payload: Partial<JournalEntry>) {
     const { data, error } = await supabase
       .from('journal_entries')
       .update(payload)

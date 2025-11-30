@@ -7,8 +7,8 @@ export interface BaseRepo<T> {
   remove(userId: string, id: string): Promise<boolean>
 }
 
-function memoryRepo<T>(table: string): BaseRepo<T> {
-  const store: Record<string, Record<string, any>> = {}
+function memoryRepo<T>(): BaseRepo<T> {
+  const store: Record<string, Record<string, unknown>> = {}
   return {
     async list(userId) {
       const space = store[userId] || {}
@@ -60,7 +60,7 @@ function supabaseRepo<T>(table: string): BaseRepo<T> {
 }
 
 export const repoFactory = {
-  get(table: string): BaseRepo<any> {
-    return process.env.NODE_ENV === 'test' ? memoryRepo(table) : supabaseRepo(table)
+  get<T>(table: string): BaseRepo<T> {
+    return (process.env.NODE_ENV === 'test' ? memoryRepo<T>() : supabaseRepo<T>(table))
   }
 }

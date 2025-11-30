@@ -25,7 +25,7 @@ export default function RegisterPage() {
             setLoading(true);
             await register({ email, password, name: email.split('@')[0] });
             navigate('/');
-        } catch (err) {
+        } catch {
             setError('Falha ao criar conta.');
         } finally {
             setLoading(false);

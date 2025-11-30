@@ -7,10 +7,10 @@ export function useTasks() {
     const { user } = useAuth();
     const queryClient = useQueryClient();
 
-    const { data: tasks, isLoading } = useQuery({
+    const { data: tasks, isLoading } = useQuery<Task[]>({
         queryKey: ['tasks', user?.id],
         queryFn: async () => {
-            return apiFetch('/api/tasks');
+            return apiFetch<Task[]>('/api/tasks');
         },
         enabled: !!user,
     });

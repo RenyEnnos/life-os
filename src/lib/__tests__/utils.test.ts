@@ -7,7 +7,8 @@ describe('cn utility', () => {
     });
 
     it('should handle conditional classes', () => {
-        expect(cn('bg-red-500', true && 'text-white', false && 'hidden')).toBe('bg-red-500 text-white');
+        const cond = Boolean('')
+        expect(cn('bg-red-500', 'text-white', cond ? 'hidden' : undefined)).toBe('bg-red-500 text-white');
     });
 
     it('should merge tailwind classes correctly', () => {

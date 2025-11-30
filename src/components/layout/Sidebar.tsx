@@ -15,6 +15,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 interface SidebarProps {
     isOpen?: boolean;
@@ -38,10 +39,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
     return (
         <aside className={cn(
-            "fixed left-0 top-0 h-screen w-64 bg-surface border-r border-border flex flex-col z-50 transition-transform duration-300 md:translate-x-0",
+            "fixed left-0 top-0 h-screen w-64 bg-surface border-r border-border flex flex-col z-50 transition-transform transition-colors transition-all duration-300 md:translate-x-0",
             isOpen ? "translate-x-0" : "-translate-x-full"
         )}>
-            <div className="p-6 border-b border-border flex justify-between items-center">
+            <div className="p-6 border-b border-border flex justify-between items-center transition-colors transition-all duration-300">
                 <div>
                     <h1 className="text-2xl font-bold text-primary tracking-widest font-mono glow-text">
                         LIFE OS
@@ -53,14 +54,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </button>
             </div>
 
-            <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+            <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1 transition-colors transition-all duration-300">
                 {navItems.map((item) => (
                     <NavLink
                         key={item.path}
                         to={item.path}
                         onClick={() => onClose?.()}
                         className={({ isActive }) =>
-                            `flex items-center gap-3 px-3 py-2 rounded-md transition-all font-mono text-sm group ${isActive
+                            `flex items-center gap-3 px-3 py-2 rounded-md transition-all transition-colors duration-300 font-mono text-sm group ${isActive
                                 ? 'bg-primary/10 text-primary border border-primary/50 shadow-[0_0_10px_rgba(13,242,13,0.1)]'
                                 : 'text-gray-400 hover:text-primary hover:bg-primary/5 hover:border-primary/20 border border-transparent'
                             }`
@@ -73,6 +74,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </nav>
 
             <div className="p-4 border-t border-border">
+                <div className="mb-3 flex justify-between items-center">
+                    <span className="text-xs text-muted-foreground font-mono">TEMA</span>
+                    <ThemeToggle inline />
+                </div>
                 <Button
                     variant="ghost"
                     className="w-full justify-start gap-3 text-gray-400 hover:text-destructive hover:bg-destructive/10"

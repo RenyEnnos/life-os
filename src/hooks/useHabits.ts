@@ -2,24 +2,25 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api';
 import { Habit } from '@/shared/types';
+type HabitLog = { habit_id: string; value: number; date?: string }
 
 export function useHabits() {
     const { user } = useAuth();
     const queryClient = useQueryClient();
 
-    const { data: habits, isLoading } = useQuery({
+    const { data: habits, isLoading } = useQuery<Habit[]>({
         queryKey: ['habits', user?.id],
         queryFn: async () => {
-            return apiFetch('/api/habits');
+            return apiFetch<Habit[]>('/api/habits');
         },
         enabled: !!user,
     });
 
-    const { data: logs } = useQuery({
+    const { data: logs } = useQuery<HabitLog[]>({
         queryKey: ['habit-logs', user?.id],
         queryFn: async () => {
             const today = new Date().toISOString().split('T')[0];
-            return apiFetch(`/api/habits/logs?date=${today}`);
+            return apiFetch<HabitLog[]>(`/api/habits/logs?date=${today}`);
         },
         enabled: !!user,
     });

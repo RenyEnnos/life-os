@@ -1,7 +1,6 @@
 import { Check, Trash2, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Tag } from '@/components/ui/Tag';
 import { Task } from '@/shared/types';
 import { clsx } from 'clsx';
 

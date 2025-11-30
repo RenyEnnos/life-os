@@ -14,8 +14,9 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const data = await habitsService.create(req.user!.id, req.body || {})
     res.status(201).json(data)
-  } catch (e: any) {
-    res.status(400).json({ error: e.message })
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Unknown error'
+    res.status(400).json({ error: msg })
   }
 })
 
@@ -35,8 +36,9 @@ router.post('/:id/log', authenticateToken, async (req: AuthRequest, res: Respons
     const { value, date } = req.body
     const data = await habitsService.log(req.user!.id, req.params.id, value, date)
     res.status(201).json(data)
-  } catch (e: any) {
-    res.status(400).json({ error: e.message })
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Unknown error'
+    res.status(400).json({ error: msg })
   }
 })
 

@@ -1,21 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api';
+import type { JournalEntry } from '@/shared/types';
 
 export function useJournal() {
     const { user } = useAuth();
     const queryClient = useQueryClient();
 
-    const { data: entries, isLoading } = useQuery({
+    const { data: entries, isLoading } = useQuery<JournalEntry[]>({
         queryKey: ['journal', user?.id],
         queryFn: async () => {
-            return apiFetch('/api/journal');
+            return apiFetch<JournalEntry[]>('/api/journal');
         },
         enabled: !!user,
     });
 
     const createEntry = useMutation({
-        mutationFn: async (newEntry: any) => {
+        mutationFn: async (newEntry: Partial<JournalEntry>) => {
             return apiFetch('/api/journal', {
                 method: 'POST',
                 body: JSON.stringify(newEntry),
@@ -27,7 +28,7 @@ export function useJournal() {
     });
 
     const updateEntry = useMutation({
-        mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
+        mutationFn: async ({ id, updates }: { id: string; updates: Partial<JournalEntry> }) => {
             return apiFetch(`/api/journal/${id}`, {
                 method: 'PUT',
                 body: JSON.stringify(updates),

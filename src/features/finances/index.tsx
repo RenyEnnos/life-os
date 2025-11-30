@@ -17,6 +17,7 @@ import { useAI } from '@/hooks/useAI';
 import { Tag } from '@/components/ui/Tag';
 import { Loader } from '@/components/ui/Loader';
 import { EmptyState } from '@/components/ui/EmptyState';
+import type { Transaction } from '../../../shared/types';
 
 export default function FinancesPage() {
     const { transactions, summary, isLoading, createTransaction, deleteTransaction } = useFinances();
@@ -117,7 +118,7 @@ export default function FinancesPage() {
                                         </div>
                                     ) : (
                                         <div className="space-y-3">
-                                            {transactions.map((t: any) => (
+                                            {transactions.map((t: Transaction) => (
                                                 <div key={t.id} className="flex items-center justify-between p-3 bg-surface/50 rounded border border-transparent hover:border-primary/30 hover:bg-surface hover:shadow-[0_0_10px_rgba(13,242,13,0.05)] transition-all duration-300 group">
                                                     <div className="flex items-center gap-3">
                                                         <div className={clsx(
@@ -128,7 +129,6 @@ export default function FinancesPage() {
                                                             <div className="font-bold font-mono text-foreground">{t.description}</div>
                                                             <div className="text-xs text-muted-foreground font-mono flex gap-2">
                                                                 <span>{new Date(t.transaction_date).toLocaleDateString('pt-BR')}</span>
-                                                                {t.category && <span className="bg-muted px-1.5 rounded text-[10px] uppercase">{t.category}</span>}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -220,8 +220,8 @@ export default function FinancesPage() {
     );
 }
 
-function TransactionModal({ onClose, onSubmit }: any) {
-    const [type, setType] = useState('expense');
+function TransactionModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (payload: Partial<Transaction> & { category?: string }) => void }) {
+    const [type, setType] = useState<'income'|'expense'>('expense');
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('Outros');

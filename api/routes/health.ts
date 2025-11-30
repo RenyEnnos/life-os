@@ -15,8 +15,9 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const data = await healthService.create(req.user!.id, req.body || {})
     res.status(201).json(data)
-  } catch (e: any) {
-    res.status(400).json({ error: e.message })
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Unknown error'
+    res.status(400).json({ error: msg })
   }
 })
 
@@ -42,8 +43,9 @@ router.post('/medications', authenticateToken, async (req: AuthRequest, res: Res
   try {
     const data = await healthService.createReminder(req.user!.id, req.body || {})
     res.status(201).json(data)
-  } catch (e: any) {
-    res.status(400).json({ error: e.message })
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Unknown error'
+    res.status(400).json({ error: msg })
   }
 })
 

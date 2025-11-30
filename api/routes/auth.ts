@@ -4,23 +4,35 @@
  */
 import { Router, type Request, type Response } from 'express'
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 import { supabase } from '../lib/supabase'
 import { LoginRequest, RegisterRequest, AuthResponse } from '../../shared/types'
 
 const router = Router()
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+const loginAttempts: Record<string, { count: number; last: number; lockedUntil?: number }> = {}
+
+async function logAuth(email: string, status: 'success'|'fail', meta?: { code?: string; reason?: string }, req?: Request) {
+  try {
+    const ip = (req?.headers['x-forwarded-for'] as string) || req?.ip || 'unknown'
+    const ua = req?.headers['user-agent'] || 'unknown'
+    await supabase.from('auth_logs').insert([{ email, status, code: meta?.code || null, reason: meta?.reason || null, ip, user_agent: ua, created_at: new Date().toISOString() }])
+  } catch {
+    // noop: logging failures must not impact auth flow
+  }
+}
 
 /**
  * User Registration
  * POST /api/auth/register
  */
-router.post('/register', async (req: Request<{}, {}, RegisterRequest>, res: Response): Promise<void> => {
+router.post('/register', async (req: Request<Record<string, never>, unknown, RegisterRequest>, res: Response): Promise<void> => {
   try {
     const { email, password, name } = req.body
 
     if (!email || !password || !name) {
-      res.status(400).json({ error: 'Email, password, and name are required' })
+      await logAuth(email || 'unknown', 'fail', { code: 'BAD_REQUEST', reason: 'missing_fields' }, req)
+      res.status(400).json({ error: 'Email, password, and name are required', code: 'BAD_REQUEST' })
       return
     }
 
@@ -32,7 +44,8 @@ router.post('/register', async (req: Request<{}, {}, RegisterRequest>, res: Resp
       .single()
 
     if (existingUser) {
-      res.status(400).json({ error: 'User already exists' })
+      await logAuth(email, 'fail', { code: 'USER_EXISTS', reason: 'duplicate' }, req)
+      res.status(400).json({ error: 'User already exists', code: 'USER_EXISTS' })
       return
     }
 
@@ -53,7 +66,8 @@ router.post('/register', async (req: Request<{}, {}, RegisterRequest>, res: Resp
       .single()
 
     if (error) {
-      res.status(500).json({ error: 'Failed to create user' })
+      await logAuth(email, 'fail', { code: 'REGISTER_FAILED', reason: 'db_error' }, req)
+      res.status(500).json({ error: 'Failed to create user', code: 'REGISTER_FAILED' })
       return
     }
 
@@ -77,10 +91,12 @@ router.post('/register', async (req: Request<{}, {}, RegisterRequest>, res: Resp
       }
     }
 
+    await logAuth(email, 'success', { code: 'REGISTER_OK' }, req)
     res.status(201).json(response)
   } catch (error) {
     console.error('Registration error:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    await logAuth(req.body?.email || 'unknown', 'fail', { code: 'SERVER_ERROR', reason: 'exception' }, req)
+    res.status(500).json({ error: 'Internal server error', code: 'SERVER_ERROR' })
   }
 })
 
@@ -88,12 +104,20 @@ router.post('/register', async (req: Request<{}, {}, RegisterRequest>, res: Resp
  * User Login
  * POST /api/auth/login
  */
-router.post('/login', async (req: Request<{}, {}, LoginRequest>, res: Response): Promise<void> => {
+router.post('/login', async (req: Request<Record<string, never>, unknown, LoginRequest>, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body
 
     if (!email || !password) {
-      res.status(400).json({ error: 'Email and password are required' })
+      await logAuth(email || 'unknown', 'fail', { code: 'BAD_REQUEST', reason: 'missing_fields' }, req)
+      res.status(400).json({ error: 'Email and password are required', code: 'BAD_REQUEST' })
+      return
+    }
+
+    const info = loginAttempts[email] || { count: 0, last: 0, lockedUntil: undefined }
+    if (info.lockedUntil && info.lockedUntil > Date.now()) {
+      await logAuth(email, 'fail', { code: 'ACCOUNT_LOCKED', reason: 'rate_limit' }, req)
+      res.status(423).json({ error: 'Account temporarily locked', code: 'ACCOUNT_LOCKED' })
       return
     }
 
@@ -105,14 +129,30 @@ router.post('/login', async (req: Request<{}, {}, LoginRequest>, res: Response):
       .single()
 
     if (error || !user) {
-      res.status(401).json({ error: 'Invalid credentials' })
+      const now = Date.now()
+      const attempts = loginAttempts[email] || { count: 0, last: 0 }
+      loginAttempts[email] = { ...attempts, count: attempts.count + 1, last: now }
+      await logAuth(email, 'fail', { code: 'USER_NOT_FOUND', reason: 'not_found' }, req)
+      res.status(404).json({ error: 'User not found', code: 'USER_NOT_FOUND' })
       return
     }
 
     // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password_hash)
     if (!isValidPassword) {
-      res.status(401).json({ error: 'Invalid credentials' })
+      const now = Date.now()
+      const attempts = loginAttempts[email] || { count: 0, last: 0 }
+      const withinWindow = attempts.last && (now - attempts.last) < 15 * 60 * 1000
+      const newCount = withinWindow ? attempts.count + 1 : 1
+      const lock = newCount >= 5 ? now + 15 * 60 * 1000 : undefined
+      loginAttempts[email] = { count: newCount, last: now, lockedUntil: lock }
+      if (lock) {
+        await logAuth(email, 'fail', { code: 'ACCOUNT_LOCKED', reason: 'too_many_attempts' }, req)
+        res.status(423).json({ error: 'Account temporarily locked', code: 'ACCOUNT_LOCKED' })
+      } else {
+        await logAuth(email, 'fail', { code: 'WRONG_PASSWORD', reason: 'bad_password' }, req)
+        res.status(401).json({ error: 'Incorrect password', code: 'WRONG_PASSWORD' })
+      }
       return
     }
 
@@ -122,6 +162,8 @@ router.post('/login', async (req: Request<{}, {}, LoginRequest>, res: Response):
       JWT_SECRET,
       { expiresIn: '7d' }
     )
+
+    if (loginAttempts[email]) delete loginAttempts[email]
 
     const response: AuthResponse = {
       token,
@@ -136,10 +178,12 @@ router.post('/login', async (req: Request<{}, {}, LoginRequest>, res: Response):
       }
     }
 
+    await logAuth(email, 'success', { code: 'LOGIN_OK' }, req)
     res.json(response)
   } catch (error) {
     console.error('Login error:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    await logAuth(req.body?.email || 'unknown', 'fail', { code: 'SERVER_ERROR', reason: 'exception' }, req)
+    res.status(500).json({ error: 'Internal server error', code: 'SERVER_ERROR' })
   }
 })
 
@@ -166,7 +210,7 @@ router.get('/verify', async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & { userId: string; email: string }
 
     const { data: user, error } = await supabase
       .from('users')
@@ -180,7 +224,7 @@ router.get('/verify', async (req: Request, res: Response): Promise<void> => {
     }
 
     res.json(user)
-  } catch (error) {
+  } catch {
     res.status(403).json({ error: 'Invalid token' })
   }
 })
@@ -198,7 +242,7 @@ router.put('/profile', async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & { userId: string; email: string }
     const { preferences } = req.body
 
     const { data: user, error } = await supabase
@@ -214,7 +258,7 @@ router.put('/profile', async (req: Request, res: Response): Promise<void> => {
     }
 
     res.json(user)
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Internal server error' })
   }
 })

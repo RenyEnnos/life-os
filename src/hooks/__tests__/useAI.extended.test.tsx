@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import * as api from '../../lib/api'
 import { useAI } from '../../hooks/useAI'
 
-const wrapper = ({ children }: any) => {
+const wrapper = ({ children }: { children: React.ReactNode }) => {
   const qc = new QueryClient()
   return <QueryClientProvider client={qc}>{children}</QueryClientProvider>
 }
@@ -20,7 +20,7 @@ describe('useAI hook extended', () => {
   })
 
   it('supports force mode', async () => {
-    const spy = vi.spyOn(api, 'apiFetch').mockResolvedValue({ summary: ['ok'] } as any)
+    const spy = vi.spyOn(api, 'apiFetch').mockResolvedValue({ summary: ['ok'] } as unknown)
     const { result } = renderHook(() => useAI(), { wrapper })
     const res = await result.current.generateSummary.mutateAsync({ context: 'x', force: true })
     expect(res.summary?.[0]).toBe('ok')

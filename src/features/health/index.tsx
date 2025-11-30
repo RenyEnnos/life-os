@@ -5,7 +5,6 @@ import { PageTitle } from '@/components/ui/PageTitle';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useHealth } from '@/hooks/useHealth';
-import { clsx } from 'clsx';
 import {
     LineChart,
     Line,
@@ -14,9 +13,8 @@ import {
     CartesianGrid,
     Tooltip,
     ResponsiveContainer,
-    BarChart,
-    Bar
 } from 'recharts';
+import type { HealthMetric, MedicationReminder } from '../../../shared/types';
 
 export default function HealthPage() {
     const { metrics, medications, isLoading, createMetric, createMedication, deleteMedication } = useHealth();
@@ -24,7 +22,7 @@ export default function HealthPage() {
     const [isMedicationModalOpen, setIsMedicationModalOpen] = useState(false);
 
     // Mock data for charts if no real data
-    const chartData = metrics?.length ? metrics.slice(0, 7).reverse().map((m: any) => ({
+    const chartData = metrics?.length ? metrics.slice(0, 7).reverse().map((m: HealthMetric) => ({
         date: new Date(m.recorded_date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
         value: Number(m.value)
     })) : [
@@ -38,7 +36,7 @@ export default function HealthPage() {
     ];
 
     const getLatestMetric = (type: string) => {
-        return metrics?.find((m: any) => m.metric_type === type);
+        return metrics?.find((m: HealthMetric) => m.metric_type === type);
     };
 
     const weight = getLatestMetric('weight');
@@ -164,12 +162,12 @@ export default function HealthPage() {
                                         </div>
                                     ) : (
                                         <div className="space-y-3">
-                                            {medications.map((med: any) => (
+                                            {medications.map((med: MedicationReminder) => (
                                                 <div key={med.id} className="flex items-center justify-between p-3 bg-surface rounded border border-border group">
                                                     <div>
                                                         <div className="font-bold font-mono text-foreground">{med.name}</div>
                                                         <div className="text-xs text-muted-foreground font-mono">
-                                                            {med.dosage} • {Array.isArray(med.schedule) ? med.schedule.join(', ') : med.schedule}
+                                                            {med.dosage} • {Array.isArray(med.times) ? med.times.join(', ') : med.times}
                                                         </div>
                                                     </div>
                                                     <Button
@@ -207,7 +205,7 @@ export default function HealthPage() {
     );
 }
 
-function MetricCard({ title, value, unit, icon, date }: any) {
+function MetricCard({ title, value, unit, icon, date }: { title: string; value: number | string; unit: string; icon: React.ReactNode; date?: string }) {
     return (
         <Card className="p-4 border-border bg-card flex flex-col justify-between hover:border-primary/50 transition-colors">
             <div className="flex justify-between items-start mb-2">
@@ -228,7 +226,7 @@ function MetricCard({ title, value, unit, icon, date }: any) {
     );
 }
 
-function MetricModal({ onClose, onSubmit }: any) {
+function MetricModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (payload: Partial<HealthMetric>) => void }) {
     const [type, setType] = useState('weight');
     const [value, setValue] = useState('');
 
@@ -267,7 +265,7 @@ function MetricModal({ onClose, onSubmit }: any) {
     );
 }
 
-function MedicationModal({ onClose, onSubmit }: any) {
+function MedicationModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (payload: Partial<MedicationReminder>) => void }) {
     const [name, setName] = useState('');
     const [dosage, setDosage] = useState('');
     const [time, setTime] = useState('08:00');
@@ -300,7 +298,7 @@ function MedicationModal({ onClose, onSubmit }: any) {
                     <div className="flex gap-2 pt-2">
                         <Button variant="ghost" onClick={onClose} className="flex-1">CANCELAR</Button>
                         <Button onClick={() => {
-                            onSubmit({ name, dosage, schedule: [time], active: true });
+                            onSubmit({ name, dosage, times: [time], active: true });
                             onClose();
                         }} className="flex-1">SALVAR</Button>
                     </div>

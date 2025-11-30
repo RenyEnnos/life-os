@@ -1,7 +1,8 @@
 import { supabase } from '../lib/supabase'
+import type { HealthMetric, MedicationReminder } from '../../shared/types'
 
 export const healthService = {
-  async list(userId: string, query: any) {
+  async list(userId: string, query: { date?: string; type?: string; limit?: number }) {
     const { date, type, limit } = query
     let q = supabase
       .from('health_metrics')
@@ -18,7 +19,7 @@ export const healthService = {
     return data
   },
 
-  async create(userId: string, payload: any) {
+  async create(userId: string, payload: Partial<HealthMetric>) {
     const { data, error } = await supabase
       .from('health_metrics')
       .insert([{ ...payload, user_id: userId }])
@@ -29,7 +30,7 @@ export const healthService = {
     return data
   },
 
-  async update(userId: string, id: string, payload: any) {
+  async update(userId: string, id: string, payload: Partial<HealthMetric>) {
     const { data, error } = await supabase
       .from('health_metrics')
       .update(payload)
@@ -65,7 +66,7 @@ export const healthService = {
     return data
   },
 
-  async createReminder(userId: string, payload: any) {
+  async createReminder(userId: string, payload: Partial<MedicationReminder>) {
     const { data, error } = await supabase
       .from('medication_reminders')
       .insert([{ ...payload, user_id: userId }])
@@ -76,7 +77,7 @@ export const healthService = {
     return data
   },
 
-  async updateReminder(userId: string, id: string, payload: any) {
+  async updateReminder(userId: string, id: string, payload: Partial<MedicationReminder>) {
     const { data, error } = await supabase
       .from('medication_reminders')
       .update(payload)

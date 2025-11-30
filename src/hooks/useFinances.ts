@@ -1,29 +1,32 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api';
+import type { Transaction } from '../../shared/types';
 
 export function useFinances() {
     const { user } = useAuth();
     const queryClient = useQueryClient();
 
-    const { data: transactions, isLoading: loadingTransactions } = useQuery({
+    const { data: transactions, isLoading: loadingTransactions } = useQuery<Transaction[]>({
         queryKey: ['transactions', user?.id],
         queryFn: async () => {
-            return apiFetch('/api/finances');
+            return apiFetch<Transaction[]>('/api/finances');
         },
         enabled: !!user,
     });
 
-    const { data: summary, isLoading: loadingSummary } = useQuery({
+    const { data: summary, isLoading: loadingSummary } = useQuery<{ income: number; expenses: number; balance: number; byCategory?: Record<string, number> }>({
         queryKey: ['finance-summary', user?.id],
         queryFn: async () => {
-            return apiFetch('/api/finances/summary');
+            return apiFetch<{ income: number; expenses: number; balance: number; byCategory?: Record<string, number> }>(
+                '/api/finances/summary'
+            );
         },
         enabled: !!user,
     });
 
     const createTransaction = useMutation({
-        mutationFn: async (data: any) => {
+        mutationFn: async (data: Partial<Transaction>) => {
             return apiFetch('/api/finances', {
                 method: 'POST',
                 body: JSON.stringify(data),

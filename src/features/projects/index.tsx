@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/Button';
 import { useProjects } from '@/hooks/useProjects';
 import { useAI } from '@/hooks/useAI';
 import { clsx } from 'clsx';
+import type { Project } from '../../../shared/types';
+type SwotEntry = { id: string; category: 'strength'|'weakness'|'opportunity'|'threat'; content: string }
 
 export default function ProjectsPage() {
     const { projects, isLoading, createProject, deleteProject } = useProjects();
@@ -46,7 +48,7 @@ export default function ProjectsPage() {
                                 }
                             />
                         ) : (
-                            projects.map((p: any) => (
+                            (projects || []).map((p: Project) => (
                                 <div
                                     key={p.id}
                                     className={clsx(
@@ -73,13 +75,13 @@ export default function ProjectsPage() {
                                     </div>
                                     <h3 className="font-bold font-mono text-foreground">{p.name}</h3>
                                     <p className="text-xs text-muted-foreground font-mono mt-1 line-clamp-2">{p.description}</p>
-                                    <div className="flex gap-2 mt-3">
-                                        {p.area_of_life && (
-                                            <span className="text-[10px] bg-surface px-1.5 py-0.5 rounded text-muted-foreground uppercase border border-border">
-                                                {p.area_of_life}
-                                            </span>
-                                        )}
-                                    </div>
+                            <div className="flex gap-2 mt-3">
+                                {Array.isArray(p.area_of_life) && p.area_of_life.map((al) => (
+                                    <span key={al} className="text-[10px] bg-surface px-1.5 py-0.5 rounded text-muted-foreground uppercase border border-border">
+                                        {al}
+                                    </span>
+                                ))}
+                            </div>
                                 </div>
                             ))
                         )}
@@ -88,7 +90,7 @@ export default function ProjectsPage() {
                     {/* SWOT Analysis Area */}
                     <div className="md:col-span-2">
                         {selectedProject ? (
-                            <SwotAnalysis projectId={selectedProject} projectName={projects.find((p: any) => p.id === selectedProject)?.name} />
+                            <SwotAnalysis projectId={selectedProject} projectName={(projects || []).find((p: Project) => p.id === selectedProject)?.name || ''} />
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-muted-foreground font-mono border border-dashed border-border rounded-lg p-10 bg-card/50">
                                 <Target size={48} className="mb-4 opacity-20" />
@@ -189,7 +191,7 @@ function SwotAnalysis({ projectId, projectName }: { projectId: string, projectNa
                                 </Button>
                             </div>
                             <div className="space-y-2 flex-1 overflow-y-auto">
-                                {swot?.filter((s: any) => s.category === q.id).map((item: any) => (
+                                {swot?.filter((s: SwotEntry) => s.category === q.id).map((item: SwotEntry) => (
                                     <div key={item.id} className="group flex items-start justify-between text-xs font-mono bg-background/50 p-2 rounded border border-transparent hover:border-border">
                                         <span>{item.content}</span>
                                         <button
@@ -209,7 +211,7 @@ function SwotAnalysis({ projectId, projectName }: { projectId: string, projectNa
     );
 }
 
-function ProjectModal({ onClose, onSubmit }: any) {
+function ProjectModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (payload: Partial<Project>) => void }) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [area, setArea] = useState('Pessoal');
@@ -246,7 +248,7 @@ function ProjectModal({ onClose, onSubmit }: any) {
                     <div className="flex gap-2 pt-2">
                         <Button variant="ghost" onClick={onClose} className="flex-1">CANCELAR</Button>
                         <Button onClick={() => {
-                            onSubmit({ name, description, area_of_life: area, active: true });
+                            onSubmit({ name, description, area_of_life: [area], active: true });
                             onClose();
                         }} className="flex-1">SALVAR</Button>
                     </div>

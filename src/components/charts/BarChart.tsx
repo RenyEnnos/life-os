@@ -1,7 +1,7 @@
 import React from 'react'
 import { BarChart as RCBarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 
-type Props = { data: any[]; xKey: string; yKey: string; color?: string }
+type Props = { data: Array<Record<string, unknown>>; xKey: string; yKey: string; color?: string }
 
 export default function BarChart({ data, xKey, yKey, color = '#0df20d' }: Props) {
   return (

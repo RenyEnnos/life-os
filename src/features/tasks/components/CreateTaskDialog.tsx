@@ -5,11 +5,12 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { useAI } from '@/hooks/useAI';
 import { Tag } from '@/components/ui/Tag';
+import type { Task } from '@/shared/types';
 
 interface CreateTaskDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: any) => void;
+    onSubmit: (data: Partial<Task>) => void;
 }
 
 export function CreateTaskDialog({ isOpen, onClose, onSubmit }: CreateTaskDialogProps) {
@@ -28,11 +29,21 @@ export function CreateTaskDialog({ isOpen, onClose, onSubmit }: CreateTaskDialog
         try {
             const result = await generateTags.mutateAsync({
                 context: `Title: ${title}\nDescription: ${description}`,
-                type: 'task'
+                type: 'task',
+                force: true
             });
             if (result.tags) {
                 // Merge unique tags
                 setTags(prev => Array.from(new Set([...prev, ...result.tags!])));
+            } else {
+                // graceful fallback: derive simple tags client-side if AI returned empty
+                const derived = [title, description]
+                    .join(' ')
+                    .toLowerCase()
+                    .split(/\W+/)
+                    .filter(Boolean)
+                    .slice(0, 3);
+                if (derived.length) setTags(prev => Array.from(new Set([...prev, ...derived])));
             }
         } catch (error) {
             console.error('Failed to generate tags', error);
@@ -59,7 +70,7 @@ export function CreateTaskDialog({ isOpen, onClose, onSubmit }: CreateTaskDialog
         onSubmit({
             title,
             description,
-            due_date: dueDate ? new Date(dueDate).toISOString() : null,
+            due_date: dueDate ? new Date(dueDate).toISOString() : undefined,
             completed: false,
             tags
         });

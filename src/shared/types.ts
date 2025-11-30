@@ -2,7 +2,7 @@ export interface User {
     id: string;
     email: string;
     name: string;
-    preferences?: Record<string, any>;
+    preferences?: Record<string, unknown>;
     theme?: string;
     created_at?: string;
     updated_at?: string;

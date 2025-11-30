@@ -1,9 +1,9 @@
 import { apiFetch } from './api'
 
 export const apiClient = {
-    get: (url: string) => apiFetch(url, { method: 'GET' }),
-    post: (url: string, body: any) => apiFetch(url, { method: 'POST', body: JSON.stringify(body) }),
-    put: (url: string, body: any) => apiFetch(url, { method: 'PUT', body: JSON.stringify(body) }),
-    delete: (url: string) => apiFetch(url, { method: 'DELETE' }),
-    patch: (url: string, body: any) => apiFetch(url, { method: 'PATCH', body: JSON.stringify(body) }),
+    get: <T>(url: string) => apiFetch<T>(url, { method: 'GET' }),
+    post: <T>(url: string, body: unknown) => apiFetch<T>(url, { method: 'POST', body: JSON.stringify(body) }),
+    put: <T>(url: string, body: unknown) => apiFetch<T>(url, { method: 'PUT', body: JSON.stringify(body) }),
+    delete: <T>(url: string) => apiFetch<T>(url, { method: 'DELETE' }),
+    patch: <T>(url: string, body: unknown) => apiFetch<T>(url, { method: 'PATCH', body: JSON.stringify(body) }),
 }

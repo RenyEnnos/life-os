@@ -1,19 +1,20 @@
 import { useState } from 'react';
-import { Plus, BookOpen, Book, Zap } from 'lucide-react';
+import { Plus, Book, Zap } from 'lucide-react';
 import { PageTitle } from '@/components/ui/PageTitle';
 import { Button } from '@/components/ui/Button';
 import { useJournal } from '@/hooks/useJournal';
 import { useAI } from '@/hooks/useAI';
 import { JournalEditor } from './components/JournalEditor';
 import { EmptyState } from '@/components/ui/EmptyState';
+import type { JournalEntry } from '@/shared/types';
 
 export default function JournalPage() {
-    const { entries, isLoading, createEntry, updateEntry, deleteEntry } = useJournal();
+    const { entries, isLoading, createEntry, updateEntry } = useJournal();
     const { generateSummary } = useAI();
 
     // State
     const [isEditorOpen, setIsEditorOpen] = useState(false);
-    const [selectedEntry, setSelectedEntry] = useState<any>(null);
+    const [selectedEntry, setSelectedEntry] = useState<JournalEntry | undefined>(undefined);
     const [summary, setSummary] = useState<string[] | null>(null);
     const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
@@ -25,7 +26,7 @@ export default function JournalPage() {
         }
         setIsGeneratingSummary(true);
         try {
-            const context = entries.map((e: any) => `${e.entry_date}: ${e.content}`).join('\n\n');
+            const context = entries.map((e: JournalEntry) => `${e.entry_date}: ${e.content}`).join('\n\n');
             const result = await generateSummary.mutateAsync({ context });
             if (result.summary) {
                 setSummary(result.summary);
@@ -38,21 +39,16 @@ export default function JournalPage() {
         }
     };
 
-    const handleSave = async (data: any) => {
+    const handleSave = async (data: Partial<JournalEntry>) => {
         if (selectedEntry) {
             await updateEntry.mutateAsync({ id: selectedEntry.id, updates: data });
         } else {
             await createEntry.mutateAsync(data);
         }
         setIsEditorOpen(false);
-        setSelectedEntry(null);
+        setSelectedEntry(undefined);
     };
 
-    const handleDelete = (id: string) => {
-        if (confirm('Tem certeza que deseja excluir esta entrada?')) {
-            deleteEntry.mutate(id);
-        }
-    };
 
     return (
         <div className="space-y-8 pb-20">
@@ -81,12 +77,12 @@ export default function JournalPage() {
             />
 
             {isEditorOpen ? (
-                <JournalEditor
+                    <JournalEditor
                     entry={selectedEntry}
                     onSave={handleSave}
                     onCancel={() => {
                         setIsEditorOpen(false);
-                        setSelectedEntry(null);
+                        setSelectedEntry(undefined);
                     }}
                 />
             ) : (
@@ -110,7 +106,7 @@ export default function JournalPage() {
                                 />
                             ) : (
                                 <div className="grid gap-4">
-                                    {entries.map((entry: any) => (
+                                    {entries.map((entry: JournalEntry) => (
                                         <div
                                             key={entry.id}
                                             className="p-4 bg-card rounded border border-border hover:border-primary/50 transition-colors cursor-pointer group"
@@ -128,11 +124,7 @@ export default function JournalPage() {
                                                         {new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </span>
                                                 </div>
-                                                {entry.mood && (
-                                                    <span className="text-xs bg-surface px-2 py-1 rounded text-muted-foreground border border-border">
-                                                        Mood: {entry.mood}
-                                                    </span>
-                                                )}
+                                                {/* mood removido do tipo JournalEntry */}
                                             </div>
                                             <div className="font-mono text-foreground line-clamp-2">
                                                 {entry.content}

@@ -1,8 +1,10 @@
 import { supabase } from '../lib/supabase'
 import { Habit } from '../../shared/types'
+import { logDbOp } from '../lib/dbLogger'
 
 export const habitsService = {
-  async list(userId: string, query: any) {
+  async list(userId: string, query: unknown) {
+    void query
     const { data, error } = await supabase
       .from('habits')
       .select('*')
@@ -13,7 +15,7 @@ export const habitsService = {
     return data
   },
 
-  async create(userId: string, payload: any) {
+  async create(userId: string, payload: Partial<Habit>) {
     const { data, error } = await supabase
       .from('habits')
       .insert([{ ...payload, user_id: userId }])
@@ -21,10 +23,11 @@ export const habitsService = {
       .single()
 
     if (error) throw error
+    await logDbOp('habits', 'insert', userId, { id: (data as any)?.id })
     return data
   },
 
-  async update(userId: string, id: string, payload: any) {
+  async update(userId: string, id: string, payload: Partial<Habit>) {
     const { data, error } = await supabase
       .from('habits')
       .update(payload)
@@ -34,6 +37,7 @@ export const habitsService = {
       .single()
 
     if (error) throw error
+    await logDbOp('habits', 'update', userId, { id })
     return data
   },
 
@@ -45,10 +49,11 @@ export const habitsService = {
       .eq('user_id', userId)
 
     if (error) throw error
+    await logDbOp('habits', 'delete', userId, { id })
     return true
   },
 
-  async getLogs(userId: string, query: any) {
+  async getLogs(userId: string, query: { date?: string }) {
     const { date } = query
     let q = supabase.from('habit_logs').select('*').eq('user_id', userId)
 
@@ -75,6 +80,7 @@ export const habitsService = {
       // Update or delete if value is 0 (toggle off)
       if (value === 0) {
         await supabase.from('habit_logs').delete().eq('id', existing.id)
+        await logDbOp('habit_logs', 'delete', userId, { id: existing.id })
         return null
       } else {
         const { data, error } = await supabase
@@ -84,6 +90,7 @@ export const habitsService = {
           .select()
           .single()
         if (error) throw error
+        await logDbOp('habit_logs', 'update', userId, { id: existing.id, value })
         return data
       }
     } else {
@@ -95,6 +102,7 @@ export const habitsService = {
         .select()
         .single()
       if (error) throw error
+      await logDbOp('habit_logs', 'insert', userId, { id: (data as any)?.id, habit_id: habitId, value })
       return data
     }
   }

@@ -6,13 +6,13 @@ import { Card } from '@/components/ui/Card';
 interface CreateHabitDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: any) => void;
+    onSubmit: (data: { title: string; description?: string; routine: 'morning'|'afternoon'|'evening'|'any'; type: 'binary'|'numeric'; goal: number }) => void;
 }
 
 export function CreateHabitDialog({ isOpen, onClose, onSubmit }: CreateHabitDialogProps) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [routine, setRoutine] = useState('any');
+    const [routine, setRoutine] = useState<'morning'|'afternoon'|'evening'|'any'>('any');
 
     if (!isOpen) return null;
 
@@ -66,7 +66,7 @@ export function CreateHabitDialog({ isOpen, onClose, onSubmit }: CreateHabitDial
                             <select
                                 className="w-full bg-surface border border-border rounded-md p-2 text-foreground focus:border-primary focus:outline-none font-mono"
                                 value={routine}
-                                onChange={(e) => setRoutine(e.target.value)}
+                                onChange={(e) => setRoutine(e.target.value as 'morning'|'afternoon'|'evening'|'any')}
                             >
                                 <option value="any">Qualquer horário</option>
                                 <option value="morning">Manhã</option>

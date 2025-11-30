@@ -13,7 +13,7 @@ router.get('/transactions', authenticateToken, async (req: AuthRequest, res: Res
   }
   const userId = req.user!.id
   const { from, to } = getPagination(req.query)
-  const { startDate, endDate, type, category, tag } = req.query as any
+  const { startDate, endDate, type, category, tag } = req.query as Record<string, string>
   let q = supabase.from('transactions').select('*').eq('user_id', userId)
   if (startDate) q = q.gte('transaction_date', startDate)
   if (endDate) q = q.lte('transaction_date', endDate)
@@ -30,7 +30,7 @@ router.post('/transactions', authenticateToken, async (req: AuthRequest, res: Re
   try {
     const data = await financeService.create(req.user!.id, req.body || {})
     res.status(201).json(data)
-  } catch (e: any) { res.status(400).json({ error: e.message }) }
+  } catch (e: unknown) { const msg = e instanceof Error ? e.message : 'Unknown error'; res.status(400).json({ error: msg }) }
 })
 
 router.put('/transactions/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
@@ -62,7 +62,7 @@ router.post('/import', authenticateToken, async (req: AuthRequest, res: Response
     if (!type || !amountStr || !description || !date) continue
     const amount = Number(amountStr)
     const tags = (tagsStr || '').split(';').filter(Boolean)
-    try { await financeService.create(req.user!.id, { type: type as any, amount, description, transaction_date: date, tags }) ; count++ } catch {}
+    try { await financeService.create(req.user!.id, { type: type as 'income'|'expense', amount, description, transaction_date: date, tags }) ; count++ } catch { /* noop: linha inválida do CSV */ }
   }
   res.json({ imported: count })
 })

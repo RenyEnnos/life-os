@@ -9,12 +9,13 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "check": "tsc --noEmit",
-    "server:dev": "nodemon",
+    "server:dev": "nodemon --watch api --ext ts,js,json --exec tsx api/server.ts",
     "dev": "concurrently \"npm run client:dev\" \"npm run server:dev\"",
     "test": "vitest run --coverage",
     "test:watch": "vitest",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "lh": "node scripts/lighthouse.js"
   },
   "dependencies": {
     "@supabase/auth-helpers-react": "^0.15.0",
@@ -83,6 +84,7 @@
     "@storybook/addon-onboarding": "^10.1.2",
     "eslint-plugin-storybook": "^10.1.2",
     "playwright": "^1.57.0",
-    "@vitest/browser": "^2.1.4"
+    "@vitest/browser": "^2.1.4",
+    "lighthouse": "^12.2.0"
   }
 }

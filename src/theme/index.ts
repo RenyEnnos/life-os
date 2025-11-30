@@ -11,8 +11,11 @@ export const theme = {
       bg: '#f6f9f6',
       accent: '#0df20d',
       accentDark: '#0a0f0a',
-      border: '#224922',
-      text: '#0a0f0a'
+      border: '#2e6f2e',
+      text: '#0a0f0a',
+      surface: '#ffffff',
+      primaryHover: '#0bb10b',
+      secondaryHover: '#2a622a'
     }
   },
   typography: {

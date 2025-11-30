@@ -1,7 +1,7 @@
 import React from 'react'
 import { cn } from '@/lib/utils'
 
-type Props = { checked: boolean; onChange: (v: boolean) => void } & React.HTMLAttributes<HTMLButtonElement>
+type Props = { checked: boolean; onChange: (v: boolean) => void } & Omit<React.HTMLAttributes<HTMLButtonElement>, 'onChange'>
 
 export default function Toggle({ checked, onChange, className, ...props }: Props) {
   const base = 'w-10 h-5 border border-green-700 relative'

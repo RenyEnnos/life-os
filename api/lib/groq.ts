@@ -6,16 +6,7 @@ if (!apiKey) {
 }
 
 const isTestOrBrowser = typeof window !== 'undefined' || process.env.NODE_ENV === 'test'
-
-export const groq = isTestOrBrowser
-  ? ({
-      chat: {
-        completions: {
-          create: async () => ({ choices: [{ message: { content: '' } }], usage: { total_tokens: 0 } })
-        }
-      }
-    } as any)
-  : new Groq({ apiKey })
+const useMock = process.env.AI_TEST_MODE === 'mock'
 
 export async function generateAIResponse(
   systemPrompt: string,
@@ -23,7 +14,7 @@ export async function generateAIResponse(
   model = 'llama-3.1-8b-instant'
 ): Promise<{ text: string; tokens?: number; ms: number } | null> {
   // Deterministic mock mode for tests/integration without external calls
-  if (process.env.AI_TEST_MODE === 'mock') {
+  if (useMock) {
     const started = Date.now()
     // Very basic deterministic outputs based on prompt
     if (systemPrompt.includes('tags')) {
@@ -43,7 +34,8 @@ export async function generateAIResponse(
   if (!apiKey || isTestOrBrowser) return null
   const started = Date.now()
   try {
-    const chatCompletion = await groq.chat.completions.create({
+    const client = new Groq({ apiKey })
+    const chatCompletion = await client.chat.completions.create({
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
@@ -53,7 +45,7 @@ export async function generateAIResponse(
       max_tokens: 512,
     })
     const text = chatCompletion.choices[0]?.message?.content || ''
-    const tokens = (chatCompletion as any).usage?.total_tokens
+    const tokens = (chatCompletion as { usage?: { total_tokens?: number } }).usage?.total_tokens
     return { text, tokens, ms: Date.now() - started }
   } catch (error) {
     console.error('Groq API Error:', error)

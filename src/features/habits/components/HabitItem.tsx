@@ -1,4 +1,4 @@
-import { Check, X } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Habit } from '@/shared/types';

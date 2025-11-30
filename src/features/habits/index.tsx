@@ -6,6 +6,8 @@ import { useHabits } from '@/hooks/useHabits';
 import { HabitItem } from './components/HabitItem';
 import { CreateHabitDialog } from './components/CreateHabitDialog';
 import { EmptyState } from '@/components/ui/EmptyState';
+import type { Habit } from '@/shared/types';
+type HabitLog = { habit_id: string; value: number }
 
 export default function HabitsPage() {
     const { habits, logs, isLoading, createHabit, logHabit } = useHabits();
@@ -14,7 +16,7 @@ export default function HabitsPage() {
     const today = new Date().toISOString().split('T')[0];
 
     const handleToggle = (habitId: string) => {
-        const isCompleted = logs?.some((log: any) => log.habit_id === habitId && log.value > 0);
+        const isCompleted = logs?.some((log: HabitLog) => log.habit_id === habitId && log.value > 0);
         logHabit.mutate({
             id: habitId,
             value: isCompleted ? 0 : 1,
@@ -40,12 +42,12 @@ export default function HabitsPage() {
         }
     };
 
-    const groupedHabits = habits?.reduce((acc: any, habit: any) => {
+    const groupedHabits = habits?.reduce((acc: Record<string, Habit[]>, habit: Habit) => {
         const routine = habit.routine || 'any';
         if (!acc[routine]) acc[routine] = [];
         acc[routine].push(habit);
         return acc;
-    }, {});
+    }, {} as Record<string, Habit[]>);
 
     const routines = ['morning', 'afternoon', 'evening', 'any'];
 
@@ -79,11 +81,11 @@ export default function HabitsPage() {
                                     <h2 className="font-mono font-bold tracking-wider">{getLabel(routine)}</h2>
                                 </div>
                                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                    {routineHabits.map((habit: any) => (
+                                    {routineHabits.map((habit: Habit) => (
                                         <HabitItem
                                             key={habit.id}
                                             habit={habit}
-                                            completed={logs?.some((log: any) => log.habit_id === habit.id && log.value > 0)}
+                                            completed={!!logs?.some((log: HabitLog) => log.habit_id === habit.id && log.value > 0)}
                                             onToggle={() => handleToggle(habit.id)}
                                         />
                                     ))}

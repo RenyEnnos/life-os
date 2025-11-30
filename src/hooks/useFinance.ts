@@ -2,14 +2,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '../lib/api-client'
 import { Transaction } from '../../shared/types'
 
-export function useFinance(filters?: any) {
+export function useFinance(filters?: Record<string, string>) {
     const queryClient = useQueryClient()
     const queryKey = ['finance', 'transactions', filters]
     const summaryKey = ['finance', 'summary']
 
     const query = useQuery({
         queryKey,
-        queryFn: () => apiClient.get(`/api/finances?${new URLSearchParams(filters).toString()}`),
+        queryFn: () => apiClient.get(`/api/finances?${new URLSearchParams(filters ?? {}).toString()}`),
     })
 
     const summaryQuery = useQuery({
