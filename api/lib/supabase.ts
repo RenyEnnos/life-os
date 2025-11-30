@@ -5,7 +5,7 @@ let supabase: any
 if (isTest) {
   // Minimal supabase mock for tests to avoid external calls
   const chain = () => ({
-    select: () => Promise.resolve({ data: [], error: null }),
+    select: () => chain(),
     eq: () => chain(),
     contains: () => chain(),
     single: () => Promise.resolve({ data: null, error: null }),

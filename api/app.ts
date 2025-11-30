@@ -13,6 +13,7 @@ import tasksRoutes from './routes/tasks'
 import financesRoutes from './routes/finances'
 import healthRoutes from './routes/health'
 import aiRoutes from './routes/ai'
+import rewardsRoutes from './routes/rewards'
 import exportRoutes from './routes/export'
 import journalRoutes from './routes/journal'
 
@@ -35,6 +36,7 @@ app.use('/api/tasks', tasksRoutes)
 app.use('/api/finances', financesRoutes)
 app.use('/api/health', healthRoutes)
 app.use('/api/ai', aiRoutes)
+app.use('/api/rewards', rewardsRoutes)
 app.use('/api/export', exportRoutes)
 app.use('/api/journal', journalRoutes)
 

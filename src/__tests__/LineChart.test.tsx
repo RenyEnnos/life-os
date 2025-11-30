@@ -17,3 +17,4 @@ vi.mock('recharts', async () => {
     ResponsiveContainer: ({ children }: any) => <div style={{ width: 400, height: 200 }}>{children}</div>,
   }
 })
+/** @vitest-environment jsdom */

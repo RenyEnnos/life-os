@@ -32,3 +32,6 @@ build/
 .trae/tmp/
 .trae/cache/
 .trae/sessions/
+
+*storybook.log
+storybook-static

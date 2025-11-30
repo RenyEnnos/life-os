@@ -39,3 +39,4 @@ describe('Button Component', () => {
         expect(screen.getByRole('button', { name: /custom/i })).toHaveClass('custom-class');
     });
 });
+/** @vitest-environment jsdom */

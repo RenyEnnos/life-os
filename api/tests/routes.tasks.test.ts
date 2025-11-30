@@ -1,3 +1,4 @@
+/** @vitest-environment node */
 import request from 'supertest'
 import { describe, it, expect, beforeAll } from 'vitest'
 import app from '../app.ts'
@@ -8,12 +9,12 @@ const token = jwt.sign({ userId: 'u1', email: 'user@example.com' }, 'your-secret
 describe('Tasks routes', () => {
   beforeAll(() => { process.env.NODE_ENV = 'test' })
   it('lists empty tasks', async () => {
-    const res = await request(app).get('/api/tasks').set('Authorization', `Bearer ${token}`)
+    const res = await request(app).get('/api/tasks?page=1&pageSize=10').set('Authorization', `Bearer ${token}`)
     expect(res.status).toBe(200)
     expect(Array.isArray(res.body)).toBe(true)
   })
   it('creates a task', async () => {
-    const res = await request(app).post('/api/tasks').set('Authorization', `Bearer ${token}`).send({ title: 'Test' })
+    const res = await request(app).post('/api/tasks').set('Authorization', `Bearer ${token}`).set('Content-Type','application/json').send({ title: 'Test' })
     expect(res.status).toBe(201)
     expect(res.body.title).toBe('Test')
   })

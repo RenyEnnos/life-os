@@ -1,19 +1,21 @@
+/** @vitest-environment node */
 import request from 'supertest'
-import { describe, it, expect, beforeAll } from 'vitest'
+import { describe, it, expect, beforeAll, beforeEach } from 'vitest'
 import app from '../app.ts'
 
 const token = 'test-token'
 
 describe('AI routes', () => {
   beforeAll(() => { process.env.NODE_ENV = 'test' })
-  it('classifies transaction with heuristic', async () => {
-    const res = await request(app).post('/api/ai/classify-transaction').set('Authorization', `Bearer ${token}`).send({ description: 'Compra no supermercado' })
+  beforeEach(() => { process.env.AI_TEST_MODE = 'mock' })
+  it('summary returns bullets', async () => {
+    const res = await request(app).post('/api/ai/summary').set('Authorization', `Bearer ${token}`).send({ context: 'Hoje treinei e meditei' })
     expect(res.status).toBe(200)
-    expect(res.body.source).toBe('heuristic')
-    expect(res.body.category).toBe('groceries')
+    expect(Array.isArray(res.body.summary)).toBe(true)
   })
-  it('daily summary requires date', async () => {
-    const res = await request(app).post('/api/ai/daily-summary').set('Authorization', `Bearer ${token}`).send({})
-    expect(res.status).toBe(400)
+  it('tags returns array', async () => {
+    const res = await request(app).post('/api/ai/tags').set('Authorization', `Bearer ${token}`).send({ context: 'Compra no supermercado', type: 'finance' })
+    expect(res.status).toBe(200)
+    expect(Array.isArray(res.body.tags)).toBe(true)
   })
 })

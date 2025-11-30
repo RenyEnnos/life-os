@@ -1,49 +1,20 @@
-import { supabase } from '../lib/supabase'
+import { repoFactory } from '../repositories/factory'
+import type { BaseRepo } from '../repositories/factory'
 
-export const tasksService = {
-  async list(userId: string, query: any) {
-    const { data, error } = await supabase
-      .from('tasks')
-      .select('*')
-      .eq('user_id', userId)
-      .order('due_date', { ascending: true })
+type Task = { id: string; user_id: string; title: string; description?: string; due_date?: string; completed?: boolean; tags?: string[] }
 
-    if (error) throw error
-    return data
-  },
-
-  async create(userId: string, payload: any) {
-    const { data, error } = await supabase
-      .from('tasks')
-      .insert([{ ...payload, user_id: userId }])
-      .select()
-      .single()
-
-    if (error) throw error
-    return data
-  },
-
-  async update(userId: string, id: string, payload: any) {
-    const { data, error } = await supabase
-      .from('tasks')
-      .update(payload)
-      .eq('id', id)
-      .eq('user_id', userId)
-      .select()
-      .single()
-
-    if (error) throw error
-    return data
-  },
-
-  async remove(userId: string, id: string) {
-    const { error } = await supabase
-      .from('tasks')
-      .delete()
-      .eq('id', id)
-      .eq('user_id', userId)
-
-    if (error) throw error
-    return true
+class TasksServiceImpl {
+  private repo: BaseRepo<Task>
+  constructor() {
+    this.repo = repoFactory.get('tasks')
   }
+  async list(userId: string, query: any) { return this.repo.list(userId) }
+  async create(userId: string, payload: any) {
+    if (!payload?.title) throw new Error('Title is required')
+    return this.repo.create(userId, { ...payload, completed: false, tags: payload.tags ?? [] })
+  }
+  async update(userId: string, id: string, payload: any) { return this.repo.update(userId, id, payload) }
+  async remove(userId: string, id: string) { return this.repo.remove(userId, id) }
 }
+
+export const tasksService = new TasksServiceImpl()

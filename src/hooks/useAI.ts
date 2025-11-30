@@ -26,8 +26,9 @@ export function useAI() {
     const queryClient = useQueryClient();
 
     const generateTags = useMutation({
-        mutationFn: async ({ context, type }: { context: string; type: 'habit' | 'task' | 'journal' | 'finance' }) => {
-            return apiFetch<AIResponse<string[]>>('/ai/tags', {
+        mutationFn: async ({ context, type, force }: { context: string; type: 'habit' | 'task' | 'journal' | 'finance'; force?: boolean }) => {
+            const q = force ? '?force=true' : '';
+            return apiFetch<AIResponse<string[]>>(`/api/ai/tags${q}`, {
                 method: 'POST',
                 body: JSON.stringify({ context, type }),
             });
@@ -38,8 +39,9 @@ export function useAI() {
     });
 
     const generateSwot = useMutation({
-        mutationFn: async ({ context }: { context: string }) => {
-            return apiFetch<AIResponse<any>>('/ai/swot', {
+        mutationFn: async ({ context, force }: { context: string; force?: boolean }) => {
+            const q = force ? '?force=true' : '';
+            return apiFetch<AIResponse<any>>(`/api/ai/swot${q}`, {
                 method: 'POST',
                 body: JSON.stringify({ context }),
             });
@@ -50,8 +52,9 @@ export function useAI() {
     });
 
     const generatePlan = useMutation({
-        mutationFn: async ({ context }: { context: string }) => {
-            return apiFetch<AIResponse<any>>('/ai/plan', {
+        mutationFn: async ({ context, force }: { context: string; force?: boolean }) => {
+            const q = force ? '?force=true' : '';
+            return apiFetch<AIResponse<any>>(`/api/ai/plan${q}`, {
                 method: 'POST',
                 body: JSON.stringify({ context }),
             });
@@ -62,8 +65,9 @@ export function useAI() {
     });
 
     const generateSummary = useMutation({
-        mutationFn: async ({ context }: { context: string }) => {
-            return apiFetch<AIResponse<string[]>>('/ai/summary', {
+        mutationFn: async ({ context, force }: { context: string; force?: boolean }) => {
+            const q = force ? '?force=true' : '';
+            return apiFetch<AIResponse<string[]>>(`/api/ai/summary${q}`, {
                 method: 'POST',
                 body: JSON.stringify({ context }),
             });
@@ -76,7 +80,7 @@ export function useAI() {
     const { data: logs, isLoading: isLoadingLogs } = useQuery({
         queryKey: ['ai-logs'],
         queryFn: async () => {
-            return apiFetch<AILog[]>('/ai/logs');
+            return apiFetch<AILog[]>('/api/ai/logs');
         },
     });
 

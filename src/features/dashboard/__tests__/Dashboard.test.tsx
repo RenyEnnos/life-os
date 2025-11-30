@@ -74,7 +74,8 @@ describe('Dashboard Page', () => {
             </QueryClientProvider>
         );
 
-        expect(screen.getByText(/LIFE OS/i)).toBeInTheDocument();
-        expect(screen.getByText(/Visão Geral do Sistema/i)).toBeInTheDocument();
+        expect(screen.getByText(/DASHBOARD/i)).toBeInTheDocument();
+        expect(screen.getByText(/Visão geral do sistema/i)).toBeInTheDocument();
     });
 });
+/** @vitest-environment jsdom */

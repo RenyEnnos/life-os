@@ -4,17 +4,19 @@
 - Requirements: `GROQ_API_KEY` env; optional `GROQ_MODEL`
 
 ## Endpoints
-- `POST /api/ai/classify-transaction`
-  - Body: `{ description: string }`
-  - Response: `{ category: string, source: 'heuristic'|'cache'|'ai' }`
-  - Heurística local executada antes de IA; IA chamada apenas se ambíguo.
-- `POST /api/ai/swot-analysis`
-  - Body: `{ projectId: string, context: { tasks, notes, journalEntries } }`
-  - Response: `{ strengths: string[], weaknesses: string[], opportunities: string[], threats: string[] }`
-  - Cache habilitado; limite diário aplicado.
-- `POST /api/ai/daily-summary`
-  - Body: `{ date: 'YYYY-MM-DD' }`
-  - Response: `{ summary: string }`
+- `POST /api/ai/tags` → sugere tags
+  - Body: `{ context: string, type: 'habit'|'task'|'journal'|'finance' }`
+  - Query: `force=true` (bypassa Low-IA)
+- `POST /api/ai/swot` → FOFA
+  - Body: `{ context: string }`
+  - Query: `force=true`
+- `POST /api/ai/plan` → plano semanal
+  - Body: `{ context: string }`
+  - Query: `force=true`
+- `POST /api/ai/summary` → resumo diário
+  - Body: `{ context: string }`
+  - Query: `force=true`
 
 ## Limites e Logs
 - Limite diário por função; logs em `ai_logs` com `tokens_used`, `response_time_ms`, `success`.
+ - Modo Low-IA: quando ativo no usuário, chamadas requerem `force=true`.

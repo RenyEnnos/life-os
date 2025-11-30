@@ -9,3 +9,4 @@ describe('HeatmapWeekly', () => {
     expect(container.querySelectorAll('div.w-6.h-6').length).toBe(2)
   })
 })
+/** @vitest-environment jsdom */

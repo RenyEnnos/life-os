@@ -12,7 +12,9 @@
     "server:dev": "nodemon",
     "dev": "concurrently \"npm run client:dev\" \"npm run server:dev\"",
     "test": "vitest run --coverage",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@supabase/auth-helpers-react": "^0.15.0",
@@ -51,7 +53,7 @@
     "@types/supertest": "^6.0.3",
     "@vercel/node": "^5.3.6",
     "@vitejs/plugin-react": "^4.4.1",
-    "@vitest/coverage-v8": "2.1.9",
+    "@vitest/coverage-v8": "^2.1.4",
     "autoprefixer": "^10.4.21",
     "babel-plugin-react-dev-locator": "^1.0.0",
     "concurrently": "^9.2.0",
@@ -71,6 +73,16 @@
     "vite": "^6.3.5",
     "vite-plugin-trae-solo-badge": "^1.0.0",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^2.1.4"
+    "vitest": "^2.1.4",
+    "storybook": "^10.1.2",
+    "@storybook/react-vite": "^10.1.2",
+    "@chromatic-com/storybook": "^4.1.3",
+    "@storybook/addon-vitest": "^10.1.2",
+    "@storybook/addon-a11y": "^10.1.2",
+    "@storybook/addon-docs": "^10.1.2",
+    "@storybook/addon-onboarding": "^10.1.2",
+    "eslint-plugin-storybook": "^10.1.2",
+    "playwright": "^1.57.0",
+    "@vitest/browser": "^2.1.4"
   }
 }

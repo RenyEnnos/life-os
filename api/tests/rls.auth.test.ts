@@ -1,31 +1,35 @@
+/** @vitest-environment node */
 import { describe, it, expect } from 'vitest'
 import { createClient } from '@supabase/supabase-js'
 
-const url = process.env.SUPABASE_URL
-const anon = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
-
-const skip = !url || !anon
+const url = process.env.SUPABASE_URL as string
+const anon = (process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY) as string
+const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY as string
 
 describe('RLS Authenticated user', () => {
-  it.skipIf(skip)('authenticated can insert/select own tasks; cannot access others', async () => {
+  it('authenticated can insert/select own tasks; cannot access others', async () => {
+    expect(url && anon && serviceRole).toBeTruthy()
+    const admin = createClient(url, serviceRole)
     const email = `test_${Date.now()}@example.com`
     const password = 'Test1234!'
-    const client = createClient(url!, anon!)
-    const { data: signedUp } = await client.auth.signUp({ email, password })
-    const userId = signedUp?.user?.id
-    if (!userId) {
-      // Skip if project enforces email confirmation
-      return expect(true).toBe(true)
-    }
+    const { data: created, error: createErr } = await admin.auth.admin.createUser({ email, password, email_confirm: true })
+    expect(createErr).toBeFalsy()
+    const userId = created!.user!.id
 
-    const { error: insErr } = await client.from('tasks').insert([{ user_id: userId!, title: 'My task' }])
+    const authed = createClient(url, anon)
+    const { data: signedIn, error: signErr } = await authed.auth.signInWithPassword({ email, password })
+    expect(signErr).toBeFalsy()
+    expect(signedIn?.user?.id).toBe(userId)
+
+    const { error: insErr } = await authed.from('tasks').insert([{ user_id: userId, title: 'RLS test row' }])
     expect(insErr).toBeFalsy()
 
-    const { data: mine } = await client.from('tasks').select('*').eq('user_id', userId!)
+    const { data: mine, error: selErr } = await authed.from('tasks').select('*').eq('user_id', userId)
+    expect(selErr).toBeFalsy()
     expect(Array.isArray(mine)).toBe(true)
 
     const otherUser = '00000000-0000-0000-0000-000000000000'
-    const { error: otherErr } = await client.from('tasks').insert([{ user_id: otherUser, title: 'Other task' }])
-    expect(otherErr).toBeTruthy()
+    const { error: otherInsErr } = await authed.from('tasks').insert([{ user_id: otherUser, title: 'Other row' }])
+    expect(otherInsErr).toBeTruthy()
   })
 })
