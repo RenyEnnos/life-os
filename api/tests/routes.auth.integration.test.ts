@@ -1,8 +1,9 @@
 import request from 'supertest'
-import { describe, it, expect } from 'vitest'
-import app from '../../api/app'
+import { describe, it, expect, beforeAll } from 'vitest'
+let app: any
 
 describe('Auth integration flow', () => {
+  beforeAll(async () => { process.env.NODE_ENV = 'test'; process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret'; app = (await import('../app')).default }, 30000)
   it('register, login, verify, update theme, verify, logout', async () => {
     const email = `user_${Date.now()}@example.com`
     const password = 'StrongPass1!'

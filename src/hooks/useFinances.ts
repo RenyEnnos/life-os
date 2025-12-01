@@ -10,7 +10,7 @@ export function useFinances() {
     const { data: transactions, isLoading: loadingTransactions } = useQuery<Transaction[]>({
         queryKey: ['transactions', user?.id],
         queryFn: async () => {
-            return apiFetch<Transaction[]>('/api/finances');
+            return apiFetch<Transaction[]>('/api/finances/transactions');
         },
         enabled: !!user,
     });
@@ -27,7 +27,7 @@ export function useFinances() {
 
     const createTransaction = useMutation({
         mutationFn: async (data: Partial<Transaction>) => {
-            return apiFetch('/api/finances', {
+            return apiFetch('/api/finances/transactions', {
                 method: 'POST',
                 body: JSON.stringify(data),
             });
@@ -40,7 +40,7 @@ export function useFinances() {
 
     const deleteTransaction = useMutation({
         mutationFn: async (id: string) => {
-            return apiFetch(`/api/finances/${id}`, {
+            return apiFetch(`/api/finances/transactions/${id}`, {
                 method: 'DELETE',
             });
         },

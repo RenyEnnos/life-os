@@ -7,12 +7,19 @@ import bcrypt from 'bcryptjs'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { supabase } from '../lib/supabase'
 import { LoginRequest, RegisterRequest, AuthResponse } from '../../shared/types'
+import { z } from 'zod'
 
 const router = Router()
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+const JWT_SECRET = process.env.JWT_SECRET
+
+if (!JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET is not defined in environment variables.')
+  process.exit(1)
+}
+
 const loginAttempts: Record<string, { count: number; last: number; lockedUntil?: number }> = {}
 
-async function logAuth(email: string, status: 'success'|'fail', meta?: { code?: string; reason?: string }, req?: Request) {
+async function logAuth(email: string, status: 'success' | 'fail', meta?: { code?: string; reason?: string }, req?: Request) {
   try {
     const ip = (req?.headers['x-forwarded-for'] as string) || req?.ip || 'unknown'
     const ua = req?.headers['user-agent'] || 'unknown'
@@ -28,7 +35,14 @@ async function logAuth(email: string, status: 'success'|'fail', meta?: { code?: 
  */
 router.post('/register', async (req: Request<Record<string, never>, unknown, RegisterRequest>, res: Response): Promise<void> => {
   try {
-    const { email, password, name } = req.body
+    const schema = z.object({ email: z.string().email(), password: z.string().min(8), name: z.string().min(1) })
+    const parsed = schema.safeParse(req.body || {})
+    if (!parsed.success) {
+      await logAuth((req.body?.email as string) || 'unknown', 'fail', { code: 'BAD_REQUEST', reason: 'missing_fields' }, req)
+      res.status(400).json({ error: 'Email, password, and name are required', code: 'BAD_REQUEST' })
+      return
+    }
+    const { email, password, name } = parsed.data
 
     if (!email || !password || !name) {
       await logAuth(email || 'unknown', 'fail', { code: 'BAD_REQUEST', reason: 'missing_fields' }, req)
@@ -66,12 +80,14 @@ router.post('/register', async (req: Request<Record<string, never>, unknown, Reg
       .single()
 
     if (error) {
+      console.error('Supabase registration error:', error)
       await logAuth(email, 'fail', { code: 'REGISTER_FAILED', reason: 'db_error' }, req)
       res.status(500).json({ error: 'Failed to create user', code: 'REGISTER_FAILED' })
       return
     }
 
     // Generate JWT token
+    if (!JWT_SECRET) { res.status(500).json({ error: 'JWT_SECRET not configured' }); return }
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       JWT_SECRET,
@@ -106,7 +122,14 @@ router.post('/register', async (req: Request<Record<string, never>, unknown, Reg
  */
 router.post('/login', async (req: Request<Record<string, never>, unknown, LoginRequest>, res: Response): Promise<void> => {
   try {
-    const { email, password } = req.body
+    const schema = z.object({ email: z.string().email(), password: z.string().min(8) })
+    const parsed = schema.safeParse(req.body || {})
+    if (!parsed.success) {
+      await logAuth((req.body?.email as string) || 'unknown', 'fail', { code: 'BAD_REQUEST', reason: 'missing_fields' }, req)
+      res.status(400).json({ error: 'Email and password are required', code: 'BAD_REQUEST' })
+      return
+    }
+    const { email, password } = parsed.data
 
     if (!email || !password) {
       await logAuth(email || 'unknown', 'fail', { code: 'BAD_REQUEST', reason: 'missing_fields' }, req)
@@ -157,6 +180,7 @@ router.post('/login', async (req: Request<Record<string, never>, unknown, LoginR
     }
 
     // Generate JWT token
+    if (!JWT_SECRET) { res.status(500).json({ error: 'JWT_SECRET not configured' }); return }
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       JWT_SECRET,

@@ -7,6 +7,11 @@ export default defineConfig({
     environment: 'node',
     include: ['api/tests/**/*.test.ts', 'src/**/__tests__/**/*.test.ts', 'src/**/__tests__/**/*.test.tsx'],
     globals: true,
+    environmentMatchGlobs: [
+      ['**/*.test.tsx', 'jsdom'],
+      ['**/*.snapshot.test.tsx', 'jsdom'],
+      ['src/**/__tests__/**/*.test.tsx', 'jsdom']
+    ],
     coverage: {
       reporter: ['text', 'html']
     },

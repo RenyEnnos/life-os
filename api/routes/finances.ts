@@ -3,6 +3,7 @@ import { authenticateToken, AuthRequest } from '../middleware/auth'
 import { financeService } from '../services/financeService'
 import { supabase } from '../lib/supabase'
 import { getPagination } from '../lib/pagination'
+import { z } from 'zod'
 
 const router = Router()
 
@@ -28,7 +29,17 @@ router.get('/transactions', authenticateToken, async (req: AuthRequest, res: Res
 
 router.post('/transactions', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    const data = await financeService.create(req.user!.id, req.body || {})
+    const schema = z.object({
+      type: z.enum(['income', 'expense']),
+      amount: z.number().positive(),
+      description: z.string().min(1),
+      transaction_date: z.string().min(1),
+      tags: z.array(z.string()).optional(),
+      category: z.string().optional()
+    })
+    const parsed = schema.safeParse(req.body || {})
+    if (!parsed.success) return res.status(400).json({ error: 'Invalid transaction payload' })
+    const data = await financeService.create(req.user!.id, parsed.data)
     res.status(201).json(data)
   } catch (e: unknown) { const msg = e instanceof Error ? e.message : 'Unknown error'; res.status(400).json({ error: msg }) }
 })

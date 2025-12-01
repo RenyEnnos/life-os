@@ -2,6 +2,7 @@ import { Router, type Response } from 'express'
 import { authenticateToken, AuthRequest } from '../middleware/auth'
 import { tasksService } from '../services/tasksService'
 import { calendarService } from '../services/calendarService'
+import { z } from 'zod'
 
 const router = Router()
 
@@ -21,7 +22,15 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Prom
 router.post('/', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   const userId = req.user!.id
   try {
-    const data = await tasksService.create(userId, req.body || {})
+    const schema = z.object({
+      title: z.string().min(1),
+      description: z.string().optional(),
+      due_date: z.string().datetime().optional(),
+      tags: z.array(z.string()).optional()
+    })
+    const parsed = schema.safeParse(req.body || {})
+    if (!parsed.success) { res.status(400).json({ error: 'Invalid task payload' }); return }
+    const data = await tasksService.create(userId, parsed.data)
     // Calendar sync (best effort)
     try {
       if (data.due_date) {
@@ -42,7 +51,16 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response): Pro
 router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   const userId = req.user!.id
   const { id } = req.params
-  const payload = req.body || {}
+  const schema = z.object({
+    title: z.string().min(1).optional(),
+    description: z.string().optional(),
+    due_date: z.string().datetime().optional(),
+    completed: z.boolean().optional(),
+    tags: z.array(z.string()).optional()
+  })
+  const parsed = schema.safeParse(req.body || {})
+  if (!parsed.success) { res.status(400).json({ error: 'Invalid task payload' }); return }
+  const payload = parsed.data
   const data = await tasksService.update(userId, id, payload)
   if (!data) {
     res.status(404).json({ error: 'Task not found or update failed' })

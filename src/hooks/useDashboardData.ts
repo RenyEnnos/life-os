@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { apiClient } from '../lib/api-client'
+import { apiClient } from '../lib/api'
 import type { Task, Habit } from '@/shared/types'
 import type { HealthMetric } from '../../shared/types'
 type HabitLog = { habit_id: string; date: string }

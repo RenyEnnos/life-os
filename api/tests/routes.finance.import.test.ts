@@ -1,9 +1,11 @@
 /** @vitest-environment node */
 import request from 'supertest'
 import { describe, it, expect, beforeAll } from 'vitest'
-import app from '../app'
+let app: any
+import jwt from 'jsonwebtoken'
 
-const token = 'test-token'
+let token = ''
+beforeAll(async () => { process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret'; app = (await import('../app')).default; token = jwt.sign({ userId: 'u1', email: 'user@example.com' }, process.env.JWT_SECRET!) }, 30000)
 
 describe('Finance import', () => {
   beforeAll(() => { process.env.NODE_ENV = 'test' })

@@ -1,12 +1,13 @@
 /** @vitest-environment node */
 import request from 'supertest'
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest'
-import app from '../app.ts'
+let app: any
+import jwt from 'jsonwebtoken'
 
-const token = 'test-token'
+let token = ''
 
 describe('AI routes', () => {
-  beforeAll(() => { process.env.NODE_ENV = 'test' })
+  beforeAll(async () => { process.env.NODE_ENV = 'test'; process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret'; app = (await import('../app')).default; token = jwt.sign({ userId: 'u1', email: 'user@example.com' }, process.env.JWT_SECRET!) }, 30000)
   beforeEach(() => { process.env.AI_TEST_MODE = 'mock' })
   it('summary returns bullets', async () => {
     const res = await request(app).post('/api/ai/summary').set('Authorization', `Bearer ${token}`).send({ context: 'Hoje treinei e meditei' })

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQueryClient, QueryKey } from '@tanstack/react-query'
 
 export function useRealtime() {
   const { user } = useAuth()
@@ -12,7 +12,7 @@ export function useRealtime() {
     if (!token) return
     const es = new EventSource(`/api/realtime/stream?token=${encodeURIComponent(token)}`)
 
-    const invalidate = (key: any) => qc.invalidateQueries({ queryKey: key })
+    const invalidate = (key: QueryKey) => qc.invalidateQueries({ queryKey: key })
 
     es.addEventListener('habits', () => invalidate(['habits', user.id]))
     es.addEventListener('habit_logs', () => invalidate(['habit-logs', user.id]))

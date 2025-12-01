@@ -17,6 +17,7 @@ import journalRoutes from './routes/journal'
 import devRoutes from './routes/dev'
 import dbRoutes from './routes/db'
 import realtimeRoutes from './routes/realtime'
+import projectsRoutes from './routes/projects'
 
 // for esm mode
 
@@ -43,6 +44,7 @@ app.use('/api/journal', journalRoutes)
 app.use('/api/dev', devRoutes)
 app.use('/api/db', dbRoutes)
 app.use('/api/realtime', realtimeRoutes)
+app.use('/api/projects', projectsRoutes)
 
 
 

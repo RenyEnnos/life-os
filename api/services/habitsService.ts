@@ -23,7 +23,7 @@ export const habitsService = {
       .single()
 
     if (error) throw error
-    await logDbOp('habits', 'insert', userId, { id: (data as any)?.id })
+    await logDbOp('habits', 'insert', userId, { id: (data as { id: string })?.id })
     return data
   },
 
@@ -102,7 +102,7 @@ export const habitsService = {
         .select()
         .single()
       if (error) throw error
-      await logDbOp('habit_logs', 'insert', userId, { id: (data as any)?.id, habit_id: habitId, value })
+      await logDbOp('habit_logs', 'insert', userId, { id: (data as { id: string })?.id, habit_id: habitId, value })
       return data
     }
   }

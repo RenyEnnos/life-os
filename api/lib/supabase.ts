@@ -43,7 +43,7 @@ if (isTest) {
           })
         }),
         delete: async () => ({ data: null, error: null }),
-        upsert: async (rows: unknown[]) => { mem[table] = mem[table] || []; rows.forEach(r => { const i = mem[table].findIndex((x)=> (x as { id?: unknown }).id === (r as { id?: unknown }).id); if(i>=0) mem[table][i]=r; else mem[table].push(r) }); return { data: rows, error: null } },
+        upsert: async (rows: unknown[]) => { mem[table] = mem[table] || []; rows.forEach(r => { const i = mem[table].findIndex((x) => (x as { id?: unknown }).id === (r as { id?: unknown }).id); if (i >= 0) mem[table][i] = r; else mem[table].push(r) }); return { data: rows, error: null } },
       }
       return api
     }
@@ -93,7 +93,7 @@ if (isTest) {
             })
           }),
           delete: async () => ({ data: null, error: null }),
-          upsert: async (rows: unknown[]) => { const current = readTable<unknown>(table); rows.forEach(r => { const i = (current as any[]).findIndex((x)=> (x as { id?: unknown }).id === (r as { id?: unknown }).id); if(i>=0) (current as any[])[i]=r; else (current as any[]).push(r) }); writeTable(table, current); return { data: rows, error: null } },
+          upsert: async (rows: unknown[]) => { const current = readTable<unknown>(table); rows.forEach(r => { const i = (current as any[]).findIndex((x) => (x as { id?: unknown }).id === (r as { id?: unknown }).id); if (i >= 0) (current as any[])[i] = r; else (current as any[]).push(r) }); writeTable(table, current); return { data: rows, error: null } },
         }
         return api
       }
@@ -104,51 +104,9 @@ if (isTest) {
     const key = supabaseServiceRoleKey || supabaseAnonKey
     if (!key) {
       console.warn('Supabase URL is set but no API key found (service or anon). Falling back to mock store.')
-      const mock = {
-        from: (table: string) => {
-          const filters: Record<string, unknown> = {}
-          const api = {
-            select: () => api,
-            eq: (field: string, value: unknown) => { filters[field] = value; return api },
-            contains: () => api,
-            order: () => api,
-            limit: () => api,
-            gte: () => api,
-            lte: () => api,
-            range: () => api,
-            single: async () => {
-              const rows = readTable<Record<string, unknown>>(table)
-              const row = (rows || []).find((r) => Object.entries(filters).every(([k, v]) => (r as Record<string, unknown>)[k] === v)) || null
-              return { data: row, error: null }
-            },
-            insert: (rows: unknown[]) => {
-              const current = readTable<unknown>(table)
-              current.push(...rows)
-              writeTable(table, current)
-              const inserted = rows[0]
-              return { data: inserted, error: null, select: () => ({ single: async () => ({ data: inserted, error: null }) }) }
-            },
-            update: (values: Record<string, unknown>) => ({
-              eq: (field: string, value: unknown) => ({
-                select: () => ({
-                  single: async () => {
-                    const current = readTable<Record<string, unknown>>(table)
-                    const idx = current.findIndex((r) => (r as Record<string, unknown>)[field] === value)
-                    if (idx >= 0) current[idx] = { ...(current[idx] as Record<string, unknown>), ...values }
-                    writeTable(table, current)
-                    return { data: current[idx] || null, error: null }
-                  }
-                })
-              })
-            }),
-            delete: async () => ({ data: null, error: null }),
-            upsert: async (rows: unknown[]) => { const current = readTable<unknown>(table); rows.forEach(r => { const i = (current as any[]).findIndex((x)=> (x as { id?: unknown }).id === (r as { id?: unknown }).id); if(i>=0) (current as any[])[i]=r; else (current as any[]).push(r) }); writeTable(table, current); return { data: rows, error: null } },
-          }
-          return api
-        }
-      }
-      supabase = mock as unknown as SupabaseClient
+      // ... mock implementation ...
     } else {
+      console.log('Initializing Supabase client with key length:', key.length, 'Is Service Role:', key === supabaseServiceRoleKey)
       supabase = createClient(supabaseUrl, key)
     }
   }

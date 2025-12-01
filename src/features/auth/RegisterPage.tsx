@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 
 export default function RegisterPage() {
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,7 +24,7 @@ export default function RegisterPage() {
         try {
             setError('');
             setLoading(true);
-            await register({ email, password, name: email.split('@')[0] });
+            await register({ email, password, name });
             navigate('/');
         } catch {
             setError('Falha ao criar conta.');
@@ -48,6 +49,16 @@ export default function RegisterPage() {
                         </div>
                     )}
                     <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-mono text-gray-400">Nome</label>
+                            <input
+                                type="text"
+                                required
+                                className="w-full bg-background border border-border rounded-md p-2 text-gray-100 focus:border-primary focus:outline-none font-mono"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                            />
+                        </div>
                         <div className="space-y-2">
                             <label className="text-sm font-mono text-gray-400">Email</label>
                             <input
