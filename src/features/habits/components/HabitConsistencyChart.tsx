@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/Card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 
 interface HabitConsistencyChartProps {
   percentage: number
@@ -24,23 +24,22 @@ const HabitConsistencyChart: React.FC<HabitConsistencyChartProps> = ({ percentag
             completos hoje
           </div>
         </div>
-        
+
         <div className="space-y-2">
           <div className="flex justify-between text-xs text-gray-500 font-mono">
             {days.map((day, index) => (
               <span key={index}>{day}</span>
             ))}
           </div>
-          
+
           <div className="flex gap-1 h-16 items-end">
             {weeklyData.map((value, index) => {
               const height = (value / maxValue) * 100
               return (
                 <div key={index} className="flex-1 flex flex-col justify-end">
                   <div
-                    className={`w-full transition-all duration-300 ${
-                      value > 0 ? 'bg-green-500' : 'bg-gray-700'
-                    }`}
+                    className={`w-full transition-all duration-300 ${value > 0 ? 'bg-green-500' : 'bg-gray-700'
+                      }`}
                     style={{ height: `${height}%` }}
                   />
                 </div>

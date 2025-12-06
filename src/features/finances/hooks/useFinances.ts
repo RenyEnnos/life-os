@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api';
-import type { Transaction } from '../../shared/types';
+import type { Transaction } from '@/shared/types';
 
 export function useFinances() {
     const { user } = useAuth();

@@ -1,5 +1,6 @@
 import { repoFactory } from '../repositories/factory'
 import type { BaseRepo } from '../repositories/factory'
+import { rewardsService } from './rewardsService'
 
 type Task = { id: string; user_id: string; title: string; description?: string; due_date?: string; completed?: boolean; tags?: string[] }
 
@@ -13,7 +14,25 @@ class TasksServiceImpl {
     if (!payload?.title) throw new Error('Title is required')
     return this.repo.create(userId, { ...payload, completed: false, tags: payload.tags ?? [] })
   }
-  async update(userId: string, id: string, payload: Partial<Task>) { return this.repo.update(userId, id, payload) }
+  async update(userId: string, id: string, payload: Partial<Task>) {
+    const updated = await this.repo.update(userId, id, payload)
+
+    // Check if task was just completed
+    if (payload.completed === true) {
+      try {
+        // Award XP for completing a task
+        await rewardsService.addXp(userId, 10) // 10 XP per task
+
+        // Check for "First Step" achievement
+        await rewardsService.checkAndUnlockAchievement(userId, 'FIRST_STEP')
+      } catch (error) {
+        console.error('Failed to award rewards for task completion:', error)
+        // Don't fail the task update if rewards fail
+      }
+    }
+
+    return updated
+  }
   async remove(userId: string, id: string) { return this.repo.remove(userId, id) }
 }
 

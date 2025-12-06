@@ -14,8 +14,10 @@ const JournalPage = lazy(() => import('@/features/journal'));
 const HealthPage = lazy(() => import('@/features/health'));
 const FinancesPage = lazy(() => import('@/features/finances'));
 const ProjectsPage = lazy(() => import('@/features/projects'));
-const RewardsPage = lazy(() => import('@/features/rewards'));
+import RewardsPage from '@/features/rewards/index';
+// const RewardsPage = lazy(() => import('@/features/rewards/index'));
 const SettingsPage = lazy(() => import('@/features/settings'));
+const DesignSystemPreview = lazy(() => import('@/features/design-system/Preview'));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { user, loading } = useAuth();
@@ -62,6 +64,7 @@ export function AppRoutes() {
                     <Route path="/projects" element={<ProjectsPage />} />
                     <Route path="/rewards" element={<RewardsPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/design" element={<DesignSystemPreview />} />
                 </Route>
 
                 {/* Catch all */}

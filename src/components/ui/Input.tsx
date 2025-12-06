@@ -8,7 +8,7 @@ export function Input({ className, ...props }: Props) {
     <input
       {...props}
       className={cn(
-        'bg-transparent border border-green-700 p-2 text-green-300 placeholder-green-700 focus:outline-none',
+        'bg-surface border border-border px-3 py-2 text-foreground placeholder-mutedForeground rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200',
         className
       )}
     />
@@ -22,7 +22,7 @@ export function TextArea({ className, ...props }: TextAreaProps) {
     <textarea
       {...props}
       className={cn(
-        'bg-transparent border border-green-700 p-2 text-green-300 placeholder-green-700 focus:outline-none',
+        'bg-surface border border-border px-3 py-2 text-foreground placeholder-mutedForeground rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200',
         className
       )}
     />

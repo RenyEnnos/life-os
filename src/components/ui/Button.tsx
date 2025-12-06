@@ -9,25 +9,25 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', ...props }, ref) => {
     const variants = {
-      primary: 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_10px_rgba(13,242,13,0.3)] hover:shadow-[0_0_20px_rgba(13,242,13,0.5)] border border-transparent',
-      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-transparent',
-      outline: 'border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-[0_0_5px_rgba(13,242,13,0.2)]',
-      ghost: 'hover:bg-primary/10 text-primary hover:text-primary',
-      destructive: 'bg-destructive text-white hover:bg-destructive/90 border border-destructive',
+      primary: 'bg-primary text-primary-foreground hover:bg-primary/90 transition-colors',
+      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors',
+      outline: 'border border-primary text-foreground hover:border-primary hover:text-primary transition-colors',
+      ghost: 'text-foreground hover:bg-muted/50 transition-colors',
+      destructive: 'bg-destructive text-white hover:bg-destructive/90 transition-colors',
     };
 
     const sizes = {
-      sm: 'h-8 px-3 text-xs',
-      md: 'h-10 px-4 py-2',
-      lg: 'h-12 px-8 text-lg',
-      icon: 'h-11 w-11 p-2 flex items-center justify-center',
+      sm: 'h-8 px-3 text-sm',
+      md: 'h-10 px-4',
+      lg: 'h-12 px-6 text-base',
+      icon: 'h-10 w-10 p-0 flex items-center justify-center',
     };
 
     return (
       <button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center rounded-sm font-mono font-bold transition-all transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 uppercase tracking-wider active:scale-95',
+          'inline-flex items-center justify-center rounded-md font-sans font-medium duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50',
           variants[variant],
           sizes[size],
           className

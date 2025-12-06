@@ -1,142 +1,91 @@
 import { supabase } from '../lib/supabase'
-import type { Reward, Achievement } from '../../shared/types'
 
 export const rewardsService = {
-  async list(userId: string) {
+  async getUserScore(userId: string) {
     const { data, error } = await supabase
-      .from('rewards')
+      .from('user_scores')
       .select('*')
       .eq('user_id', userId)
-      .order('points_required', { ascending: true })
-
-    if (error) throw error
-    return data
-  },
-
-  async create(userId: string, payload: Partial<Reward>) {
-    const { data, error } = await supabase
-      .from('rewards')
-      .insert([{ ...payload, user_id: userId }])
-      .select()
       .single()
 
-    if (error) throw error
-    return data
-  },
+    if (error && error.code !== 'PGRST116') throw error // PGRST116 is "not found"
 
-  async update(userId: string, id: string, payload: Partial<Reward>) {
-    const { data, error } = await supabase
-      .from('rewards')
-      .update(payload)
-      .eq('id', id)
-      .eq('user_id', userId)
-      .select()
-      .single()
+    if (!data) {
+      // Initialize if not exists
+      const { data: newData, error: createError } = await supabase
+        .from('user_scores')
+        .insert([{ user_id: userId }])
+        .select()
+        .single()
 
-    if (error) throw error
-    return data
-  },
-
-  async remove(userId: string, id: string) {
-    const { error } = await supabase
-      .from('rewards')
-      .delete()
-      .eq('id', id)
-      .eq('user_id', userId)
-
-    if (error) throw error
-    return true
-  },
-
-  // Achievements
-  async listAchievements(userId: string) {
-    const { data, error } = await supabase
-      .from('achievements')
-      .select('*')
-      .eq('user_id', userId)
-
-    if (error) throw error
-    return data
-  },
-
-  async unlockAchievement(userId: string, payload: Partial<Achievement> & { key?: string }) {
-    // payload: { key, name, description }
-    const { data, error } = await supabase
-      .from('achievements')
-      .upsert([{ ...payload, user_id: userId, unlocked_at: new Date() }], { onConflict: 'user_id,key' })
-      .select()
-      .single()
-
-    if (error) throw error
-    return data
-  },
-
-  // Life Score Logic (Simplified for now)
-  async getLifeScore(userId: string) {
-    // 1. Calculate Habit Consistency (last 7 days)
-    const sevenDaysAgo = new Date()
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-
-    const { data: habitLogs } = await supabase
-      .from('habit_logs')
-      .select('*')
-      .eq('user_id', userId)
-      .gte('logged_date', sevenDaysAgo.toISOString())
-
-    const habitScore = Math.min((habitLogs?.length || 0) * 5, 40) // Max 40 points
-
-    // 2. Calculate Task Completion
-    const { data: tasks } = await supabase
-      .from('tasks')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('completed', true)
-      .gte('updated_at', sevenDaysAgo.toISOString())
-
-    const taskScore = Math.min((tasks?.length || 0) * 5, 30) // Max 30 points
-
-    // 3. Health & Finance (Placeholder - 10 points each if any data exists)
-    const { count: healthCount } = await supabase
-      .from('health_metrics')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .gte('recorded_date', sevenDaysAgo.toISOString())
-
-    const healthScore = healthCount ? 15 : 0
-
-    const { count: financeCount } = await supabase
-      .from('transactions')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .gte('transaction_date', sevenDaysAgo.toISOString())
-
-    const financeScore = financeCount ? 15 : 0
-
-    const totalScore = habitScore + taskScore + healthScore + financeScore
-
-    // Save snapshot
-    await supabase
-      .from('life_score_snapshots')
-      .insert([{
-        user_id: userId,
-        score: totalScore,
-        breakdown: { habitScore, taskScore, healthScore, financeScore },
-        recorded_date: new Date()
-      }])
-
-    return {
-      score: totalScore,
-      breakdown: { habitScore, taskScore, healthScore, financeScore }
+      if (createError) throw createError
+      return newData
     }
+
+    return data
   },
 
-  async getLifeScoreHistory(userId: string) {
-    const { data, error } = await supabase
-      .from('life_score_snapshots')
-      .select('*')
+  async addXp(userId: string, amount: number) {
+    const score = await this.getUserScore(userId)
+    const newXp = (score.current_xp || 0) + amount
+    const newLevel = Math.floor(newXp / 1000) + 1 // Simple level formula: 1000 XP per level
+
+    const { error } = await supabase
+      .from('user_scores')
+      .update({ current_xp: newXp, level: newLevel, updated_at: new Date().toISOString() })
       .eq('user_id', userId)
-      .order('recorded_date', { ascending: true })
-      .limit(30) // Last 30 entries
+
+    if (error) throw error
+    return { newXp, newLevel }
+  },
+
+  async checkAndUnlockAchievement(userId: string, achievementCode: string) {
+    // Check if already unlocked
+    const { data: existing } = await supabase
+      .from('user_achievements')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('achievement_id', (await this.getAchievementId(achievementCode)))
+      .single()
+
+    if (existing) return null // Already unlocked
+
+    // Get achievement details
+    const { data: achievement } = await supabase
+      .from('achievements')
+      .select('*')
+      .eq('code', achievementCode)
+      .single()
+
+    if (!achievement) return null
+
+    // Unlock
+    const { error } = await supabase
+      .from('user_achievements')
+      .insert([{ user_id: userId, achievement_id: achievement.id }])
+
+    if (error) throw error
+
+    // Award XP for achievement
+    await this.addXp(userId, achievement.xp_reward)
+
+    return achievement
+  },
+
+  async getAchievementId(code: string) {
+    const { data } = await supabase
+      .from('achievements')
+      .select('id')
+      .eq('code', code)
+      .single()
+    return data?.id
+  },
+
+  async getUnlockedAchievements(userId: string) {
+    const { data, error } = await supabase
+      .from('user_achievements')
+      .select('*, achievement:achievements(*)')
+      .eq('user_id', userId)
 
     if (error) throw error
     return data

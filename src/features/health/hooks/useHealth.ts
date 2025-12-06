@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api';
-import type { HealthMetric, MedicationReminder } from '../../shared/types';
+import type { HealthMetric, MedicationReminder } from '@/shared/types';
 
 export function useHealth() {
     const { user } = useAuth();

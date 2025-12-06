@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api';
-import type { Project } from '../../shared/types';
+import type { Project } from '@/shared/types';
 
 export function useProjects() {
     const { user } = useAuth();
@@ -52,7 +52,7 @@ export function useProjects() {
 
     // SWOT
     const useSwot = (projectId: string) => {
-        type SwotEntry = { id: string; category: 'strength'|'weakness'|'opportunity'|'threat'; content: string }
+        type SwotEntry = { id: string; category: 'strength' | 'weakness' | 'opportunity' | 'threat'; content: string }
         const { data: swot, isLoading: loadingSwot } = useQuery<SwotEntry[]>({
             queryKey: ['swot', projectId],
             queryFn: async () => {

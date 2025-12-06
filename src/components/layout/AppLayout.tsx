@@ -1,14 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Sidebar } from './Sidebar';
-import { Menu } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { FloatingDock } from '@/components/ui/FloatingDock';
 import { OnboardingModal } from '@/components/onboarding/OnboardingModal';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 import { useRealtime } from '@/hooks/useRealtime';
 
 export function AppLayout() {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [showOnboarding, setShowOnboarding] = useState(false);
     useRealtime();
 
@@ -33,33 +29,20 @@ export function AppLayout() {
     };
 
     return (
-        <div className="min-h-screen bg-background text-gray-100 font-sans selection:bg-primary selection:text-black">
+        <div className="min-h-screen animated-gradient-bg text-foreground font-sans selection:bg-primary/30">
             <OnboardingModal isOpen={showOnboarding} onClose={handleOnboardingClose} />
 
-            {/* Mobile Header */}
-            <div className="md:hidden p-4 border-b border-border flex items-center justify-between bg-surface/50 backdrop-blur sticky top-0 z-40 transition-colors duration-300">
-                <h1 className="text-xl font-bold text-primary tracking-widest font-mono glow-text">LIFE OS</h1>
-                <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-                    <Menu />
-                </Button>
-                <ThemeToggle inline />
+            {/* Global Background Elements */}
+            <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '3s' }} />
             </div>
 
-            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-
-            {/* Overlay for mobile */}
-            {isSidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm transition-colors transition-all duration-300"
-                    onClick={() => setIsSidebarOpen(false)}
-                />
-            )}
-
-            <main className="md:pl-64 min-h-screen transition-colors transition-all duration-300">
-                <div className="container mx-auto p-4 md:p-8 max-w-7xl animate-in fade-in duration-500">
-                    <Outlet />
-                </div>
+            <main className="relative z-10 pb-32 px-4 md:px-8 max-w-7xl mx-auto pt-8">
+                <Outlet />
             </main>
+
+            <FloatingDock />
         </div>
     );
 }

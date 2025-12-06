@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { Habit } from '../../shared/types'
 import { logDbOp } from '../lib/dbLogger'
+import { rewardsService } from './rewardsService'
 
 export const habitsService = {
   async list(userId: string, query: unknown) {
@@ -76,6 +77,8 @@ export const habitsService = {
       .eq('logged_date', date)
       .single()
 
+    let result;
+
     if (existing) {
       // Update or delete if value is 0 (toggle off)
       if (value === 0) {
@@ -91,7 +94,7 @@ export const habitsService = {
           .single()
         if (error) throw error
         await logDbOp('habit_logs', 'update', userId, { id: existing.id, value })
-        return data
+        result = data
       }
     } else {
       // Create
@@ -103,7 +106,29 @@ export const habitsService = {
         .single()
       if (error) throw error
       await logDbOp('habit_logs', 'insert', userId, { id: (data as { id: string })?.id, habit_id: habitId, value })
-      return data
+      result = data
     }
+
+    // Award Rewards
+    if (result && value > 0) {
+      try {
+        await rewardsService.addXp(userId, 5) // 5 XP per habit
+
+        // Check for "Consistent" achievement (5 habits in a day)
+        const { count } = await supabase
+          .from('habit_logs')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('logged_date', date)
+
+        if (count && count >= 5) {
+          await rewardsService.checkAndUnlockAchievement(userId, 'CONSISTENT')
+        }
+      } catch (error) {
+        console.error('Failed to award rewards for habit:', error)
+      }
+    }
+
+    return result
   }
 }

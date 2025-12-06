@@ -7,7 +7,7 @@ import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
 
 // Mock dependencies
-vi.mock('@/hooks/useHabits', () => ({
+vi.mock('@/features/habits/hooks/useHabits', () => ({
     useHabits: () => ({
         habits: [],
         isLoading: false,
@@ -15,35 +15,35 @@ vi.mock('@/hooks/useHabits', () => ({
     })
 }));
 
-vi.mock('@/hooks/useTasks', () => ({
+vi.mock('@/features/tasks/hooks/useTasks', () => ({
     useTasks: () => ({
         tasks: [],
         isLoading: false
     })
 }));
 
-vi.mock('@/hooks/useHealth', () => ({
+vi.mock('@/features/health/hooks/useHealth', () => ({
     useHealth: () => ({
         metrics: [],
         isLoading: false
     })
 }));
 
-vi.mock('@/hooks/useFinances', () => ({
+vi.mock('@/features/finances/hooks/useFinances', () => ({
     useFinances: () => ({
         summary: { balance: 0, income: 0, expenses: 0 },
         isLoading: false
     })
 }));
 
-vi.mock('@/hooks/useProjects', () => ({
+vi.mock('@/features/projects/hooks/useProjects', () => ({
     useProjects: () => ({
         projects: [],
         isLoading: false
     })
 }));
 
-vi.mock('@/hooks/useRewards', () => ({
+vi.mock('@/features/rewards/hooks/useRewards', () => ({
     useRewards: () => ({
         score: { current_score: 0, level: 1 },
         isLoading: false

@@ -9,11 +9,11 @@ interface TagProps extends HTMLAttributes<HTMLSpanElement> {
 const Tag = forwardRef<HTMLSpanElement, TagProps>(
   ({ className, variant = 'default', size = 'md', ...props }, ref) => {
     const variants = {
-      default: 'bg-muted text-primary border-transparent',
+      default: 'bg-muted text-foreground border-border',
       outline: 'text-primary border-primary',
-      success: 'bg-green-900/30 text-green-400 border-green-900',
-      warning: 'bg-yellow-900/30 text-yellow-400 border-yellow-900',
-      error: 'bg-red-900/30 text-red-400 border-red-900',
+      success: 'bg-success/10 text-success border-success/30',
+      warning: 'bg-warning/10 text-warning border-warning/30',
+      error: 'bg-destructive/10 text-destructive border-destructive/30',
     };
 
     const sizes = {
@@ -25,7 +25,7 @@ const Tag = forwardRef<HTMLSpanElement, TagProps>(
       <span
         ref={ref}
         className={cn(
-          'inline-flex items-center rounded-full border font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 font-mono',
+          'inline-flex items-center rounded-full border font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary font-sans',
           variants[variant],
           sizes[size],
           className

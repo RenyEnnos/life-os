@@ -1,6 +1,24 @@
+import { z } from 'zod'
 import { supabase } from '../lib/supabase'
 import { generateAIResponse } from '../lib/groq'
 import { getCached, setCache } from './aiCache'
+
+const TagsSchema = z.object({
+  tags: z.array(z.string())
+})
+
+const SwotSchema = z.object({
+  strengths: z.array(z.string()),
+  weaknesses: z.array(z.string()),
+  opportunities: z.array(z.string()),
+  threats: z.array(z.string())
+})
+
+const WeeklyPlanSchema = z.record(z.string(), z.array(z.string()))
+
+const DailySummarySchema = z.object({
+  summary: z.array(z.string())
+})
 
 export const aiService = {
   async checkLimit(userId: string, feature: string, force = false): Promise<boolean> {
@@ -39,10 +57,13 @@ export const aiService = {
     const allowed = await this.checkLimit(userId, 'generateTags', !!opts?.force)
     if (!allowed) throw new Error('Daily AI limit reached for this feature.')
 
-    const systemPrompt = `You are a helpful assistant that suggests short, relevant tags (max 5) for a ${type}. Return ONLY a JSON array of strings, e.g. ["tag1", "tag2"]. No other text.`
+    const systemPrompt = `You are a helpful assistant that suggests short, relevant tags (max 5) for a ${type}. Return a JSON object with a "tags" key containing an array of strings, e.g. {"tags": ["tag1", "tag2"]}.`
     const cached = await getCached(userId, 'generateTags', { type, context })
     if (cached) { await this.logUsage(userId, 'generateTags', true); return cached }
-    const response = await generateAIResponse(systemPrompt, context)
+
+    // Use jsonMode = true
+    const response = await generateAIResponse(systemPrompt, context, undefined, true)
+
     if (!response) {
       // heuristic fallback
       const c = context.toLowerCase()
@@ -56,14 +77,19 @@ export const aiService = {
     }
 
     try {
-      // Extract JSON array if there's extra text
-      const jsonMatch = response.text.match(/\[.*\]/s)
-      const tags = jsonMatch ? JSON.parse(jsonMatch[0]) : []
+      const parsed = JSON.parse(response.text)
+      const result = TagsSchema.safeParse(parsed)
+
+      if (!result.success) {
+        throw new Error('Schema validation failed')
+      }
+
+      const tags = result.data.tags
       await setCache(userId, 'generateTags', { type, context }, tags)
       await this.logUsage(userId, 'generateTags', true, { tokens: response.tokens, ms: response.ms })
       return tags
-    } catch {
-      await this.logUsage(userId, 'generateTags', false, { errorMessage: 'JSON parse error', tokens: response?.tokens, ms: response?.ms })
+    } catch (error) {
+      await this.logUsage(userId, 'generateTags', false, { errorMessage: 'JSON/Schema error', tokens: response?.tokens, ms: response?.ms })
       return []
     }
   },
@@ -73,10 +99,12 @@ export const aiService = {
     const allowed = await this.checkLimit(userId, 'generateSwot', !!opts?.force)
     if (!allowed) throw new Error('Daily AI limit reached for this feature.')
 
-    const systemPrompt = `You are a strategic assistant. Given a project description, suggest a SWOT analysis. Return ONLY a JSON object with keys: strengths, weaknesses, opportunities, threats. Each key should be an array of strings. Example: {"strengths": ["..."], ...}`
+    const systemPrompt = `You are a strategic assistant. Given a project description, suggest a SWOT analysis. Return a JSON object with keys: strengths, weaknesses, opportunities, threats. Each key should be an array of strings.`
     const cached = await getCached(userId, 'generateSwot', { projectContext })
     if (cached) { await this.logUsage(userId, 'generateSwot', true); return cached }
-    const response = await generateAIResponse(systemPrompt, projectContext)
+
+    const response = await generateAIResponse(systemPrompt, projectContext, undefined, true)
+
     if (!response) {
       // fallback structure
       const swot = { strengths: ['Organização'], weaknesses: ['Recursos limitados'], opportunities: ['Automação'], threats: ['Distrações'] }
@@ -85,13 +113,19 @@ export const aiService = {
     }
 
     try {
-      const jsonMatch = response.text.match(/\{.*\}/s)
-      const swot = jsonMatch ? JSON.parse(jsonMatch[0]) : {}
+      const parsed = JSON.parse(response.text)
+      const result = SwotSchema.safeParse(parsed)
+
+      if (!result.success) {
+        throw new Error('Schema validation failed')
+      }
+
+      const swot = result.data
       await setCache(userId, 'generateSwot', { projectContext }, swot)
       await this.logUsage(userId, 'generateSwot', true, { tokens: response.tokens, ms: response.ms })
       return swot
-    } catch {
-      await this.logUsage(userId, 'generateSwot', false, { errorMessage: 'JSON parse error', tokens: response?.tokens, ms: response?.ms })
+    } catch (error) {
+      await this.logUsage(userId, 'generateSwot', false, { errorMessage: 'JSON/Schema error', tokens: response?.tokens, ms: response?.ms })
       throw new Error('Failed to parse AI response')
     }
   },
@@ -101,12 +135,14 @@ export const aiService = {
     const allowed = await this.checkLimit(userId, 'generateWeeklyPlan', !!opts?.force)
     if (!allowed) throw new Error('Daily AI limit reached for this feature.')
 
-    const systemPrompt = `You are a productivity coach. Given a list of tasks, suggest a weekly plan. Return a JSON object where keys are days (Monday, Tuesday...) and values are arrays of task titles or suggestions. Keep it concise.`
+    const systemPrompt = `You are a productivity coach. Given a list of tasks, suggest a weekly plan. Return a JSON object where keys are days (Monday, Tuesday...) and values are arrays of task titles.`
     const cached = await getCached(userId, 'generateWeeklyPlan', { tasksContext })
     if (cached) { await this.logUsage(userId, 'generateWeeklyPlan', true); return cached }
-    const response = await generateAIResponse(systemPrompt, tasksContext)
+
+    const response = await generateAIResponse(systemPrompt, tasksContext, undefined, true)
+
     if (!response) {
-      const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
       const plan: Record<string, string[]> = {}
       days.forEach((d) => (plan[d] = []))
       await this.logUsage(userId, 'generateWeeklyPlan', true)
@@ -114,13 +150,19 @@ export const aiService = {
     }
 
     try {
-      const jsonMatch = response.text.match(/\{.*\}/s)
-      const plan = jsonMatch ? JSON.parse(jsonMatch[0]) : {}
+      const parsed = JSON.parse(response.text)
+      const result = WeeklyPlanSchema.safeParse(parsed)
+
+      if (!result.success) {
+        throw new Error('Schema validation failed')
+      }
+
+      const plan = result.data
       await setCache(userId, 'generateWeeklyPlan', { tasksContext }, plan)
       await this.logUsage(userId, 'generateWeeklyPlan', true, { tokens: response.tokens, ms: response.ms })
       return plan
-    } catch {
-      await this.logUsage(userId, 'generateWeeklyPlan', false, { errorMessage: 'JSON parse error', tokens: response?.tokens, ms: response?.ms })
+    } catch (error) {
+      await this.logUsage(userId, 'generateWeeklyPlan', false, { errorMessage: 'JSON/Schema error', tokens: response?.tokens, ms: response?.ms })
       throw new Error('Failed to parse AI response')
     }
   },
@@ -130,24 +172,43 @@ export const aiService = {
     const allowed = await this.checkLimit(userId, 'generateDailySummary', !!opts?.force)
     if (!allowed) throw new Error('Daily AI limit reached for this feature.')
 
-    const systemPrompt = `You are a thoughtful assistant. Summarize the following journal entry into 3-5 concise bullet points. Return ONLY the bullet points as a JSON array of strings.`
-    const cached = await getCached(userId, 'generateDailySummary', { journalContent })
+    const systemPrompt = `You are a thoughtful assistant. Summarize the following journal entry into 3-5 concise bullet points. Return a JSON object with a "summary" key containing an array of strings.`
+    const cached = await getCached(userId, 'generateDailySummary_v2', { journalContent })
     if (cached) { await this.logUsage(userId, 'generateDailySummary', true); return cached }
-    const response = await generateAIResponse(systemPrompt, journalContent)
+
+    const response = await generateAIResponse(systemPrompt, journalContent, undefined, true)
+
     if (!response) {
-      const bullets = journalContent.split(/[.\n]/).map(s => s.trim()).filter(Boolean).slice(0,5)
+      // Robust fallback: split by newline first, then by period if needed.
+      let bullets = journalContent.split('\n').map(s => s.trim()).filter(s => s.length > 5)
+
+      if (bullets.length === 0) {
+        bullets = journalContent.split('.').map(s => s.trim()).filter(s => s.length > 5)
+      }
+
+      // If still empty, just use the whole content as one bullet
+      if (bullets.length === 0) {
+        bullets = [journalContent.trim() || 'Sem conteúdo para resumir.']
+      }
+
       await this.logUsage(userId, 'generateDailySummary', true)
-      return bullets
+      return bullets.slice(0, 5)
     }
 
     try {
-      const jsonMatch = response.text.match(/\[.*\]/s)
-      const summary = jsonMatch ? JSON.parse(jsonMatch[0]) : []
-      await setCache(userId, 'generateDailySummary', { journalContent }, summary)
+      const parsed = JSON.parse(response.text)
+      const result = DailySummarySchema.safeParse(parsed)
+
+      if (!result.success) {
+        throw new Error('Schema validation failed')
+      }
+
+      const summary = result.data.summary
+      await setCache(userId, 'generateDailySummary_v2', { journalContent }, summary)
       await this.logUsage(userId, 'generateDailySummary', true, { tokens: response.tokens, ms: response.ms })
       return summary
-    } catch {
-      await this.logUsage(userId, 'generateDailySummary', false, { errorMessage: 'JSON parse error', tokens: response?.tokens, ms: response?.ms })
+    } catch (error) {
+      await this.logUsage(userId, 'generateDailySummary', false, { errorMessage: 'JSON/Schema error', tokens: response?.tokens, ms: response?.ms })
       throw new Error('Failed to parse AI response')
     }
   },

@@ -4,7 +4,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { PageTitle } from '@/components/ui/PageTitle';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { useHealth } from '@/hooks/useHealth';
+import { useHealth } from '@/features/health/hooks/useHealth';
 import {
     LineChart,
     Line,
@@ -14,7 +14,10 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from 'recharts';
-import type { HealthMetric, MedicationReminder } from '../../../shared/types';
+import type { HealthMetric, MedicationReminder } from '@/shared/types';
+import { MetricModal } from './components/MetricModal';
+import { MedicationModal } from './components/MedicationModal';
+import { MetricCard } from './components/MetricCard';
 
 export default function HealthPage() {
     const { metrics, medications, isLoading, createMetric, createMedication, deleteMedication } = useHealth();
@@ -187,123 +190,14 @@ export default function HealthPage() {
                         </>
                     )}
                 </>
-            )
-            }
+            )}
 
-            {/* Simple Modals (Implementation simplified for brevity) */}
-            {
-                isMetricModalOpen && (
-                    <MetricModal onClose={() => setIsMetricModalOpen(false)} onSubmit={createMetric.mutate} />
-                )
-            }
-            {
-                isMedicationModalOpen && (
-                    <MedicationModal onClose={() => setIsMedicationModalOpen(false)} onSubmit={createMedication.mutate} />
-                )
-            }
-        </div >
-    );
-}
-
-function MetricCard({ title, value, unit, icon, date }: { title: string; value: number | string; unit: string; icon: React.ReactNode; date?: string }) {
-    return (
-        <Card className="p-4 border-border bg-card flex flex-col justify-between hover:border-primary/50 transition-colors">
-            <div className="flex justify-between items-start mb-2">
-                <span className="font-mono text-xs text-muted-foreground font-bold tracking-wider">{title}</span>
-                {icon}
-            </div>
-            <div>
-                <div className="text-2xl font-bold font-mono text-foreground">
-                    {value} <span className="text-sm text-muted-foreground font-normal">{unit}</span>
-                </div>
-                {date && (
-                    <div className="text-[10px] text-muted-foreground font-mono mt-1">
-                        {new Date(date).toLocaleDateString('pt-BR')}
-                    </div>
-                )}
-            </div>
-        </Card>
-    );
-}
-
-function MetricModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (payload: Partial<HealthMetric>) => void }) {
-    const [type, setType] = useState('weight');
-    const [value, setValue] = useState('');
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <Card className="w-full max-w-sm p-6 bg-background border-primary/20">
-                <h3 className="font-bold font-mono text-lg mb-4 text-primary">REGISTRAR MÉTRICA</h3>
-                <div className="space-y-4">
-                    <select
-                        className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono"
-                        value={type}
-                        onChange={e => setType(e.target.value)}
-                    >
-                        <option value="weight">Peso (kg)</option>
-                        <option value="steps">Passos</option>
-                        <option value="sleep">Sono (horas)</option>
-                        <option value="heart_rate">Batimentos (bpm)</option>
-                    </select>
-                    <input
-                        type="number"
-                        placeholder="Valor"
-                        className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono"
-                        value={value}
-                        onChange={e => setValue(e.target.value)}
-                    />
-                    <div className="flex gap-2 pt-2">
-                        <Button variant="ghost" onClick={onClose} className="flex-1">CANCELAR</Button>
-                        <Button onClick={() => {
-                            onSubmit({ metric_type: type, value: Number(value), recorded_date: new Date().toISOString() });
-                            onClose();
-                        }} className="flex-1">SALVAR</Button>
-                    </div>
-                </div>
-            </Card>
-        </div>
-    );
-}
-
-function MedicationModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (payload: Partial<MedicationReminder>) => void }) {
-    const [name, setName] = useState('');
-    const [dosage, setDosage] = useState('');
-    const [time, setTime] = useState('08:00');
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <Card className="w-full max-w-sm p-6 bg-background border-primary/20">
-                <h3 className="font-bold font-mono text-lg mb-4 text-primary">NOVO MEDICAMENTO</h3>
-                <div className="space-y-4">
-                    <input
-                        type="text"
-                        placeholder="Nome (ex: Vitamina C)"
-                        className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono"
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                    />
-                    <input
-                        type="text"
-                        placeholder="Dosagem (ex: 500mg)"
-                        className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono"
-                        value={dosage}
-                        onChange={e => setDosage(e.target.value)}
-                    />
-                    <input
-                        type="time"
-                        className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono"
-                        value={time}
-                        onChange={e => setTime(e.target.value)}
-                    />
-                    <div className="flex gap-2 pt-2">
-                        <Button variant="ghost" onClick={onClose} className="flex-1">CANCELAR</Button>
-                        <Button onClick={() => {
-                            onSubmit({ name, dosage, times: [time], active: true });
-                            onClose();
-                        }} className="flex-1">SALVAR</Button>
-                    </div>
-                </div>
-            </Card>
+            {isMetricModalOpen && (
+                <MetricModal onClose={() => setIsMetricModalOpen(false)} onSubmit={createMetric.mutate} />
+            )}
+            {isMedicationModalOpen && (
+                <MedicationModal onClose={() => setIsMedicationModalOpen(false)} onSubmit={createMedication.mutate} />
+            )}
         </div>
     );
 }

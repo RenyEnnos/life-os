@@ -5,16 +5,16 @@ type Props = { children: React.ReactNode; tone?: 'success' | 'warning' | 'danger
 
 export default function Badge({ children, tone = 'success', className, ...props }: Props) {
   const variants: Record<string, string> = {
-    success: 'text-green-400 border border-green-700',
-    warning: 'text-yellow-400 border border-yellow-700',
-    danger: 'text-red-400 border border-red-700'
+    success: 'bg-success/10 text-success border border-success/30',
+    warning: 'bg-warning/10 text-warning border border-warning/30',
+    danger: 'bg-destructive/10 text-destructive border border-destructive/30'
   }
 
   return (
     <span
       {...props}
       className={cn(
-        'inline-block px-2 py-1 text-xs font-mono',
+        'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-sans font-semibold',
         variants[tone],
         className
       )}

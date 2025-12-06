@@ -11,11 +11,11 @@ export function PageTitle({ title, subtitle, action, className, ...props }: Page
     return (
         <div className={cn("flex items-center justify-between mb-6", className)} {...props}>
             <div>
-                <h1 className="text-3xl font-bold tracking-tight text-primary font-mono uppercase glow-text">
+                <h1 className="text-3xl font-semibold tracking-tight text-foreground font-sans">
                     {title}
                 </h1>
                 {subtitle && (
-                    <p className="text-gray-400 mt-1 font-mono text-sm">
+                    <p className="text-mutedForeground mt-1 font-sans text-sm">
                         {subtitle}
                     </p>
                 )}

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Save, X, Zap } from 'lucide-react';
+import { Save, X, Zap, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { useAI } from '@/hooks/useAI';
 import { Tag } from '@/components/ui/Tag';
 import type { JournalEntry } from '@/shared/types';
+import { motion } from 'framer-motion';
 
 interface JournalEditorProps {
     entry?: JournalEntry;
@@ -66,35 +66,39 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
     };
 
     return (
-        <Card className="p-6 border-primary/20 bg-background/50 backdrop-blur-sm">
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="flex justify-between items-center gap-4">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+        >
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="flex justify-between items-center gap-4 glass-panel p-4 rounded-xl">
                     <input
                         type="text"
-                        className="flex-1 bg-transparent text-2xl font-bold font-mono text-primary placeholder:text-primary/30 focus:outline-none"
+                        className="flex-1 bg-transparent text-3xl font-bold font-mono text-white placeholder:text-white/20 focus:outline-none glow-text"
                         placeholder="Título da Entrada..."
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                     />
                     <input
                         type="date"
-                        className="bg-surface border border-border rounded px-2 py-1 text-sm font-mono focus:border-primary focus:outline-none"
+                        className="bg-white/5 border border-white/10 rounded px-3 py-2 text-sm font-mono text-gray-300 focus:border-primary focus:outline-none"
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
                     />
                 </div>
 
                 <textarea
-                    className="w-full h-[400px] bg-surface/50 border border-border rounded-md p-4 text-foreground font-mono focus:border-primary focus:outline-none resize-none leading-relaxed"
+                    className="glass-editor text-gray-200 placeholder:text-gray-600"
                     placeholder="Escreva seus pensamentos..."
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     required
                 />
 
-                <div className="space-y-2">
+                <div className="glass-panel p-4 rounded-xl space-y-4">
                     <div className="flex justify-between items-end">
-                        <label className="text-sm font-mono text-muted-foreground">Tags</label>
+                        <label className="text-sm font-mono text-gray-400">Tags</label>
                         <Button
                             type="button"
                             variant="ghost"
@@ -110,7 +114,7 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                     <div className="flex gap-2">
                         <input
                             type="text"
-                            className="flex-1 bg-surface border border-border rounded-md p-2 text-foreground focus:border-primary focus:outline-none font-mono text-sm"
+                            className="flex-1 bg-transparent border-b border-white/10 p-2 text-gray-200 focus:border-primary focus:outline-none font-mono text-sm"
                             value={newTag}
                             onChange={(e) => setNewTag(e.target.value)}
                             onKeyDown={(e) => {
@@ -121,19 +125,19 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                             }}
                             placeholder="Adicionar tag..."
                         />
-                        <Button type="button" variant="outline" onClick={addTag}>
-                            <X size={16} className="rotate-45" />
+                        <Button type="button" variant="outline" onClick={addTag} size="sm">
+                            <Plus size={16} />
                         </Button>
                     </div>
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="flex flex-wrap gap-2">
                         {tags.map(tag => (
                             <Tag
                                 key={tag}
                                 variant="default"
-                                className="gap-1 pr-1"
+                                className="gap-1 pr-1 bg-primary/20 text-primary border-primary/20"
                             >
                                 {tag}
-                                <button type="button" onClick={() => removeTag(tag)} className="hover:text-destructive">
+                                <button type="button" onClick={() => removeTag(tag)} className="hover:text-destructive transition-colors">
                                     <X size={12} />
                                 </button>
                             </Tag>
@@ -142,15 +146,15 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                 </div>
 
                 <div className="flex justify-end gap-3">
-                    <Button type="button" variant="ghost" onClick={onCancel}>
+                    <Button type="button" variant="ghost" onClick={onCancel} className="text-gray-400 hover:text-white">
                         CANCELAR
                     </Button>
-                    <Button type="submit" className="gap-2">
+                    <Button type="submit" className="gap-2 shadow-lg shadow-primary/20">
                         <Save size={18} />
                         SALVAR
                     </Button>
                 </div>
             </form>
-        </Card>
+        </motion.div>
     );
 }

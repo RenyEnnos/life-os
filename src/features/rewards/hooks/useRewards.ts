@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api';
-import type { Reward, Achievement, LifeScore } from '../../shared/types';
+import type { Reward, Achievement, LifeScore } from '@/shared/types';
 
 export function useRewards() {
     const { user } = useAuth();

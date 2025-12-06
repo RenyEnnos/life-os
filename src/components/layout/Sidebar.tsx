@@ -42,14 +42,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             "fixed left-0 top-0 h-screen w-64 bg-surface border-r border-border flex flex-col z-50 transition-transform transition-colors transition-all duration-300 md:translate-x-0",
             isOpen ? "translate-x-0" : "-translate-x-full"
         )}>
-            <div className="p-6 border-b border-border flex justify-between items-center transition-colors transition-all duration-300">
+            <div className="p-6 border-b border-border flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-primary tracking-widest font-mono glow-text">
-                        LIFE OS
-                    </h1>
-                    <p className="text-xs text-gray-500 mt-1 font-mono">v1.0.0 // SYSTEM_ACTIVE</p>
+                    <h1 className="text-2xl font-semibold text-foreground tracking-tight font-sans">Life OS</h1>
+                    <p className="text-xs text-mutedForeground mt-1 font-sans">v1.0.0</p>
                 </div>
-                <button onClick={onClose} className="md:hidden text-gray-400 hover:text-primary">
+                <button onClick={onClose} className="md:hidden text-mutedForeground hover:text-foreground">
                     <X size={24} />
                 </button>
             </div>
@@ -61,9 +59,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                         to={item.path}
                         onClick={() => onClose?.()}
                         className={({ isActive }) =>
-                            `flex items-center gap-3 px-3 py-2 rounded-md transition-all transition-colors duration-300 font-mono text-sm group ${isActive
-                                ? 'bg-primary/10 text-primary border border-primary/50 shadow-[0_0_10px_rgba(13,242,13,0.1)]'
-                                : 'text-gray-400 hover:text-primary hover:bg-primary/5 hover:border-primary/20 border border-transparent'
+                            `flex items-center gap-3 px-3 py-2 rounded-md transition-colors duration-200 font-sans text-sm ${isActive
+                                ? 'bg-muted text-foreground border border-border'
+                                : 'text-mutedForeground hover:bg-muted hover:text-foreground border border-transparent'
                             }`
                         }
                     >
@@ -75,12 +73,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
             <div className="p-4 border-t border-border">
                 <div className="mb-3 flex justify-between items-center">
-                    <span className="text-xs text-muted-foreground font-mono">TEMA</span>
+                    <span className="text-xs text-mutedForeground font-sans">Tema</span>
                     <ThemeToggle inline />
                 </div>
                 <Button
                     variant="ghost"
-                    className="w-full justify-start gap-3 text-gray-400 hover:text-destructive hover:bg-destructive/10"
+                    className="w-full justify-start gap-3 text-mutedForeground hover:text-destructive hover:bg-destructive/10"
                     onClick={logout}
                 >
                     <LogOut size={18} />

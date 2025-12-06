@@ -1,7 +1,9 @@
+
 import { useQuery } from '@tanstack/react-query'
-import { apiClient } from '../lib/api'
+import { apiClient } from '@/lib/api'
+import { useAuth } from '@/contexts/AuthContext'
 import type { Task, Habit } from '@/shared/types'
-import type { HealthMetric } from '../../shared/types'
+import type { HealthMetric } from '@/shared/types'
 type HabitLog = { habit_id: string; date: string }
 
 export function useDashboardData() {
@@ -37,7 +39,7 @@ export function useDashboardData() {
 
   const { data: habitLogs, isLoading: logsLoading } = useQuery<HabitLog[]>({
     queryKey: ['habits', 'logs', lastWeek, today],
-    queryFn: () => apiClient.get<HabitLog[]>(`/api/habits/logs?startDate=${lastWeek}&endDate=${today}`),
+    queryFn: () => apiClient.get<HabitLog[]>(`/ api / habits / logs ? startDate = ${lastWeek}& endDate=${today} `),
   })
 
   // Calculate Agenda (Today's tasks)
