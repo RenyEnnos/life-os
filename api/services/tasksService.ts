@@ -21,7 +21,7 @@ class TasksServiceImpl {
     if (payload.completed === true) {
       try {
         // Award XP for completing a task
-        await rewardsService.addXp(userId, 10) // 10 XP per task
+        await rewardsService.addXp(userId, 50) // 50 XP per task
 
         // Check for "First Step" achievement
         await rewardsService.checkAndUnlockAchievement(userId, 'FIRST_STEP')
@@ -33,7 +33,10 @@ class TasksServiceImpl {
 
     return updated
   }
-  async remove(userId: string, id: string) { return this.repo.remove(userId, id) }
+  async remove(userId: string, id: string) {
+    // Soft delete implementation
+    return this.repo.update(userId, id, { deleted_at: new Date().toISOString() } as any)
+  }
 }
 
 export const tasksService = new TasksServiceImpl()

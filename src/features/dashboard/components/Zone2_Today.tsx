@@ -31,7 +31,7 @@ export const Zone2_Today = () => {
     const dailyCompletion = habits?.length ? Math.round((activeHabits / habits.length) * 100) : 0;
 
     return (
-        <div className="col-span-12 lg:col-span-6 space-y-4">
+        <div className="lg:col-span-6 space-y-4">
             <h2 className="text-sm font-mono text-gray-500 tracking-widest uppercase">02 // TODAY</h2>
 
             {/* AI Quick Capture */}

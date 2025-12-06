@@ -45,7 +45,7 @@ export const habitsService = {
   async remove(userId: string, id: string) {
     const { error } = await supabase
       .from('habits')
-      .delete()
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', id)
       .eq('user_id', userId)
 
@@ -82,6 +82,9 @@ export const habitsService = {
     if (existing) {
       // Update or delete if value is 0 (toggle off)
       if (value === 0) {
+        // Hard delete is fine for logs toggling, or we can soft delete logs too? 
+        // Typically toggle off means removing the log entry for that day as if it didn't happen or was undone.
+        // Let's keep hard delete for toggling logs off for now as it's just a daily record.
         await supabase.from('habit_logs').delete().eq('id', existing.id)
         await logDbOp('habit_logs', 'delete', userId, { id: existing.id })
         return null
@@ -112,7 +115,7 @@ export const habitsService = {
     // Award Rewards
     if (result && value > 0) {
       try {
-        await rewardsService.addXp(userId, 5) // 5 XP per habit
+        await rewardsService.addXp(userId, 10) // 10 XP per habit
 
         // Check for "Consistent" achievement (5 habits in a day)
         const { count } = await supabase

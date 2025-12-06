@@ -9,12 +9,12 @@ export function useTransactions() {
 
     const { data: transactions, isLoading } = useQuery({
         queryKey: ['transactions', user?.id],
-        queryFn: financesApi.getTransactions,
+        queryFn: ({ queryKey }) => financesApi.list(queryKey[1] as string),
         enabled: !!user,
     });
 
     const createTransaction = useMutation({
-        mutationFn: financesApi.createTransaction,
+        mutationFn: financesApi.create,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
         },
@@ -22,14 +22,14 @@ export function useTransactions() {
 
     const updateTransaction = useMutation({
         mutationFn: ({ id, updates }: { id: string; updates: Partial<Transaction> }) =>
-            financesApi.updateTransaction(id, updates),
+            financesApi.update(id, updates),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
         },
     });
 
     const deleteTransaction = useMutation({
-        mutationFn: financesApi.deleteTransaction,
+        mutationFn: financesApi.delete,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
         },

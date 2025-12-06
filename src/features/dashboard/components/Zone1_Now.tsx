@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 export const Zone1_Now = () => {
     return (
-        <div className="col-span-12 lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4">
             <h2 className="text-sm font-mono text-gray-500 tracking-widest uppercase">01 // NOW</h2>
 
             {/* Urgent / On Deck Card */}

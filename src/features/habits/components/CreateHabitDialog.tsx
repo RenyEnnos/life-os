@@ -1,19 +1,15 @@
-import { useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
+import { CreateHabitForm } from './CreateHabitForm';
 
 interface CreateHabitDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: { title: string; description?: string; routine: 'morning'|'afternoon'|'evening'|'any'; type: 'binary'|'numeric'; goal: number }) => void;
+    onSubmit: (data: { title: string; description?: string; routine: 'morning' | 'afternoon' | 'evening' | 'any'; type: 'binary' | 'numeric'; goal: number }) => void;
 }
 
 export function CreateHabitDialog({ isOpen, onClose, onSubmit }: CreateHabitDialogProps) {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [routine, setRoutine] = useState<'morning'|'afternoon'|'evening'|'any'>('any');
-
     if (!isOpen) return null;
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -38,52 +34,13 @@ export function CreateHabitDialog({ isOpen, onClose, onSubmit }: CreateHabitDial
                 <div className="p-6">
                     <h2 className="text-2xl font-bold text-primary font-mono mb-6">NOVO HÁBITO</h2>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-mono text-muted-foreground">Título</label>
-                            <input
-                                type="text"
-                                required
-                                className="w-full bg-surface border border-border rounded-md p-2 text-foreground focus:border-primary focus:outline-none font-mono"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                placeholder="Ex: Ler 10 páginas"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-mono text-muted-foreground">Descrição (Opcional)</label>
-                            <textarea
-                                className="w-full bg-surface border border-border rounded-md p-2 text-foreground focus:border-primary focus:outline-none font-mono resize-none h-20"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                placeholder="Detalhes sobre o hábito..."
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-mono text-muted-foreground">Rotina</label>
-                            <select
-                                className="w-full bg-surface border border-border rounded-md p-2 text-foreground focus:border-primary focus:outline-none font-mono"
-                                value={routine}
-                                onChange={(e) => setRoutine(e.target.value as 'morning'|'afternoon'|'evening'|'any')}
-                            >
-                                <option value="any">Qualquer horário</option>
-                                <option value="morning">Manhã</option>
-                                <option value="afternoon">Tarde</option>
-                                <option value="evening">Noite</option>
-                            </select>
-                        </div>
-
-                        <div className="pt-4 flex gap-3">
-                            <Button type="button" variant="ghost" onClick={onClose} className="flex-1">
-                                CANCELAR
-                            </Button>
-                            <Button type="submit" className="flex-1">
-                                CRIAR
-                            </Button>
-                        </div>
-                    </form>
+                    <CreateHabitForm
+                        onSubmit={(data) => {
+                            onSubmit(data);
+                            onClose();
+                        }}
+                        onCancel={onClose}
+                    />
                 </div>
             </Card>
         </div>

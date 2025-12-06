@@ -30,6 +30,18 @@ export const financesApi = {
         return data as Transaction;
     },
 
+    update: async (id: string, updates: Partial<Transaction>) => {
+        const { data, error } = await supabase
+            .from('transactions')
+            .update(updates)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data as Transaction;
+    },
+
     delete: async (id: string) => {
         const { error } = await supabase
             .from('transactions')

@@ -3,7 +3,7 @@ import { UniversityUrgentWidget } from './UniversityUrgentWidget';
 
 export const Zone3_Context = () => {
     return (
-        <div className="col-span-12 lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4">
             <h2 className="text-sm font-mono text-gray-500 tracking-widest uppercase">03 // CONTEXT</h2>
 
             {/* University Urgent */}

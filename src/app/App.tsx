@@ -7,6 +7,10 @@ import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { ToastProvider } from "@/shared/ui/GlassToast";
 import { OfflineSyncManager } from "@/shared/components/OfflineSyncManager";
 
+import { PWAManager } from "@/shared/components/PWAManager";
+
+import { OnboardingManager } from "@/features/onboarding/components/OnboardingManager";
+
 export default function App() {
     return (
         <PersistQueryClientProvider
@@ -16,6 +20,8 @@ export default function App() {
             <AuthProvider>
                 <ToastProvider>
                     <OfflineSyncManager />
+                    <PWAManager />
+                    <OnboardingManager />
                     <Router>
                         <ErrorBoundary>
                             <AppRoutes />
