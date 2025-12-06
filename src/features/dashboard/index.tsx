@@ -1,10 +1,10 @@
 import { PageTitle } from '@/shared/ui/PageTitle';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
-import { Zone1_Now } from './components/Zone1_Now';
-import { Zone2_Today } from './components/Zone2_Today';
-import { Zone3_Context } from './components/Zone3_Context';
-
 import { XPBar } from '@/features/gamification/components/XPBar';
+import { BentoGrid } from '@/shared/ui/premium/BentoGrid';
+import { UrgentCard, QuickActionsCard } from './components/Zone1_Now';
+import { StatusCard, StatsCard, ChartCard, QuickCaptureCard } from './components/Zone2_Today';
+import { UniversityCard, ScheduleCard, AiInsightCard } from './components/Zone3_Context';
 
 export default function DashboardPage() {
     const { user } = useAuth();
@@ -20,16 +20,25 @@ export default function DashboardPage() {
                 />
             </header>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Zone 1: Immediate Focus (Left Column) */}
-                <Zone1_Now />
+            <BentoGrid className="grid-cols-1 md:grid-cols-3 lg:grid-cols-4 auto-rows-[minmax(180px,auto)] gap-4">
+                {/* Top Row: Urgent (Tall), Status (Wide), Stats */}
+                <UrgentCard />
+                <StatusCard />
+                <StatsCard />
 
-                {/* Zone 2: Overview & Stats (Center / Main) */}
-                <Zone2_Today />
+                {/* Second Row: Chart (Wide), Quick Actions */}
+                <ChartCard />
+                <QuickActionsCard />
 
-                {/* Zone 3: Context & AI (Right Column) */}
-                <Zone3_Context />
-            </div>
+                {/* Third Row: University (Tall), Schedule, Context */}
+                <UniversityCard />
+                <ScheduleCard />
+                <AiInsightCard />
+
+                {/* Bottom: Quick Capture */}
+                <QuickCaptureCard />
+            </BentoGrid>
         </div>
     );
 }
+

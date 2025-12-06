@@ -4,7 +4,7 @@ import { Calculator, Sparkles, AlertCircle } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Course } from '../types';
 import { clsx } from 'clsx';
-import { animate } from 'animejs';
+
 
 interface WhatIfSimulatorProps {
     courses: Course[];
@@ -24,15 +24,6 @@ export function WhatIfSimulator({ courses }: WhatIfSimulatorProps) {
         const remainingWeight = 0.4;
         const currentWeight = 0.6;
 
-        // Formula: Target = (Current * CurrentWeight) + (Required * RemainingWeight)
-        // Required = (Target - (Current * CurrentWeight)) / RemainingWeight
-        // Simplified Logic for Demo:
-
-        // Let's assume 'grade' in course is the CURRENT average. 
-        // We need to know 'how much is worth remaining'.
-        // For simplicity: We want to maintain 'targetGrade' as the Final Grade.
-        // If we have 60% completed with 'currentGrade', what do we need on the 40%?
-
         const alreadyAchieved = currentGrade * currentWeight;
         const neededTotal = targetGrade;
         const neededFromRemaining = neededTotal - alreadyAchieved;
@@ -50,29 +41,30 @@ export function WhatIfSimulator({ courses }: WhatIfSimulatorProps) {
     };
 
     return (
-        <Card className="bg-zinc-900/50 border-zinc-800">
+        <Card className="bg-zinc-950 border-zinc-800">
             <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-purple-400">
-                    <Calculator size={20} />
-                    What-If Simulator
+                <CardTitle className="flex items-center gap-2 text-purple-400 font-mono uppercase text-sm">
+                    <Calculator size={18} />
+                    Simulador "E Se..."
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-xs font-mono text-zinc-500 mb-1">COURSE</label>
+                        <label className="block text-xs font-mono text-zinc-500 mb-1 uppercase">Matéria</label>
                         <select
-                            className="w-full bg-zinc-800 border-zinc-700 rounded p-2 text-sm text-white focus:ring-purple-500"
+                            className="w-full bg-zinc-900 border-zinc-800 rounded p-2 text-sm text-white focus:ring-purple-500 focus:outline-none placeholder:text-zinc-600"
                             value={selectedCourseId}
                             onChange={(e) => setSelectedCourseId(e.target.value)}
                         >
+                            <option value="" disabled>Selecione uma matéria</option>
                             {courses.map(c => (
-                                <option key={c.id} value={c.id}>{c.name} (Curr: {c.grade})</option>
+                                <option key={c.id} value={c.id}>{c.name} (Atual: {c.grade})</option>
                             ))}
                         </select>
                     </div>
                     <div>
-                        <label className="block text-xs font-mono text-zinc-500 mb-1">TARGET FINAL GRADE</label>
+                        <label className="block text-xs font-mono text-zinc-500 mb-1 uppercase">Meta de Nota Final</label>
                         <input
                             type="number"
                             min="0"
@@ -80,20 +72,20 @@ export function WhatIfSimulator({ courses }: WhatIfSimulatorProps) {
                             step="0.1"
                             value={targetGrade}
                             onChange={(e) => setTargetGrade(parseFloat(e.target.value))}
-                            className="w-full bg-zinc-800 border-zinc-700 rounded p-2 text-sm text-white focus:ring-purple-500"
+                            className="w-full bg-zinc-900 border-zinc-800 rounded p-2 text-sm text-white focus:ring-purple-500 focus:outline-none"
                         />
                     </div>
                 </div>
 
-                <Button onClick={handleSimulate} className="w-full bg-purple-600 hover:bg-purple-700 text-white gap-2">
+                <Button onClick={handleSimulate} disabled={!selectedCourseId} className="w-full bg-purple-600 hover:bg-purple-700 text-white gap-2 font-bold uppercase text-xs">
                     <Sparkles size={16} />
-                    Calculate Required Score
+                    Calcular Nota Necessária
                 </Button>
 
                 {result && (
                     <div className="mt-4 p-4 bg-black/20 rounded-lg border border-purple-500/20 animate-in fade-in slide-in-from-bottom-2">
                         <div className="flex justify-between items-center">
-                            <span className="text-zinc-400 text-sm">You need to score:</span>
+                            <span className="text-zinc-400 text-sm">Você precisa tirar:</span>
                             <span className={clsx("text-2xl font-bold font-mono",
                                 result.difficulty === 'impossible' ? 'text-red-500' :
                                     result.difficulty === 'hard' ? 'text-orange-500' :
@@ -106,10 +98,10 @@ export function WhatIfSimulator({ courses }: WhatIfSimulatorProps) {
                         <div className="mt-2 flex gap-2 items-start text-xs text-zinc-500">
                             <AlertCircle size={14} className="mt-0.5 shrink-0" />
                             <p>
-                                {result.difficulty === 'impossible' ? "Mathematically impossible with current weight distribution. Extra credit needed." :
-                                    result.difficulty === 'hard' ? "High active study mode required. Focus on this subject." :
-                                        result.difficulty === 'easy' ? "You are consistent. Maintain current effort." :
-                                            "Achievable with standard preparation."}
+                                {result.difficulty === 'impossible' ? "Matematicamente impossível com a distribuição atual. Crédito extra necessário." :
+                                    result.difficulty === 'hard' ? "Modo de estudo intenso necessário. Foque nesta matéria." :
+                                        result.difficulty === 'easy' ? "Você é consistente. Mantenha o esforço atual." :
+                                            "Alcançável com preparação padrão."}
                             </p>
                         </div>
                     </div>

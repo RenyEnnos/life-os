@@ -50,6 +50,9 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+  optimizeDeps: {
+    include: ['animejs'],
+  },
   server: {
     proxy: {
       '/api': {

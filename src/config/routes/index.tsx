@@ -52,9 +52,9 @@ export function AppRoutes() {
                     <Route path="/rewards" element={<RewardsPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/design" element={<DesignSystemPreview />} />
+                    <Route path="/university" element={<UniversityPage />} />
                 </Route>
 
-                <Route path="/university" element={<UniversityPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </Suspense>

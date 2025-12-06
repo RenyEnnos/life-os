@@ -10,6 +10,9 @@ import { useHabits } from '@/features/habits/hooks/useHabits';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
 import { useTransactions } from '@/features/finances/hooks/useTransactions';
 import { useOnboardingStore } from '@/shared/stores/onboardingStore';
+import { AnimatedGradientText } from '@/shared/ui/premium/AnimatedGradientText';
+import { ShimmerButton } from '@/shared/ui/premium/ShimmerButton';
+import { Confetti } from '@/shared/ui/premium/Confetti';
 
 interface OnboardingModalProps {
     isOpen: boolean;
@@ -39,6 +42,11 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
     const skipStep = () => next();
 
     const handleComplete = () => {
+        Confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6, x: 0.5 }
+        });
         completeOnboarding();
         onClose();
     };
@@ -69,22 +77,24 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                                 <span className="text-4xl">🚀</span>
                             </div>
                             <div className="space-y-2">
-                                <h2 className="text-3xl font-mono font-bold text-primary tracking-widest">LIFE OS</h2>
+                                <AnimatedGradientText className="text-3xl font-mono font-bold tracking-widest">LIFE OS</AnimatedGradientText>
                                 <p className="text-muted-foreground font-mono text-sm tracking-wider uppercase">Sistema Operacional Pessoal</p>
                             </div>
                             <p className="text-base font-sans text-foreground/80 leading-relaxed max-w-sm mx-auto">
                                 Assuma o controle. Centralize sua vida, hábitos e finanças em uma interface de alta performance.
                             </p>
-                            <Button onClick={next} className="w-full gap-2 group py-6 text-lg">
-                                INICIAR CONFIGURAÇÃO <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                            </Button>
+                            <ShimmerButton onClick={next} className="w-full h-14 text-lg">
+                                <span className="flex items-center gap-2">
+                                    INICIAR CONFIGURAÇÃO <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                </span>
+                            </ShimmerButton>
                         </div>
                     )}
 
                     {step === 'focus' && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-300">
                             <div className="text-center space-y-2">
-                                <h2 className="text-xl font-mono font-bold text-foreground">DEFINIR FOCO PRIMÁRIO</h2>
+                                <AnimatedGradientText className="text-xl font-mono font-bold">DEFINIR FOCO PRIMÁRIO</AnimatedGradientText>
                                 <p className="text-xs font-mono text-muted-foreground uppercase">Qual área precisa de mais atenção agora?</p>
                             </div>
 
@@ -125,7 +135,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                     {step === 'habit' && (
                         <div className="space-y-4 animate-in fade-in slide-in-from-right-8 duration-300">
                             <div className="text-center space-y-1">
-                                <h2 className="text-xl font-mono font-bold text-primary">QUICK WIN: HÁBITO</h2>
+                                <AnimatedGradientText className="text-xl font-mono font-bold">QUICK WIN: HÁBITO</AnimatedGradientText>
                                 <p className="text-xs text-muted-foreground">Pequenos passos constantes.</p>
                             </div>
                             <div className="bg-surface/50 p-4 rounded-lg border border-border">
@@ -148,7 +158,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                     {step === 'task' && (
                         <div className="space-y-4 animate-in fade-in slide-in-from-right-8 duration-300">
                             <div className="text-center space-y-1">
-                                <h2 className="text-xl font-mono font-bold text-primary">QUICK WIN: TAREFA</h2>
+                                <AnimatedGradientText className="text-xl font-mono font-bold">QUICK WIN: TAREFA</AnimatedGradientText>
                                 <p className="text-xs text-muted-foreground">O que não pode ser esquecido hoje?</p>
                             </div>
                             <div className="bg-surface/50 p-4 rounded-lg border border-border">
@@ -171,7 +181,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                     {step === 'finance' && (
                         <div className="space-y-4 animate-in fade-in slide-in-from-right-8 duration-300">
                             <div className="text-center space-y-1">
-                                <h2 className="text-xl font-mono font-bold text-primary">QUICK WIN: FINANÇAS</h2>
+                                <AnimatedGradientText className="text-xl font-mono font-bold">QUICK WIN: FINANÇAS</AnimatedGradientText>
                                 <p className="text-xs text-muted-foreground">Registre sua última movimentação.</p>
                             </div>
                             <div className="bg-surface/50 p-4 rounded-lg border border-border">
@@ -197,7 +207,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                                 <Check size={48} className="text-green-500" />
                             </div>
                             <div className="space-y-2">
-                                <h2 className="text-2xl font-mono font-bold text-foreground">SISTEMA ONLINE</h2>
+                                <AnimatedGradientText className="text-2xl font-mono font-bold">SISTEMA ONLINE</AnimatedGradientText>
                                 <p className="text-muted-foreground font-mono">Você está no comando agora.</p>
                             </div>
 
@@ -209,9 +219,11 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                                 <p className="text-right text-xs font-mono mt-2 text-primary opacity-70">— Leonardo da Vinci</p>
                             </div>
 
-                            <Button onClick={handleComplete} className="w-full py-6 text-lg font-bold tracking-widest" size="lg">
-                                ACESSAR TERMINAL
-                            </Button>
+                            <ShimmerButton onClick={handleComplete} className="w-full h-14 text-lg">
+                                <span className="flex items-center gap-2 font-bold tracking-widest">
+                                    ACESSAR TERMINAL
+                                </span>
+                            </ShimmerButton>
                         </div>
                     )}
                 </div>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Plus, Sun, Moon, Sunset, Clock, CheckCircle2, Circle } from 'lucide-react';
 import { PageTitle } from '@/shared/ui/PageTitle';
@@ -10,6 +11,7 @@ import type { Habit } from '@/shared/types';
 import { ActivityCard } from '@/shared/ui/ActivityCard';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
+import { useStaggerAnimation } from '@/shared/hooks/useStaggerAnimation';
 
 type HabitLog = { habit_id: string; value: number }
 
@@ -17,6 +19,8 @@ export default function HabitsPage() {
     const { habits, logs, isLoading, createHabit, logHabit } = useHabits();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
+
+    useStaggerAnimation('.habit-item', [habits]);
 
     useEffect(() => {
         if (searchParams.get('action') === 'create') {
@@ -100,7 +104,7 @@ export default function HabitsPage() {
                                     {routineHabits.map((habit: Habit) => {
                                         const isCompleted = !!logs?.some((log: HabitLog) => log.habit_id === habit.id && log.value > 0);
                                         return (
-                                            <div key={habit.id} onClick={() => handleToggle(habit.id)} className="cursor-pointer group">
+                                            <div key={habit.id} onClick={() => handleToggle(habit.id)} className="habit-item cursor-pointer group opacity-0">
                                                 <ActivityCard
                                                     title={habit.title}
                                                     value={isCompleted ? "COMPLETO" : "PENDENTE"}

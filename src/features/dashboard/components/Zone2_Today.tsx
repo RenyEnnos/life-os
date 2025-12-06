@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card } from '@/shared/ui/Card';
-import { BentoGrid, BentoItem } from '@/shared/ui/BentoGrid';
+import { BentoGridItem } from '@/shared/ui/premium/BentoGrid';
+import { MagicCard } from '@/shared/ui/premium/MagicCard';
 import { Activity, ListTodo } from 'lucide-react';
 import { NeonChart } from '@/shared/ui/NeonCharts';
 import { useHabits } from '@/features/habits/hooks/useHabits';
@@ -8,6 +8,7 @@ import { useTasks } from '@/features/tasks/hooks/useTasks';
 import { QuickCapture } from '@/features/tasks/components/QuickCapture';
 import { Habit, Task } from '@/shared/types';
 import { useNavigate } from 'react-router-dom';
+import { NumberTicker } from '@/shared/ui/premium/NumberTicker';
 
 const mockActivityData = [
     { name: 'Mon', value: 4 },
@@ -19,56 +20,77 @@ const mockActivityData = [
     { name: 'Sun', value: 9 },
 ];
 
-export const Zone2_Today = () => {
+export const StatusCard = () => {
     const { habits } = useHabits();
-    const { tasks } = useTasks();
     const navigate = useNavigate();
-
     const activeHabits = habits?.filter((h: Habit) => h.active).length || 0;
-    const pendingTasks = tasks?.filter((t: Task) => !t.completed).length || 0;
-
-    // Calculate daily completion (mock calculation for now, needs real log data)
     const dailyCompletion = habits?.length ? Math.round((activeHabits / habits.length) * 100) : 0;
 
     return (
-        <div className="lg:col-span-6 space-y-4">
-            <h2 className="text-sm font-mono text-gray-500 tracking-widest uppercase">02 // TODAY</h2>
-
-            {/* AI Quick Capture */}
-            <QuickCapture />
-
-            <BentoGrid className="auto-rows-[160px]">
-                {/* Main Focus / Status */}
-                <BentoItem colSpan={2} onClick={() => navigate('/habits')} className="cursor-pointer relative overflow-hidden group">
+        <BentoGridItem
+            className="md:col-span-2 cursor-pointer"
+            header={
+                <MagicCard onClick={() => navigate('/habits')} className="items-center justify-center p-6 h-full bg-[#111]" gradientColor="#222">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Activity className="w-24 h-24" />
                     </div>
-                    <div className="relative z-10 flex flex-col justify-between h-full">
+                    <div className="relative z-10 flex flex-col justify-between h-full w-full">
                         <h3 className="text-2xl font-bold text-white">System Status: <span className="text-green-400">OPTIMAL</span></h3>
-                        <div className="text-4xl font-mono text-primary">{dailyCompletion}%</div>
+                        <div className="text-4xl font-mono text-primary flex items-center">
+                            <NumberTicker value={dailyCompletion} suffix="%" />
+                        </div>
                         <p className="text-xs text-gray-400">Daily Protocol Completion</p>
                     </div>
-                </BentoItem>
-
-                {/* Stats */}
-                <BentoItem colSpan={1} onClick={() => navigate('/tasks')} className="cursor-pointer bg-zinc-900/40 group">
-                    <div className="flex flex-col items-center justify-center h-full group-hover:bg-zinc-800/50 transition-colors rounded-xl">
-                        <ListTodo className="w-8 h-8 text-secondary mb-2" />
-                        <span className="text-2xl font-bold text-white">{pendingTasks}</span>
-                        <span className="text-xs text-gray-500">Tasks Left</span>
-                    </div>
-                </BentoItem>
-
-                {/* Chart */}
-                <BentoItem colSpan={3}>
-                    <NeonChart
-                        title="Weekly Momentum"
-                        data={mockActivityData}
-                        color="#22d3ee"
-                        className="h-full"
-                    />
-                </BentoItem>
-            </BentoGrid>
-        </div>
+                </MagicCard>
+            }
+        />
     );
 };
+
+export const StatsCard = () => {
+    const { tasks } = useTasks();
+    const navigate = useNavigate();
+    const pendingTasks = tasks?.filter((t: Task) => !t.completed).length || 0;
+
+    return (
+        <BentoGridItem
+            className="md:col-span-1 cursor-pointer"
+            header={
+                <MagicCard onClick={() => navigate('/tasks')} className="items-center justify-center p-6 h-full bg-[#111]" gradientColor="#222">
+                    <div className="flex flex-col items-center justify-center h-full z-10 w-full">
+                        <ListTodo className="w-8 h-8 text-secondary mb-2" />
+                        <span className="text-2xl font-bold text-white">
+                            <NumberTicker value={pendingTasks} />
+                        </span>
+                        <span className="text-xs text-gray-500">Tasks Left</span>
+                    </div>
+                </MagicCard>
+            }
+        />
+    );
+};
+
+export const ChartCard = () => {
+    return (
+        <BentoGridItem
+            className="md:col-span-3 bg-[#111] border-white/5"
+            header={
+                <NeonChart
+                    title="WEEKLY MOMENTUM"
+                    data={mockActivityData}
+                    color="#22d3ee"
+                    className="h-full p-6"
+                />
+            }
+        />
+    );
+};
+
+export const QuickCaptureCard = () => {
+    return (
+        <BentoGridItem
+            className="md:col-span-3 h-auto"
+            header={<QuickCapture />}
+        />
+    );
+}

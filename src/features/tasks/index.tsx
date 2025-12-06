@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Plus, Calendar as CalendarIcon, List, Zap } from 'lucide-react';
 import { PageTitle } from '@/shared/ui/PageTitle';
@@ -12,6 +13,7 @@ import Tooltip from '@/shared/ui/Tooltip';
 import { Loader } from '@/shared/ui/Loader';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import type { Task } from '@/shared/types';
+import { useStaggerAnimation } from '@/shared/hooks/useStaggerAnimation';
 
 export default function TasksPage() {
     const { tasks, isLoading, createTask, updateTask, deleteTask } = useTasks();
@@ -20,6 +22,8 @@ export default function TasksPage() {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [plan, setPlan] = useState<any>(null);
     const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+
+    useStaggerAnimation('.task-item', [tasks, view]);
 
     const handleGeneratePlan = async () => {
         setIsGeneratingPlan(true);
@@ -91,12 +95,13 @@ export default function TasksPage() {
                 </h2>
                 <div className="space-y-2">
                     {tasks.map((task: Task) => (
-                        <TaskItem
-                            key={task.id}
-                            task={task}
-                            onToggle={() => handleToggle(task)}
-                            onDelete={() => handleDelete(task.id)}
-                        />
+                        <div key={task.id} className="task-item opacity-0">
+                            <TaskItem
+                                task={task}
+                                onToggle={() => handleToggle(task)}
+                                onDelete={() => handleDelete(task.id)}
+                            />
+                        </div>
                     ))}
                 </div>
             </section>
