@@ -10,11 +10,11 @@ import {
     ResponsiveContainer,
     Legend
 } from 'recharts';
-import type { Transaction } from '@/shared/types';
+import type { Transaction, FinanceSummary } from '@/shared/types';
 
 interface FinanceChartsProps {
     transactions: Transaction[] | undefined;
-    summary: any; // Or specific type
+    summary: FinanceSummary | undefined;
     onDeleteTransaction: (id: string) => void;
 }
 
@@ -102,7 +102,7 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
                                     paddingAngle={5}
                                     dataKey="value"
                                 >
-                                    {pieData.map((entry: any, index: number) => (
+                                    {pieData.map((entry: { name: string; value: number }, index: number) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="rgba(0,0,0,0.5)" />
                                     ))}
                                 </Pie>

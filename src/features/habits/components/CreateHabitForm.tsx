@@ -11,9 +11,12 @@ export function CreateHabitForm({ onSubmit, onCancel }: CreateHabitFormProps) {
     const [description, setDescription] = useState('');
     const [routine, setRoutine] = useState<'morning' | 'afternoon' | 'evening' | 'any'>('any');
 
+    const [type, setType] = useState<'binary' | 'numeric'>('binary');
+    const [goal, setGoal] = useState<number>(1);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit({ title, description, routine, type: 'binary', goal: 1 });
+        onSubmit({ title, description, routine, type, goal });
     };
 
     return (
@@ -28,6 +31,31 @@ export function CreateHabitForm({ onSubmit, onCancel }: CreateHabitFormProps) {
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Ex: Ler 10 páginas"
                 />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <label className="text-sm font-mono text-muted-foreground">Tipo</label>
+                    <select
+                        className="w-full bg-surface border border-border rounded-md p-2 text-foreground focus:border-primary focus:outline-none font-mono"
+                        value={type}
+                        onChange={(e) => setType(e.target.value as 'binary' | 'numeric')}
+                    >
+                        <option value="binary">Sim/Não</option>
+                        <option value="numeric">Numérico</option>
+                    </select>
+                </div>
+                <div className="space-y-2">
+                    <label className="text-sm font-mono text-muted-foreground">Meta Diária</label>
+                    <input
+                        type="number"
+                        min="1"
+                        className="w-full bg-surface border border-border rounded-md p-2 text-foreground focus:border-primary focus:outline-none font-mono"
+                        value={goal}
+                        onChange={(e) => setGoal(Number(e.target.value))}
+                        disabled={type === 'binary'}
+                    />
+                </div>
             </div>
 
             <div className="space-y-2">

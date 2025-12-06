@@ -126,5 +126,9 @@ export interface LifeScore {
     level: number;
     current_xp: number;
     life_score: number;
-    updated_at: string;
+export interface FinanceSummary {
+    income: number;
+    expenses: number;
+    balance: number;
+    byCategory: Record<string, number>;
 }

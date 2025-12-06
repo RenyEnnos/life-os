@@ -9,6 +9,7 @@ import { TransactionForm } from '@/features/finances/components/TransactionForm'
 import { useHabits } from '@/features/habits/hooks/useHabits';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
 import { useTransactions } from '@/features/finances/hooks/useTransactions';
+import { useOnboardingStore } from '@/shared/stores/onboardingStore';
 
 interface OnboardingModalProps {
     isOpen: boolean;
@@ -24,6 +25,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
     const { createHabit } = useHabits();
     const { createTask } = useTasks();
     const { createTransaction } = useTransactions();
+    const { completeOnboarding } = useOnboardingStore();
 
     if (!isOpen) return null;
 
@@ -31,10 +33,15 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
         const flow: Step[] = ['welcome', 'focus', 'habit', 'task', 'finance', 'ready'];
         const idx = flow.indexOf(step);
         if (idx < flow.length - 1) setStep(flow[idx + 1]);
-        else onClose(); // Should handle completion before this if logical
+        else onClose(); // Fallback
     };
 
-    const skip = () => next();
+    const skipStep = () => next();
+
+    const handleComplete = () => {
+        completeOnboarding();
+        onClose();
+    };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
@@ -127,11 +134,11 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                                         createHabit.mutate(data);
                                         next();
                                     }}
-                                    onCancel={skip}
+                                    onCancel={() => { }} // decoupled
                                 />
                             </div>
                             <div className="text-center">
-                                <button onClick={skip} className="text-xs text-muted-foreground hover:text-foreground underline decoration-dashed">
+                                <button onClick={skipStep} className="text-xs text-muted-foreground hover:text-foreground underline decoration-dashed">
                                     Pular por enquanto
                                 </button>
                             </div>
@@ -150,11 +157,11 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                                         createTask.mutate(data);
                                         next();
                                     }}
-                                    onCancel={skip}
+                                    onCancel={() => { }} // decoupled
                                 />
                             </div>
                             <div className="text-center">
-                                <button onClick={skip} className="text-xs text-muted-foreground hover:text-foreground underline decoration-dashed">
+                                <button onClick={skipStep} className="text-xs text-muted-foreground hover:text-foreground underline decoration-dashed">
                                     Pular por enquanto
                                 </button>
                             </div>
@@ -202,7 +209,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                                 <p className="text-right text-xs font-mono mt-2 text-primary opacity-70">— Leonardo da Vinci</p>
                             </div>
 
-                            <Button onClick={onClose} className="w-full py-6 text-lg font-bold tracking-widest" size="lg">
+                            <Button onClick={handleComplete} className="w-full py-6 text-lg font-bold tracking-widest" size="lg">
                                 ACESSAR TERMINAL
                             </Button>
                         </div>

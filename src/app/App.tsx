@@ -8,6 +8,7 @@ import { ToastProvider } from "@/shared/ui/GlassToast";
 import { OfflineSyncManager } from "@/shared/components/OfflineSyncManager";
 
 import { PWAManager } from "@/shared/components/PWAManager";
+import { Toaster } from 'react-hot-toast';
 
 import { OnboardingManager } from "@/features/onboarding/components/OnboardingManager";
 
@@ -21,6 +22,7 @@ export default function App() {
                 <ToastProvider>
                     <OfflineSyncManager />
                     <PWAManager />
+                    <Toaster position="bottom-right" toastOptions={{ className: 'glass-panel text-white border-blue-500/30' }} />
                     <OnboardingManager />
                     <Router>
                         <ErrorBoundary>
