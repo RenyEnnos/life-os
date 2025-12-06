@@ -12,14 +12,7 @@ interface CreateHabitDialogProps {
 export function CreateHabitDialog({ isOpen, onClose, onSubmit }: CreateHabitDialogProps) {
     if (!isOpen) return null;
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSubmit({ title, description, routine, type: 'binary', goal: 1 });
-        setTitle('');
-        setDescription('');
-        setRoutine('any');
-        onClose();
-    };
+
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">

@@ -1,3 +1,22 @@
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { apiFetch } from '@/shared/api/http';
+
+interface PerfPoint {
+  timestamp: string;
+  endpoint?: string;
+  status?: number;
+  latency_ms?: number;
+}
+
+interface PerfStats {
+  p95: number;
+  avgMs: number;
+  throughput: number;
+  series: PerfPoint[];
+}
+
+const STORAGE_KEY = 'perf_stats_history';
+
 function mergeHistory(newSeries: PerfPoint[], windowMs: number): PerfPoint[] {
   const now = Date.now()
   const prevRaw = localStorage.getItem(STORAGE_KEY)

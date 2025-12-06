@@ -180,11 +180,11 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                                         createTransaction.mutate(data);
                                         next();
                                     }}
-                                    onCancel={skip}
+                                    onCancel={() => { }}
                                 />
                             </div>
                             <div className="text-center">
-                                <button onClick={skip} className="text-xs text-muted-foreground hover:text-foreground underline decoration-dashed">
+                                <button onClick={skipStep} className="text-xs text-muted-foreground hover:text-foreground underline decoration-dashed">
                                     Pular por enquanto
                                 </button>
                             </div>
