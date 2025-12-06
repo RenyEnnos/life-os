@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/contexts/AuthContext';
-import { apiFetch } from '@/lib/api';
+import { useAuth } from '@/features/auth/contexts/AuthContext';
+import { financesApi } from '../api/finances.api';
 import type { Transaction } from '@/shared/types';
 
 export function useFinances() {
@@ -9,29 +9,18 @@ export function useFinances() {
 
     const { data: transactions, isLoading: loadingTransactions } = useQuery<Transaction[]>({
         queryKey: ['transactions', user?.id],
-        queryFn: async () => {
-            return apiFetch<Transaction[]>('/api/finances/transactions');
-        },
+        queryFn: async () => financesApi.list(user!.id),
         enabled: !!user,
     });
 
     const { data: summary, isLoading: loadingSummary } = useQuery<{ income: number; expenses: number; balance: number; byCategory?: Record<string, number> }>({
         queryKey: ['finance-summary', user?.id],
-        queryFn: async () => {
-            return apiFetch<{ income: number; expenses: number; balance: number; byCategory?: Record<string, number> }>(
-                '/api/finances/summary'
-            );
-        },
+        queryFn: async () => financesApi.getSummary(user!.id),
         enabled: !!user,
     });
 
     const createTransaction = useMutation({
-        mutationFn: async (data: Partial<Transaction>) => {
-            return apiFetch('/api/finances/transactions', {
-                method: 'POST',
-                body: JSON.stringify(data),
-            });
-        },
+        mutationFn: financesApi.create,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
             queryClient.invalidateQueries({ queryKey: ['finance-summary'] });
@@ -39,11 +28,7 @@ export function useFinances() {
     });
 
     const deleteTransaction = useMutation({
-        mutationFn: async (id: string) => {
-            return apiFetch(`/api/finances/transactions/${id}`, {
-                method: 'DELETE',
-            });
-        },
+        mutationFn: financesApi.delete,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
             queryClient.invalidateQueries({ queryKey: ['finance-summary'] });

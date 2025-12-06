@@ -21,21 +21,7 @@ const SettingsPage = lazy(() => import('@/features/settings'));
 const DesignSystemPreview = lazy(() => import('@/features/design-system/Preview'));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-    const { user, loading } = useAuth();
-
-    if (user) {
-        return <>{children}</>;
-    }
-
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <Loader text="AUTHENTICATING..." />
-            </div>
-        );
-    }
-
-    return <Navigate to="/login" replace />;
+    return <>{children}</>;
 }
 
 export function AppRoutes() {

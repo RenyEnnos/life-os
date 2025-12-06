@@ -1,23 +1,25 @@
 export interface Habit {
     id: string;
     user_id: string;
-    name: string; // db: name
-    streak: number; // db: streak
+    title: string;
+    description?: string;
+    active: boolean;
     frequency: string[]; // db: frequency (text[])
-    active: boolean; // db: active
+    routine: 'morning' | 'afternoon' | 'evening' | 'any'; // strictly typed logic
     created_at?: string;
-    updated_at?: string;
-    category?: string; // db: category
-    routine?: 'morning' | 'afternoon' | 'evening' | 'any'; // db: routine
+    streak: number; // db: streak
 
-    // Frontend specific or joined properties (optional for now, to support legacy UI if needed)
-    title?: string;
-    subtitle?: string;
+    // Compatibility with Shared Type
+    type: 'binary' | 'numeric'; // Made required to match shared
+    goal: number; // Made required to match shared
+
+    // Optional extras
+    name?: string;
+    updated_at?: string;
+    category?: string;
     icon?: string;
     completed?: boolean;
-    type?: 'binary' | 'numeric';
     progress?: number;
-    goal?: number;
 }
 
 export interface HabitLog {

@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { PageTitle } from '@/shared/ui/PageTitle';
 import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
-import LineChart from '@/components/charts/LineChart';
-import { usePerfStats } from '@/hooks/usePerfStats';
-import { useAuth } from '@/contexts/AuthContext';
-import { useAI } from '@/hooks/useAI';
-import { apiFetch } from '@/lib/api';
-import { useTheme } from '@/hooks/useTheme';
+import LineChart from '@/shared/ui/charts/LineChart';
+import { usePerfStats } from '@/shared/hooks/usePerfStats';
+import { useAuth } from '@/features/auth/contexts/AuthContext';
+import { useAI } from '@/features/ai-assistant/hooks/useAI';
+import { apiFetch } from '@/shared/api/http';
+import { useTheme } from '@/shared/hooks/useTheme';
 import { Sun, Moon } from 'lucide-react';
 
 export default function SettingsPage() {

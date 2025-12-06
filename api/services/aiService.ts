@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { supabase } from '../lib/supabase'
-import { generateAIResponse } from '../lib/groq'
+import { aiManager } from './ai/AIManager'
 import { getCached, setCache } from './aiCache'
 
 const TagsSchema = z.object({
@@ -61,10 +61,18 @@ export const aiService = {
     const cached = await getCached(userId, 'generateTags', { type, context })
     if (cached) { await this.logUsage(userId, 'generateTags', true); return cached }
 
-    // Use jsonMode = true
-    const response = await generateAIResponse(systemPrompt, context, undefined, true)
+    let response;
+    try {
+      response = await aiManager.execute('speed', {
+        systemPrompt,
+        userPrompt: context,
+        jsonMode: true
+      });
+    } catch (e) {
+      console.error('AI Manager failed', e);
+    }
 
-    if (!response) {
+    if (!response || !response.text) {
       // heuristic fallback
       const c = context.toLowerCase()
       const rules: string[] = []
@@ -103,9 +111,16 @@ export const aiService = {
     const cached = await getCached(userId, 'generateSwot', { projectContext })
     if (cached) { await this.logUsage(userId, 'generateSwot', true); return cached }
 
-    const response = await generateAIResponse(systemPrompt, projectContext, undefined, true)
+    let response;
+    try {
+      response = await aiManager.execute('deep_reason', {
+        systemPrompt,
+        userPrompt: projectContext,
+        jsonMode: true
+      });
+    } catch (e) { console.error(e); }
 
-    if (!response) {
+    if (!response || !response.text) {
       // fallback structure
       const swot = { strengths: ['Organização'], weaknesses: ['Recursos limitados'], opportunities: ['Automação'], threats: ['Distrações'] }
       await this.logUsage(userId, 'generateSwot', true)
@@ -139,9 +154,16 @@ export const aiService = {
     const cached = await getCached(userId, 'generateWeeklyPlan', { tasksContext })
     if (cached) { await this.logUsage(userId, 'generateWeeklyPlan', true); return cached }
 
-    const response = await generateAIResponse(systemPrompt, tasksContext, undefined, true)
+    let response;
+    try {
+      response = await aiManager.execute('deep_reason', {
+        systemPrompt,
+        userPrompt: tasksContext,
+        jsonMode: true
+      });
+    } catch (e) { console.error(e); }
 
-    if (!response) {
+    if (!response || !response.text) {
       const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
       const plan: Record<string, string[]> = {}
       days.forEach((d) => (plan[d] = []))
@@ -176,9 +198,16 @@ export const aiService = {
     const cached = await getCached(userId, 'generateDailySummary_v2', { journalContent })
     if (cached) { await this.logUsage(userId, 'generateDailySummary', true); return cached }
 
-    const response = await generateAIResponse(systemPrompt, journalContent, undefined, true)
+    let response;
+    try {
+      response = await aiManager.execute('speed', {
+        systemPrompt,
+        userPrompt: journalContent,
+        jsonMode: true
+      });
+    } catch (e) { console.error(e); }
 
-    if (!response) {
+    if (!response || !response.text) {
       // Robust fallback: split by newline first, then by period if needed.
       let bullets = journalContent.split('\n').map(s => s.trim()).filter(s => s.length > 5)
 

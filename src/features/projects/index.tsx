@@ -4,7 +4,7 @@ import { PageTitle } from '@/shared/ui/PageTitle';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { useProjects } from '@/features/projects/hooks/useProjects';
-import { useAI } from '@/hooks/useAI';
+import { useAI } from '@/features/ai-assistant/hooks/useAI';
 import { clsx } from 'clsx';
 import type { Project } from '@/shared/types';
 import { Loader } from '@/shared/ui/Loader';

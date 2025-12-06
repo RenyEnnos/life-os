@@ -4,6 +4,7 @@ import { PageTitle } from '@/shared/ui/PageTitle';
 import { Button } from '@/shared/ui/Button';
 import { useHabits } from '@/features/habits/hooks/useHabits';
 import { CreateHabitDialog } from './components/CreateHabitDialog';
+import { HabitDoctor } from './components/HabitDoctor';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import type { Habit } from '@/shared/types';
 import { ActivityCard } from '@/shared/ui/ActivityCard';
@@ -74,6 +75,8 @@ export default function HabitsPage() {
                     </Button>
                 }
             />
+
+            <HabitDoctor habits={habits || []} logs={logs || []} />
 
             {isLoading ? (
                 <div className="text-center py-20 text-muted-foreground font-mono animate-pulse">

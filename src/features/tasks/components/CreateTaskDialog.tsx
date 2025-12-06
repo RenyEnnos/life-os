@@ -3,7 +3,7 @@ import { X, Zap } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { Input } from '@/shared/ui/Input';
-import { useAI } from '@/hooks/useAI';
+import { useAI } from '@/features/ai-assistant/hooks/useAI';
 import { Tag } from '@/shared/ui/Tag';
 import type { Task } from '@/shared/types';
 

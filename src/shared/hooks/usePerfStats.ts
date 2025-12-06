@@ -1,11 +1,3 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { apiFetch } from '../lib/api'
-
-type PerfPoint = { endpoint: string; timestamp: string; latency_ms: number; status: number }
-type PerfStats = { p95: number; avgMs: number; throughput: number; series: PerfPoint[] }
-
-const STORAGE_KEY = 'perf_history'
-
 function mergeHistory(newSeries: PerfPoint[], windowMs: number): PerfPoint[] {
   const now = Date.now()
   const prevRaw = localStorage.getItem(STORAGE_KEY)
@@ -52,17 +44,17 @@ export function usePerfStats(endpointFilter: string | 'ALL', windowMs = 24 * 60 
     // aggregate into per-minute buckets for charts
     const buckets: Record<string, { count: number; errors: number; p95: number; avg: number; latencies: number[] }> = {}
     stats.series.forEach(p => {
-      const key = new Date(p.timestamp).toISOString().slice(0,16) // YYYY-MM-DDTHH:MM
+      const key = new Date(p.timestamp).toISOString().slice(0, 16) // YYYY-MM-DDTHH:MM
       if (!buckets[key]) buckets[key] = { count: 0, errors: 0, p95: 0, avg: 0, latencies: [] }
       buckets[key].count++
       if ((p.status || 0) >= 400) buckets[key].errors++
-      buckets[key].latencies.push(Number(p.latency_ms)||0)
+      buckets[key].latencies.push(Number(p.latency_ms) || 0)
     })
-    const points = Object.entries(buckets).sort(([a],[b]) => a.localeCompare(b)).map(([key, v]) => {
-      const sorted = v.latencies.sort((a,b)=>a-b)
-      const p95 = sorted.length ? sorted[Math.floor(sorted.length*0.95)] : 0
-      const avg = sorted.length ? Math.round(sorted.reduce((s,x)=>s+x,0)/sorted.length) : 0
-      const errRate = v.count ? Math.round((v.errors/v.count)*100) : 0
+    const points = Object.entries(buckets).sort(([a], [b]) => a.localeCompare(b)).map(([key, v]) => {
+      const sorted = v.latencies.sort((a, b) => a - b)
+      const p95 = sorted.length ? sorted[Math.floor(sorted.length * 0.95)] : 0
+      const avg = sorted.length ? Math.round(sorted.reduce((s, x) => s + x, 0) / sorted.length) : 0
+      const errRate = v.count ? Math.round((v.errors / v.count) * 100) : 0
       return { time: key.slice(11), throughput: v.count, p95, avg, errorsPct: errRate }
     })
     return points

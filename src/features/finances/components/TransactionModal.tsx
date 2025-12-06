@@ -3,7 +3,8 @@ import { Plus, Trash2 } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { clsx } from 'clsx';
-import { useAI } from '@/hooks/useAI';
+import { useAI } from '@/features/ai-assistant/hooks/useAI';
+import { useCategorySuggester } from '@/features/finances/hooks/useCategorySuggester';
 import { Tag } from '@/shared/ui/Tag';
 import type { Transaction } from '@/shared/types';
 
@@ -23,6 +24,7 @@ export function TransactionModal({ onClose, onSubmit }: TransactionModalProps) {
 
     const { generateTags } = useAI();
     const [isGeneratingTags, setIsGeneratingTags] = useState(false);
+    const { suggestedCategory } = useCategorySuggester(description);
 
     const handleGenerateTags = async () => {
         if (!description) return;
@@ -98,6 +100,19 @@ export function TransactionModal({ onClose, onSubmit }: TransactionModalProps) {
                     >
                         {categories.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
+
+                    {suggestedCategory && suggestedCategory !== category && (
+                        <div className="flex items-center gap-2 -mt-2 animate-in fade-in slide-in-from-top-1">
+                            <span className="text-xs text-muted-foreground">Sugestão:</span>
+                            <button
+                                onClick={() => setCategory(suggestedCategory)}
+                                className="text-xs bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full hover:bg-primary/20 transition-colors flex items-center gap-1"
+                            >
+                                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                                {suggestedCategory}
+                            </button>
+                        </div>
+                    )}
 
                     <input
                         type="date"

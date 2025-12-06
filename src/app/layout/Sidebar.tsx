@@ -12,7 +12,7 @@ import {
     LogOut,
     X
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { Button } from '@/shared/ui/Button';
 import { cn } from '@/shared/lib/cn';
 import ThemeToggle from '@/shared/ui/ThemeToggle';

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CourseCard } from './components/CourseCard';
 import { AssignmentKanban } from './components/AssignmentKanban';
+import { WhatIfSimulator } from './components/WhatIfSimulator';
 import { Course, Assignment } from './types';
 import { Button } from '@/shared/ui/Button';
 import { Plus } from 'lucide-react';
@@ -76,9 +77,12 @@ export default function UniversityPage() {
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold text-white">Assignment Board</h2>
                 </div>
-                <AssignmentKanban
-                    assignments={MOCK_ASSIGNMENTS}
-                />
+                <AssignmentKanban assignments={MOCK_ASSIGNMENTS} />
+            </section>
+
+            {/* What-If Simulator */}
+            <section className="max-w-xl mx-auto pb-10">
+                <WhatIfSimulator courses={courses} />
             </section>
         </div>
     );

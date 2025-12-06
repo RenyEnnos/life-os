@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/contexts/AuthContext';
-import { apiFetch } from '@/lib/api';
+import { useAuth } from '@/features/auth/contexts/AuthContext';
+import { journalApi } from '../api/journal.api';
 import type { JournalEntry } from '@/shared/types';
 
 export function useJournal() {
@@ -9,42 +9,27 @@ export function useJournal() {
 
     const { data: entries, isLoading } = useQuery<JournalEntry[]>({
         queryKey: ['journal', user?.id],
-        queryFn: async () => {
-            return apiFetch<JournalEntry[]>('/api/journal');
-        },
+        queryFn: async () => journalApi.list(user!.id),
         enabled: !!user,
     });
 
     const createEntry = useMutation({
-        mutationFn: async (newEntry: Partial<JournalEntry>) => {
-            return apiFetch('/api/journal', {
-                method: 'POST',
-                body: JSON.stringify(newEntry),
-            });
-        },
+        mutationFn: journalApi.create,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['journal'] });
         },
     });
 
     const updateEntry = useMutation({
-        mutationFn: async ({ id, updates }: { id: string; updates: Partial<JournalEntry> }) => {
-            return apiFetch(`/api/journal/${id}`, {
-                method: 'PUT',
-                body: JSON.stringify(updates),
-            });
-        },
+        mutationFn: ({ id, updates }: { id: string; updates: Partial<JournalEntry> }) =>
+            journalApi.update(id, updates),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['journal'] });
         },
     });
 
     const deleteEntry = useMutation({
-        mutationFn: async (id: string) => {
-            return apiFetch(`/api/journal/${id}`, {
-                method: 'DELETE',
-            });
-        },
+        mutationFn: journalApi.delete,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['journal'] });
         },

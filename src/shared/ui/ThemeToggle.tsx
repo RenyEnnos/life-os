@@ -1,6 +1,6 @@
 import { Button } from '@/shared/ui/Button'
 import { Sun, Moon } from 'lucide-react'
-import { useTheme } from '@/hooks/useTheme'
+import { useTheme } from '@/shared/hooks/useTheme'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 
 export function ThemeToggle({ inline = false }: { inline?: boolean }) {

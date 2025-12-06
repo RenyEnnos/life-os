@@ -55,7 +55,8 @@ export default function RegisterPage() {
             setLoading(true);
             await register({ email, password, name });
             navigate('/');
-        } catch {
+        } catch (err) {
+            console.error('Registration Error:', err);
             setError('Falha ao criar conta.');
         } finally {
             setLoading(false);

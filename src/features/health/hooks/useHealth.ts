@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/contexts/AuthContext';
-import { apiFetch } from '@/lib/api';
+import { useAuth } from '@/features/auth/contexts/AuthContext';
+import { healthApi } from '../api/health.api';
 import type { HealthMetric, MedicationReminder } from '@/shared/types';
 
 export function useHealth() {
@@ -9,62 +9,40 @@ export function useHealth() {
 
     const { data: metrics, isLoading: loadingMetrics } = useQuery<HealthMetric[]>({
         queryKey: ['health-metrics', user?.id],
-        queryFn: async () => {
-            return apiFetch<HealthMetric[]>('/api/health');
-        },
+        queryFn: async () => healthApi.listMetrics(user!.id),
         enabled: !!user,
     });
 
     const { data: medications, isLoading: loadingMedications } = useQuery<MedicationReminder[]>({
         queryKey: ['medications', user?.id],
-        queryFn: async () => {
-            return apiFetch<MedicationReminder[]>('/api/health/medications');
-        },
+        queryFn: async () => healthApi.listReminders(user!.id),
         enabled: !!user,
     });
 
     const createMetric = useMutation({
-        mutationFn: async (data: Partial<HealthMetric>) => {
-            return apiFetch('/api/health', {
-                method: 'POST',
-                body: JSON.stringify(data),
-            });
-        },
+        mutationFn: healthApi.createMetric,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['health-metrics'] });
         },
     });
 
     const createMedication = useMutation({
-        mutationFn: async (data: Partial<MedicationReminder>) => {
-            return apiFetch('/api/health/medications', {
-                method: 'POST',
-                body: JSON.stringify(data),
-            });
-        },
+        mutationFn: healthApi.createReminder,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['medications'] });
         },
     });
 
     const updateMedication = useMutation({
-        mutationFn: async ({ id, updates }: { id: string; updates: Partial<MedicationReminder> }) => {
-            return apiFetch(`/api/health/medications/${id}`, {
-                method: 'PUT',
-                body: JSON.stringify(updates),
-            });
-        },
+        mutationFn: ({ id, updates }: { id: string; updates: Partial<MedicationReminder> }) =>
+            healthApi.updateReminder(id, updates),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['medications'] });
         },
     });
 
     const deleteMedication = useMutation({
-        mutationFn: async (id: string) => {
-            return apiFetch(`/api/health/medications/${id}`, {
-                method: 'DELETE',
-            });
-        },
+        mutationFn: healthApi.deleteReminder,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['medications'] });
         },

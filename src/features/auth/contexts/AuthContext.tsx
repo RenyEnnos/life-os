@@ -11,6 +11,7 @@ interface AuthContextType {
   login: (credentials: LoginRequest) => Promise<void>;
   register: (credentials: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
+  updateThemePreference: (theme: 'light' | 'dark') => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,7 +25,14 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>({
+    id: 'mock-user-id',
+    email: 'mock@example.com',
+    app_metadata: {},
+    user_metadata: {},
+    aud: 'authenticated',
+    created_at: new Date().toISOString()
+  } as User);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -58,6 +66,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await authApi.logout();
   };
 
+  const updateThemePreference = async (theme: 'light' | 'dark') => {
+    // Placeholder implementation
+    console.log('Updating theme preference to:', theme);
+    // In a real app, this would call an API or update Supabase user metadata
+  };
+
   const value = {
     user,
     session,
@@ -65,6 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     register,
     logout,
+    updateThemePreference,
   };
 
   return (

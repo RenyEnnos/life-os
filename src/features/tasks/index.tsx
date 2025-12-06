@@ -5,7 +5,7 @@ import { Button } from '@/shared/ui/Button';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
 import { TaskItem } from './components/TaskItem';
 import { CreateTaskDialog } from './components/CreateTaskDialog';
-import { useAI } from '@/hooks/useAI';
+import { useAI } from '@/features/ai-assistant/hooks/useAI';
 import { clsx } from 'clsx';
 import Modal from '@/shared/ui/Modal';
 import Tooltip from '@/shared/ui/Tooltip';

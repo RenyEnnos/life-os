@@ -3,7 +3,7 @@ import { Plus, Book, Zap, Calendar } from 'lucide-react';
 import { PageTitle } from '@/shared/ui/PageTitle';
 import { Button } from '@/shared/ui/Button';
 import { useJournal } from '@/features/journal/hooks/useJournal';
-import { useAI } from '@/hooks/useAI';
+import { useAI } from '@/features/ai-assistant/hooks/useAI';
 import { JournalEditor } from './components/JournalEditor';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import type { JournalEntry } from '@/shared/types';

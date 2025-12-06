@@ -1,9 +1,11 @@
+import React from 'react';
 import { Card } from '@/shared/ui/Card';
 import { BentoGrid, BentoItem } from '@/shared/ui/BentoGrid';
 import { Activity, ListTodo } from 'lucide-react';
 import { NeonChart } from '@/shared/ui/NeonCharts';
 import { useHabits } from '@/features/habits/hooks/useHabits';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
+import { QuickCapture } from '@/features/tasks/components/QuickCapture';
 import { Habit, Task } from '@/shared/types';
 import { useNavigate } from 'react-router-dom';
 
@@ -32,7 +34,10 @@ export const Zone2_Today = () => {
         <div className="col-span-12 lg:col-span-6 space-y-4">
             <h2 className="text-sm font-mono text-gray-500 tracking-widest uppercase">02 // TODAY</h2>
 
-            <BentoGrid className="auto-rows-[180px]">
+            {/* AI Quick Capture */}
+            <QuickCapture />
+
+            <BentoGrid className="auto-rows-[160px]">
                 {/* Main Focus / Status */}
                 <BentoItem colSpan={2} onClick={() => navigate('/habits')} className="cursor-pointer relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">

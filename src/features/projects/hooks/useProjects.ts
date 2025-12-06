@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/contexts/AuthContext';
-import { apiFetch } from '@/lib/api';
+import { useAuth } from '@/features/auth/contexts/AuthContext';
+import { apiFetch } from '@/shared/api/http';
 import type { Project } from '@/shared/types';
 
 export function useProjects() {

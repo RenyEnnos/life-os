@@ -9,16 +9,13 @@ export function useHabits() {
 
     const { data: habits, isLoading } = useQuery({
         queryKey: ['habits', user?.id],
-        queryFn: habitsApi.getAll,
+        queryFn: () => habitsApi.list(user!.id),
         enabled: !!user,
     });
 
     const { data: logs } = useQuery({
         queryKey: ['habit-logs', user?.id],
-        queryFn: () => {
-            const today = new Date().toISOString().split('T')[0];
-            return habitsApi.getLogs(today);
-        },
+        queryFn: () => habitsApi.getLogs(user!.id),
         enabled: !!user,
     });
 
@@ -31,7 +28,7 @@ export function useHabits() {
 
     const logHabit = useMutation({
         mutationFn: ({ id, value, date }: { id: string; value: number; date: string }) =>
-            habitsApi.log(id, value, date),
+            habitsApi.log(user!.id, id, value, date),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['habit-logs'] });
         },

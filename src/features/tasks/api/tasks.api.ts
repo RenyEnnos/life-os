@@ -1,5 +1,5 @@
 import { supabase } from '@/shared/api/supabase';
-import { Task } from '../types';
+import { Task } from '@/shared/types';
 
 export const tasksApi = {
     getAll: async (userId: string) => {
