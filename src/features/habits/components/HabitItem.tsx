@@ -1,6 +1,6 @@
 import { Check } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { Button } from '@/shared/ui/Button';
+import { Card } from '@/shared/ui/Card';
 import { Habit } from '@/shared/types';
 import { clsx } from 'clsx';
 

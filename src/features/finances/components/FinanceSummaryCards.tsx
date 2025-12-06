@@ -1,4 +1,4 @@
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/shared/ui/Card';
 import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 import { clsx } from 'clsx';
 

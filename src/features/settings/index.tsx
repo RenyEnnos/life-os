@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { PageTitle } from '@/components/ui/PageTitle';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import { PageTitle } from '@/shared/ui/PageTitle';
+import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/Card';
+import { Button } from '@/shared/ui/Button';
 import LineChart from '@/components/charts/LineChart';
 import { usePerfStats } from '@/hooks/usePerfStats';
 import { useAuth } from '@/contexts/AuthContext';

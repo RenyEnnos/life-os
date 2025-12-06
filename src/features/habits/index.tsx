@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Plus, Sun, Moon, Sunset, Clock, CheckCircle2, Circle } from 'lucide-react';
-import { PageTitle } from '@/components/ui/PageTitle';
-import { Button } from '@/components/ui/Button';
+import { PageTitle } from '@/shared/ui/PageTitle';
+import { Button } from '@/shared/ui/Button';
 import { useHabits } from '@/features/habits/hooks/useHabits';
 import { CreateHabitDialog } from './components/CreateHabitDialog';
-import { EmptyState } from '@/components/ui/EmptyState';
+import { EmptyState } from '@/shared/ui/EmptyState';
 import type { Habit } from '@/shared/types';
-import { ActivityCard } from '@/components/ui/ActivityCard';
+import { ActivityCard } from '@/shared/ui/ActivityCard';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 

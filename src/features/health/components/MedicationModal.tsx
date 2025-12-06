@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import { Card } from '@/shared/ui/Card';
+import { Button } from '@/shared/ui/Button';
 import type { MedicationReminder } from '@/shared/types';
 
 interface MedicationModalProps {

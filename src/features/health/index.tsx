@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Activity, Heart, Moon, Scale, Plus, Pill, Trash2 } from 'lucide-react';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { PageTitle } from '@/components/ui/PageTitle';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/shared/ui/EmptyState';
+import { PageTitle } from '@/shared/ui/PageTitle';
+import { Card } from '@/shared/ui/Card';
+import { Button } from '@/shared/ui/Button';
 import { useHealth } from '@/features/health/hooks/useHealth';
 import {
     LineChart,

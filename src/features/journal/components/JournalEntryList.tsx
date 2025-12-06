@@ -1,9 +1,9 @@
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Trash2, Edit2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Tag } from '@/components/ui/Tag';
+import { Button } from '@/shared/ui/Button';
+import { Card } from '@/shared/ui/Card';
+import { Tag } from '@/shared/ui/Tag';
 import type { JournalEntry } from '@/shared/types';
 
 interface JournalEntryListProps {

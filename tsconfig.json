@@ -22,6 +22,7 @@
     "noFallthroughCasesInSwitch": false,
     "noUncheckedSideEffectImports": false,
     "forceConsistentCasingInFileNames": false,
+    "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "paths": {
       "@/*": [
@@ -32,8 +33,7 @@
   "include": [
     "src",
     "api"
-  ]
-  ,
+  ],
   "exclude": [
     "api/tests",
     "**/__tests__/**",

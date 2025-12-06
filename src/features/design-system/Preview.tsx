@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/Button'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
-import { Input, TextArea } from '@/components/ui/Input'
+import { Button } from '@/shared/ui/Button'
+import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/Card'
+import { Input, TextArea } from '@/shared/ui/Input'
 
 export default function DesignSystemPreview() {
   return (

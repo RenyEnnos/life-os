@@ -1,50 +1,35 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/contexts/AuthContext';
-import { apiFetch } from '@/lib/api';
-import { Task } from '@/shared/types';
+import { useAuth } from '@/features/auth/contexts/AuthContext';
+import { tasksApi } from '../api/tasks.api';
+import { Task } from '../types';
 
 export function useTasks() {
     const { user } = useAuth();
     const queryClient = useQueryClient();
 
-    const { data: tasks, isLoading } = useQuery<Task[]>({
+    const { data: tasks, isLoading } = useQuery({
         queryKey: ['tasks', user?.id],
-        queryFn: async () => {
-            return apiFetch<Task[]>('/api/tasks');
-        },
+        queryFn: tasksApi.getAll,
         enabled: !!user,
     });
 
     const createTask = useMutation({
-        mutationFn: async (newTask: Partial<Task>) => {
-            return apiFetch('/api/tasks', {
-                method: 'POST',
-                body: JSON.stringify(newTask),
-            });
-        },
+        mutationFn: tasksApi.create,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
         },
     });
 
     const updateTask = useMutation({
-        mutationFn: async ({ id, updates }: { id: string; updates: Partial<Task> }) => {
-            return apiFetch(`/api/tasks/${id}`, {
-                method: 'PUT',
-                body: JSON.stringify(updates),
-            });
-        },
+        mutationFn: ({ id, updates }: { id: string; updates: Partial<Task> }) =>
+            tasksApi.update(id, updates),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
         },
     });
 
     const deleteTask = useMutation({
-        mutationFn: async (id: string) => {
-            return apiFetch(`/api/tasks/${id}`, {
-                method: 'DELETE',
-            });
-        },
+        mutationFn: tasksApi.delete,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
         },

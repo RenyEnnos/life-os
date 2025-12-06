@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Save, X, Zap, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/shared/ui/Button';
 import { useAI } from '@/hooks/useAI';
-import { Tag } from '@/components/ui/Tag';
+import { Tag } from '@/shared/ui/Tag';
 import type { JournalEntry } from '@/shared/types';
 import { motion } from 'framer-motion';
 

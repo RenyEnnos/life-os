@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Plus, DollarSign } from 'lucide-react';
-import { PageTitle } from '@/components/ui/PageTitle';
-import { Button } from '@/components/ui/Button';
+import { PageTitle } from '@/shared/ui/PageTitle';
+import { Button } from '@/shared/ui/Button';
 import { useFinances } from '@/features/finances/hooks/useFinances';
-import { Loader } from '@/components/ui/Loader';
-import { EmptyState } from '@/components/ui/EmptyState';
+import { Loader } from '@/shared/ui/Loader';
+import { EmptyState } from '@/shared/ui/EmptyState';
 import { TransactionModal } from './components/TransactionModal';
 import { FinanceSummaryCards } from './components/FinanceSummaryCards';
 import { FinanceCharts } from './components/FinanceCharts';

@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { Plus, Calendar as CalendarIcon, List, Zap } from 'lucide-react';
-import { PageTitle } from '@/components/ui/PageTitle';
-import { Button } from '@/components/ui/Button';
+import { PageTitle } from '@/shared/ui/PageTitle';
+import { Button } from '@/shared/ui/Button';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
 import { TaskItem } from './components/TaskItem';
 import { CreateTaskDialog } from './components/CreateTaskDialog';
 import { useAI } from '@/hooks/useAI';
 import { clsx } from 'clsx';
-import Modal from '@/components/ui/Modal';
-import Tooltip from '@/components/ui/Tooltip';
-import { Loader } from '@/components/ui/Loader';
-import { EmptyState } from '@/components/ui/EmptyState';
+import Modal from '@/shared/ui/Modal';
+import Tooltip from '@/shared/ui/Tooltip';
+import { Loader } from '@/shared/ui/Loader';
+import { EmptyState } from '@/shared/ui/EmptyState';
 import type { Task } from '@/shared/types';
 
 export default function TasksPage() {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { useAuth } from '../../contexts/AuthContext'
-import { rewardsService } from '@/services/rewards'
+import { useAuth } from '@/features/auth/contexts/AuthContext'
+import { rewardsApi } from './api/rewards.api'
 import { AchievementCard } from './components/AchievementCard'
 import { Trophy, Star, TrendingUp } from 'lucide-react'
 
@@ -8,7 +8,6 @@ export default function RewardsPage() {
     const { user } = useAuth()
     const [score, setScore] = useState<any>(null)
     const [achievements, setAchievements] = useState<any[]>([])
-    const [allAchievements, setAllAchievements] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -17,8 +16,8 @@ export default function RewardsPage() {
         const loadData = async () => {
             try {
                 const [userScore, userAchievements] = await Promise.all([
-                    rewardsService.getUserScore(user.id),
-                    rewardsService.getUnlockedAchievements(user.id)
+                    rewardsApi.getUserScore(user.id),
+                    rewardsApi.getUnlockedAchievements(user.id)
                 ])
                 setScore(userScore)
                 setAchievements((userAchievements as any[]) || [])

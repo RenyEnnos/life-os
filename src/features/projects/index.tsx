@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Plus, Target, Folder, Clock, CheckCircle2, AlertCircle, Zap } from 'lucide-react';
-import { PageTitle } from '@/components/ui/PageTitle';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import { PageTitle } from '@/shared/ui/PageTitle';
+import { Card } from '@/shared/ui/Card';
+import { Button } from '@/shared/ui/Button';
 import { useProjects } from '@/features/projects/hooks/useProjects';
 import { useAI } from '@/hooks/useAI';
 import { clsx } from 'clsx';
 import type { Project } from '@/shared/types';
-import { Loader } from '@/components/ui/Loader';
-import { EmptyState } from '@/components/ui/EmptyState';
+import { Loader } from '@/shared/ui/Loader';
+import { EmptyState } from '@/shared/ui/EmptyState';
 import { ProjectModal } from './components/ProjectModal';
 import { SwotAnalysis } from './components/SwotAnalysis';
 

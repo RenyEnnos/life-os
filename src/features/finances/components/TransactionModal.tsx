@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import { Card } from '@/shared/ui/Card';
+import { Button } from '@/shared/ui/Button';
 import { clsx } from 'clsx';
 import { useAI } from '@/hooks/useAI';
-import { Tag } from '@/components/ui/Tag';
+import { Tag } from '@/shared/ui/Tag';
 import type { Transaction } from '@/shared/types';
 
 interface TransactionModalProps {

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Plus, Book, Zap, Calendar } from 'lucide-react';
-import { PageTitle } from '@/components/ui/PageTitle';
-import { Button } from '@/components/ui/Button';
+import { PageTitle } from '@/shared/ui/PageTitle';
+import { Button } from '@/shared/ui/Button';
 import { useJournal } from '@/features/journal/hooks/useJournal';
 import { useAI } from '@/hooks/useAI';
 import { JournalEditor } from './components/JournalEditor';
-import { EmptyState } from '@/components/ui/EmptyState';
+import { EmptyState } from '@/shared/ui/EmptyState';
 import type { JournalEntry } from '@/shared/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
