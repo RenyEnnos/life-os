@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/shared/api/supabase';
 import { authApi } from '../api/auth.api';
 import { LoginRequest, RegisterRequest } from '@/shared/types';
 
@@ -25,45 +24,87 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>({
-    id: 'mock-user-id',
-    email: 'mock@example.com',
-    app_metadata: {},
-    user_metadata: {},
-    aud: 'authenticated',
-    created_at: new Date().toISOString()
-  } as User);
+  // Use null as initial state, not mock data, to allow proper loading state
+  const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check active sessions and sets the user
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // Attempt to hydrate from localStorage first (for immediate offline support)
+    const cachedUser = localStorage.getItem('auth_user');
+    if (cachedUser) {
+      try {
+        setUser(JSON.parse(cachedUser));
+        // We assume if we have a user, we are not loading. 
+        // The network verification happens in background.
+      } catch { }
+    }
 
-    // Listen for changes on auth state (logged in, signed out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // Check active sessions via API (verifying the cookie)
+    authApi.verify()
+      .then((user) => {
+        setUser(user);
+        // Persist fresh user data
+        localStorage.setItem('auth_user', JSON.stringify(user));
+        setLoading(false);
+      })
+      .catch((err) => {
+        // If verify fails, user is not logged in OR offline
+        // If offline (network error), we keep the cached user if we have one
 
-    return () => subscription.unsubscribe();
+        const msg = err.message || '';
+        // Check for specific auth errors (401/403) to clear cache
+        if (msg.includes('Access token required') || msg.includes('Invalid token') || msg.includes('status 401') || msg.includes('status 403')) {
+          setUser(null);
+          localStorage.removeItem('auth_user');
+        } else {
+          // Network error or other. Keep cached user if exists.
+          console.log('Auth verification failed (likely offline), using cache if available');
+        }
+        setLoading(false);
+      });
   }, []);
 
   const login = async (credentials: LoginRequest) => {
-    await authApi.login(credentials);
+    setLoading(true);
+    try {
+      const response = await authApi.login(credentials);
+      // response.user is the user object
+      // response.token is available but we rely on cookie.
+      // We can optionally store it in memory or localStorage if we need it for non-cookie auth (e.g. websockets?)
+      // But for now, just user.
+      if (response?.user) {
+        setUser(response.user as User);
+        localStorage.setItem('auth_user', JSON.stringify(response.user));
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const register = async (credentials: RegisterRequest) => {
-    await authApi.register(credentials);
+    setLoading(true);
+    try {
+      const response = await authApi.register(credentials);
+      if (response?.user) {
+        setUser(response.user as User);
+        localStorage.setItem('auth_user', JSON.stringify(response.user));
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = async () => {
-    await authApi.logout();
+    setLoading(true);
+    try {
+      await authApi.logout();
+    } finally {
+      setUser(null);
+      setSession(null);
+      localStorage.removeItem('auth_user');
+      setLoading(false);
+    }
   };
 
   const updateThemePreference = async (theme: 'light' | 'dark') => {

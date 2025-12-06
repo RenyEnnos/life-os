@@ -21,11 +21,31 @@ import projectsRoutes from './routes/projects'
 
 // for esm mode
 
+import cookieParser from 'cookie-parser'
+import rateLimit from 'express-rate-limit'
+
 const app: express.Application = express()
 
 // trust proxy to capture correct client IP behind reverse proxies
 app.set('trust proxy', true)
-app.use(cors())
+app.use(cors({
+  origin: true, // Reflect request origin
+  credentials: true
+}))
+app.use(cookieParser())
+
+// Rate limiting: 100 requests per 15 minutes
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again after 15 minutes',
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
+// Apply rate limiting to all requests
+app.use(limiter)
+
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 

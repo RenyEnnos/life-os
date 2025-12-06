@@ -1,44 +1,35 @@
-import { supabase } from '@/shared/api/supabase';
+import { apiClient } from '@/shared/api/http';
 import { LoginRequest, RegisterRequest } from '@/shared/types';
+import { User } from '@supabase/supabase-js';
+
+// Define the response types from our API
+interface AuthResponse {
+    token?: string; // Optional now as it's in cookie
+    user: User; // Reusing Supabase User type for compatibility or define custom
+}
 
 export const authApi = {
-    login: async ({ email, password }: LoginRequest) => {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
-        if (error) throw error;
-        return data;
+    login: async (credentials: LoginRequest) => {
+        const data = await apiClient.post<AuthResponse>('/api/auth/login', credentials);
+        return data; // contains user
     },
 
-    register: async ({ email, password, name }: RegisterRequest) => {
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    full_name: name,
-                },
-            },
-        });
-        if (error) throw error;
+    register: async (credentials: RegisterRequest) => {
+        const data = await apiClient.post<AuthResponse>('/api/auth/register', credentials);
         return data;
     },
 
     logout: async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) throw error;
+        await apiClient.post('/api/auth/logout', {});
     },
 
-    getUser: async () => {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) throw error;
-        return user;
+    verify: async () => {
+        // New method to verify session via cookie
+        return await apiClient.get<User>('/api/auth/verify');
     },
 
-    getSession: async () => {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) throw error;
-        return session;
-    }
+    // Deprecated methods that might still be called? 
+    // Ideally we remove them, but checking usage elsewhere might be needed.
+    // For now, removing them to enforce new flow.
+    // If something breaks, we fix the caller.
 };

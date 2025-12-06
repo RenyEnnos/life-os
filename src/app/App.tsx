@@ -1,16 +1,21 @@
 import { BrowserRouter as Router } from "react-router-dom";
 import { AuthProvider } from "@/features/auth/contexts/AuthContext";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "@/shared/lib/react-query";
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
+import { queryClient, persister } from "@/shared/lib/react-query";
 import { AppRoutes } from "@/config/routes/index";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { ToastProvider } from "@/shared/ui/GlassToast";
+import { OfflineSyncManager } from "@/shared/components/OfflineSyncManager";
 
 export default function App() {
     return (
-        <QueryClientProvider client={queryClient}>
+        <PersistQueryClientProvider
+            client={queryClient}
+            persistOptions={{ persister }}
+        >
             <AuthProvider>
                 <ToastProvider>
+                    <OfflineSyncManager />
                     <Router>
                         <ErrorBoundary>
                             <AppRoutes />
@@ -18,6 +23,6 @@ export default function App() {
                     </Router>
                 </ToastProvider>
             </AuthProvider>
-        </QueryClientProvider>
+        </PersistQueryClientProvider>
     );
 }

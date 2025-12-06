@@ -94,8 +94,16 @@ router.post('/register', async (req: Request<Record<string, never>, unknown, Reg
       { expiresIn: '7d' }
     )
 
+    // Set HttpOnly cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // true in production
+      sameSite: 'lax', // convenient for local dev/preview
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    })
+
     const response: AuthResponse = {
-      token,
+      token, // detailed for client usage if needed, but cookie is primary
       user: {
         id: user.id,
         email: user.email,
@@ -187,6 +195,14 @@ router.post('/login', async (req: Request<Record<string, never>, unknown, LoginR
       { expiresIn: '7d' }
     )
 
+    // Set HttpOnly cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    })
+
     if (loginAttempts[email]) delete loginAttempts[email]
 
     const response: AuthResponse = {
@@ -216,8 +232,7 @@ router.post('/login', async (req: Request<Record<string, never>, unknown, LoginR
  * POST /api/auth/logout
  */
 router.post('/logout', async (req: Request, res: Response): Promise<void> => {
-  // In a stateless JWT system, logout is handled client-side
-  // We can optionally blacklist tokens or perform cleanup here
+  res.clearCookie('token')
   res.json({ message: 'Logged out successfully' })
 })
 
@@ -227,8 +242,8 @@ router.post('/logout', async (req: Request, res: Response): Promise<void> => {
  */
 router.get('/verify', async (req: Request, res: Response): Promise<void> => {
   try {
-    const authHeader = req.headers.authorization
-    const token = authHeader && authHeader.split(' ')[1]
+    const token = req.cookies.token || (req.headers.authorization && req.headers.authorization.split(' ')[1])
+
     if (!token) {
       res.status(401).json({ error: 'Access token required' })
       return

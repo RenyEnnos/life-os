@@ -1,8 +1,7 @@
 export async function apiFetch<T = unknown>(url: string, options: RequestInit = {}): Promise<T> {
-  const token = localStorage.getItem('token');
+  // Token is now handled via HttpOnly cookies automatically for same-origin (proxy) requests
   const headers = {
     'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
 
