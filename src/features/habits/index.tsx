@@ -6,7 +6,7 @@ import { useHabits } from '@/features/habits/hooks/useHabits';
 import { CreateHabitDialog } from './components/CreateHabitDialog';
 import { HabitDoctor } from './components/HabitDoctor';
 import { EmptyState } from '@/shared/ui/EmptyState';
-import type { Habit, HabitLog } from '@/shared/types';
+import type { Habit, HabitLog } from '@/features/habits/types';
 import { useSearchParams } from 'react-router-dom';
 import { useStaggerAnimation } from '@/shared/hooks/useStaggerAnimation';
 import { HabitCard } from './components/HabitCard';
@@ -42,7 +42,7 @@ export default function HabitsPage() {
                 Confetti({
                     particleCount: 150,
                     spread: 70,
-                    origin: { y: 0.6 }
+                    origin: { x: 0.5, y: 0.6 }
                 });
             }
         }

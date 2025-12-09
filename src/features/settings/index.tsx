@@ -9,12 +9,12 @@ import { useTheme } from '@/shared/hooks/useTheme';
 import { BentoGrid, BentoGridItem } from '@/shared/ui/premium/BentoGrid';
 import { ThemeToggler } from '@/shared/ui/premium/ThemeToggler';
 import { AnimatedToggle } from '@/shared/ui/premium/AnimatedToggle';
-import ShimmerButton from '@/shared/ui/premium/ShimmerButton';
+import { ShimmerButton } from '@/shared/ui/premium/ShimmerButton';
 
 export default function SettingsPage() {
     const { user } = useAuth();
     const { logs, isLoadingLogs } = useAI();
-    const [isLowIA, setIsLowIA] = useState(user?.preferences?.low_ia_mode || false);
+    const [isLowIA, setIsLowIA] = useState((user?.user_metadata as Record<string, unknown>)?.low_ia_mode === true);
     const [isSaving, setIsSaving] = useState(false);
     const [endpointFilter, setEndpointFilter] = useState<'ALL' | string>('ALL');
     const [windowHrs, setWindowHrs] = useState(24);
@@ -32,7 +32,7 @@ export default function SettingsPage() {
                 method: 'PUT',
                 body: JSON.stringify({
                     preferences: {
-                        ...user?.preferences,
+                        ...(user?.user_metadata as Record<string, unknown>),
                         low_ia_mode: newValue
                     }
                 })

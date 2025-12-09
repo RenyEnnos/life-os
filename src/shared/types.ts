@@ -34,6 +34,8 @@ export interface Habit {
     routine: 'morning' | 'afternoon' | 'evening' | 'any';
     active: boolean;
     created_at: string;
+    frequency: string[];
+    streak: number;
 }
 
 export interface Task {
@@ -133,5 +135,5 @@ export interface FinanceSummary {
     income: number;
     expenses: number;
     balance: number;
-    byCategory: Record<string, number>;
+    byCategory?: Record<string, number>;
 }
