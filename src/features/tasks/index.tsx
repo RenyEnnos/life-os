@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Plus, Calendar as CalendarIcon, List, Zap } from 'lucide-react';
 import { PageTitle } from '@/shared/ui/PageTitle';
 import { Button } from '@/shared/ui/Button';
@@ -30,7 +30,7 @@ export default function TasksPage() {
 
     useStaggerAnimation('.task-item', [tasks, view]);
 
-    const handleGeneratePlan = async () => {
+    const handleGeneratePlan = useCallback(async () => {
         setIsGeneratingPlan(true);
         try {
             const context = tasks?.map((t: Task) => `${t.title} (Due: ${t.due_date || 'None'})`).join('\n');
@@ -45,54 +45,58 @@ export default function TasksPage() {
         } finally {
             setIsGeneratingPlan(false);
         }
-    };
+    }, [tasks, generatePlan, showToast]);
 
-    const handleToggle = (task: Task) => {
+    const handleToggle = useCallback((task: Task) => {
         updateTask.mutate({
             id: task.id,
             updates: { completed: !task.completed }
         });
-    };
+    }, [updateTask]);
 
-    const handleDelete = () => {
+    const handleDelete = useCallback(() => {
         if (confirmDelete) {
             deleteTask.mutate(confirmDelete);
             setConfirmDelete(null);
             showToast('Tarefa excluída.', 'info');
         }
-    };
+    }, [confirmDelete, deleteTask, showToast]);
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const requestDelete = useCallback((id: string) => setConfirmDelete(id), []);
 
-    const groupedTasks = tasks?.reduce((acc: Partial<Record<'completed' | 'noDate' | 'overdue' | 'today' | 'upcoming', Task[]>>, task: Task) => {
-        if (task.completed) {
-            if (!acc.completed) acc.completed = [];
-            acc.completed.push(task);
+    const groupedTasks = useMemo(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        return tasks?.reduce((acc: Partial<Record<'completed' | 'noDate' | 'overdue' | 'today' | 'upcoming', Task[]>>, task: Task) => {
+            if (task.completed) {
+                if (!acc.completed) acc.completed = [];
+                acc.completed.push(task);
+                return acc;
+            }
+
+            if (!task.due_date) {
+                if (!acc.noDate) acc.noDate = [];
+                acc.noDate.push(task);
+                return acc;
+            }
+
+            const dueDate = new Date(task.due_date);
+            dueDate.setHours(0, 0, 0, 0);
+
+            if (dueDate.getTime() < today.getTime()) {
+                if (!acc.overdue) acc.overdue = [];
+                acc.overdue.push(task);
+            } else if (dueDate.getTime() === today.getTime()) {
+                if (!acc.today) acc.today = [];
+                acc.today.push(task);
+            } else {
+                if (!acc.upcoming) acc.upcoming = [];
+                acc.upcoming.push(task);
+            }
             return acc;
-        }
-
-        if (!task.due_date) {
-            if (!acc.noDate) acc.noDate = [];
-            acc.noDate.push(task);
-            return acc;
-        }
-
-        const dueDate = new Date(task.due_date);
-        dueDate.setHours(0, 0, 0, 0);
-
-        if (dueDate.getTime() < today.getTime()) {
-            if (!acc.overdue) acc.overdue = [];
-            acc.overdue.push(task);
-        } else if (dueDate.getTime() === today.getTime()) {
-            if (!acc.today) acc.today = [];
-            acc.today.push(task);
-        } else {
-            if (!acc.upcoming) acc.upcoming = [];
-            acc.upcoming.push(task);
-        }
-        return acc;
-    }, {});
+        }, {});
+    }, [tasks]);
 
     const renderSection = (title: string, tasks: Task[] | undefined, colorClass = "text-foreground") => {
         if (!tasks?.length) return null;
@@ -107,7 +111,7 @@ export default function TasksPage() {
                             <PremiumTaskCard
                                 task={task}
                                 onToggle={() => handleToggle(task)}
-                                onDelete={() => setConfirmDelete(task.id)}
+                                onDelete={() => requestDelete(task.id)}
                             />
                         </div>
                     ))}
@@ -118,6 +122,7 @@ export default function TasksPage() {
 
     return (
         <div className="space-y-8 pb-20">
+            {/* Same JSX as before until modal handler */}
             <PageTitle
                 title="TAREFAS"
                 subtitle="Backlog de execução."

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Plus, Sun, Moon, Sunset, Clock } from 'lucide-react';
 import { PageTitle } from '@/shared/ui/PageTitle';
 import { Button } from '@/shared/ui/Button';
@@ -29,7 +29,7 @@ export default function HabitsPage() {
 
     const today = new Date().toISOString().split('T')[0];
 
-    const handleToggle = (habitId: string) => {
+    const handleToggle = useCallback((habitId: string) => {
         const isCompleted = logs?.some((log: HabitLog) => log.habit_id === habitId && log.value > 0);
 
         // Optimistic Streak Calculation for Confetti
@@ -52,7 +52,10 @@ export default function HabitsPage() {
             value: isCompleted ? 0 : 1,
             date: today
         });
-    };
+    }, [logs, logHabit, today]); // added today to deps as it is derived in render scope (should be outside or memoized)
+
+    // Move today outside or useMemo if valid. today depends on clock only.
+    // It's defined as const today = ... in render.
 
     const getIcon = (routine: string) => {
         switch (routine) {
@@ -72,14 +75,16 @@ export default function HabitsPage() {
         }
     };
 
-    const groupedHabits = habits?.reduce((acc: Record<string, Habit[]>, habit: Habit) => {
+    const groupedHabits = useMemo(() => habits?.reduce((acc: Record<string, Habit[]>, habit: Habit) => {
         const routine = habit.routine || 'any';
         if (!acc[routine]) acc[routine] = [];
         acc[routine].push(habit);
         return acc;
-    }, {} as Record<string, Habit[]>);
+    }, {} as Record<string, Habit[]>), [habits]);
 
     const routines = ['morning', 'afternoon', 'evening', 'any'];
+
+    const createHandler = useCallback((id: string) => handleToggle(id), [handleToggle]);
 
     return (
         <div className="space-y-8 pb-20">
@@ -125,7 +130,7 @@ export default function HabitsPage() {
                                                     habit={habit}
                                                     isCompleted={isCompleted}
                                                     streak={streak}
-                                                    onToggle={() => handleToggle(habit.id)}
+                                                    onToggle={() => createHandler(habit.id)}
                                                 />
                                             </div>
                                         );

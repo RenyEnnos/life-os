@@ -9,6 +9,9 @@ import { supabase } from '../lib/supabase'
 import { LoginRequest, RegisterRequest, AuthResponse } from '../../shared/types'
 import { z } from 'zod'
 
+import { validate } from '../middleware/validate'
+import { loginSchema, registerSchema } from '@/shared/schemas/auth'
+
 const router = Router()
 const JWT_SECRET = process.env.JWT_SECRET
 
@@ -25,7 +28,7 @@ async function logAuth(email: string, status: 'success' | 'fail', meta?: { code?
     const ua = req?.headers['user-agent'] || 'unknown'
     await supabase.from('auth_logs').insert([{ email, status, code: meta?.code || null, reason: meta?.reason || null, ip, user_agent: ua, created_at: new Date().toISOString() }])
   } catch {
-    // noop: logging failures must not impact auth flow
+    // noop
   }
 }
 
@@ -33,22 +36,9 @@ async function logAuth(email: string, status: 'success' | 'fail', meta?: { code?
  * User Registration
  * POST /api/auth/register
  */
-router.post('/register', async (req: Request<Record<string, never>, unknown, RegisterRequest>, res: Response): Promise<void> => {
+router.post('/register', validate(registerSchema), async (req: Request<Record<string, never>, unknown, RegisterRequest>, res: Response): Promise<void> => {
   try {
-    const schema = z.object({ email: z.string().email(), password: z.string().min(8), name: z.string().min(1) })
-    const parsed = schema.safeParse(req.body || {})
-    if (!parsed.success) {
-      await logAuth((req.body?.email as string) || 'unknown', 'fail', { code: 'BAD_REQUEST', reason: 'missing_fields' }, req)
-      res.status(400).json({ error: 'Email, password, and name are required', code: 'BAD_REQUEST' })
-      return
-    }
-    const { email, password, name } = parsed.data
-
-    if (!email || !password || !name) {
-      await logAuth(email || 'unknown', 'fail', { code: 'BAD_REQUEST', reason: 'missing_fields' }, req)
-      res.status(400).json({ error: 'Email, password, and name are required', code: 'BAD_REQUEST' })
-      return
-    }
+    const { email, password, name } = req.body
 
     // Check if user already exists
     const { data: existingUser } = await supabase
@@ -97,13 +87,13 @@ router.post('/register', async (req: Request<Record<string, never>, unknown, Reg
     // Set HttpOnly cookie
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // true in production
-      sameSite: 'lax', // convenient for local dev/preview
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000
     })
 
     const response: AuthResponse = {
-      token, // detailed for client usage if needed, but cookie is primary
+      token,
       user: {
         id: user.id,
         email: user.email,
@@ -128,16 +118,9 @@ router.post('/register', async (req: Request<Record<string, never>, unknown, Reg
  * User Login
  * POST /api/auth/login
  */
-router.post('/login', async (req: Request<Record<string, never>, unknown, LoginRequest>, res: Response): Promise<void> => {
+router.post('/login', validate(loginSchema), async (req: Request<Record<string, never>, unknown, LoginRequest>, res: Response): Promise<void> => {
   try {
-    const schema = z.object({ email: z.string().email(), password: z.string().min(8) })
-    const parsed = schema.safeParse(req.body || {})
-    if (!parsed.success) {
-      await logAuth((req.body?.email as string) || 'unknown', 'fail', { code: 'BAD_REQUEST', reason: 'missing_fields' }, req)
-      res.status(400).json({ error: 'Email and password are required', code: 'BAD_REQUEST' })
-      return
-    }
-    const { email, password } = parsed.data
+    const { email, password } = req.body
 
     if (!email || !password) {
       await logAuth(email || 'unknown', 'fail', { code: 'BAD_REQUEST', reason: 'missing_fields' }, req)

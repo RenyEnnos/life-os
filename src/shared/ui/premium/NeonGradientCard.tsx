@@ -64,7 +64,7 @@ interface NeonGradientCardProps {
      * */
     neonColors?: NeonColorsProps
 
-    [key: string]: any
+    // Key string any removed for strict type safety
 }
 
 export const NeonGradientCard: React.FC<NeonGradientCardProps> = ({

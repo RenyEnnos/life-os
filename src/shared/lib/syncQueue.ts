@@ -2,11 +2,11 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { apiClient } from '@/shared/api/http';
 
-export interface SyncItem {
+export interface SyncItem<T = unknown> {
     id: string;
     endpoint: string;
     method: 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-    payload: any;
+    payload: T;
     timestamp: number;
     retryCount: number;
 }

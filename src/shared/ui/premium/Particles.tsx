@@ -10,6 +10,19 @@ interface ParticlesProps {
     refresh?: boolean;
 }
 
+interface Circle {
+    x: number;
+    y: number;
+    translateX: number;
+    translateY: number;
+    size: number;
+    alpha: number;
+    targetAlpha: number;
+    dx: number;
+    dy: number;
+    magnetism: number;
+}
+
 export const Particles = ({
     className = "",
     quantity = 30,
@@ -20,7 +33,7 @@ export const Particles = ({
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const canvasContainerRef = useRef<HTMLDivElement>(null);
     const context = useRef<CanvasRenderingContext2D | null>(null);
-    const circles = useRef<any[]>([]);
+    const circles = useRef<Circle[]>([]);
     const mouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
     const canvasSize = useRef<{ w: number; h: number }>({ w: 0, h: 0 });
     const dpr = typeof window !== "undefined" ? window.devicePixelRatio : 1;
@@ -102,7 +115,7 @@ export const Particles = ({
         };
     };
 
-    const drawCircle = (circle: any, update = false) => {
+    const drawCircle = (circle: Circle, update = false) => {
         if (context.current) {
             const { x, y, translateX, translateY, size, alpha } = circle;
             context.current.translate(translateX, translateY);
@@ -151,7 +164,7 @@ export const Particles = ({
 
     const animate = () => {
         clearContext();
-        circles.current.forEach((circle: any, i: number) => {
+        circles.current.forEach((circle: Circle, i: number) => {
             // Handle the alpha value
             const edge = [
                 circle.x + circle.translateX - circle.size, // distance from left edge

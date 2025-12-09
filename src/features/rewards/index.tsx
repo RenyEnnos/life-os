@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 import { rewardsApi } from './api/rewards.api'
+import { LifeScore, Achievement } from '@/shared/types'
+
+interface UnlockedAchievement {
+    id: string;
+    achievement: Achievement;
+    achieved_at: string;
+}
 import { AchievementCard } from './components/AchievementCard'
 import { Trophy, Star, TrendingUp } from 'lucide-react'
 import { PageTitle } from '@/shared/ui/PageTitle'
@@ -14,8 +21,8 @@ import { toast } from 'react-hot-toast'
 
 export default function RewardsPage() {
     const { user } = useAuth()
-    const [score, setScore] = useState<any>(null)
-    const [achievements, setAchievements] = useState<any[]>([])
+    const [score, setScore] = useState<LifeScore | null>(null)
+    const [achievements, setAchievements] = useState<UnlockedAchievement[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -28,7 +35,7 @@ export default function RewardsPage() {
                     rewardsApi.getUnlockedAchievements(user.id)
                 ])
                 setScore(userScore)
-                setAchievements((userAchievements as any[]) || [])
+                setAchievements(userAchievements || [])
             } catch (error) {
                 console.error('Failed to load rewards data:', error)
             } finally {
@@ -157,7 +164,7 @@ export default function RewardsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {achievements.length > 0 ? (
-                        achievements.map((ua: any) => (
+                        achievements.map((ua: UnlockedAchievement) => (
                             <AchievementCard
                                 key={ua.id}
                                 achievement={ua.achievement}

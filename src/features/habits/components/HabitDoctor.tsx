@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface HabitDoctorProps {
     habits: Habit[];
-    logs: any[]; // refined type would be better
+    logs: Record<string, unknown>[];
 }
 
 export function HabitDoctor({ habits, logs }: HabitDoctorProps) {

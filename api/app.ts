@@ -5,7 +5,16 @@ import express, {
   type NextFunction,
 } from 'express'
 import cors from 'cors'
+import helmet from 'helmet'
+import * as Sentry from "@sentry/node";
 import authRoutes from './routes/auth'
+
+if (process.env.NODE_ENV === 'production') {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    tracesSampleRate: 1.0,
+  });
+}
 import habitsRoutes from './routes/habits'
 import tasksRoutes from './routes/tasks'
 import financesRoutes from './routes/finances'
@@ -26,10 +35,26 @@ import rateLimit from 'express-rate-limit'
 
 const app: express.Application = express()
 
+if (process.env.NODE_ENV === 'production') {
+  // Sentry SDK v8+ initialization
+}
+
 // trust proxy to capture correct client IP behind reverse proxies
 app.set('trust proxy', true)
+
+// Security Headers
+app.use(helmet())
+
+// trust proxy to capture correct client IP behind reverse proxies
 app.use(cors({
-  origin: true, // Reflect request origin
+  origin: (origin, callback) => {
+    const allowed = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:3000').split(',')
+    if (!origin || allowed.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
   credentials: true
 }))
 app.use(cookieParser())
@@ -71,7 +96,13 @@ app.use('/api/projects', projectsRoutes)
 /**
  * error handler middleware
  */
+if (process.env.NODE_ENV === 'production') {
+  // Sentry.setupExpressErrorHandler(app); // specific setup if needed
+}
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
+  if (process.env.NODE_ENV === 'production') {
+    Sentry.captureException(error);
+  }
   void next
   res.status(500).json({
     success: false,

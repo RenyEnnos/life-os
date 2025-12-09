@@ -1,12 +1,7 @@
-export interface User {
-    id: string;
-    email: string;
-    name: string;
-    preferences?: Record<string, unknown>;
-    theme?: string;
-    created_at?: string;
-    updated_at?: string;
-}
+import { Database } from './types/database';
+
+export type DbUser = Database['public']['Tables']['users']['Row'];
+export interface User extends DbUser { }
 
 export interface AuthResponse {
     token: string;
@@ -24,30 +19,19 @@ export interface RegisterRequest {
     name: string;
 }
 
-export interface Habit {
-    id: string;
-    user_id: string;
-    title: string;
-    description?: string;
-    type: 'binary' | 'numeric';
-    goal: number;
-    routine: 'morning' | 'afternoon' | 'evening' | 'any';
-    active: boolean;
-    created_at: string;
+export type DbHabit = Database['public']['Tables']['habits']['Row'];
+
+export interface Habit extends Omit<DbHabit, 'schedule'> {
     frequency: string[];
     streak: number;
+    routine: 'morning' | 'afternoon' | 'evening' | 'any';
+    schedule: { frequency: string;[key: string]: any };
 }
 
-export interface Task {
-    id: string;
-    user_id: string;
-    project_id?: string;
-    title: string;
-    description?: string;
-    due_date?: string;
-    completed: boolean;
+export type DbTask = Database['public']['Tables']['tasks']['Row'];
+
+export interface Task extends Omit<DbTask, 'tags'> {
     tags?: string[];
-    created_at: string;
 }
 
 export interface JournalEntry {
@@ -60,27 +44,21 @@ export interface JournalEntry {
     created_at: string;
 }
 
-export interface Transaction {
-    id: string;
-    user_id: string;
-    type: 'income' | 'expense';
-    amount: number;
-    description: string;
-    category: string;
-    transaction_date: string;
+export type DbTransaction = Database['public']['Tables']['transactions']['Row'];
+
+export interface Transaction extends Omit<DbTransaction, 'tags'> {
     tags?: string[];
-    created_at: string;
+    category: string;
 }
 
-export interface Project {
-    id: string;
-    user_id: string;
+export type DbProject = Database['public']['Tables']['projects']['Row'];
+
+export interface Project extends Omit<DbProject, 'tags' | 'active' | 'name'> {
     title: string;
-    description: string;
     status: 'active' | 'completed' | 'on_hold';
     priority: 'low' | 'medium' | 'high';
     deadline?: string;
-    created_at: string;
+    tags?: string[];
 }
 
 export interface HealthMetric {

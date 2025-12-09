@@ -11,12 +11,22 @@ import {
 } from 'lucide-react';
 import { QuickActionModal } from './QuickActionModal';
 
+import { LucideIcon } from 'lucide-react';
+
+interface DockItem {
+    icon: LucideIcon;
+    label: string;
+    href: string;
+    special?: boolean;
+    onClick?: () => void;
+}
+
 export function FloatingDock() {
     const mouseX = useMotionValue(Infinity);
     const location = useLocation();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const items = [
+    const items: DockItem[] = [
         { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
         { icon: CheckSquare, label: 'Hábitos', href: '/habits' },
         { icon: PlusCircle, label: 'Novo', href: '#', special: true, onClick: () => setIsModalOpen(true) },
@@ -52,8 +62,8 @@ function DockIcon({
     item,
     isActive
 }: {
-    mouseX: MotionValue;
-    item: any;
+    mouseX: MotionValue<number>;
+    item: DockItem;
     isActive: boolean
 }) {
     const ref = useRef<HTMLDivElement>(null);

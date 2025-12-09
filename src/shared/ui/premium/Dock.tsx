@@ -1,7 +1,7 @@
 
 import React, { useRef } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, type MotionValue } from "framer-motion";
 import { cn } from "@/shared/lib/cn";
 import { Link } from "react-router-dom";
 
@@ -68,10 +68,10 @@ export interface DockIconProps {
     size?: number;
     magnification?: number;
     distance?: number;
-    mouseX?: any;
+    mouseX?: MotionValue<number>;
     className?: string;
     children?: React.ReactNode;
-    props?: any;
+    props?: unknown;
     href?: string;
     onClick?: () => void;
 }
@@ -89,7 +89,10 @@ const DockIcon = ({
 }: DockIconProps) => {
     const ref = useRef<HTMLDivElement>(null);
 
-    const distanceCalc = useTransform(mouseX, (val: number) => {
+    const defaultMouseX = useMotionValue(Infinity);
+    const value = mouseX ?? defaultMouseX;
+
+    const distanceCalc = useTransform(value, (val: number) => {
         const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
         return val - bounds.x - bounds.width / 2;
     });

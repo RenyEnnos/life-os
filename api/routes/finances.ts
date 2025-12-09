@@ -27,24 +27,19 @@ router.get('/transactions', authenticateToken, async (req: AuthRequest, res: Res
   res.json(data ?? [])
 })
 
-router.post('/transactions', authenticateToken, async (req: AuthRequest, res: Response) => {
+import { validate } from '../middleware/validate'
+import { createTransactionSchema, updateTransactionSchema } from '@/shared/schemas/finance'
+
+// ...
+
+router.post('/transactions', authenticateToken, validate(createTransactionSchema), async (req: AuthRequest, res: Response) => {
   try {
-    const schema = z.object({
-      type: z.enum(['income', 'expense']),
-      amount: z.number().positive(),
-      description: z.string().min(1),
-      transaction_date: z.string().min(1),
-      tags: z.array(z.string()).optional(),
-      category: z.string().optional()
-    })
-    const parsed = schema.safeParse(req.body || {})
-    if (!parsed.success) return res.status(400).json({ error: 'Invalid transaction payload' })
-    const data = await financeService.create(req.user!.id, parsed.data)
+    const data = await financeService.create(req.user!.id, req.body)
     res.status(201).json(data)
   } catch (e: unknown) { const msg = e instanceof Error ? e.message : 'Unknown error'; res.status(400).json({ error: msg }) }
 })
 
-router.put('/transactions/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.put('/transactions/:id', authenticateToken, validate(updateTransactionSchema), async (req: AuthRequest, res: Response) => {
   const data = await financeService.update(req.user!.id, req.params.id, req.body || {})
   if (!data) return res.status(404).json({ error: 'Transaction not found' })
   res.json(data)
@@ -70,10 +65,26 @@ router.post('/import', authenticateToken, async (req: AuthRequest, res: Response
   for (const line of lines.slice(1)) { // skip header
     const cols = line.split(',').map(c => c.trim())
     const [type, amountStr, description, date, tagsStr] = cols
+
     if (!type || !amountStr || !description || !date) continue
-    const amount = Number(amountStr)
-    const tags = (tagsStr || '').split(';').filter(Boolean)
-    try { await financeService.create(req.user!.id, { type: type as 'income'|'expense', amount, description, transaction_date: date, tags }) ; count++ } catch { /* noop: linha inválida do CSV */ }
+
+    // Basic sanitization
+    const cleanDescription = description.replace(/<[^>]*>?/gm, "")
+    const cleanTags = (tagsStr || '').split(';').map(t => t.trim()).filter(t => /^[a-zA-Z0-9_-]+$/.test(t))
+
+    const payload = {
+      type: type.toLowerCase() as 'income' | 'expense',
+      amount: Number(amountStr),
+      description: cleanDescription,
+      transaction_date: date,
+      category: 'General', // Default for CSV import
+      tags: cleanTags
+    }
+
+    const parsed = createTransactionSchema.safeParse(payload)
+    if (parsed.success) {
+      try { await financeService.create(req.user!.id, parsed.data); count++ } catch { /* db error */ }
+    }
   }
   res.json({ imported: count })
 })

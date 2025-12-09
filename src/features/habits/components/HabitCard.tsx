@@ -1,4 +1,4 @@
-import React from "react";
+import { memo } from "react";
 import { Habit } from "@/features/habits/types";
 import { MagicCard } from "@/shared/ui/premium/MagicCard";
 import { ShimmerButton } from "@/shared/ui/premium/ShimmerButton";
@@ -14,7 +14,7 @@ interface HabitCardProps {
     onToggle: () => void;
 }
 
-export const HabitCard = ({
+export const HabitCard = memo(({
     habit,
     isCompleted,
     streak,
@@ -139,4 +139,4 @@ export const HabitCard = ({
             </AnimatePresence>
         </MagicCard>
     );
-};
+});

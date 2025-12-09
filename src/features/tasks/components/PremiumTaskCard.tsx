@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Check, Trash2, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Task } from '@/shared/types';
@@ -11,7 +12,7 @@ interface PremiumTaskCardProps {
     onDelete: () => void;
 }
 
-export function PremiumTaskCard({ task, onToggle, onDelete }: PremiumTaskCardProps) {
+export const PremiumTaskCard = memo(function PremiumTaskCard({ task, onToggle, onDelete }: PremiumTaskCardProps) {
     const isOverdue = task.due_date && new Date(task.due_date) < new Date() && !task.completed;
     const isHighPriority = isOverdue; // Simplified priority logic for visual flair
 
@@ -99,4 +100,4 @@ export function PremiumTaskCard({ task, onToggle, onDelete }: PremiumTaskCardPro
             )}
         </MagicCard>
     );
-}
+});

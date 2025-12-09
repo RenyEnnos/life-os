@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api/auth.api';
 import { LoginRequest, RegisterRequest } from '@/shared/types';
 
@@ -24,102 +25,71 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Use null as initial state, not mock data, to allow proper loading state
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    // Attempt to hydrate from localStorage first (for immediate offline support)
-    const cachedUser = localStorage.getItem('auth_user');
-    if (cachedUser) {
+  // Hydrate initial user from localStorage for immediate feedback
+  const getInitialUser = (): User | null => {
+    const cached = localStorage.getItem('auth_user');
+    return cached ? JSON.parse(cached) : null;
+  };
+
+  const { data: user, isLoading } = useQuery({
+    queryKey: ['auth_user'],
+    queryFn: async () => {
       try {
-        setUser(JSON.parse(cachedUser));
-        // We assume if we have a user, we are not loading. 
-        // The network verification happens in background.
-      } catch { }
-    }
-
-    // Check active sessions via API (verifying the cookie)
-    authApi.verify()
-      .then((user) => {
-        setUser(user);
-        // Persist fresh user data
+        const user = await authApi.verify();
         localStorage.setItem('auth_user', JSON.stringify(user));
-        setLoading(false);
-      })
-      .catch((err) => {
-        // If verify fails, user is not logged in OR offline
-        // If offline (network error), we keep the cached user if we have one
-
-        const msg = err.message || '';
-        // Check for specific auth errors (401/403) to clear cache
-        if (msg.includes('Access token required') || msg.includes('Invalid token') || msg.includes('status 401') || msg.includes('status 403')) {
-          setUser(null);
-          localStorage.removeItem('auth_user');
-        } else {
-          // Network error or other. Keep cached user if exists.
-          console.log('Auth verification failed (likely offline), using cache if available');
-        }
-        setLoading(false);
-      });
-  }, []);
-
-  const login = async (credentials: LoginRequest) => {
-    setLoading(true);
-    try {
-      const response = await authApi.login(credentials);
-      // response.user is the user object
-      // response.token is available but we rely on cookie.
-      // We can optionally store it in memory or localStorage if we need it for non-cookie auth (e.g. websockets?)
-      // But for now, just user.
-      if (response?.user) {
-        setUser(response.user as User);
-        localStorage.setItem('auth_user', JSON.stringify(response.user));
+        return user;
+      } catch (error) {
+        localStorage.removeItem('auth_user');
+        throw error;
       }
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    initialData: getInitialUser,
+    retry: false,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
-  const register = async (credentials: RegisterRequest) => {
-    setLoading(true);
-    try {
-      const response = await authApi.register(credentials);
-      if (response?.user) {
-        setUser(response.user as User);
-        localStorage.setItem('auth_user', JSON.stringify(response.user));
+  const loginMutation = useMutation({
+    mutationFn: authApi.login,
+    onSuccess: (data) => {
+      if (data?.user) {
+        queryClient.setQueryData(['auth_user'], data.user);
+        localStorage.setItem('auth_user', JSON.stringify(data.user));
       }
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+  });
 
-  const logout = async () => {
-    setLoading(true);
-    try {
-      await authApi.logout();
-    } finally {
-      setUser(null);
-      setSession(null);
+  const registerMutation = useMutation({
+    mutationFn: authApi.register,
+    onSuccess: (data) => {
+      if (data?.user) {
+        queryClient.setQueryData(['auth_user'], data.user);
+        localStorage.setItem('auth_user', JSON.stringify(data.user));
+      }
+    },
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: authApi.logout,
+    onSuccess: () => {
+      queryClient.setQueryData(['auth_user'], null);
       localStorage.removeItem('auth_user');
-      setLoading(false);
-    }
-  };
+      queryClient.clear(); // Clear all data on logout
+    },
+  });
 
   const updateThemePreference = async (theme: 'light' | 'dark') => {
-    // Placeholder implementation
     console.log('Updating theme preference to:', theme);
-    // In a real app, this would call an API or update Supabase user metadata
   };
 
   const value = {
-    user,
-    session,
-    loading,
-    login,
-    register,
-    logout,
+    user: user || null,
+    session: null, // Session management is abstracted/cookie-based usually
+    loading: isLoading,
+    login: async (creds: LoginRequest) => { await loginMutation.mutateAsync(creds); },
+    register: async (creds: RegisterRequest) => { await registerMutation.mutateAsync(creds); },
+    logout: async () => { await logoutMutation.mutateAsync(); },
     updateThemePreference,
   };
 

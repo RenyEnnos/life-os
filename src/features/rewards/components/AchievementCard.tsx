@@ -3,15 +3,12 @@ import { Trophy, Lock, Footprints, Flame, Book, Briefcase } from 'lucide-react'
 import { MagicCard } from '@/shared/ui/premium/MagicCard'
 import { ShineBorder } from '@/shared/ui/premium/ShineBorder'
 
-type Achievement = {
-    id: string
-    code: string
-    title: string
-    description: string
-    icon: string
-    xp_reward: number
-    unlocked_at?: string
-}
+import { Achievement } from '@/shared/types'
+
+// Extending shared type if necessary for UI props, or just using it directly
+// If 'code' is missing in shared type but used here, we check logic.
+// Logic uses 'icon' primarily. 'code' property was defined but unused in visible logic below.
+
 
 interface AchievementCardProps {
     achievement: Achievement

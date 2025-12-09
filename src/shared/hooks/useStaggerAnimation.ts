@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, DependencyList } from 'react';
 import anime from 'animejs';
 
-export const useStaggerAnimation = (selector: string | Element[] | NodeListOf<Element>, deps: any[] = []) => {
+export const useStaggerAnimation = (selector: string | Element[] | NodeListOf<Element>, deps: DependencyList = []) => {
     const animationRef = useRef<anime.AnimeInstance | null>(null);
 
     useEffect(() => {

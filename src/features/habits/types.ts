@@ -2,7 +2,7 @@ export interface Habit {
     id: string;
     user_id: string;
     title: string;
-    description?: string;
+    description?: string | null;
     active: boolean;
     frequency: string[]; // db: frequency (text[])
     routine: 'morning' | 'afternoon' | 'evening' | 'any'; // strictly typed logic
