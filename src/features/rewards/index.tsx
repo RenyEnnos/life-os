@@ -6,6 +6,11 @@ import { Trophy, Star, TrendingUp } from 'lucide-react'
 import { PageTitle } from '@/shared/ui/PageTitle'
 import { Card } from '@/shared/ui/Card'
 import { clsx } from 'clsx'
+import { MagicCard } from '@/shared/ui/premium/MagicCard'
+import { ShineBorder } from '@/shared/ui/premium/ShineBorder'
+import { AnimatedCircularProgressBar } from '@/shared/ui/premium/AnimatedCircularProgressBar'
+import { Confetti } from '@/shared/ui/premium/Confetti'
+import { toast } from 'react-hot-toast'
 
 export default function RewardsPage() {
     const { user } = useAuth()
@@ -41,6 +46,38 @@ export default function RewardsPage() {
     const nextLevelXp = currentLevel * 1000
     const progress = (currentXp % 1000) / 1000 * 100
 
+
+    // Effect to trigger confetti if we have unlocked achievements recently (simulated)
+    useEffect(() => {
+        if (achievements.length > 0 && !loading) {
+            // Optional: only trigger if one was just unlocked. For now, just a demo effect on load if user has achievements
+            // Confetti(); 
+        }
+    }, [achievements, loading]);
+
+    const handleAchievementClick = (unlocked: boolean) => {
+        if (unlocked) {
+            toast.success('Conquista desbloqueada!', {
+                icon: '🏆',
+                style: {
+                    background: '#18181b', // zinc-900
+                    color: '#fff',
+                    border: '1px solid #27272a' // zinc-800
+                }
+            })
+            Confetti();
+        } else {
+            toast('Conquista bloqueada. Continue evoluindo!', {
+                icon: '🔒',
+                style: {
+                    background: '#18181b', // zinc-900
+                    color: '#fff',
+                    border: '1px solid #27272a' // zinc-800
+                }
+            })
+        }
+    }
+
     return (
         <div className="space-y-8 pb-20">
             <PageTitle
@@ -54,14 +91,22 @@ export default function RewardsPage() {
                 <div className="absolute top-0 right-0 p-32 bg-green-500/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
 
                 <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-                    <div className="relative">
-                        <div className="w-32 h-32 rounded-full border-4 border-surface-alt flex items-center justify-center bg-background">
-                            <div className="text-center">
-                                <span className="block text-xs text-muted-foreground uppercase tracking-wider">Nível</span>
-                                <span className="block text-4xl font-black text-foreground">{currentLevel}</span>
+                    <div className="relative group cursor-pointer" onClick={() => Confetti()}>
+                        <div className="relative w-32 h-32 flex items-center justify-center">
+                            <AnimatedCircularProgressBar
+                                max={100}
+                                min={0}
+                                value={progress}
+                                gaugePrimaryColor="#22c55e"
+                                gaugeSecondaryColor="#27272a"
+                                className="w-full h-full text-transparent" // Hide percentage text to show Level
+                            />
+                            <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+                                <span className="block text-xs text-muted-foreground uppercase tracking-wider font-mono">Nível</span>
+                                <span className="block text-4xl font-black text-foreground font-mono">{currentLevel}</span>
                             </div>
                         </div>
-                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 z-20 shadow-lg shadow-yellow-500/20">
                             <Star size={12} fill="black" />
                             MASTER
                         </div>
@@ -117,6 +162,7 @@ export default function RewardsPage() {
                                 key={ua.id}
                                 achievement={ua.achievement}
                                 unlocked={true}
+                                onClick={() => handleAchievementClick(true)}
                             />
                         ))
                     ) : (

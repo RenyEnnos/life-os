@@ -1,14 +1,19 @@
-import { useEffect } from 'react';
-// @ts-ignore
+import { useEffect, useRef } from 'react';
 import anime from 'animejs';
 
-export const useStaggerAnimation = (selector: string, deps: any[] = []) => {
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            const elements = document.querySelectorAll(selector);
-            if (elements.length === 0) return;
+export const useStaggerAnimation = (selector: string | Element[] | NodeListOf<Element>, deps: any[] = []) => {
+    const animationRef = useRef<anime.AnimeInstance | null>(null);
 
-            anime({
+    useEffect(() => {
+        // Small delay to ensure DOM is ready
+        const timeout = setTimeout(() => {
+            // If selector is a string, check if elements exist
+            if (typeof selector === 'string') {
+                const elements = document.querySelectorAll(selector);
+                if (elements.length === 0) return;
+            }
+
+            animationRef.current = anime({
                 targets: selector,
                 opacity: [0, 1],
                 translateY: [20, 0],
@@ -18,6 +23,14 @@ export const useStaggerAnimation = (selector: string, deps: any[] = []) => {
             });
         }, 50);
 
-        return () => clearTimeout(timeout);
+        return () => {
+            clearTimeout(timeout);
+            if (animationRef.current) {
+                // anime.js doesn't have a direct 'stop' on instance that clears state perfectly in all versions, 
+                // but removing targets is good practice if supported, or just letting it finish.
+                // For this hook, simple cleanup of timeout is most critical.
+                animationRef.current = null;
+            }
+        };
     }, [selector, ...deps]);
 };

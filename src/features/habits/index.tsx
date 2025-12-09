@@ -1,19 +1,17 @@
-
 import { useState, useEffect } from 'react';
-import { Plus, Sun, Moon, Sunset, Clock, CheckCircle2, Circle } from 'lucide-react';
+import { Plus, Sun, Moon, Sunset, Clock } from 'lucide-react';
 import { PageTitle } from '@/shared/ui/PageTitle';
 import { Button } from '@/shared/ui/Button';
 import { useHabits } from '@/features/habits/hooks/useHabits';
 import { CreateHabitDialog } from './components/CreateHabitDialog';
 import { HabitDoctor } from './components/HabitDoctor';
 import { EmptyState } from '@/shared/ui/EmptyState';
-import type { Habit } from '@/shared/types';
-import { ActivityCard } from '@/shared/ui/ActivityCard';
-import { motion } from 'framer-motion';
+import type { Habit, HabitLog } from '@/shared/types';
 import { useSearchParams } from 'react-router-dom';
 import { useStaggerAnimation } from '@/shared/hooks/useStaggerAnimation';
-
-type HabitLog = { habit_id: string; value: number }
+import { HabitCard } from './components/HabitCard';
+import { calculateStreak } from './logic/streak';
+import { Confetti } from '@/shared/ui/premium/Confetti';
 
 export default function HabitsPage() {
     const { habits, logs, isLoading, createHabit, logHabit } = useHabits();
@@ -33,6 +31,22 @@ export default function HabitsPage() {
 
     const handleToggle = (habitId: string) => {
         const isCompleted = logs?.some((log: HabitLog) => log.habit_id === habitId && log.value > 0);
+
+        // Optimistic Streak Calculation for Confetti
+        if (!isCompleted) {
+            const currentStreak = calculateStreak(logs, habitId);
+            const nextStreak = currentStreak + 1;
+
+            // Trigger confetti on 7-day milestones
+            if (nextStreak > 0 && nextStreak % 7 === 0) {
+                Confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
         logHabit.mutate({
             id: habitId,
             value: isCompleted ? 0 : 1,
@@ -103,19 +117,15 @@ export default function HabitsPage() {
                                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                                     {routineHabits.map((habit: Habit) => {
                                         const isCompleted = !!logs?.some((log: HabitLog) => log.habit_id === habit.id && log.value > 0);
+                                        const streak = calculateStreak(logs, habit.id);
+
                                         return (
-                                            <div key={habit.id} onClick={() => handleToggle(habit.id)} className="habit-item cursor-pointer group opacity-0">
-                                                <ActivityCard
-                                                    title={habit.title}
-                                                    value={isCompleted ? "COMPLETO" : "PENDENTE"}
-                                                    subtitle={habit.description || "Sem descrição"}
-                                                    progress={isCompleted ? 100 : 0}
-                                                    className={`transition-all duration-300 ${isCompleted ? 'border-primary/50 bg-primary/5' : 'border-transparent'}`}
-                                                    icon={
-                                                        isCompleted ?
-                                                            <CheckCircle2 className="w-6 h-6 text-primary animate-bounce" /> :
-                                                            <Circle className="w-6 h-6 text-gray-600 group-hover:text-primary/50 transition-colors" />
-                                                    }
+                                            <div key={habit.id} className="habit-item opacity-0">
+                                                <HabitCard
+                                                    habit={habit}
+                                                    isCompleted={isCompleted}
+                                                    streak={streak}
+                                                    onToggle={() => handleToggle(habit.id)}
                                                 />
                                             </div>
                                         );

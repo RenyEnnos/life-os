@@ -146,6 +146,8 @@ export default function HealthPage() {
                                                     strokeWidth={2}
                                                     dot={{ fill: '#adfa1d', r: 4 }}
                                                     activeDot={{ r: 6 }}
+                                                    animationDuration={2000}
+                                                    animationEasing="ease-in-out"
                                                 />
                                             </LineChart>
                                         </ResponsiveContainer>

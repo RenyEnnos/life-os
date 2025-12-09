@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Plus, DollarSign } from 'lucide-react';
 import { PageTitle } from '@/shared/ui/PageTitle';
-import { Button } from '@/shared/ui/Button';
+import { ShimmerButton } from '@/shared/ui/premium/ShimmerButton'; // Fix import
 import { useFinances } from '@/features/finances/hooks/useFinances';
 import { Loader } from '@/shared/ui/Loader';
 import { EmptyState } from '@/shared/ui/EmptyState';
@@ -19,10 +19,12 @@ export default function FinancesPage() {
                 title="FINANÇAS"
                 subtitle="Fluxo de caixa e alocação de recursos."
                 action={
-                    <Button onClick={() => setIsModalOpen(true)} className="gap-2">
-                        <Plus size={18} />
-                        NOVA TRANSAÇÃO
-                    </Button>
+                    <ShimmerButton onClick={() => setIsModalOpen(true)} className="gap-2">
+                        <span className="flex items-center gap-2 text-sm font-medium text-white whitespace-pre-wrap leading-none tracking-tight">
+                            <Plus size={18} />
+                            NOVA TRANSAÇÃO
+                        </span>
+                    </ShimmerButton>
                 }
             />
 
@@ -38,9 +40,11 @@ export default function FinancesPage() {
                             title="SEM MOVIMENTAÇÃO"
                             description="Nenhum registro financeiro. Inicie o controle de fluxo."
                             action={
-                                <Button onClick={() => setIsModalOpen(true)} className="gap-2">
-                                    <Plus size={16} /> NOVA TRANSAÇÃO
-                                </Button>
+                                <ShimmerButton onClick={() => setIsModalOpen(true)} className="gap-2">
+                                    <span className="flex items-center gap-2 text-sm font-medium text-white whitespace-pre-wrap leading-none tracking-tight">
+                                        <Plus size={16} /> NOVA TRANSAÇÃO
+                                    </span>
+                                </ShimmerButton>
                             }
                         />
                     ) : (

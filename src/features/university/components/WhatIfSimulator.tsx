@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/Card';
 import { Calculator, Sparkles, AlertCircle } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Course } from '../types';
 import { clsx } from 'clsx';
-
+import { NeonGradientCard } from '@/shared/ui/premium/NeonGradientCard';
 
 interface WhatIfSimulatorProps {
     courses: Course[];
@@ -41,14 +40,13 @@ export function WhatIfSimulator({ courses }: WhatIfSimulatorProps) {
     };
 
     return (
-        <Card className="bg-zinc-950 border-zinc-800">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-purple-400 font-mono uppercase text-sm">
-                    <Calculator size={18} />
-                    Simulador "E Se..."
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+        <NeonGradientCard className="w-full" neonColors={{ firstColor: "#a855f7", secondColor: "#ec4899" }}>
+            <div className="flex items-center gap-2 text-purple-400 font-mono uppercase text-sm mb-6">
+                <Calculator size={18} />
+                <h3 className="font-bold">Simulador "E Se..."</h3>
+            </div>
+
+            <div className="space-y-4 text-left">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-xs font-mono text-zinc-500 mb-1 uppercase">Matéria</label>
@@ -83,7 +81,7 @@ export function WhatIfSimulator({ courses }: WhatIfSimulatorProps) {
                 </Button>
 
                 {result && (
-                    <div className="mt-4 p-4 bg-black/20 rounded-lg border border-purple-500/20 animate-in fade-in slide-in-from-bottom-2">
+                    <div className="mt-4 p-4 bg-black/40 rounded-lg border border-purple-500/20 animate-in fade-in slide-in-from-bottom-2">
                         <div className="flex justify-between items-center">
                             <span className="text-zinc-400 text-sm">Você precisa tirar:</span>
                             <span className={clsx("text-2xl font-bold font-mono",
@@ -106,7 +104,7 @@ export function WhatIfSimulator({ courses }: WhatIfSimulatorProps) {
                         </div>
                     </div>
                 )}
-            </CardContent>
-        </Card>
+            </div>
+        </NeonGradientCard>
     );
 }

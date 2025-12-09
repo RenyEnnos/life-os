@@ -1,3 +1,5 @@
+import React from 'react';
+import anime from 'animejs';
 import { PageTitle } from '@/shared/ui/PageTitle';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { XPBar } from '@/features/gamification/components/XPBar';
@@ -10,6 +12,22 @@ export default function DashboardPage() {
     const { user } = useAuth();
     const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'User';
 
+    const containerRef = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+        if (!containerRef.current) return;
+
+        // Anime.js stagger animation
+        anime({
+            targets: containerRef.current.children,
+            opacity: [0, 1],
+            translateY: [20, 0],
+            delay: anime.stagger(100),
+            easing: 'easeOutExpo',
+            duration: 800
+        });
+    }, []);
+
     return (
         <div className="space-y-6 pb-20">
             <header className="py-4">
@@ -20,7 +38,7 @@ export default function DashboardPage() {
                 />
             </header>
 
-            <BentoGrid className="grid-cols-1 md:grid-cols-3 lg:grid-cols-4 auto-rows-[minmax(180px,auto)] gap-4">
+            <BentoGrid ref={containerRef} className="grid-cols-1 md:grid-cols-3 lg:grid-cols-4 auto-rows-[minmax(180px,auto)] gap-4 opacity-0">
                 {/* Top Row: Urgent (Tall), Status (Wide), Stats */}
                 <UrgentCard />
                 <StatusCard />

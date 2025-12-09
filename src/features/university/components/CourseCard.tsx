@@ -1,11 +1,14 @@
 import React, { useRef, useEffect } from 'react';
 import { MagicCard } from '@/shared/ui/premium/MagicCard';
+import { BorderBeam } from '@/shared/ui/premium/BorderBeam';
 import { Course } from '../types';
 import { Book, Clock, GraduationCap, Trash2 } from 'lucide-react';
 // @ts-ignore
 import anime from 'animejs';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
+import { AnimatedCircularProgressBar } from '@/shared/ui/premium/AnimatedCircularProgressBar';
+import { useTheme } from '@/shared/hooks/useTheme';
 
 interface CourseCardProps {
     course: Course;
@@ -15,27 +18,24 @@ interface CourseCardProps {
 
 export function CourseCard({ course, onClick, onDelete }: CourseCardProps) {
     const cardRef = useRef<HTMLDivElement>(null);
-    const progressRef = useRef<HTMLDivElement>(null);
 
     // Mock progress calculation
     const progress = 75;
 
-    useEffect(() => {
-        if (progressRef.current) {
-            anime({
-                targets: progressRef.current,
-                width: [`0%`, `${progress}%`],
-                duration: 1200,
-                easing: 'easeOutQuart',
-                delay: 400
-            });
-        }
-    }, [progress]);
-
     return (
-        <div ref={cardRef} className="h-full">
+        <div ref={cardRef} className="h-full relative group">
+            <div className="absolute inset-0 z-0 rounded-xl overflow-hidden pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <BorderBeam
+                    size={200}
+                    duration={8}
+                    delay={2}
+                    colorFrom={course.color || '#3b82f6'}
+                    colorTo={course.color ? `${course.color}00` : '#3b82f600'}
+                />
+            </div>
+
             <MagicCard
-                className="h-full p-0 overflow-hidden cursor-pointer group"
+                className="h-full p-0 overflow-hidden cursor-pointer relative z-10"
                 gradientColor={course.color || '#3b82f6'}
                 onClick={onClick}
             >
@@ -84,21 +84,23 @@ export function CourseCard({ course, onClick, onDelete }: CourseCardProps) {
                             </div>
                             <div className="flex items-center gap-2">
                                 <Clock size={16} className="text-zinc-600" />
-                                <span>{course.schedule || 'Horário indefinido'}</span>
+                                <span className='line-clamp-1'>{course.schedule || 'Horário indefinido'}</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-6 space-y-1">
-                        <div className="flex justify-between text-xs text-zinc-500 font-mono">
-                            <span>PROGRESSO</span>
-                            <span>{progress}%</span>
+                    <div className="mt-6 flex items-center justify-between">
+                        <div className="space-y-1">
+                            <div className="text-xs text-zinc-500 font-mono text-left">PROGRESSO</div>
+                            <div className="text-lg font-bold text-white">{progress}%</div>
                         </div>
-                        <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                            <div
-                                ref={progressRef}
-                                className="h-full rounded-full"
-                                style={{ backgroundColor: course.color || '#3b82f6', width: '0%' }}
+                        <div className="h-12 w-12">
+                            <AnimatedCircularProgressBar
+                                max={100}
+                                min={0}
+                                value={progress}
+                                gaugePrimaryColor={course.color || '#3b82f6'}
+                                gaugeSecondaryColor="rgba(255,255,255,0.1)"
                             />
                         </div>
                     </div>

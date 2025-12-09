@@ -5,6 +5,7 @@ import { useAI } from '@/features/ai-assistant/hooks/useAI';
 import { Tag } from '@/shared/ui/Tag';
 import type { JournalEntry } from '@/shared/types';
 import { motion } from 'framer-motion';
+import { ShineBorder } from '@/shared/ui/shine-border';
 
 interface JournalEditorProps {
     entry?: JournalEntry;
@@ -88,13 +89,18 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                     />
                 </div>
 
-                <textarea
-                    className="glass-editor text-gray-200 placeholder:text-gray-600"
-                    placeholder="Escreva seus pensamentos..."
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    required
-                />
+                <ShineBorder
+                    className="w-full glass-panel !bg-transparent p-0 overflow-hidden"
+                    color={["#A07CFE", "#FE8FB5", "#FFBE7B"]}
+                >
+                    <textarea
+                        className="w-full h-96 bg-transparent p-6 text-gray-200 placeholder:text-gray-600 resize-none focus:outline-none font-mono text-lg leading-relaxed"
+                        placeholder="Escreva seus pensamentos..."
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        required
+                    />
+                </ShineBorder>
 
                 <div className="glass-panel p-4 rounded-xl space-y-4">
                     <div className="flex justify-between items-end">

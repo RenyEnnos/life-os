@@ -120,12 +120,16 @@ const DockIcon = ({
         </motion.div>
     )
 
-    if (onClick) {
-        return <div onClick={onClick} className="focus:outline-none">{content}</div>
+    if (href) {
+        return (
+            <Link to={href} className="focus:outline-none" onClick={onClick}>
+                {content}
+            </Link>
+        )
     }
 
-    if (href) {
-        return <Link to={href} className="focus:outline-none">{content}</Link>
+    if (onClick) {
+        return <div onClick={onClick} className="focus:outline-none">{content}</div>
     }
 
     return content;

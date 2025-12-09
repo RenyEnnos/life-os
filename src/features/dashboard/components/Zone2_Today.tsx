@@ -78,7 +78,7 @@ export const ChartCard = () => {
                 <NeonChart
                     title="WEEKLY MOMENTUM"
                     data={mockActivityData}
-                    color="#22d3ee"
+                    color="#a855f7"
                     className="h-full p-6"
                 />
             }

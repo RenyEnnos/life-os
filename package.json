@@ -18,6 +18,9 @@
     "lh": "node scripts/lighthouse.js"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@google/generative-ai": "^0.24.1",
     "@supabase/auth-helpers-react": "^0.15.0",
     "@supabase/supabase-js": "^2.86.0",

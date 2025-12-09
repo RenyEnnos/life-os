@@ -17,3 +17,5 @@ export interface TaskWithExtras {
     // Frontend helpers
     due?: string;
 }
+
+export type Plan = Record<string, string[]>;
