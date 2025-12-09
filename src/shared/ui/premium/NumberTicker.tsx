@@ -1,28 +1,25 @@
 import { useEffect, useRef } from 'react';
-// @ts-ignore
-import anime from 'animejs';
+import { useInView, useMotionValue, useSpring } from 'framer-motion';
 
 export const NumberTicker = ({ value, className, suffix = "" }: { value: number, className?: string, suffix?: string }) => {
     const ref = useRef<HTMLSpanElement>(null);
+    const motionValue = useMotionValue(0);
+    const springValue = useSpring(motionValue, { damping: 30, stiffness: 100 });
+    const isInView = useInView(ref, { once: true, margin: "0px" });
 
     useEffect(() => {
-        if (!ref.current) return;
+        if (isInView) {
+            motionValue.set(value);
+        }
+    }, [motionValue, isInView, value]);
 
-        const obj = { val: 0 };
-
-        anime({
-            targets: obj,
-            val: value,
-            easing: "easeOutExpo",
-            round: 1,
-            duration: 2000,
-            update: function () {
-                if (ref.current) {
-                    ref.current.innerHTML = obj.val + suffix;
-                }
+    useEffect(() => {
+        springValue.on("change", (latest) => {
+            if (ref.current) {
+                ref.current.textContent = Math.round(latest).toString() + suffix;
             }
         });
-    }, [value, suffix]);
+    }, [springValue, suffix]);
 
-    return <span ref={ref} className={className}>0{suffix}</span>;
+    return <span ref={ref} className={className} />;
 };

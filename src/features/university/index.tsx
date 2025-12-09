@@ -7,7 +7,7 @@ import { useUniversity } from './hooks/useUniversity';
 import { Button } from '@/shared/ui/Button';
 import { PageTitle } from '@/shared/ui/PageTitle';
 import { Plus } from 'lucide-react';
-import { BentoGrid, BentoGridItem } from '@/shared/ui/premium/BentoGrid';
+import { BentoGrid, BentoCard } from '@/shared/ui/BentoCard';
 import { Course } from './types';
 
 export default function UniversityPage() {
@@ -46,12 +46,12 @@ export default function UniversityPage() {
                 {!isLoading && courses.length > 0 ? (
                     <BentoGrid className="auto-rows-[180px]">
                         {courses.map((course, i) => (
-                            <BentoGridItem
+                            <BentoCard
                                 key={course.id}
                                 className={i === 0 || i === 3 ? "md:col-span-2" : ""}
                             >
                                 <CourseCard course={course} onDelete={() => removeCourse(course.id)} />
-                            </BentoGridItem>
+                            </BentoCard>
                         ))}
                     </BentoGrid>
                 ) : (

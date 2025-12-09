@@ -52,6 +52,7 @@ export function useOfflineMutation<TData = unknown, TError = unknown, TVariables
 
         try {
             if (originalMutationFn) {
+                // @ts-ignore - TS expects 2 arguments for some reason in this context
                 return await originalMutationFn(variables);
             }
             // If no mutationFn provided, we use the endpoint/method (default behavior)

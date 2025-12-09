@@ -11,8 +11,8 @@ import {
     Legend
 } from 'recharts';
 import type { Transaction, FinanceSummary } from '@/shared/types';
-import anime from 'animejs';
 import { NeonChart } from '@/shared/ui/NeonCharts';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface FinanceChartsProps {
     transactions: Transaction[] | undefined;
@@ -23,20 +23,6 @@ interface FinanceChartsProps {
 export function FinanceCharts({ transactions, summary, onDeleteTransaction }: FinanceChartsProps) {
     const listRef = useRef<HTMLDivElement>(null);
     const COLORS = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
-
-    // Stagger animation for list items
-    useEffect(() => {
-        if (transactions?.length && listRef.current) {
-            anime({
-                targets: listRef.current.children,
-                opacity: [0, 1],
-                translateY: [20, 0],
-                delay: anime.stagger(50),
-                duration: 600,
-                easing: 'easeOutQuad'
-            });
-        }
-    }, [transactions]);
 
     const pieData = summary?.byCategory ? Object.entries(summary.byCategory).map(([name, value]) => ({
         name,
@@ -156,42 +142,51 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
                     </div>
                 ) : (
                     <div ref={listRef} className="space-y-3">
-                        {transactions.map((t: Transaction) => (
-                            <div key={t.id} className="flex items-center justify-between p-4 bg-zinc-900/50 rounded-xl border border-white/5 hover:border-white/10 hover:bg-zinc-800/50 transition-all duration-200 group opacity-0">
-                                <div className="flex items-center gap-4">
-                                    <div className={clsx(
-                                        "w-1 h-8 rounded-full",
-                                        t.type === 'income' ? "bg-green-500" : "bg-red-500"
-                                    )} />
-                                    <div>
-                                        <div className="font-medium text-white">{t.description}</div>
-                                        <div className="text-xs text-gray-500 font-mono flex gap-2">
-                                            <span>{new Date(t.transaction_date).toLocaleDateString('pt-BR')}</span>
-                                            <span className="text-zinc-600">•</span>
-                                            <span className="uppercase">{t.category}</span>
+                        <AnimatePresence>
+                            {transactions.map((t: Transaction, index: number) => (
+                                <motion.div
+                                    key={t.id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                                    className="flex items-center justify-between p-4 bg-zinc-900/50 rounded-xl border border-white/5 hover:border-white/10 hover:bg-zinc-800/50 transition-all duration-200 group"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className={clsx(
+                                            "w-1 h-8 rounded-full",
+                                            t.type === 'income' ? "bg-green-500" : "bg-red-500"
+                                        )} />
+                                        <div>
+                                            <div className="font-medium text-white">{t.description}</div>
+                                            <div className="text-xs text-gray-500 font-mono flex gap-2">
+                                                <span>{new Date(t.transaction_date).toLocaleDateString('pt-BR')}</span>
+                                                <span className="text-zinc-600">•</span>
+                                                <span className="uppercase">{t.category}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="flex items-center gap-4">
-                                    <span className={clsx(
-                                        "font-mono font-medium",
-                                        t.type === 'income' ? "text-green-400" : "text-red-400"
-                                    )}>
-                                        {t.type === 'income' ? '+' : '-'} R$ {Number(t.amount).toFixed(2)}
-                                    </span>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 hover:bg-red-400/10 transition-all"
-                                        onClick={() => onDeleteTransaction(t.id)}
-                                        aria-label="Excluir transação"
-                                    >
-                                        <Trash2 size={16} />
-                                    </Button>
-                                </div>
-                            </div>
-                        ))}
+                                    <div className="flex items-center gap-4">
+                                        <span className={clsx(
+                                            "font-mono font-medium",
+                                            t.type === 'income' ? "text-green-400" : "text-red-400"
+                                        )}>
+                                            {t.type === 'income' ? '+' : '-'} R$ {Number(t.amount).toFixed(2)}
+                                        </span>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 hover:bg-red-400/10 transition-all"
+                                            onClick={() => onDeleteTransaction(t.id)}
+                                            aria-label="Excluir transação"
+                                        >
+                                            <Trash2 size={16} />
+                                        </Button>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
                     </div>
                 )}
             </div>

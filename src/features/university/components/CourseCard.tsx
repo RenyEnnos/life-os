@@ -3,8 +3,6 @@ import { MagicCard } from '@/shared/ui/premium/MagicCard';
 import { BorderBeam } from '@/shared/ui/premium/BorderBeam';
 import { Course } from '../types';
 import { Book, Clock, GraduationCap, Trash2 } from 'lucide-react';
-// @ts-ignore
-import anime from 'animejs';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
 import { AnimatedCircularProgressBar } from '@/shared/ui/premium/AnimatedCircularProgressBar';

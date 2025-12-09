@@ -11,7 +11,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import { MagicCard } from '@/shared/ui/magic-card';
 import { ShimmerButton } from '@/shared/ui/shimmer-button';
-import anime from 'animejs';
 
 export default function JournalPage() {
     const { entries, isLoading, createEntry, updateEntry } = useJournal();
@@ -33,20 +32,6 @@ export default function JournalPage() {
             setSearchParams({});
         }
     }, [searchParams, setSearchParams]);
-
-    useEffect(() => {
-        if (!isLoading && entries && listRef.current) {
-            anime({
-                targets: listRef.current.children,
-                opacity: [0, 1],
-                translateY: [20, 0],
-                delay: anime.stagger(100),
-                easing: 'easeOutQuad',
-                duration: 500
-            });
-        }
-    }, [isLoading, entries, isEditorOpen]);
-
 
     // Handlers
     const handleGenerateSummary = async () => {
@@ -144,52 +129,58 @@ export default function JournalPage() {
                                     />
                                 ) : (
                                     <div className="grid gap-4" ref={listRef}>
-                                        {entries.map((entry: JournalEntry) => (
-                                            <div
-                                                key={entry.id}
-                                                onClick={() => {
-                                                    setSelectedEntry(entry);
-                                                    setIsEditorOpen(true);
-                                                }}
-                                                className="cursor-pointer"
-                                            >
-                                                <MagicCard
-                                                    className="p-6 transition-all hover:-translate-y-1"
-                                                    gradientColor="#A07CFE"
+                                        <AnimatePresence>
+                                            {entries.map((entry: JournalEntry, index: number) => (
+                                                <motion.div
+                                                    key={entry.id}
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, scale: 0.95 }}
+                                                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                                                    onClick={() => {
+                                                        setSelectedEntry(entry);
+                                                        setIsEditorOpen(true);
+                                                    }}
+                                                    className="cursor-pointer"
                                                 >
-                                                    <div className="flex justify-between items-start mb-3">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                                                                <Calendar size={20} />
-                                                            </div>
-                                                            <div>
-                                                                <div className="font-mono text-sm text-primary font-bold">
-                                                                    {new Date(entry.created_at).toLocaleDateString()}
+                                                    <MagicCard
+                                                        className="p-6 transition-all hover:-translate-y-1"
+                                                        gradientColor="#A07CFE"
+                                                    >
+                                                        <div className="flex justify-between items-start mb-3">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                                                                    <Calendar size={20} />
                                                                 </div>
-                                                                <div className="text-xs text-gray-500 font-mono">
-                                                                    {new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                <div>
+                                                                    <div className="font-mono text-sm text-primary font-bold">
+                                                                        {new Date(entry.created_at).toLocaleDateString()}
+                                                                    </div>
+                                                                    <div className="text-xs text-gray-500 font-mono">
+                                                                        {new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                    </div>
                                                                 </div>
                                                             </div>
+                                                            {entry.title && (
+                                                                <span className="text-sm font-bold text-gray-300 bg-white/5 px-3 py-1 rounded-full">
+                                                                    {entry.title}
+                                                                </span>
+                                                            )}
                                                         </div>
-                                                        {entry.title && (
-                                                            <span className="text-sm font-bold text-gray-300 bg-white/5 px-3 py-1 rounded-full">
-                                                                {entry.title}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <div className="font-mono text-gray-300 line-clamp-2 pl-12 border-l-2 border-white/10 group-hover:border-primary/50 transition-colors">
-                                                        {entry.content}
-                                                    </div>
-                                                    <div className="flex gap-2 mt-4 pl-12">
-                                                        {entry.tags?.map((tag: string) => (
-                                                            <span key={tag} className="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded uppercase tracking-wider">
-                                                                #{tag}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </MagicCard>
-                                            </div>
-                                        ))}
+                                                        <div className="font-mono text-gray-300 line-clamp-2 pl-12 border-l-2 border-white/10 group-hover:border-primary/50 transition-colors">
+                                                            {entry.content}
+                                                        </div>
+                                                        <div className="flex gap-2 mt-4 pl-12">
+                                                            {entry.tags?.map((tag: string) => (
+                                                                <span key={tag} className="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded uppercase tracking-wider">
+                                                                    #{tag}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </MagicCard>
+                                                </motion.div>
+                                            ))}
+                                        </AnimatePresence>
                                     </div>
                                 )}
                             </>

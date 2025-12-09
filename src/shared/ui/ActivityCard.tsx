@@ -1,9 +1,8 @@
 import { HTMLAttributes, forwardRef } from 'react';
-import { cn } from '../lib/cn';
-import { motion } from 'framer-motion';
-import { CheckCircle2, Circle } from 'lucide-react';
+import { cn } from '@/shared/lib/cn';
+import { motion, HTMLMotionProps } from 'framer-motion';
 
-interface ActivityCardProps extends HTMLAttributes<HTMLDivElement> {
+interface ActivityCardProps extends HTMLMotionProps<'div'> {
     title: string;
     value: string | number;
     subtitle?: string;
@@ -13,7 +12,7 @@ interface ActivityCardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const ActivityCard = forwardRef<HTMLDivElement, ActivityCardProps>(
-    ({ className, title, value, subtitle, icon, progress, trend, ...props }, ref) => {
+    ({ className, title, value, subtitle, icon, progress, ...props }, ref) => {
         return (
             <motion.div
                 ref={ref}
