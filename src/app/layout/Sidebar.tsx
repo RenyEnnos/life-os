@@ -16,6 +16,7 @@ import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { Button } from '@/shared/ui/Button';
 import { cn } from '@/shared/lib/cn';
 import ThemeToggle from '@/shared/ui/ThemeToggle';
+import { LevelBadge } from '@/shared/ui/gamification/LevelBadge';
 
 interface SidebarProps {
     isOpen?: boolean;
@@ -43,9 +44,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             isOpen ? "translate-x-0" : "-translate-x-full"
         )}>
             <div className="p-6 border-b border-border flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-semibold text-foreground tracking-tight font-sans">Life OS</h1>
-                    <p className="text-xs text-mutedForeground mt-1 font-sans">v1.0.0</p>
+                <div className="flex items-center gap-3">
+                    <LevelBadge size="md" />
+                    <div>
+                        <h1 className="text-2xl font-semibold text-foreground tracking-tight font-sans">Life OS</h1>
+                        <p className="text-xs text-mutedForeground mt-1 font-sans">v1.0.0</p>
+                    </div>
                 </div>
                 <button onClick={onClose} className="md:hidden text-mutedForeground hover:text-foreground">
                     <X size={24} />
