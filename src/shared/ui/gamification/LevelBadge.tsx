@@ -1,6 +1,8 @@
 import React from 'react';
 import { useUserXP } from '@/features/gamification/hooks/useUserXP';
 import { calculateNextLevelXp } from '@/features/gamification/api/xpService';
+import { getArchetype } from '@/features/gamification/logic/archetypes';
+import type { XPAttributes } from '@/features/gamification/api/types';
 import { cn } from '@/shared/lib/cn';
 import { Loader2 } from 'lucide-react';
 
@@ -19,36 +21,14 @@ export function LevelBadge({ className, size = 'md' }: LevelBadgeProps) {
     const currentTotalXp = userXP.total_xp;
 
     // Calculate Progress
-    // Previous level threshold
-    const prevLevelXp = calculateNextLevelXp(currentLevel - 1); // This logic might need check: Level 1 starts at 0.
-    // Next level threshold
-    const nextLevelXp = calculateNextLevelXp(currentLevel);
-
-    // XP gained in THIS level
     const xpInLevel = currentTotalXp - (currentLevel === 1 ? 0 : calculateNextLevelXp(currentLevel - 1));
+    const nextLevelXp = calculateNextLevelXp(currentLevel);
     const xpNeededForLevel = nextLevelXp - (currentLevel === 1 ? 0 : calculateNextLevelXp(currentLevel - 1));
-
     const progressPercent = Math.min(100, Math.max(0, (xpInLevel / xpNeededForLevel) * 100));
 
-    // Determine dominant attribute color
-    const attributes = userXP.attributes as any;
-    let dominantAttr = 'output';
-    let maxVal = 0;
-    if (attributes) {
-        if ((attributes.body || 0) > maxVal) { maxVal = attributes.body; dominantAttr = 'body'; }
-        if ((attributes.mind || 0) > maxVal) { maxVal = attributes.mind; dominantAttr = 'mind'; }
-        if ((attributes.spirit || 0) > maxVal) { maxVal = attributes.spirit; dominantAttr = 'spirit'; }
-        if ((attributes.output || 0) > maxVal) { maxVal = attributes.output; dominantAttr = 'output'; }
-    }
-
-    const colors: Record<string, string> = {
-        body: 'text-red-500', // Health
-        mind: 'text-blue-500', // Study
-        spirit: 'text-purple-500', // Journal
-        output: 'text-emerald-500', // Work
-    };
-
-    const strokeColor = colors[dominantAttr] || 'text-primary';
+    // Get archetype for color
+    const attributes = userXP.attributes as XPAttributes | null;
+    const archetype = getArchetype(attributes);
 
     const sizeClasses = {
         sm: 'w-8 h-8 text-xs',
@@ -62,7 +42,10 @@ export function LevelBadge({ className, size = 'md' }: LevelBadgeProps) {
     const strokeDashoffset = circumference - (progressPercent / 100) * circumference;
 
     return (
-        <div className={cn("relative flex items-center justify-center", sizeClasses[size], className)} title={`Level ${currentLevel} • ${Math.round(progressPercent)}% to next level`}>
+        <div
+            className={cn("relative flex items-center justify-center", sizeClasses[size], className)}
+            title={`${archetype.name} • Level ${currentLevel} • ${Math.round(progressPercent)}% to next`}
+        >
             {/* Background Circle */}
             <svg className="absolute w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                 <circle
@@ -79,7 +62,8 @@ export function LevelBadge({ className, size = 'md' }: LevelBadgeProps) {
                     cy="18"
                     r={radius}
                     fill="none"
-                    className={cn("transition-all duration-500 ease-out", strokeColor)}
+                    stroke={archetype.strokeColor}
+                    className="transition-all duration-500 ease-out"
                     strokeWidth={strokeWidth}
                     strokeDasharray={circumference}
                     strokeDashoffset={strokeDashoffset}
@@ -88,9 +72,10 @@ export function LevelBadge({ className, size = 'md' }: LevelBadgeProps) {
             </svg>
 
             {/* Level Number */}
-            <span className={cn("font-bold relative z-10", strokeColor)}>
+            <span className={cn("font-bold relative z-10", archetype.color)}>
                 {currentLevel}
             </span>
         </div>
     );
 }
+

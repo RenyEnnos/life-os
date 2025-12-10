@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { getCurrentTimeBlock } from '@/shared/lib/dynamicNow';
 import { VisualLegacy } from '@/features/gamification/components/VisualLegacy';
+import { AchievementsPanel } from '@/features/gamification/components/AchievementsPanel';
+import { Trophy } from 'lucide-react';
 
 export default function DashboardPage() {
     const { user } = useAuth();
@@ -132,6 +134,15 @@ export default function DashboardPage() {
                     noPadding
                 >
                     <VisualLegacy className="h-full w-full" />
+                </BentoCard>
+
+                {/* 8. Achievements */}
+                <BentoCard
+                    className="col-span-1 md:col-span-3"
+                    title="Conquistas"
+                    icon={Trophy}
+                >
+                    <AchievementsPanel />
                 </BentoCard>
             </BentoGrid>
         </div>

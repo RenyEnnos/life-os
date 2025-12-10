@@ -100,13 +100,17 @@ export const awardXP = async (
 
         if (updateError) throw updateError;
 
-        // 5. Notify User
-        // We use a custom event or direct toast here.
-        // Ideally this service returns the result and the UI handles the toast, 
-        // but the plan said "Components... Level Badge".
-        // For non-intrusive feedback, we'll emit a custom event or let the caller handle it.
-        // However, the prompt mentioned "XP Toast" style.
-        // I will return the result and let the hook trigger the toast for better separation.
+        // 5. Check and Unlock Achievements
+        try {
+            const { checkAndUnlockAchievements, notifyAchievementUnlock } = await import('./achievementService');
+            const newlyUnlocked = await checkAndUnlockAchievements(userId);
+            if (newlyUnlocked.length > 0) {
+                notifyAchievementUnlock(newlyUnlocked);
+            }
+        } catch (achievementError) {
+            console.warn('Achievement check failed:', achievementError);
+            // Non-critical, don't fail the XP award
+        }
 
         return { success: true, newLevel: leveledUp ? newLevel : undefined };
 
