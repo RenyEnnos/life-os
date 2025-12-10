@@ -46,11 +46,13 @@ export function Synapse() {
     const dynamicCommand = useMemo(() => {
         const lowerQuery = query.toLowerCase().trim();
 
-        // Regex for Quick Expense: "Gastei 50 em X"
-        // Matches: "gastei 50", "paguei 100 no uber", "gastei 50.50 na amazon"
-        const expenseMatch = lowerQuery.match(/^(?:gastei|paguei)\s+(\d+(?:[.,]\d+)?)(?:\s+(?:em|no|na)\s+(.*))?$/);
+        // Regex for Quick Expense: "Gastei 50 em X" or just "50 em X"
+        // Matches: "gastei 50", "paguei 100 no uber", "50.50 na amazon"
+        // Captures: 1=Amount, 2=Category (optional)
+        const expenseMatch = lowerQuery.match(/^(?:gastei|paguei)?\s*(\d+(?:[.,]\d+)?)(?:\s+(?:em|no|na)\s+(.*))?$/);
 
-        if (expenseMatch) {
+        // Check length > 2 to avoid matching single digits like "1" while typing
+        if (expenseMatch && lowerQuery.length > 2) {
             const amount = expenseMatch[1].replace(',', '.');
             const category = expenseMatch[2] || 'Geral';
 
@@ -72,7 +74,9 @@ export function Synapse() {
 
         // Regex for Quick Task: "Lembrar de X" or "Todo X"
         if (lowerQuery.startsWith('lembrar ') || lowerQuery.startsWith('todo ')) {
-            const taskTitle = lowerQuery.replace(/^(lembrar (de )?|todo )/, '').trim();
+            // Remove prefix: "lembrar de ", "lembrar ", "todo "
+            const taskTitle = lowerQuery.replace(/^(lembrar\s+(?:de\s+)?|todo\s+)/, '').trim();
+
             if (taskTitle) {
                 return {
                     id: 'quick-task',
@@ -84,7 +88,7 @@ export function Synapse() {
                     action: () => {
                         console.log(`[Synapse] Creating task: ${taskTitle}`);
                         // TODO: Connect to actual task store
-                        // useTaskStore.getState().addTask(...)
+                        // useTasksStore.getState().addTask(...)
                         navigate('/tasks');
                     }
                 } as SynapseCommand;
