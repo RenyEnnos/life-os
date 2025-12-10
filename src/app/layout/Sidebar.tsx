@@ -40,7 +40,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
     return (
         <aside className={cn(
-            "fixed left-0 top-0 h-screen w-64 bg-surface border-r border-border flex flex-col z-50 transition-transform transition-colors transition-all duration-300 md:translate-x-0",
+            "fixed left-0 top-0 h-screen w-64 bg-surface border-r border-border flex flex-col z-50 transition-transform transition-colors transition-all duration-300 md:translate-x-0 bg-noise",
             isOpen ? "translate-x-0" : "-translate-x-full"
         )}>
             <div className="p-6 border-b border-border flex justify-between items-center">

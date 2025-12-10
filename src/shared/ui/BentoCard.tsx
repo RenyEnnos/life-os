@@ -1,9 +1,9 @@
-import React, { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { ReactNode, useRef, useState, ElementType } from 'react';
+import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';
 import { cn } from '@/shared/lib/cn';
 
 // --- CONTAINER DO GRID ---
-export const BentoGrid = ({ className, children }: { className?: string; children: React.ReactNode }) => {
+export const BentoGrid = ({ className, children }: { className?: string; children: ReactNode }) => {
     return (
         <motion.div
             initial="hidden"
@@ -25,13 +25,15 @@ export const BentoGrid = ({ className, children }: { className?: string; childre
     );
 };
 
-// --- O CARD INDIVIDUAL (Spotlight + Hover) ---
+// --- O CARD INDIVIDUAL (Spotlight + Hover + Physics) ---
 interface BentoCardProps {
-    children: React.ReactNode;
-    className?: string; // Para controlar col-span e row-span (ex: col-span-2)
+    children: ReactNode;
+    className?: string;
     title?: string;
-    icon?: React.ElementType;
-    headerAction?: React.ReactNode;
+    icon?: ReactNode | ElementType;
+    action?: ReactNode;
+    headerAction?: ReactNode; // Backward compatibility
+    onClick?: () => void;
     noPadding?: boolean;
 }
 
@@ -39,19 +41,31 @@ export const BentoCard = ({
     children,
     className,
     title,
-    icon: Icon,
+    icon,
+    action,
     headerAction,
+    onClick,
     noPadding = false
 }: BentoCardProps) => {
     const divRef = useRef<HTMLDivElement>(null);
-    const [position, setPosition] = useState({ x: 0, y: 0 });
+
+    // Otimização: MotionValues evitam re-renders do React a cada pixel de movimento
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
     const [opacity, setOpacity] = useState(0);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!divRef.current) return;
         const rect = divRef.current.getBoundingClientRect();
-        setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+        mouseX.set(e.clientX - rect.left);
+        mouseY.set(e.clientY - rect.top);
     };
+
+    // Templates para o gradiente radial performático
+    const spotlightStyle = useMotionTemplate`radial-gradient(600px circle at ${mouseX}px ${mouseY}px, rgba(255,255,255,0.06), transparent 40%)`;
+    const borderStyle = useMotionTemplate`radial-gradient(400px circle at ${mouseX}px ${mouseY}px, rgba(255,255,255,0.15), transparent 40%)`;
+
+    const finalAction = action || headerAction;
 
     return (
         <motion.div
@@ -59,44 +73,55 @@ export const BentoCard = ({
             onMouseMove={handleMouseMove}
             onMouseEnter={() => setOpacity(1)}
             onMouseLeave={() => setOpacity(0)}
-            variants={{
-                hidden: { y: 20, opacity: 0 },
-                show: { y: 0, opacity: 1 }
-            }}
+            onClick={onClick}
+            // FÍSICA TÁTIL
+            whileHover={{ y: -2, transition: { duration: 0.2 } }}
+            whileTap={{ scale: 0.99 }}
             className={cn(
-                "relative overflow-hidden rounded-xl border border-white/[0.08]",
-                "flex flex-col transition-colors duration-300 hover:border-white/[0.15]",
+                "group relative overflow-hidden rounded-xl bg-surface border border-border text-zinc-100 shadow-sm transition-all duration-300",
+                onClick && "cursor-pointer hover:shadow-md hover:shadow-black/20",
                 className
             )}
-            style={{ backgroundColor: '#0A0A0B' }}
         >
-            {/* Efeito Spotlight Sutil */}
-            <div
-                className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 z-10"
+            {/* Camada 1: Spotlight Interno (Fundo) */}
+            <motion.div
+                className="pointer-events-none absolute -inset-px opacity-0 transition-opacity duration-300"
+                style={{ opacity, background: spotlightStyle }}
+            />
+
+            {/* Camada 2: Borda Brilhante (Renderizada via Mask Composite) */}
+            <motion.div
+                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                 style={{
-                    opacity,
-                    background: `radial-gradient(600px circle at ${position.x}px ${position.y}px, rgba(255,255,255,0.06), transparent 40%)`,
+                    background: borderStyle,
+                    maskImage: `linear-gradient(black, black), linear-gradient(black, black)`,
+                    maskClip: "content-box, border-box",
+                    maskComposite: "exclude",
+                    WebkitMaskComposite: "xor",
+                    padding: "1px" // Define a espessura da borda brilhante
                 }}
             />
 
-            {/* Header Padronizado */}
-            {(title || Icon || headerAction) && (
-                <div className="flex items-center justify-between p-5 pb-2 z-20">
-                    <div className="flex items-center gap-2.5">
-                        {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
-                        {title && (
-                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                {title}
-                            </span>
-                        )}
+            {/* Camada 3: Conteúdo */}
+            <div className={cn("relative h-full flex flex-col", noPadding ? "" : "p-5 md:p-6")}>
+                {(title || icon || finalAction) && (
+                    <div className={`flex items-center justify-between mb-4 ${noPadding ? "p-5 md:p-6 pb-0" : ""}`}>
+                        <div className="flex items-center gap-2.5">
+                            {icon && (
+                                typeof icon === 'function' ? (
+                                    (() => { const Icon = icon as ElementType; return <Icon className="h-4 w-4 text-zinc-400" />; })()
+                                ) : (
+                                    <span className="text-zinc-400">{icon}</span>
+                                )
+                            )}
+                            {title && <h3 className="text-label text-zinc-400">{title}</h3>}
+                        </div>
+                        {finalAction && <div>{finalAction}</div>}
                     </div>
-                    {headerAction && <div>{headerAction}</div>}
+                )}
+                <div className="flex-1 text-zinc-300">
+                    {children}
                 </div>
-            )}
-
-            {/* Conteúdo */}
-            <div className={cn("relative z-20 h-full flex-1", noPadding ? "" : "p-5 pt-2")}>
-                {children}
             </div>
         </motion.div>
     );
