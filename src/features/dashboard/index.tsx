@@ -1,151 +1,163 @@
-import React from 'react';
-import { PageTitle } from '@/shared/ui/PageTitle';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
-import { XPBar } from '@/features/gamification/components/XPBar';
-import { BentoGrid, BentoCard } from '@/shared/ui/BentoCard';
-import { DynamicNowToggle } from '@/shared/ui/DynamicNowToggle';
-import {
-    Zap,
-    Activity,
-    BarChart3,
-    Clock,
-    School,
-    Sunrise,
-    Star
-} from 'lucide-react';
+import { useJournalInsights } from '@/features/journal/hooks/useJournalInsights';
 import { getCurrentTimeBlock } from '@/shared/lib/dynamicNow';
+import { cn } from '@/shared/lib/cn';
+
+// UI Components
+import { BentoGrid, BentoCard } from '@/shared/ui/BentoCard';
+import { XPBar } from '@/features/gamification/components/XPBar';
+
+// Dashboard Widgets
+import { UrgentCard, QuickActionsCard } from './components/Zone1_Now';
+import { StatusCard } from './components/StatusCard';
+import { ResonanceCard } from './components/ResonanceCard';
+import { ArchetypeCard } from '@/features/gamification/components/ArchetypeCard';
 import { VisualLegacy } from '@/features/gamification/components/VisualLegacy';
 import { AchievementsPanel } from '@/features/gamification/components/AchievementsPanel';
-import { Trophy } from 'lucide-react';
 
+// Icons
+import {
+    Sparkles,
+    Star,
+    Trophy,
+    User,
+    Gauge,
+    Brain,
+    Zap
+} from 'lucide-react';
+
+// Constants
+const GREETINGS: Record<'morning' | 'afternoon' | 'evening', string> = {
+    morning: 'Bom dia',
+    afternoon: 'Boa tarde',
+    evening: 'Boa noite'
+};
+
+/**
+ * DashboardPage - Cockpit-style Command Center
+ * 
+ * A high-density Bento Grid layout integrating:
+ * - Gamification (Archetype, Level, XP, Achievements)
+ * - Focus (Urgent Tasks via Dynamic Now)
+ * - Intelligence (Neural Resonance mood & insights)
+ */
 export default function DashboardPage() {
     const { user } = useAuth();
-    const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'User';
+    const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Comandante';
     const timeBlock = getCurrentTimeBlock();
 
-    const greetings: Record<'morning' | 'afternoon' | 'evening', string> = {
-        morning: 'Bom dia',
-        afternoon: 'Boa tarde',
-        evening: 'Boa noite'
-    };
+    // Get weekly advice from Neural Resonance
+    const { weeklySummary } = useJournalInsights();
+    const nexusAdvice = weeklySummary?.content?.advice
+        || 'O Nexus está analisando seus padrões...';
 
     return (
-        <div className="space-y-8 pb-20 px-4 md:px-0">
-            {/* Header - Horizon */}
-            <header className="py-6 border-b border-border/40">
-                <PageTitle
-                    title="HORIZON"
-                    subtitle={`${greetings[timeBlock]}, ${firstName}. Aqui está sua visão do que vem por aí.`}
-                    action={<XPBar className="w-32 md:w-48" />}
-                />
-            </header>
+        <div className="space-y-6 pb-20 px-4 md:px-0 min-h-screen">
 
-            {/* O Grid Bento Declarativo */}
-            <BentoGrid>
-                {/* 1. Card de Foco (Destaque - Alto) */}
+            {/* ═══════════════════════════════════════════════════════════════
+                HEADER - Horizon Greeting
+            ═══════════════════════════════════════════════════════════════ */}
+            <motion.header
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="pt-6 pb-4 border-b border-border/40"
+            >
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    {/* Greeting */}
+                    <div>
+                        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
+                            {GREETINGS[timeBlock]}, <span className="text-primary">{firstName}</span>
+                        </h1>
+
+                        {/* Nexus Advice */}
+                        <div className="flex items-start gap-2 mt-2 max-w-lg">
+                            <Sparkles size={14} className="text-purple-400 mt-0.5 flex-shrink-0" />
+                            <p className="text-sm text-muted-foreground line-clamp-1">
+                                {nexusAdvice}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* XP Bar */}
+                    <XPBar className="w-full md:w-48" />
+                </div>
+            </motion.header>
+
+            {/* ═══════════════════════════════════════════════════════════════
+                BENTO GRID - Command Center
+                
+                Layout (Desktop 4-col):
+                ┌────────┬────────┬────────┬────────┐
+                │        │        │        │        │
+                │ URGENT │ARCHTYPE│ STATUS │ QUICK  │ Row 1
+                │  2x2   │  1x1   │  1x1   │  1x1   │
+                │        ├────────┴────────┴────────┤
+                │        │                          │ Row 2
+                ├────────┤     CONSTELLATION 3x1    │
+                │        │                          │
+                ├────────┴──────────────────────────┤
+                │   RESONANCE 2x1    │ ACHIEVEMENTS │ Row 3
+                │                    │     2x1      │
+                └────────────────────┴──────────────┘
+            ═══════════════════════════════════════════════════════════════ */}
+            <BentoGrid className="auto-rows-[160px] md:auto-rows-[180px]">
+
+                {/* ───────────── 1. URGENT CARD (2x2) - Priority Focus ───────────── */}
+                <UrgentCard />
+
+                {/* ───────────── 2. ARCHETYPE CARD (1x1) - Identity ───────────── */}
                 <BentoCard
-                    className="col-span-1 md:col-span-1 row-span-2 bg-gradient-to-b from-surface to-surface/50"
-                    title="Prioridade 0"
-                    icon={Zap}
+                    className="col-span-1 row-span-1 p-0 overflow-hidden"
+                    title="Identidade"
+                    icon={User}
+                    noPadding
                 >
-                    <div className="flex flex-col h-full justify-between">
-                        <div>
-                            <h3 className="text-xl font-medium text-foreground mb-2">Revisão PRD v2.2</h3>
-                            <p className="text-sm text-muted-foreground">Alinhamento de estrutura de diretórios e limpeza técnica.</p>
-                        </div>
-                        <button className="w-full mt-4 py-2 text-xs font-bold bg-white text-black rounded hover:opacity-90 transition-opacity">
-                            INICIAR FOCO
-                        </button>
-                    </div>
+                    <ArchetypeCard className="h-full border-none rounded-none shadow-none" />
                 </BentoCard>
 
-                {/* 2. Dynamic Now Toggle */}
+                {/* ───────────── 3. STATUS CARD (1x1) - Level + XP ───────────── */}
                 <BentoCard
-                    className="col-span-1"
-                    title="Modo Dinâmico"
-                    icon={Sunrise}
+                    className="col-span-1 row-span-1"
+                    title="Nível"
+                    icon={Gauge}
                 >
-                    <DynamicNowToggle />
+                    <StatusCard />
                 </BentoCard>
 
-                {/* 3. Status Geral (Largo) */}
+                {/* ───────────── 4. QUICK ACTIONS (1x1) ───────────── */}
+                <QuickActionsCard />
+
+                {/* ───────────── 5. CONSTELLATION (3x1) - Visual Legacy ───────────── */}
                 <BentoCard
-                    className="col-span-1 md:col-span-1 lg:col-span-1"
-                    title="Visão Geral"
-                    icon={Activity}
-                >
-                    <div className="grid grid-cols-3 gap-4 h-full items-center">
-                        <div className="text-center">
-                            <div className="text-2xl font-bold text-foreground">12</div>
-                            <div className="text-xs text-muted-foreground">Actions</div>
-                        </div>
-                        <div className="text-center border-l border-border">
-                            <div className="text-2xl font-bold text-success">92%</div>
-                            <div className="text-xs text-muted-foreground">Rituals</div>
-                        </div>
-                        <div className="text-center border-l border-border">
-                            <div className="text-2xl font-bold text-foreground">4h</div>
-                            <div className="text-xs text-muted-foreground">Focus</div>
-                        </div>
-                    </div>
-                </BentoCard>
-
-                {/* 4. Cards Pequenos (Métricas) */}
-                <BentoCard title="Resources" icon={BarChart3}>
-                    <div className="flex items-end gap-2 mt-2">
-                        <span className="text-3xl font-semibold">$4.2k</span>
-                    </div>
-                </BentoCard>
-
-                {/* 5. University (Contexto - Largo) */}
-                <BentoCard
-                    className="col-span-1 md:col-span-2 lg:col-span-2"
-                    title="Missions"
-                    icon={School}
-                >
-                    <div className="flex justify-between items-center h-full">
-                        <div>
-                            <div className="text-lg font-medium">Algoritmos Avançados</div>
-                            <div className="text-sm text-muted-foreground">Entrega em 2 dias</div>
-                        </div>
-                        <div className="h-2 w-24 bg-surface rounded-full overflow-hidden border border-border">
-                            <div className="h-full bg-primary w-[60%]" />
-                        </div>
-                    </div>
-                </BentoCard>
-
-                {/* 6. Ações Rápidas */}
-                <BentoCard title="Quick Actions" icon={Clock}>
-                    <div className="grid grid-cols-2 gap-2 h-full">
-                        <button className="border border-border rounded hover:bg-surface-hover transition-colors flex flex-col items-center justify-center gap-1">
-                            <span className="text-xs text-muted-foreground">Memory</span>
-                        </button>
-                        <button className="border border-border rounded hover:bg-surface-hover transition-colors flex flex-col items-center justify-center gap-1">
-                            <span className="text-xs text-muted-foreground">Action</span>
-                        </button>
-                    </div>
-                </BentoCard>
-
-                {/* 7. Visual Legacy (Constellation) */}
-                <BentoCard
-                    className="col-span-1 md:col-span-3 h-[250px] p-0 overflow-hidden bg-black"
+                    className="col-span-1 md:col-span-3 row-span-1 h-[200px] md:h-auto p-0 overflow-hidden bg-black"
                     title="Constelação"
                     icon={Star}
                     noPadding
                 >
-                    <VisualLegacy className="h-full w-full" />
+                    <VisualLegacy className="h-full w-full border-none rounded-none" />
                 </BentoCard>
 
-                {/* 8. Achievements */}
+                {/* ───────────── 6. RESONANCE CARD (2x1) - Mood & Insights ───────────── */}
                 <BentoCard
-                    className="col-span-1 md:col-span-3"
+                    className="col-span-1 md:col-span-2 row-span-1"
+                    title="Ressonância Neural"
+                    icon={Brain}
+                >
+                    <ResonanceCard />
+                </BentoCard>
+
+                {/* ───────────── 7. ACHIEVEMENTS (2x1) ───────────── */}
+                <BentoCard
+                    className="col-span-1 md:col-span-2 row-span-1"
                     title="Conquistas"
                     icon={Trophy}
                 >
                     <AchievementsPanel />
                 </BentoCard>
+
             </BentoGrid>
         </div>
     );
 }
-
