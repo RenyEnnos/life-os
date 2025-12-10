@@ -1,5 +1,6 @@
 import { useState, useEffect, memo } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Dock, DockIcon } from '@/shared/ui/premium/Dock';
 import { Particles } from '@/shared/ui/premium/Particles';
 import { LayoutDashboard, CheckSquare, Book, Settings, PlusCircle, DollarSign, GraduationCap, FolderKanban, ListTodo } from 'lucide-react';
@@ -14,6 +15,7 @@ const MemoizedSanctuaryOverlay = memo(SanctuaryOverlay);
 
 export function AppLayout() {
     const [showOnboarding, setShowOnboarding] = useState(false);
+    const location = useLocation();
     useRealtime();
 
     useEffect(() => {
@@ -76,7 +78,17 @@ export function AppLayout() {
             </div>
 
             <main className="relative z-10 pb-32 px-4 md:px-8 max-w-7xl mx-auto pt-8">
-                <Outlet />
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={location.pathname}
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{ duration: 0.3, ease: 'easeOut' }}
+                    >
+                        <Outlet />
+                    </motion.div>
+                </AnimatePresence>
             </main>
 
             <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">

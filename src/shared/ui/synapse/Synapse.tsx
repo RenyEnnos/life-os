@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSynapseStore } from '../../stores/synapseStore';
 import { searchCommands, getStaticCommands } from '../../lib/synapse/commands';
 import { SYNAPSE_GROUP_LABELS, SYNAPSE_GROUP_ORDER, SynapseCommand } from '../../lib/synapse/types';
+import { generateDynamicCommands, SynapseContext } from '../../lib/synapse/dynamicCommands';
 import './synapse.css';
 
 /**
@@ -39,7 +40,6 @@ export function Synapse() {
         });
     }, [close]);
 
-    import { generateDynamicCommands, SynapseContext } from '../../lib/synapse/dynamicCommands';
 
     // 1. Load static commands with navigation context
     const staticCommands = useMemo(() => getStaticCommands(navigate), [navigate]);
