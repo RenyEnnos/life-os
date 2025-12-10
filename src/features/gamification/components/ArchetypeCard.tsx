@@ -7,14 +7,16 @@ import { motion } from 'framer-motion';
 
 interface ArchetypeCardProps {
     className?: string;
+    variant?: 'default' | 'compact';
 }
 
-export function ArchetypeCard({ className }: ArchetypeCardProps) {
+export function ArchetypeCard({ className, variant = 'default' }: ArchetypeCardProps) {
     const { userXP, isLoading } = useUserXP();
+    const isCompact = variant === 'compact';
 
     if (isLoading) {
         return (
-            <div className={cn("animate-pulse bg-muted/20 rounded-xl h-32", className)} />
+            <div className={cn("animate-pulse bg-muted/20 rounded-xl", isCompact ? "h-full" : "h-32", className)} />
         );
     }
 
@@ -33,6 +35,54 @@ export function ArchetypeCard({ className }: ArchetypeCardProps) {
         ? Math.round((dominant.value / totalAttrXP) * 100)
         : 0;
 
+    // Compact variant - minimal vertical layout
+    if (isCompact) {
+        return (
+            <MagicCard
+                className={cn("p-3 h-full", className)}
+                gradientColor={archetype.strokeColor}
+            >
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex flex-col items-center justify-center h-full gap-2 text-center"
+                >
+                    {/* Icon */}
+                    <div className={cn(
+                        "p-2 rounded-lg",
+                        archetype.bgColor
+                    )}>
+                        <Icon className={cn("w-5 h-5", archetype.color)} />
+                    </div>
+
+                    {/* Name */}
+                    <h3 className={cn("font-bold text-sm", archetype.color)}>
+                        {archetype.name}
+                    </h3>
+
+                    {/* Mini Progress Bar */}
+                    {dominant && (
+                        <div className="w-full max-w-[80px]">
+                            <div className="h-1 bg-muted/20 rounded-full overflow-hidden">
+                                <motion.div
+                                    className={cn("h-full rounded-full", archetype.color.replace('text-', 'bg-'))}
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${dominantPercent}%` }}
+                                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                                />
+                            </div>
+                            <span className="text-[10px] text-muted-foreground capitalize mt-1 block">
+                                {dominant.attribute}
+                            </span>
+                        </div>
+                    )}
+                </motion.div>
+            </MagicCard>
+        );
+    }
+
+    // Default variant - horizontal layout with description
     return (
         <MagicCard
             className={cn("p-4", className)}
@@ -83,3 +133,4 @@ export function ArchetypeCard({ className }: ArchetypeCardProps) {
         </MagicCard>
     );
 }
+

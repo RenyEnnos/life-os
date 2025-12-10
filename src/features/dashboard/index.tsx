@@ -114,7 +114,7 @@ export default function DashboardPage() {
                     icon={User}
                     noPadding
                 >
-                    <ArchetypeCard className="h-full border-none rounded-none shadow-none" />
+                    <ArchetypeCard variant="compact" className="h-full border-none rounded-none shadow-none" />
                 </BentoCard>
 
                 {/* ───────────── 3. STATUS CARD (1x1) - Level + XP ───────────── */}

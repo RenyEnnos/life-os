@@ -19,7 +19,7 @@ export const UrgentCard = () => {
     // Fallback if no tasks
     if (!topTask) {
         return (
-            <BentoCard className="col-span-1 row-span-2 p-0" noPadding>
+            <BentoCard className="col-span-1 md:col-span-2 row-span-2 p-0" noPadding>
                 <NeonGradientCard className="items-center justify-center text-center h-full border-none">
                     <div className="flex flex-col justify-between h-full p-4 w-full">
                         <div className="flex justify-between items-start mb-2 z-10 w-full">
@@ -44,7 +44,7 @@ export const UrgentCard = () => {
     }
 
     return (
-        <BentoCard className="col-span-1 row-span-2 p-0" noPadding>
+        <BentoCard className="col-span-1 md:col-span-2 row-span-2 p-0" noPadding>
             <NeonGradientCard className="items-center justify-center text-center h-full border-none">
                 <div className="flex flex-col justify-between h-full p-4 w-full">
                     <div className="flex justify-between items-start mb-2 z-10 w-full">
