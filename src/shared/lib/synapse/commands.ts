@@ -18,7 +18,9 @@ import { useSanctuaryStore } from '../../stores/sanctuaryStore';
  * These are navigation and quick-action commands.
  * Pattern-matched commands are handled separately in patterns.ts
  */
-export const SYNAPSE_COMMANDS: SynapseCommand[] = [
+import { NavigateFunction } from 'react-router-dom';
+
+export const getStaticCommands = (navigate: NavigateFunction): SynapseCommand[] => [
     // Actions (Tasks)
     {
         id: 'go-actions',
@@ -27,7 +29,7 @@ export const SYNAPSE_COMMANDS: SynapseCommand[] = [
         icon: CheckSquare,
         group: 'actions',
         shortcut: ['G', 'A'],
-        action: () => { window.location.href = '/tasks'; },
+        action: () => { navigate('/tasks'); },
         keywords: ['tasks', 'todo', 'actions'],
     },
     {
@@ -49,7 +51,7 @@ export const SYNAPSE_COMMANDS: SynapseCommand[] = [
         icon: Target,
         group: 'missions',
         shortcut: ['G', 'M'],
-        action: () => { window.location.href = '/projects'; },
+        action: () => { navigate('/projects'); },
         keywords: ['projects', 'goals', 'missions'],
     },
     {
@@ -70,7 +72,7 @@ export const SYNAPSE_COMMANDS: SynapseCommand[] = [
         icon: Repeat,
         group: 'rituals',
         shortcut: ['G', 'R'],
-        action: () => { window.location.href = '/habits'; },
+        action: () => { navigate('/habits'); },
         keywords: ['habits', 'routines', 'rituals'],
     },
     {
@@ -91,7 +93,7 @@ export const SYNAPSE_COMMANDS: SynapseCommand[] = [
         icon: Wallet,
         group: 'resources',
         shortcut: ['G', 'F'],
-        action: () => { window.location.href = '/finances'; },
+        action: () => { navigate('/finances'); },
         keywords: ['finances', 'money', 'budget', 'resources'],
     },
     {
@@ -112,7 +114,7 @@ export const SYNAPSE_COMMANDS: SynapseCommand[] = [
         icon: BookOpen,
         group: 'memory',
         shortcut: ['G', 'J'],
-        action: () => { window.location.href = '/journal'; },
+        action: () => { navigate('/journal'); },
         keywords: ['journal', 'notes', 'memory', 'diary'],
     },
     {
@@ -133,7 +135,7 @@ export const SYNAPSE_COMMANDS: SynapseCommand[] = [
         icon: Sparkles,
         group: 'nexus',
         shortcut: ['A', 'N'],
-        action: () => { window.location.href = '/ai-assistant'; },
+        action: () => { navigate('/ai-assistant'); },
         keywords: ['ai', 'assistant', 'help', 'nexus', 'chat'],
     },
     {
@@ -165,7 +167,7 @@ export const SYNAPSE_COMMANDS: SynapseCommand[] = [
         icon: LayoutDashboard,
         group: 'actions',
         shortcut: ['G', 'H'],
-        action: () => { window.location.href = '/'; },
+        action: () => { navigate('/'); },
         keywords: ['home', 'dashboard', 'horizon', 'overview'],
     },
 ];
@@ -173,19 +175,19 @@ export const SYNAPSE_COMMANDS: SynapseCommand[] = [
 /**
  * Get commands filtered by group
  */
-export function getCommandsByGroup(group: string): SynapseCommand[] {
-    return SYNAPSE_COMMANDS.filter((cmd) => cmd.group === group);
+export function getCommandsByGroup(group: string, commands: SynapseCommand[]): SynapseCommand[] {
+    return commands.filter((cmd) => cmd.group === group);
 }
 
 /**
  * Search commands by query (fuzzy match on label, description, keywords)
  */
-export function searchCommands(query: string): SynapseCommand[] {
-    if (!query.trim()) return SYNAPSE_COMMANDS;
+export function searchCommands(query: string, commands: SynapseCommand[]): SynapseCommand[] {
+    if (!query.trim()) return commands;
 
     const normalizedQuery = query.toLowerCase().trim();
 
-    return SYNAPSE_COMMANDS.filter((cmd) => {
+    return commands.filter((cmd) => {
         const searchTargets = [
             cmd.label,
             cmd.description || '',

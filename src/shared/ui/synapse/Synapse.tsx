@@ -1,9 +1,10 @@
 import { Command } from 'cmdk';
-import { Search } from 'lucide-react';
+import { Search, Wallet, CheckSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSynapseStore } from '../../stores/synapseStore';
-import { searchCommands } from '../../lib/synapse/commands';
+import { searchCommands, getStaticCommands } from '../../lib/synapse/commands';
 import { SYNAPSE_GROUP_LABELS, SYNAPSE_GROUP_ORDER, SynapseCommand } from '../../lib/synapse/types';
 import './synapse.css';
 
@@ -14,6 +15,7 @@ import './synapse.css';
  * Follows "Glass & Void" design aesthetic.
  */
 export function Synapse() {
+    const navigate = useNavigate();
     const { isOpen, query, close, toggle, setQuery } = useSynapseStore();
 
     // Global keyboard shortcut
@@ -37,10 +39,71 @@ export function Synapse() {
         });
     }, [close]);
 
-    // Filter commands by query
-    const filteredCommands = searchCommands(query);
+    // 1. Load static commands with navigation context
+    const staticCommands = useMemo(() => getStaticCommands(navigate), [navigate]);
 
-    // Group commands by category
+    // 2. Pattern Matching Logic (The "Brain")
+    const dynamicCommand = useMemo(() => {
+        const lowerQuery = query.toLowerCase().trim();
+
+        // Regex for Quick Expense: "Gastei 50 em X"
+        // Matches: "gastei 50", "paguei 100 no uber", "gastei 50.50 na amazon"
+        const expenseMatch = lowerQuery.match(/^(?:gastei|paguei)\s+(\d+(?:[.,]\d+)?)(?:\s+(?:em|no|na)\s+(.*))?$/);
+
+        if (expenseMatch) {
+            const amount = expenseMatch[1].replace(',', '.');
+            const category = expenseMatch[2] || 'Geral';
+
+            return {
+                id: 'quick-expense',
+                label: `Registrar Gasto: R$ ${amount} (${category})`,
+                description: 'Quick transaction via Regex Pattern',
+                icon: Wallet,
+                group: 'resources',
+                shortcut: ['↵'],
+                action: () => {
+                    console.log(`[Synapse] Creating transaction: ${amount} in ${category}`);
+                    // TODO: Connect to actual finance store when available
+                    // useFinanceStore.getState().addTransaction(...)
+                    navigate('/finances');
+                }
+            } as SynapseCommand;
+        }
+
+        // Regex for Quick Task: "Lembrar de X" or "Todo X"
+        if (lowerQuery.startsWith('lembrar ') || lowerQuery.startsWith('todo ')) {
+            const taskTitle = lowerQuery.replace(/^(lembrar (de )?|todo )/, '').trim();
+            if (taskTitle) {
+                return {
+                    id: 'quick-task',
+                    label: `Criar Tarefa: "${taskTitle}"`,
+                    description: 'Quick task via Regex Pattern',
+                    icon: CheckSquare,
+                    group: 'actions',
+                    shortcut: ['↵'],
+                    action: () => {
+                        console.log(`[Synapse] Creating task: ${taskTitle}`);
+                        // TODO: Connect to actual task store
+                        // useTaskStore.getState().addTask(...)
+                        navigate('/tasks');
+                    }
+                } as SynapseCommand;
+            }
+        }
+
+        return null;
+    }, [query, navigate]);
+
+    // Filter commands by query (passing the static list)
+    const filteredStaticCommands = searchCommands(query, staticCommands);
+
+    // Combine dynamic command with static results
+    // Dynamic command always appears first if it exists
+    const filteredCommands = dynamicCommand
+        ? [dynamicCommand, ...filteredStaticCommands]
+        : filteredStaticCommands;
+
+    // Group commands by category (using the combined list)
     const groupedCommands = SYNAPSE_GROUP_ORDER.reduce((acc, group) => {
         const commands = filteredCommands.filter((cmd) => cmd.group === group);
         if (commands.length > 0) {
