@@ -1,0 +1,188 @@
+/* Neural Resonance Panel - Glass & Void */
+
+.resonance-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    min-width: 240px;
+}
+
+.resonance-panel.resonance-loading,
+.resonance-panel.resonance-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px;
+    color: var(--color-text-muted);
+    font-size: 13px;
+}
+
+.resonance-loading-icon {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+.resonance-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.resonance-header svg {
+    color: var(--color-accent, #8b5cf6);
+}
+
+.resonance-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.resonance-section-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Mood Row */
+.resonance-mood-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.resonance-mood-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.resonance-mood-score {
+    font-size: 18px;
+    font-weight: 600;
+    font-family: var(--font-mono, 'SF Mono', monospace);
+    color: var(--color-text);
+}
+
+.resonance-mood-label {
+    font-size: 11px;
+    color: var(--color-text-muted);
+}
+
+/* Trend */
+.resonance-trend {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.resonance-trend-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 40px;
+    flex: 1;
+}
+
+.resonance-trend-bar {
+    flex: 1;
+    min-width: 6px;
+    border-radius: 2px;
+    transition: height 0.3s ease;
+}
+
+.resonance-trend-direction {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+}
+
+.trend-up {
+    color: #22c55e;
+}
+
+.trend-down {
+    color: #ef4444;
+}
+
+.trend-neutral {
+    color: var(--color-text-muted);
+}
+
+/* Themes */
+.resonance-themes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.resonance-theme-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--color-text-muted);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+}
+
+/* Weekly Summary */
+.resonance-weekly {
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.resonance-summary {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--color-text);
+    margin: 0;
+}
+
+.resonance-recommendation {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 8px;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--color-text-muted);
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 6px;
+}
+
+.resonance-recommendation svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--color-accent, #8b5cf6);
+}

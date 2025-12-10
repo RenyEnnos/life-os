@@ -25,13 +25,38 @@ export interface Habit extends Omit<DbHabit, 'schedule'> {
     frequency: string[];
     streak: number;
     routine: 'morning' | 'afternoon' | 'evening' | 'any';
-    schedule: { frequency: string;[key: string]: any };
+    schedule: { frequency: string } & Record<string, string | number | boolean | null>;
 }
 
 export type DbTask = Database['public']['Tables']['tasks']['Row'];
 
+export type EnergyLevel = 'high' | 'low' | 'any';
+export type TimeBlock = 'morning' | 'afternoon' | 'evening' | 'any';
+
 export interface Task extends Omit<DbTask, 'tags'> {
     tags?: string[];
+    energy_level?: EnergyLevel;
+    time_block?: TimeBlock;
+}
+
+// Neural Resonance Types
+export type InsightType = 'mood' | 'theme' | 'energy' | 'weekly';
+
+export interface JournalInsightContent {
+    mood_score?: number;
+    themes?: string[];
+    summary?: string;
+    recommendations?: string[];
+    energy_correlation?: EnergyLevel;
+}
+
+export interface JournalInsight {
+    id: string;
+    journal_entry_id: string;
+    user_id: string;
+    insight_type: InsightType;
+    content: JournalInsightContent;
+    created_at: string;
 }
 
 export interface JournalEntry {
@@ -41,6 +66,8 @@ export interface JournalEntry {
     title?: string;
     content?: string;
     tags?: string[];
+    mood_score?: number;
+    last_analyzed_at?: string;
     created_at: string;
 }
 

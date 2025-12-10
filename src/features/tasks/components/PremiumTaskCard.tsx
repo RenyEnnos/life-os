@@ -1,10 +1,11 @@
 import { memo } from 'react';
-import { Check, Trash2, Calendar as CalendarIcon } from 'lucide-react';
+import { Check, Trash2, Calendar as CalendarIcon, Moon } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Task } from '@/shared/types';
 import { clsx } from 'clsx';
 import { MagicCard } from '@/shared/ui/premium/MagicCard';
 import { BorderBeam } from '@/shared/ui/premium/BorderBeam';
+import { useSanctuaryStore } from '@/shared/stores/sanctuaryStore';
 
 interface PremiumTaskCardProps {
     task: Task;
@@ -15,6 +16,11 @@ interface PremiumTaskCardProps {
 export const PremiumTaskCard = memo(function PremiumTaskCard({ task, onToggle, onDelete }: PremiumTaskCardProps) {
     const isOverdue = task.due_date && new Date(task.due_date) < new Date() && !task.completed;
     const isHighPriority = isOverdue; // Simplified priority logic for visual flair
+    const enterSanctuary = useSanctuaryStore((s) => s.enter);
+
+    const handleEnterSanctuary = () => {
+        enterSanctuary(task.id, task.title);
+    };
 
     return (
         <MagicCard
@@ -67,6 +73,20 @@ export const PremiumTaskCard = memo(function PremiumTaskCard({ task, onToggle, o
                     </div>
                 </div>
 
+                {/* Sanctuary Mode Button */}
+                {!task.completed && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleEnterSanctuary}
+                        className="opacity-0 group-hover:opacity-100 text-white/30 hover:text-purple-400 hover:bg-purple-500/10 transition-all"
+                        title="Enter Sanctuary"
+                    >
+                        <Moon size={16} />
+                    </Button>
+                )}
+
+                {/* Delete Button */}
                 <Button
                     variant="ghost"
                     size="icon"

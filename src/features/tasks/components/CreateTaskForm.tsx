@@ -4,7 +4,7 @@ import { Input } from '@/shared/ui/Input';
 import { useAI } from '@/features/ai-assistant/hooks/useAI';
 import { Tag } from '@/shared/ui/Tag';
 import { X, Zap } from 'lucide-react';
-import type { Task } from '@/shared/types';
+import type { Task, EnergyLevel, TimeBlock } from '@/shared/types';
 
 interface CreateTaskFormProps {
     onSubmit: (data: Partial<Task>) => void;
@@ -17,6 +17,8 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
     const [dueDate, setDueDate] = useState('');
     const [tags, setTags] = useState<string[]>([]);
     const [newTag, setNewTag] = useState('');
+    const [energyLevel, setEnergyLevel] = useState<EnergyLevel>('any');
+    const [timeBlock, setTimeBlock] = useState<TimeBlock>('any');
 
     const { generateTags } = useAI();
     const [isGeneratingTags, setIsGeneratingTags] = useState(false);
@@ -66,7 +68,9 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
             description,
             due_date: dueDate ? new Date(dueDate).toISOString() : undefined,
             completed: false,
-            tags
+            tags,
+            energy_level: energyLevel,
+            time_block: timeBlock
         });
     };
 
@@ -102,6 +106,40 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                     onChange={(e) => setDueDate(e.target.value)}
                     className="bg-surface/50 focus:bg-surface transition-colors"
                 />
+            </div>
+
+            {/* Dynamic Now Fields */}
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">
+                        Energia
+                    </label>
+                    <select
+                        value={energyLevel}
+                        onChange={(e) => setEnergyLevel(e.target.value as EnergyLevel)}
+                        className="w-full bg-surface/50 border border-border rounded-md p-2 text-sm font-mono text-foreground focus:bg-surface focus:border-primary focus:outline-none transition-colors"
+                    >
+                        <option value="any">Qualquer</option>
+                        <option value="high">Alta ⚡</option>
+                        <option value="low">Baixa 🌙</option>
+                    </select>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">
+                        Período
+                    </label>
+                    <select
+                        value={timeBlock}
+                        onChange={(e) => setTimeBlock(e.target.value as TimeBlock)}
+                        className="w-full bg-surface/50 border border-border rounded-md p-2 text-sm font-mono text-foreground focus:bg-surface focus:border-primary focus:outline-none transition-colors"
+                    >
+                        <option value="any">Qualquer</option>
+                        <option value="morning">Manhã ☀️</option>
+                        <option value="afternoon">Tarde 🌤️</option>
+                        <option value="evening">Noite 🌙</option>
+                    </select>
+                </div>
             </div>
 
             <div className="space-y-2">

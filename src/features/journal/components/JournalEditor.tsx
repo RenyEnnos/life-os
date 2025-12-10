@@ -5,7 +5,7 @@ import { useAI } from '@/features/ai-assistant/hooks/useAI';
 import { Tag } from '@/shared/ui/Tag';
 import type { JournalEntry } from '@/shared/types';
 import { motion } from 'framer-motion';
-import { ShineBorder } from '@/shared/ui/shine-border';
+import { ShineBorder } from '@/shared/ui/premium/ShineBorder';
 
 interface JournalEditorProps {
     entry?: JournalEntry;

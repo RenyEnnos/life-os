@@ -3,25 +3,35 @@ import { PageTitle } from '@/shared/ui/PageTitle';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { XPBar } from '@/features/gamification/components/XPBar';
 import { BentoGrid, BentoCard } from '@/shared/ui/BentoCard';
+import { DynamicNowToggle } from '@/shared/ui/DynamicNowToggle';
 import {
     Zap,
     Activity,
     BarChart3,
     Clock,
-    School
+    School,
+    Sunrise
 } from 'lucide-react';
+import { getCurrentTimeBlock } from '@/shared/lib/dynamicNow';
 
 export default function DashboardPage() {
     const { user } = useAuth();
     const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'User';
+    const timeBlock = getCurrentTimeBlock();
+
+    const greetings: Record<'morning' | 'afternoon' | 'evening', string> = {
+        morning: 'Bom dia',
+        afternoon: 'Boa tarde',
+        evening: 'Boa noite'
+    };
 
     return (
         <div className="space-y-8 pb-20 px-4 md:px-0">
-            {/* Header Limpo e Semântico */}
+            {/* Header - Horizon */}
             <header className="py-6 border-b border-border/40">
                 <PageTitle
-                    title="COMMAND CENTER"
-                    subtitle={`Sistemas nominais. Bem-vindo de volta, ${firstName}.`}
+                    title="HORIZON"
+                    subtitle={`${greetings[timeBlock]}, ${firstName}. Aqui está sua visão do que vem por aí.`}
                     action={<XPBar className="w-32 md:w-48" />}
                 />
             </header>
@@ -45,39 +55,48 @@ export default function DashboardPage() {
                     </div>
                 </BentoCard>
 
-                {/* 2. Status Geral (Largo) */}
+                {/* 2. Dynamic Now Toggle */}
                 <BentoCard
-                    className="col-span-1 md:col-span-2 lg:col-span-2"
+                    className="col-span-1"
+                    title="Modo Dinâmico"
+                    icon={Sunrise}
+                >
+                    <DynamicNowToggle />
+                </BentoCard>
+
+                {/* 3. Status Geral (Largo) */}
+                <BentoCard
+                    className="col-span-1 md:col-span-1 lg:col-span-1"
                     title="Visão Geral"
                     icon={Activity}
                 >
                     <div className="grid grid-cols-3 gap-4 h-full items-center">
                         <div className="text-center">
                             <div className="text-2xl font-bold text-foreground">12</div>
-                            <div className="text-xs text-muted-foreground">Tarefas</div>
+                            <div className="text-xs text-muted-foreground">Actions</div>
                         </div>
                         <div className="text-center border-l border-border">
                             <div className="text-2xl font-bold text-success">92%</div>
-                            <div className="text-xs text-muted-foreground">Saúde</div>
+                            <div className="text-xs text-muted-foreground">Rituals</div>
                         </div>
                         <div className="text-center border-l border-border">
                             <div className="text-2xl font-bold text-foreground">4h</div>
-                            <div className="text-xs text-muted-foreground">Foco</div>
+                            <div className="text-xs text-muted-foreground">Focus</div>
                         </div>
                     </div>
                 </BentoCard>
 
-                {/* 3. Cards Pequenos (Métricas) */}
-                <BentoCard title="Finanças" icon={BarChart3}>
+                {/* 4. Cards Pequenos (Métricas) */}
+                <BentoCard title="Resources" icon={BarChart3}>
                     <div className="flex items-end gap-2 mt-2">
                         <span className="text-3xl font-semibold">$4.2k</span>
                     </div>
                 </BentoCard>
 
-                {/* 4. University (Contexto - Largo) */}
+                {/* 5. University (Contexto - Largo) */}
                 <BentoCard
                     className="col-span-1 md:col-span-2 lg:col-span-2"
-                    title="University"
+                    title="Missions"
                     icon={School}
                 >
                     <div className="flex justify-between items-center h-full">
@@ -91,14 +110,14 @@ export default function DashboardPage() {
                     </div>
                 </BentoCard>
 
-                {/* 5. Ações Rápidas */}
+                {/* 6. Ações Rápidas */}
                 <BentoCard title="Quick Actions" icon={Clock}>
                     <div className="grid grid-cols-2 gap-2 h-full">
                         <button className="border border-border rounded hover:bg-surface-hover transition-colors flex flex-col items-center justify-center gap-1">
-                            <span className="text-xs text-muted-foreground">Note</span>
+                            <span className="text-xs text-muted-foreground">Memory</span>
                         </button>
                         <button className="border border-border rounded hover:bg-surface-hover transition-colors flex flex-col items-center justify-center gap-1">
-                            <span className="text-xs text-muted-foreground">Task</span>
+                            <span className="text-xs text-muted-foreground">Action</span>
                         </button>
                     </div>
                 </BentoCard>
@@ -106,3 +125,4 @@ export default function DashboardPage() {
         </div>
     );
 }
+

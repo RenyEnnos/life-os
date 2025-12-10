@@ -11,6 +11,8 @@ import { PWAManager } from "@/shared/components/PWAManager";
 import { Toaster } from 'react-hot-toast';
 
 import { OnboardingManager } from "@/features/onboarding/components/OnboardingManager";
+import { Synapse } from "@/shared/ui/synapse";
+import { SanctuaryOverlay } from "@/shared/ui/sanctuary";
 
 export default function App() {
     return (
@@ -24,6 +26,8 @@ export default function App() {
                     <PWAManager />
                     <Toaster position="bottom-right" toastOptions={{ className: 'glass-panel text-white border-blue-500/30' }} />
                     <OnboardingManager />
+                    <Synapse />
+                    <SanctuaryOverlay />
                     <Router>
                         <ErrorBoundary>
                             <AppRoutes />
