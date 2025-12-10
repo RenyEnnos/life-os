@@ -83,9 +83,9 @@ export const awardXP = async (
             new_level: newLevel,
         };
 
-        // Keep history manageable (last 50 entries)
+        // Keep history manageable (last 365 entries for Visual Legacy)
         const currentHistory = (userXp.xp_history as unknown as XPHistoryEntry[]) || [];
-        const newHistory = [historyEntry, ...currentHistory].slice(0, 50);
+        const newHistory = [historyEntry, ...currentHistory].slice(0, 365);
 
         // 4. Update Database
         const { error: updateError } = await supabase
@@ -131,4 +131,38 @@ export const getUserXP = async (userId: string): Promise<UserXP | null> => {
     }
 
     return data;
+};
+
+export interface DailyXP {
+    date: string;
+    count: number;
+    level: number; // 0-4 intensity
+}
+
+export const getDailyXP = async (userId: string): Promise<DailyXP[]> => {
+    const userXP = await getUserXP(userId);
+    if (!userXP || !userXP.xp_history) return [];
+
+    const history = userXP.xp_history as unknown as XPHistoryEntry[];
+    const dailyMap = new Map<string, number>();
+
+    history.forEach(entry => {
+        // Date is ISO string, split to YYYY-MM-DD
+        const dateKey = entry.date.split('T')[0];
+        const current = dailyMap.get(dateKey) || 0;
+        dailyMap.set(dateKey, current + entry.amount);
+    });
+
+    const result: DailyXP[] = [];
+    dailyMap.forEach((count, date) => {
+        let level = 0;
+        if (count > 0) level = 1;
+        if (count > 50) level = 2;
+        if (count > 100) level = 3;
+        if (count > 200) level = 4;
+
+        result.push({ date, count, level });
+    });
+
+    return result.sort((a, b) => a.date.localeCompare(b.date));
 };

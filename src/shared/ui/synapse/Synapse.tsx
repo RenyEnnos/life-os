@@ -46,56 +46,98 @@ export function Synapse() {
     const dynamicCommand = useMemo(() => {
         const lowerQuery = query.toLowerCase().trim();
 
-        // Regex for Quick Expense: "Gastei 50 em X" or just "50 em X"
-        // Matches: "gastei 50", "paguei 100 no uber", "50.50 na amazon"
-        // Captures: 1=Amount, 2=Category (optional)
-        const expenseMatch = lowerQuery.match(/^(?:gastei|paguei)?\s*(\d+(?:[.,]\d+)?)(?:\s+(?:em|no|na)\s+(.*))?$/);
+        // -------------------------------------------------------------
+        // EXPENSE PATTERN
+        // Matches: "50 no almoço", "gastei 100 uber", "12.50 coxinhas"
+        // -------------------------------------------------------------
 
-        // Check length > 2 to avoid matching single digits like "1" while typing
-        if (expenseMatch && lowerQuery.length > 2) {
+        // Regex explanation:
+        // ^(?:gastei|paguei)?  -> Optional prefix "gastei" or "paguei" (non-capturing)
+        // \s*                  -> Optional spaces
+        // (\d+(?:[.,]\d+)?)    -> Capture Group 1: Amount (integers or decimals with . or ,)
+        // (?:                  -> Optional Description Group
+        //   \s+                -> Required space before description
+        //   (?:em|no|na)?      -> Optional preposition "em", "no", "na" (non-capturing)
+        //   \s*                -> Optional space
+        //   (.*)               -> Capture Group 2: The rest is the category/description
+        // )?
+        const expenseRegex = /^(?:gastei|paguei)?\s*(\d+(?:[.,]\d+)?)(?:\s+(?:em|no|na)?\s*(.*))?$/;
+        const expenseMatch = lowerQuery.match(expenseRegex);
+
+        // Guard: Check length > 2 to avoid triggering on "1" or "10" unless strictly formatted? 
+        // Actually "50" is valid, but maybe wait for at least 2 digits or a space?
+        // Let's stick to user plan: length > 1 for just number, but usually we want at least a description for context.
+        // For now, allow just number if length > 1 (e.g. "12") but prioritize description if present.
+
+        if (expenseMatch && lowerQuery.length > 1) {
+            // Additional check: If query is just a number, ensure it's not part of a task like "10 commandments"
+            // But Expense takes priority if it starts with number.
+
             const amount = expenseMatch[1].replace(',', '.');
-            const category = expenseMatch[2] || 'Geral';
+            const description = expenseMatch[2]?.trim() || 'Geral';
+
+            // If just a number, maybe show generic "Quick Expense"
+            // If has description, show fully formatted.
+
+            // Guard: If it looks like a year "2024" or small number "1", maybe skip? 
+            // Let's trust the Regex.
 
             return {
                 id: 'quick-expense',
-                label: `Registrar Gasto: R$ ${amount} (${category})`,
-                description: 'Quick transaction via Regex Pattern',
+                label: `Registrar: R$ ${amount} (${description})`,
+                description: 'Despesa Rápida',
                 icon: Wallet,
                 group: 'resources',
                 shortcut: ['↵'],
                 action: () => {
-                    console.log(`[Synapse] Creating transaction: ${amount} in ${category}`);
-                    // TODO: Connect to actual finance store when available
-                    // useFinanceStore.getState().addTransaction(...)
+                    console.log(`[Synapse] Creating transaction: ${amount} in ${description}`);
+                    // TODO: Connect to finance store
                     navigate('/finances');
                 }
             } as SynapseCommand;
         }
 
-        // Regex for Quick Task: "Lembrar de X" or "Todo X"
-        if (lowerQuery.startsWith('lembrar ') || lowerQuery.startsWith('todo ')) {
-            // Remove prefix: "lembrar de ", "lembrar ", "todo "
-            const taskTitle = lowerQuery.replace(/^(lembrar\s+(?:de\s+)?|todo\s+)/, '').trim();
+        // -------------------------------------------------------------
+        // TASK PATTERN
+        // Matches: "lembrar de comprar leite", "comprar pão", "todo estudar"
+        // -------------------------------------------------------------
 
+        // We want to detect INTENT to capture a task.
+        // If it starts with a verb or "todo", it's a task.
+        // But also generic text might be a task? 
+        // For now, let's keep it slightly structured to avoid noise, OR allow "todo " prefix.
+        // AND if it doesn't match commands, maybe show "Create Task: ..." as a fallback?
+
+        // Let's support explicit prefixes + fallback
+
+        const taskPrefixRegex = /^(lembrar\s+(?:de\s+)?|todo\s+|tarefa\s+)/;
+        const hasTaskPrefix = taskPrefixRegex.test(lowerQuery);
+
+        // If it has a prefix, definitely a task.
+        if (hasTaskPrefix) {
+            const taskTitle = lowerQuery.replace(taskPrefixRegex, '').trim();
             if (taskTitle) {
                 return {
                     id: 'quick-task',
-                    label: `Criar Tarefa: "${taskTitle}"`,
-                    description: 'Quick task via Regex Pattern',
+                    label: `Capturar: "${taskTitle}"`,
+                    description: 'Nova Tarefa',
                     icon: CheckSquare,
                     group: 'actions',
                     shortcut: ['↵'],
                     action: () => {
                         console.log(`[Synapse] Creating task: ${taskTitle}`);
-                        // TODO: Connect to actual task store
-                        // useTasksStore.getState().addTask(...)
+                        // TODO: Connect to task store
                         navigate('/tasks');
                     }
                 } as SynapseCommand;
             }
         }
 
-        return null;
+        // Fallback for "implicit" task? 
+        // If it's not an expense, and not a matching command, and length > 3...
+        // Maybe later. For now stick to plan: relaxed regex.
+
+        return null; // Return null if matches nothing
     }, [query, navigate]);
 
     // Filter commands by query (passing the static list)

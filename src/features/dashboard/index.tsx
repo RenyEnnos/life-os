@@ -10,9 +10,11 @@ import {
     BarChart3,
     Clock,
     School,
-    Sunrise
+    Sunrise,
+    Star
 } from 'lucide-react';
 import { getCurrentTimeBlock } from '@/shared/lib/dynamicNow';
+import { VisualLegacy } from '@/features/gamification/components/VisualLegacy';
 
 export default function DashboardPage() {
     const { user } = useAuth();
@@ -120,6 +122,16 @@ export default function DashboardPage() {
                             <span className="text-xs text-muted-foreground">Action</span>
                         </button>
                     </div>
+                </BentoCard>
+
+                {/* 7. Visual Legacy (Constellation) */}
+                <BentoCard
+                    className="col-span-1 md:col-span-3 h-[250px] p-0 overflow-hidden bg-black"
+                    title="Constelação"
+                    icon={Star}
+                    noPadding
+                >
+                    <VisualLegacy className="h-full w-full" />
                 </BentoCard>
             </BentoGrid>
         </div>

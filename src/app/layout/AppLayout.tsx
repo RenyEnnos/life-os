@@ -6,6 +6,7 @@ import { LayoutDashboard, CheckSquare, Book, Settings, PlusCircle, DollarSign, G
 import { OnboardingModal } from '@/features/onboarding/OnboardingModal';
 import { useRealtime } from '@/shared/hooks/useRealtime';
 import { SanctuaryOverlay } from '@/shared/ui/sanctuary/SanctuaryOverlay';
+import { useSanctuaryStore } from '@/shared/stores/sanctuaryStore';
 
 export function AppLayout() {
     const [showOnboarding, setShowOnboarding] = useState(false);
@@ -24,6 +25,25 @@ export function AppLayout() {
         document.documentElement.classList.remove('light');
         localStorage.setItem('theme', 'dark');
     }, []);
+
+    const { isActive, enter, exit } = useSanctuaryStore();
+
+    useEffect(() => {
+        const handleGlobalKeyDown = (e: KeyboardEvent) => {
+            // Cmd+Shift+F (Mac) or Ctrl+Shift+F (Win)
+            if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.code === 'KeyF') {
+                e.preventDefault();
+                if (isActive) {
+                    exit();
+                } else {
+                    enter('quick-focus', 'Deep Focus');
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleGlobalKeyDown);
+        return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+    }, [isActive, enter, exit]);
 
     const handleOnboardingClose = () => {
         localStorage.setItem('life-os-onboarding-completed', 'true');

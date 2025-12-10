@@ -1,8 +1,7 @@
 import { motion } from 'framer-motion';
-import { Trophy, Star } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { rewardsApi } from '@/features/rewards/api/rewards.api';
-import { useAuth } from '@/features/auth/contexts/AuthContext';
+import { Trophy } from 'lucide-react';
+import { useUserXP } from '@/features/gamification/hooks/useUserXP'; // Use o novo hook
+import { calculateNextLevelXp } from '@/features/gamification/api/xpService';
 import { cn } from '@/shared/lib/cn';
 
 interface XPBarProps {
@@ -11,21 +10,27 @@ interface XPBarProps {
 }
 
 export function XPBar({ className, showLevel = true }: XPBarProps) {
-    const { user } = useAuth();
+    // 1. Use o hook correto conectado à tabela user_xp
+    const { userXP, isLoading } = useUserXP();
 
-    const { data: score } = useQuery({
-        queryKey: ['userScore', user?.id],
-        queryFn: () => rewardsApi.getUserScore(user!.id),
-        enabled: !!user,
-        staleTime: 1000 * 60 * 5 // 5 minutes
-    });
+    if (isLoading || !userXP) return null;
 
-    if (!score) return null;
+    const currentLevel = userXP.level;
+    const totalXp = userXP.total_xp;
 
-    const currentLevel = score.level || 1;
-    const currentXP = score.current_xp || 0;
-    const nextLevelXP = currentLevel * 1000;
-    const progress = Math.min((currentXP % 1000) / 1000 * 100, 100);
+    // 2. Lógica matemática alinhada com o xpService
+    // XP necessário para chegar no nível ATUAL
+    const xpForCurrentLevel = Math.pow(currentLevel, 2) * 100;
+    // XP necessário para o PRÓXIMO nível
+    const xpForNextLevel = calculateNextLevelXp(currentLevel);
+
+    // XP ganho DENTRO deste nível
+    const xpGainedInLevel = totalXp - xpForCurrentLevel;
+    // Tamanho total da barra deste nível
+    const levelSize = xpForNextLevel - xpForCurrentLevel;
+
+    // Porcentagem (0 a 100)
+    const progress = Math.min(100, Math.max(0, (xpGainedInLevel / levelSize) * 100));
 
     return (
         <div className={cn("relative", className)}>
@@ -40,7 +45,7 @@ export function XPBar({ className, showLevel = true }: XPBarProps) {
                         </span>
                     </div>
                     <span className="text-[10px] text-muted-foreground font-mono">
-                        {Math.floor(currentXP)} / {nextLevelXP} XP
+                        {Math.floor(xpGainedInLevel)} / {levelSize} XP
                     </span>
                 </div>
             )}
