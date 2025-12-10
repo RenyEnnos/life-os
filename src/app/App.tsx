@@ -26,9 +26,9 @@ export default function App() {
                     <PWAManager />
                     <Toaster position="bottom-right" toastOptions={{ className: 'glass-panel text-white border-blue-500/30' }} />
                     <OnboardingManager />
-                    <Synapse />
                     <SanctuaryOverlay />
                     <Router>
+                        <Synapse />
                         <ErrorBoundary>
                             <AppRoutes />
                         </ErrorBoundary>

@@ -40,21 +40,19 @@ export interface Task extends Omit<DbTask, 'tags'> {
 }
 
 // Neural Resonance Types
-export type InsightType = 'mood' | 'theme' | 'energy' | 'weekly';
-
 export interface JournalInsightContent {
-    mood_score?: number;
-    themes?: string[];
-    summary?: string;
-    recommendations?: string[];
-    energy_correlation?: EnergyLevel;
+    sentiment: string;
+    keywords: string[];
+    advice: string;
+    correlation_hypothesis?: string;
+    mood_score: number;
 }
 
 export interface JournalInsight {
     id: string;
     journal_entry_id: string;
     user_id: string;
-    insight_type: InsightType;
+    insight_type: 'neural_resonance';
     content: JournalInsightContent;
     created_at: string;
 }
@@ -69,6 +67,7 @@ export interface JournalEntry {
     mood_score?: number;
     last_analyzed_at?: string;
     created_at: string;
+    insights?: JournalInsight[];
 }
 
 export type DbTransaction = Database['public']['Tables']['transactions']['Row'];

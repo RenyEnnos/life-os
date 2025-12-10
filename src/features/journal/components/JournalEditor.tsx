@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Save, X, Zap, Plus } from 'lucide-react';
+import { Save, X, Zap, Plus, Sparkles, BrainCircuit } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { useAI } from '@/features/ai-assistant/hooks/useAI';
 import { Tag } from '@/shared/ui/Tag';
-import type { JournalEntry } from '@/shared/types';
+import type { JournalEntry, JournalInsight } from '@/shared/types';
 import { motion } from 'framer-motion';
 import { ShineBorder } from '@/shared/ui/premium/ShineBorder';
+import { journalApi } from '../api/journal.api';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-hot-toast';
+import { InsightCard } from './InsightCard';
 
 interface JournalEditorProps {
     entry?: JournalEntry;
@@ -20,8 +24,40 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
     const [tags, setTags] = useState<string[]>([]);
     const [newTag, setNewTag] = useState('');
 
+    // Neural Resonance State
+    const [activeInsight, setActiveInsight] = useState<JournalInsight | null>(null);
+
+    const queryClient = useQueryClient();
     const { generateTags } = useAI();
     const [isGeneratingTags, setIsGeneratingTags] = useState(false);
+
+    const { mutate: analyzeEntry, isPending: isAnalyzing } = useMutation({
+        mutationFn: async () => {
+            if (!entry?.id) return;
+            // Optimistic update wrapper or direct call
+            // We need to pass the current content, but analyzeEntry takes the Entry object.
+            // Let's adhere to the API signature. We might need to save first or pass ephemeral data?
+            // The API in previous step took `entry: JournalEntry`.
+            // If the user modified content, we should probably save first or pass updated fields?
+            // "entry" prop might be stale.
+            // Let's assume we analyze the *current* state. We construct a temporary entry object.
+
+            const tempEntry = { ...entry, title, content, user_id: entry.user_id } as JournalEntry;
+            return journalApi.analyzeEntry(tempEntry);
+        },
+        onSuccess: (data) => {
+            if (data) setActiveInsight(data);
+            toast.success('Ressonância Neural completa');
+            queryClient.invalidateQueries({ queryKey: ['journal'] });
+        },
+        onError: () => {
+            toast.error('O Nexus está silencioso agora');
+        }
+    });
+
+    const handleAnalyze = () => {
+        analyzeEntry();
+    };
 
     const handleGenerateTags = async () => {
         if (!content) return;
@@ -155,12 +191,42 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                     <Button type="button" variant="ghost" onClick={onCancel} className="text-gray-400 hover:text-white">
                         CANCELAR
                     </Button>
+
+                    {entry && entry.id && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleAnalyze}
+                            disabled={isAnalyzing || !content}
+                            className="bg-black/20 border-primary/20 text-primary hover:bg-primary/10 hover:border-primary/50 transition-all gap-2"
+                        >
+                            {isAnalyzing ? (
+                                <>
+                                    <BrainCircuit size={18} className="animate-pulse" />
+                                    ANALISANDO...
+                                </>
+                            ) : (
+                                <>
+                                    <Sparkles size={18} />
+                                    RESSONÂNCIA NEURAL
+                                </>
+                            )}
+                        </Button>
+                    )}
+
                     <Button type="submit" className="gap-2 shadow-lg shadow-primary/20">
                         <Save size={18} />
                         SALVAR
                     </Button>
                 </div>
             </form>
+
+            {/* Neural Resonance Insight Card */}
+            {(activeInsight || (entry?.insights && entry.insights.length > 0)) && (
+                <InsightCard
+                    content={activeInsight?.content || (entry?.insights && entry.insights[0]?.content)!}
+                />
+            )}
         </motion.div>
     );
 }

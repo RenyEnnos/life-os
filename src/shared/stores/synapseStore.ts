@@ -15,7 +15,7 @@ interface SynapseState {
     setActiveGroup: (group: SynapseGroup | null) => void;
 }
 
-export const useSynapseStore = create<SynapseState>((set) => ({
+export const useSynapseStore = create<SynapseState>()((set) => ({
     isOpen: false,
     query: '',
     activeGroup: null,
