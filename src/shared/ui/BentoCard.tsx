@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useState, ElementType } from 'react';
+import { ReactNode, useRef, useState, ElementType, isValidElement } from 'react';
 import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';
 import { cn } from '@/shared/lib/cn';
 
@@ -108,9 +108,14 @@ export const BentoCard = ({
                     <div className={`flex items-center justify-between mb-4 ${noPadding ? "p-5 md:p-6 pb-0" : ""}`}>
                         <div className="flex items-center gap-2.5">
                             {icon && (
-                                typeof icon === 'function' ? (
+                                isValidElement(icon) ? (
+                                    // Se já for <Icon />, renderiza direto
+                                    icon
+                                ) : (typeof icon === 'function' || (typeof icon === 'object' && icon !== null)) ? (
+                                    // Se for Componente (Func ou ForwardRef), instancia
                                     (() => { const Icon = icon as ElementType; return <Icon className="h-4 w-4 text-zinc-400" />; })()
                                 ) : (
+                                    // Se for string/number/null
                                     <span className="text-zinc-400">{icon}</span>
                                 )
                             )}
