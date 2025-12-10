@@ -3,17 +3,56 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dock, DockIcon } from '@/shared/ui/premium/Dock';
 import { Particles } from '@/shared/ui/premium/Particles';
-import { LayoutDashboard, CheckSquare, Book, Settings, PlusCircle, DollarSign, GraduationCap, FolderKanban, ListTodo } from 'lucide-react';
+import {
+    LayoutDashboard, CheckSquare, Book, Settings,
+    PlusCircle, DollarSign, GraduationCap, FolderKanban, ListTodo
+} from 'lucide-react';
 import { OnboardingModal } from '@/features/onboarding/OnboardingModal';
 import { useRealtime } from '@/shared/hooks/useRealtime';
 import { SanctuaryOverlay } from '@/shared/ui/sanctuary/SanctuaryOverlay';
 import { useSanctuaryStore } from '@/shared/stores/sanctuaryStore';
-
 import { Sidebar } from './Sidebar';
 
-// Memoize heavy components to prevent re-renders
+// Otimização: Componentes pesados memoizados
 const MemoizedParticles = memo(Particles);
 const MemoizedSanctuaryOverlay = memo(SanctuaryOverlay);
+
+// Utilitário para resetar o scroll na troca de rota
+const ScrollToTop = () => {
+    const { pathname } = useLocation();
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [pathname]);
+    return null;
+};
+
+// Definição da Física de Navegação "Deep Flow"
+const pageVariants = {
+    initial: {
+        opacity: 0,
+        y: 8,
+        scale: 0.98,
+        filter: "blur(4px)"
+    },
+    animate: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        filter: "blur(0px)"
+    },
+    exit: {
+        opacity: 0,
+        y: -8,
+        scale: 0.98,
+        filter: "blur(4px)"
+    }
+};
+
+const pageTransition = {
+    type: "tween",
+    ease: [0.25, 0.1, 0.25, 1], // Curva "Premium" (Rápida no início, suave no fim)
+    duration: 0.4
+};
 
 export function AppLayout() {
     const [showOnboarding, setShowOnboarding] = useState(false);
@@ -27,8 +66,8 @@ export function AppLayout() {
         }
     }, []);
 
+    // Forçar Dark Mode
     useEffect(() => {
-        // Enforce dark mode for Vortex UI
         document.documentElement.classList.add('dark');
         document.documentElement.classList.remove('light');
         localStorage.setItem('theme', 'dark');
@@ -38,17 +77,11 @@ export function AppLayout() {
 
     useEffect(() => {
         const handleGlobalKeyDown = (e: KeyboardEvent) => {
-            // Cmd+Shift+F (Mac) or Ctrl+Shift+F (Win)
             if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.code === 'KeyF') {
                 e.preventDefault();
-                if (isActive) {
-                    exit();
-                } else {
-                    enter('quick-focus', 'Deep Focus');
-                }
+                isActive ? exit() : enter('quick-focus', 'Deep Focus');
             }
         };
-
         window.addEventListener('keydown', handleGlobalKeyDown);
         return () => window.removeEventListener('keydown', handleGlobalKeyDown);
     }, [isActive, enter, exit]);
@@ -59,74 +92,60 @@ export function AppLayout() {
     };
 
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground font-sans selection:bg-primary/30">
+        <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground font-sans selection:bg-white/10">
+            <ScrollToTop />
+
+            {/* Camada 0: Partículas e Atmosfera */}
             <MemoizedParticles
-                className="absolute inset-0 z-0 opacity-50"
-                quantity={50}
-                ease={2400}
-                staticity={30}
+                className="absolute inset-0 z-0 opacity-40 pointer-events-none"
+                quantity={40}
+                ease={200}
+                staticity={40}
                 refresh
             />
-
-            {/* Camada 1: Iluminação Atmosférica (Fixa) */}
+            {/* Vinheta de Luz (Fase 1) */}
             <div className="absolute inset-0 vignette-radial z-0" />
 
-            {/* Navigation: Glass Blade Sidebar (Desktop) */}
-            <Sidebar />
+            {/* Elementos de Cor Ambientais (Sutis) */}
+            <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 opacity-20">
+                <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse-slow" />
+                <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-500/10 rounded-full blur-[120px] animate-pulse-slow" style={{ animationDelay: '2s' }} />
+            </div>
 
             <OnboardingModal isOpen={showOnboarding} onClose={handleOnboardingClose} />
 
-            {/* Global Background Elements - reduced intensity */}
-            <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 opacity-30">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '3s' }} />
-            </div>
+            {/* Camada 1: Navegação Lateral (Glass) */}
+            <Sidebar />
 
-            <main className="relative z-10 pb-32 px-4 md:px-8 max-w-7xl mx-auto pt-8 md:pl-32 transition-all duration-300">
+            {/* Camada 2: Conteúdo Principal com Transição Cinematográfica */}
+            <main className="relative z-10 pl-24 pr-4 md:pr-8 pt-8 pb-32 min-h-screen w-full max-w-[1920px] mx-auto">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={location.pathname}
-                        initial={{ opacity: 0, scale: 0.98 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 1.02 }}
-                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        className="w-full"
+                        variants={pageVariants}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        transition={pageTransition}
+                        className="w-full h-full"
                     >
                         <Outlet />
                     </motion.div>
                 </AnimatePresence>
             </main>
 
-            {/* Mobile Navigation (Dock) - Hidden on desktop now that we have Sidebar */}
-            <div className="md:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
+            {/* Camada 3: Dock Flutuante (Apenas Mobile/Tablet ou se preferir redundância) */}
+            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 md:hidden">
                 <Dock className="bg-black/40 border-white/5 shadow-2xl backdrop-blur-xl px-4 py-3 gap-3">
-                    <DockIcon href="/" onClick={() => { }}>
-                        <LayoutDashboard className="size-6 text-zinc-300" />
-                    </DockIcon>
-                    <DockIcon href="/tasks" onClick={() => { }}>
-                        <ListTodo className="size-6 text-zinc-300" />
-                    </DockIcon>
-                    <DockIcon href="/habits" onClick={() => { }}>
-                        <CheckSquare className="size-6 text-zinc-300" />
-                    </DockIcon>
-                    <DockIcon href="/finances" onClick={() => { }}>
-                        <DollarSign className="size-6 text-zinc-300" />
-                    </DockIcon>
-                    <DockIcon onClick={() => { /* Open Quick Action */ }} className="bg-primary/20 border-primary/50">
-                        <PlusCircle className="size-8 text-primary" />
-                    </DockIcon>
-                    <DockIcon href="/university" onClick={() => { }}>
-                        <GraduationCap className="size-6 text-zinc-300" />
-                    </DockIcon>
-                    <DockIcon href="/projects" onClick={() => { }}>
-                        <FolderKanban className="size-6 text-zinc-300" />
-                    </DockIcon>
-                    <DockIcon href="/journal" onClick={() => { }}>
-                        <Book className="size-6 text-zinc-300" />
-                    </DockIcon>
-                    <DockIcon href="/settings" onClick={() => { }}>
-                        <Settings className="size-6 text-zinc-300" />
-                    </DockIcon>
+                    <DockIcon href="/" onClick={() => { }}><LayoutDashboard className="size-6 text-zinc-300" /></DockIcon>
+                    <DockIcon href="/tasks" onClick={() => { }}><ListTodo className="size-6 text-zinc-300" /></DockIcon>
+                    <DockIcon href="/habits" onClick={() => { }}><CheckSquare className="size-6 text-zinc-300" /></DockIcon>
+                    <DockIcon href="/finances" onClick={() => { }}><DollarSign className="size-6 text-zinc-300" /></DockIcon>
+                    <DockIcon onClick={() => { }} className="bg-white/10 border-white/20"><PlusCircle className="size-8 text-zinc-100" /></DockIcon>
+                    <DockIcon href="/university" onClick={() => { }}><GraduationCap className="size-6 text-zinc-300" /></DockIcon>
+                    <DockIcon href="/projects" onClick={() => { }}><FolderKanban className="size-6 text-zinc-300" /></DockIcon>
+                    <DockIcon href="/journal" onClick={() => { }}><Book className="size-6 text-zinc-300" /></DockIcon>
+                    <DockIcon href="/settings" onClick={() => { }}><Settings className="size-6 text-zinc-300" /></DockIcon>
                 </Dock>
             </div>
 

@@ -57,11 +57,13 @@ export interface JournalInsightContent {
     themes?: string[];
 }
 
+export type InsightType = 'neural_resonance' | 'weekly' | 'mood' | 'theme';
+
 export interface JournalInsight {
     id: string;
     journal_entry_id: string;
     user_id: string;
-    insight_type: 'neural_resonance' | 'weekly' | 'mood' | 'theme';
+    insight_type: InsightType;
     content: JournalInsightContent;
     created_at: string;
 }
