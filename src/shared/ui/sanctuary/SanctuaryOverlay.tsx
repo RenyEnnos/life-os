@@ -21,6 +21,7 @@ export function SanctuaryOverlay() {
         exit,
         toggleSound,
         setSoundType,
+        setVolume
     } = useSanctuaryStore();
 
     // Handle audio playback
@@ -55,8 +56,8 @@ export function SanctuaryOverlay() {
             }
         };
 
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isActive, exit, toggleSound]);
 
     const handleSoundTypeChange = useCallback((type: SoundType) => {
@@ -67,83 +68,103 @@ export function SanctuaryOverlay() {
         <AnimatePresence>
             {isActive && (
                 <motion.div
-                    className="sanctuary-overlay"
+                    className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#050505] text-white overflow-hidden"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                    role="dialog"
+                    aria-label="Sanctuary Mode"
                 >
-                    {/* Vignette gradient */}
-                    <div className="sanctuary-vignette" />
+                    {/* Vignette */}
+                    <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                            background: 'radial-gradient(circle at center, transparent 0%, #050505 90%)'
+                        }}
+                    />
 
-                    {/* Exit button */}
-                    <motion.button
-                        className="sanctuary-exit"
+                    {/* Exit Button - Subtle top right */}
+                    <button
                         onClick={exit}
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ delay: 0.2 }}
-                        aria-label="Exit Sanctuary Mode"
+                        className="absolute top-8 right-8 text-white/20 hover:text-white/80 transition-colors p-2 z-20"
+                        aria-label="Exit Sanctuary"
                     >
-                        <X size={20} />
-                    </motion.button>
+                        <X size={24} strokeWidth={1.5} />
+                    </button>
 
-                    {/* Centered task */}
+                    {/* Main Content */}
                     <motion.div
-                        className="sanctuary-content"
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ delay: 0.1, type: 'spring', damping: 25 }}
+                        className="relative z-10 flex flex-col items-center max-w-4xl px-8 text-center"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3, duration: 0.8 }}
                     >
-                        <motion.div
-                            className="sanctuary-icon"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.3 }}
-                        >
-                            <Moon size={32} />
-                        </motion.div>
+                        {/* Icon/Symbol */}
+                        <div className="mb-8 text-white/10">
+                            <Moon size={48} strokeWidth={1} />
+                        </div>
 
-                        <h1 className="sanctuary-title">
-                            {activeTaskTitle || 'Focus Mode'}
+                        {/* Active Task Title */}
+                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-medium tracking-tight text-white/90 leading-tight">
+                            {activeTaskTitle || 'Deep Focus'}
                         </h1>
 
-                        <p className="sanctuary-hint">
-                            Press <kbd>Esc</kbd> to exit • <kbd>S</kbd> to toggle sound
+                        {/* Hint */}
+                        <p className="mt-6 text-sm text-white/30 font-light tracking-widest uppercase">
+                            Ritual in progress
                         </p>
                     </motion.div>
 
-                    {/* Sound controls */}
+                    {/* Controls Bar - Bottom Center */}
                     <motion.div
-                        className="sanctuary-controls"
+                        className="absolute bottom-12 z-20 flex items-center gap-6 px-6 py-3 rounded-full bg-white/5 backdrop-blur-sm border border-white/5 opacity-50 hover:opacity-100 transition-all duration-300"
                         initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
-                        transition={{ delay: 0.3 }}
+                        animate={{ opacity: 0.5, y: 0 }}
+                        whileHover={{ opacity: 1 }}
+                        transition={{ delay: 0.5, duration: 0.8 }}
                     >
+                        {/* Sound Toggle */}
                         <button
-                            className={`sanctuary-sound-toggle ${soundEnabled ? 'enabled' : ''}`}
                             onClick={toggleSound}
-                            aria-label={soundEnabled ? 'Mute sound' : 'Enable sound'}
+                            className="text-white/60 hover:text-white transition-colors"
+                            title="Toggle Sound (S)"
                         >
-                            {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+                            {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
                         </button>
 
-                        {soundEnabled && (
-                            <div className="sanctuary-sound-types">
-                                {(['brown', 'pink', 'white'] as SoundType[]).map((type) => (
-                                    <button
-                                        key={type}
-                                        className={`sanctuary-sound-type ${soundType === type ? 'active' : ''}`}
-                                        onClick={() => handleSoundTypeChange(type)}
-                                    >
-                                        {type}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+                        {/* Separator */}
+                        <div className="w-px h-4 bg-white/10" />
+
+                        {/* Sound Types */}
+                        <div className="flex items-center gap-2">
+                            {(['brown', 'pink', 'white'] as SoundType[]).map((type) => (
+                                <button
+                                    key={type}
+                                    onClick={() => handleSoundTypeChange(type)}
+                                    className={`
+                                        px-3 py-1 rounded-full text-xs font-medium transition-all
+                                        ${soundType === type && soundEnabled
+                                            ? 'bg-white/10 text-white'
+                                            : 'text-white/40 hover:text-white/70'
+                                        }
+                                    `}
+                                >
+                                    {type}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Separator */}
+                        <div className="w-px h-4 bg-white/10" />
+
+                        {/* Exit Action */}
+                        <button
+                            onClick={exit}
+                            className="text-xs text-white/40 hover:text-red-300 transition-colors uppercase tracking-wider"
+                        >
+                            Esc
+                        </button>
                     </motion.div>
                 </motion.div>
             )}

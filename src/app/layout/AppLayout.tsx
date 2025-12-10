@@ -5,6 +5,7 @@ import { Particles } from '@/shared/ui/premium/Particles';
 import { LayoutDashboard, CheckSquare, Book, Settings, PlusCircle, DollarSign, GraduationCap, FolderKanban, ListTodo } from 'lucide-react';
 import { OnboardingModal } from '@/features/onboarding/OnboardingModal';
 import { useRealtime } from '@/shared/hooks/useRealtime';
+import { SanctuaryOverlay } from '@/shared/ui/sanctuary/SanctuaryOverlay';
 
 export function AppLayout() {
     const [showOnboarding, setShowOnboarding] = useState(false);
@@ -82,6 +83,8 @@ export function AppLayout() {
                     </DockIcon>
                 </Dock>
             </div>
+
+            <SanctuaryOverlay />
         </div>
     );
 }
