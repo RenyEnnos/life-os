@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Bento Grid System */
+    --bento-radius: 1rem;
+    --color-border-hover: rgba(255, 255, 255, 0.15);
+  }
+
   body {
     @apply bg-background text-zinc-300 antialiased selection:bg-white/20;
     /* cv11: Single-story 'a' (mais geométrico/moderno)
@@ -16,24 +22,31 @@
 }
 
 @layer utilities {
+
   /* O "Palco": Uma luz radial suave vinda do topo central
      Isso cria um ponto focal natural e elimina a chapação do background */
   .vignette-radial {
-    background: radial-gradient(
-      circle at 50% 0%, 
-      rgba(255, 255, 255, 0.08) 0%, 
-      transparent 60%
-    );
-    pointer-events: none; /* A luz não bloqueia cliques */
+    background: radial-gradient(circle at 50% 0%,
+        rgba(255, 255, 255, 0.08) 0%,
+        transparent 60%);
+    pointer-events: none;
+    /* A luz não bloqueia cliques */
   }
 
   /* Utilitário para texto de alta legibilidade (ex: Títulos de seção) */
   .text-premium {
     @apply tracking-tight font-medium text-zinc-100;
   }
-  
+
   /* Utilitário para labels técnicos (ex: datas, tags) */
   .text-label {
     @apply tracking-wide text-xs uppercase font-semibold text-zinc-500;
+  }
+
+  /* Frosted Glass Panel - Background escuro com blur */
+  .glass-panel {
+    @apply backdrop-blur-md border border-border;
+    background-color: rgba(10, 10, 11, 0.8);
+    /* surface color with 80% opacity */
   }
 }

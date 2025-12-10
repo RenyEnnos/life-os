@@ -64,10 +64,11 @@ export const BentoCard = ({
                 show: { y: 0, opacity: 1 }
             }}
             className={cn(
-                "relative overflow-hidden rounded-[var(--bento-radius)] border border-border bg-surface",
-                "flex flex-col transition-colors duration-300 hover:border-[var(--color-border-hover)] glass-panel",
+                "relative overflow-hidden rounded-xl border border-white/[0.08]",
+                "flex flex-col transition-colors duration-300 hover:border-white/[0.15]",
                 className
             )}
+            style={{ backgroundColor: '#0A0A0B' }}
         >
             {/* Efeito Spotlight Sutil */}
             <div

@@ -1,6 +1,12 @@
 import { Database } from './types/database';
 
-export type DbUser = Database['public']['Tables']['users']['Row'];
+// User type definition - disconnected from Database type as 'users' table is not in public schema
+export interface DbUser {
+    id: string;
+    email?: string;
+    created_at: string;
+    updated_at?: string;
+}
 export interface User extends DbUser { }
 
 export interface AuthResponse {
@@ -46,13 +52,16 @@ export interface JournalInsightContent {
     advice: string;
     correlation_hypothesis?: string;
     mood_score: number;
+    // Added fields for different insight types
+    summary?: string;
+    themes?: string[];
 }
 
 export interface JournalInsight {
     id: string;
     journal_entry_id: string;
     user_id: string;
-    insight_type: 'neural_resonance';
+    insight_type: 'neural_resonance' | 'weekly' | 'mood' | 'theme';
     content: JournalInsightContent;
     created_at: string;
 }
@@ -79,7 +88,7 @@ export interface Transaction extends Omit<DbTransaction, 'tags'> {
 
 export type DbProject = Database['public']['Tables']['projects']['Row'];
 
-export interface Project extends Omit<DbProject, 'tags' | 'active' | 'name'> {
+export interface Project extends Omit<DbProject, 'tags' | 'active' | 'name' | 'deadline'> {
     title: string;
     status: 'active' | 'completed' | 'on_hold';
     priority: 'low' | 'medium' | 'high';
