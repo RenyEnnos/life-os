@@ -92,6 +92,10 @@ app.use('/api/db', dbRoutes)
 app.use('/api/realtime', realtimeRoutes)
 app.use('/api/projects', projectsRoutes)
 app.use('/api/resonance', resonanceRoutes)
+import contextRoutes from './routes/context'
+app.use('/api/context', contextRoutes)
+import mediaRoutes from './routes/media'
+app.use('/api/media', mediaRoutes)
 
 
 

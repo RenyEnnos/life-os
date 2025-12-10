@@ -1,7 +1,7 @@
 import { Command } from 'cmdk';
 import { Search, Wallet, CheckSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useCallback, useMemo } from 'react';
+import { useEffect, useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSynapseStore } from '../../stores/synapseStore';
 import { searchCommands, getStaticCommands } from '../../lib/synapse/commands';
@@ -39,8 +39,27 @@ export function Synapse() {
         });
     }, [close]);
 
+    import { generateDynamicCommands, SynapseContext } from '../../lib/synapse/dynamicCommands';
+
     // 1. Load static commands with navigation context
     const staticCommands = useMemo(() => getStaticCommands(navigate), [navigate]);
+    const [dynamicContextCommands, setDynamicContextCommands] = useState<SynapseCommand[]>([]);
+
+    useEffect(() => {
+        if (isOpen) {
+            // Fetch Synapse Briefing
+            fetch('http://localhost:3000/api/context/synapse-briefing')
+                .then(res => res.json())
+                .then(json => {
+                    if (json.success) {
+                        const dynamic = generateDynamicCommands(json.data);
+                        setDynamicContextCommands(dynamic);
+                    }
+                })
+                .catch(err => console.error("Synapse context offline", err));
+        }
+    }, [isOpen]);
+
 
     // 2. Pattern Matching Logic (The "Brain")
     const dynamicCommand = useMemo(() => {
@@ -145,9 +164,18 @@ export function Synapse() {
 
     // Combine dynamic command with static results
     // Dynamic command always appears first if it exists
-    const filteredCommands = dynamicCommand
-        ? [dynamicCommand, ...filteredStaticCommands]
-        : filteredStaticCommands;
+    const filteredCommands = useMemo(() => {
+        let cmds = [...staticCommands];
+        if (dynamicCommand) {
+            cmds = [dynamicCommand, ...cmds];
+        }
+        // Add context commands at the top
+        if (dynamicContextCommands.length > 0) {
+            cmds = [...dynamicContextCommands, ...cmds];
+        }
+        return searchCommands(query, cmds);
+    }, [dynamicCommand, staticCommands, dynamicContextCommands, query]);
+
 
     // Group commands by category (using the combined list)
     const groupedCommands = SYNAPSE_GROUP_ORDER.reduce((acc, group) => {

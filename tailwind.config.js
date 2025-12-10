@@ -13,29 +13,33 @@ export default {
     },
     extend: {
       colors: {
-        background: "var(--color-background)",
-        surface: "var(--color-surface)",
-        muted: "var(--color-muted)",
-        border: "var(--color-border)",
-        foreground: "var(--color-text)",
-        mutedForeground: "var(--color-text-muted)",
+        // Deep Surface Palette (User Requested)
+        background: '#030303',
+        surface: '#0A0A0B',
+        'surface-highlight': '#121214',
+
+        // Bordas sutis
+        border: 'rgba(255, 255, 255, 0.08)',
+        'border-strong': 'rgba(255, 255, 255, 0.15)',
+
+        // Legacy/Core Colors (Hardcoded for compatibility after variable removal)
         primary: {
-          DEFAULT: "var(--color-primary)",
-          foreground: "var(--color-primary-foreground)",
+          DEFAULT: '#ededed',
+          foreground: '#000000',
         },
-        secondary: {
-          DEFAULT: "var(--color-secondary)",
-          foreground: "var(--color-secondary-foreground)",
-        },
-        success: "var(--color-success)",
-        warning: "var(--color-warning)",
-        destructive: "var(--color-destructive)",
+        muted: '#a1a1aa',
+        foreground: '#ededed',
+        destructive: '#ef4444',
+        success: '#2e9f73',
+        warning: '#d99a38',
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
-        mono: ["SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "monospace"],
+        sans: ['Inter', 'sans-serif'],
+      },
+      animation: {
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
   plugins: [],
-};
+}

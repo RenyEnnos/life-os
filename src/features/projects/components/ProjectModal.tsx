@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import type { Project } from '@/shared/types';
+import { useDebounce } from '@/shared/hooks/useDebounce';
+import { RefreshCw, Image as ImageIcon } from 'lucide-react';
 
 interface ProjectModalProps {
     onClose: () => void;
@@ -15,65 +17,125 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
     const [priority, setPriority] = useState<Project['priority']>('medium');
     const [deadline, setDeadline] = useState('');
 
+    // Auto-Aesthetic State
+    const [coverUrl, setCoverUrl] = useState<string | null>(null);
+    const [isLoadingCover, setIsLoadingCover] = useState(false);
+    const debouncedTitle = useDebounce(title, 800);
+    const [page, setPage] = useState(1);
+
+    useEffect(() => {
+        if (debouncedTitle && debouncedTitle.length > 3) {
+            fetchCover(debouncedTitle, page);
+        }
+    }, [debouncedTitle, page]);
+
+    const fetchCover = async (query: string, pageNum: number) => {
+        setIsLoadingCover(true);
+        try {
+            const res = await fetch(`http://localhost:3000/api/media/images?query=${encodeURIComponent(query)}&page=${pageNum}`);
+            const data = await res.json();
+            if (data.images && data.images.length > 0) {
+                setCoverUrl(data.images[0].coverUrl);
+            }
+        } catch (err) {
+            console.error('Failed to fetch cover', err);
+        } finally {
+            setIsLoadingCover(false);
+        }
+    };
+
+    const handleShuffle = () => {
+        setPage(p => p + 1);
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <Card className="w-full max-w-md p-6 bg-background border-primary/20">
-                <h3 className="font-bold font-mono text-lg mb-4 text-primary">NOVO PROJETO</h3>
-                <div className="space-y-4">
-                    <input
-                        type="text"
-                        placeholder="Nome do Projeto"
-                        className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono"
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                    />
-                    <textarea
-                        placeholder="Descrição e Objetivos"
-                        className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono h-24 resize-none"
-                        value={description}
-                        onChange={e => setDescription(e.target.value)}
-                    />
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                            <label className="text-xs font-mono text-muted-foreground">Status</label>
-                            <select
-                                className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono text-sm"
-                                value={status}
-                                onChange={e => setStatus(e.target.value as any)}
-                            >
-                                <option value="active">Em Andamento</option>
-                                <option value="completed">Concluído</option>
-                                <option value="on_hold">Pausado</option>
-                            </select>
+            <Card className="w-full max-w-md p-0 bg-background border-primary/20 overflow-hidden flex flex-col max-h-[90vh]">
+
+                {/* Cover Area */}
+                <div className="relative h-32 w-full bg-surface-hover shrink-0 group">
+                    {coverUrl ? (
+                        <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gradient-to-r from-gray-900 to-gray-800">
+                            <ImageIcon className="opacity-20" />
                         </div>
-                        <div className="space-y-1">
-                            <label className="text-xs font-mono text-muted-foreground">Prioridade</label>
-                            <select
-                                className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono text-sm"
-                                value={priority}
-                                onChange={e => setPriority(e.target.value as any)}
-                            >
-                                <option value="low">Baixa</option>
-                                <option value="medium">Média</option>
-                                <option value="high">Alta</option>
-                            </select>
+                    )}
+
+                    {isLoadingCover && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                         </div>
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-xs font-mono text-muted-foreground">Prazo (Opcional)</label>
+                    )}
+
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white"
+                        onClick={(e) => { e.preventDefault(); handleShuffle(); }}
+                    >
+                        <RefreshCw size={14} />
+                    </Button>
+                </div>
+
+                <div className="p-6 overflow-y-auto">
+                    <h3 className="font-bold font-mono text-lg mb-4 text-primary">NOVO PROJETO</h3>
+                    <div className="space-y-4">
                         <input
-                            type="date"
+                            type="text"
+                            placeholder="Nome do Projeto (ex: Viagem Japão)"
                             className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono"
-                            value={deadline}
-                            onChange={e => setDeadline(e.target.value)}
+                            value={title}
+                            onChange={e => setTitle(e.target.value)}
                         />
-                    </div>
-                    <div className="flex gap-2 pt-2">
-                        <Button variant="ghost" onClick={onClose} className="flex-1">CANCELAR</Button>
-                        <Button onClick={() => {
-                            onSubmit({ title, description, status, priority, deadline });
-                            onClose();
-                        }} className="flex-1">CRIAR</Button>
+                        <textarea
+                            placeholder="Descrição e Objetivos"
+                            className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono h-24 resize-none"
+                            value={description}
+                            onChange={e => setDescription(e.target.value)}
+                        />
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                                <label className="text-xs font-mono text-muted-foreground">Status</label>
+                                <select
+                                    className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono text-sm"
+                                    value={status}
+                                    onChange={e => setStatus(e.target.value as any)}
+                                >
+                                    <option value="active">Em Andamento</option>
+                                    <option value="completed">Concluído</option>
+                                    <option value="on_hold">Pausado</option>
+                                </select>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-mono text-muted-foreground">Prioridade</label>
+                                <select
+                                    className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono text-sm"
+                                    value={priority}
+                                    onChange={e => setPriority(e.target.value as any)}
+                                >
+                                    <option value="low">Baixa</option>
+                                    <option value="medium">Média</option>
+                                    <option value="high">Alta</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-xs font-mono text-muted-foreground">Prazo (Opcional)</label>
+                            <input
+                                type="date"
+                                className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono"
+                                value={deadline}
+                                onChange={e => setDeadline(e.target.value)}
+                            />
+                        </div>
+                        <div className="flex gap-2 pt-2">
+                            <Button variant="ghost" onClick={onClose} className="flex-1">CANCELAR</Button>
+                            <Button onClick={() => {
+                                onSubmit({ title, description, status, priority, deadline, cover: coverUrl || undefined });
+                                onClose();
+                            }} className="flex-1">CRIAR</Button>
+                        </div>
                     </div>
                 </div>
             </Card>

@@ -1,0 +1,122 @@
+import {
+    CloudRain,
+    Sun,
+    TrendingUp,
+    TrendingDown,
+    Code,
+    User,
+    Newspaper,
+    CloudLightning,
+    CloudSnow,
+    Cloud,
+    SunDim
+} from 'lucide-react';
+import { SynapseCommand } from './types';
+
+// Tipagem do Briefing que vem da API
+export interface SynapseContext {
+    market: any;
+    dev: any;
+    weather: any;
+    news?: any[];
+}
+
+function getWeatherIcon(condition: string | number) {
+    // Meteosource icon_num mapping or string condition
+    // For simplicity, we fallback to Sun/CloudRain.
+    // Real mapping would be more extensive.
+    if (String(condition).includes('rain')) return CloudRain;
+    if (String(condition).includes('cloud')) return Cloud;
+    if (String(condition).includes('storm')) return CloudLightning;
+    if (String(condition).includes('snow')) return CloudSnow;
+    return Sun;
+}
+
+export const generateDynamicCommands = (context: SynapseContext | null): SynapseCommand[] => {
+    if (!context) return [];
+
+    const commands: SynapseCommand[] = [];
+
+    // 1. Comando Climático
+    if (context.weather) {
+        const temp = context.weather.temp;
+        const cond = context.weather.summary || context.weather.condition;
+        // Attempt to parse condition if numeric
+
+        commands.push({
+            id: 'weather-status',
+            label: `${temp}°C em ${context.weather.location || 'Local'}`,
+            description: cond ? `${cond}` : 'Atualização meteorológica',
+            icon: getWeatherIcon(context.weather.condition),
+            group: 'nexus', // Using 'nexus' group as 'Contexto' wasn't in original types, or we can map it.
+            // Original types had: actions, missions, rituals, resources, memory, nexus.
+            // Let's use 'nexus' as it fits 'Intelligence'.
+            action: () => console.log('Toggle Weather Mode'),
+            keywords: ['weather', 'climate', 'temperature', 'rain', 'sun']
+        });
+    }
+
+    // 2. Comando Financeiro (Crypto Ticker)
+    if (context.market?.bitcoin) {
+        const btc = context.market.bitcoin;
+        const isUp = btc.change_24h > 0;
+
+        commands.push({
+            id: 'market-btc',
+            label: `Bitcoin: $${btc.usd.toLocaleString()}`,
+            description: `24h: ${isUp ? '+' : ''}${btc.change_24h.toFixed(2)}%`,
+            icon: isUp ? TrendingUp : TrendingDown,
+            group: 'resources',
+            action: () => window.location.href = '/finances',
+            keywords: ['bitcoin', 'btc', 'crypto', 'money']
+
+        });
+    }
+
+    if (context.market?.ethereum) {
+        const eth = context.market.ethereum;
+        const isUp = eth.change_24h > 0;
+
+        commands.push({
+            id: 'market-eth',
+            label: `Ethereum: $${eth.usd.toLocaleString()}`,
+            description: `24h: ${isUp ? '+' : ''}${eth.change_24h.toFixed(2)}%`,
+            icon: isUp ? TrendingUp : TrendingDown,
+            group: 'resources',
+            action: () => window.location.href = '/finances',
+            keywords: ['ethereum', 'eth', 'crypto', 'money']
+
+        });
+    }
+
+    // 3. Comando Dev (WakaTime)
+    if (context.dev && context.dev.total_hours) {
+        commands.push({
+            id: 'dev-stats',
+            label: `Coding: ${context.dev.total_hours}`,
+            description: `Top: ${context.dev.languages?.[0]?.name || 'N/A'}`,
+            icon: Code,
+            group: 'nexus',
+            action: () => window.location.href = '/dashboard',
+            keywords: ['coding', 'dev', 'wakatime', 'stats']
+
+        });
+    }
+
+    // 4. News
+    if (context.news && context.news.length > 0) {
+        context.news.forEach((article: any, index: number) => {
+            commands.push({
+                id: `news-${index}`,
+                label: article.title.substring(0, 50) + (article.title.length > 50 ? '...' : ''),
+                description: article.source,
+                icon: Newspaper,
+                group: 'nexus', // Context/Intel
+                action: () => window.open(article.url, '_blank'),
+                keywords: ['news', 'headline', 'article']
+            });
+        });
+    }
+
+    return commands;
+};

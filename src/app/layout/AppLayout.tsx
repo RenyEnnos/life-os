@@ -57,12 +57,15 @@ export function AppLayout() {
     return (
         <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground font-sans selection:bg-primary/30">
             <MemoizedParticles
-                className="absolute inset-0 z-0"
+                className="absolute inset-0 z-0 opacity-50"
                 quantity={50}
                 ease={2400}
                 staticity={30}
                 refresh
             />
+
+            {/* Camada 1: Iluminação Atmosférica (Fixa) */}
+            <div className="absolute inset-0 vignette-radial z-0" />
 
             <OnboardingModal isOpen={showOnboarding} onClose={handleOnboardingClose} />
 

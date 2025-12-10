@@ -84,6 +84,7 @@ export interface Project extends Omit<DbProject, 'tags' | 'active' | 'name'> {
     status: 'active' | 'completed' | 'on_hold';
     priority: 'low' | 'medium' | 'high';
     deadline?: string;
+    cover?: string;
     tags?: string[];
 }
 

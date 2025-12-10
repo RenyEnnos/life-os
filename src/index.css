@@ -1,53 +1,39 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  /* BACKGROUNDS: Profundidade "Deep Dark" */
-  /* #050505 é o novo preto premium (menos duro que #000000) */
-  --color-background: #050505; 
-  --color-surface: #0f0f0f;    
-  --color-surface-hover: #171717;
+@layer base {
+  body {
+    @apply bg-background text-zinc-300 antialiased selection:bg-white/20;
+    /* cv11: Single-story 'a' (mais geométrico/moderno)
+       cv05: Lowercase 'l' with tail (evita confusão com 1 ou I)
+       ss01: Alternate digits (números mais técnicos) */
+    font-feature-settings: "cv11", "cv05", "ss01";
+    /* Melhor renderização de texto em fundos escuros */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
 
-  /* BORDERS: Sutileza é a chave */
-  --color-border: rgba(255, 255, 255, 0.06);
-  --color-border-hover: rgba(255, 255, 255, 0.12);
+@layer utilities {
+  /* O "Palco": Uma luz radial suave vinda do topo central
+     Isso cria um ponto focal natural e elimina a chapação do background */
+  .vignette-radial {
+    background: radial-gradient(
+      circle at 50% 0%, 
+      rgba(255, 255, 255, 0.08) 0%, 
+      transparent 60%
+    );
+    pointer-events: none; /* A luz não bloqueia cliques */
+  }
 
-  /* TEXT: Hierarquia clara */
-  --color-text: #ededed;        /* Branco Suave */
-  --color-text-muted: #a1a1aa;  /* Cinza Médio */
+  /* Utilitário para texto de alta legibilidade (ex: Títulos de seção) */
+  .text-premium {
+    @apply tracking-tight font-medium text-zinc-100;
+  }
   
-  /* ACCENTS: Funcionais, não decorativos */
-  --color-primary: #ededed;     /* Monocromático é mais premium */
-  --color-primary-foreground: #000000;
-  --color-success: #2e9f73;
-  --color-warning: #d99a38;
-  --color-destructive: #ef4444;
-
-  /* BENTO SPECS */
-  --bento-radius: 1.25rem; /* 20px */
-}
-
-/* Força o tema escuro */
-body {
-  background-color: var(--color-background);
-  color: var(--color-text);
-  font-family: 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* Utilitários Premium */
-.glass-panel {
-  background: rgba(15, 15, 15, 0.6);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--color-border);
-}
-
-/* Scrollbar invisível mas funcional para áreas de scroll horizontal */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  /* Utilitário para labels técnicos (ex: datas, tags) */
+  .text-label {
+    @apply tracking-wide text-xs uppercase font-semibold text-zinc-500;
+  }
 }
