@@ -1,49 +1,38 @@
-import { MagicCard } from '@/shared/ui/premium/MagicCard';
+import { CloudRain, TrendingUp, Cpu } from 'lucide-react';
 import { BentoCard } from '@/shared/ui/BentoCard';
-import { UniversityUrgentWidget } from './UniversityUrgentWidget';
 
-export const UniversityCard = () => {
+export const Zone3_Context = () => {
     return (
-        <BentoCard
-            className="col-span-1 row-span-2"
-        >
-            <UniversityUrgentWidget />
-        </BentoCard>
-    );
-};
-
-export const ScheduleCard = () => {
-    return (
-        <BentoCard
-            className="hidden md:block col-span-1 p-0"
-            noPadding
-        >
-            <MagicCard className="p-4 flex flex-col justify-center h-full w-full" gradientColor="#a855f7">
-                <h3 className="text-sm font-bold text-gray-400 mb-4 z-10">SCHEDULE</h3>
-                <div className="space-y-3 z-10">
-                    <div className="flex gap-3 text-sm">
-                        <span className="text-primary font-mono">10:00</span>
-                        <span className="text-white">Daily Standup</span>
+        <div className="grid grid-cols-2 gap-4 h-full">
+            {/* Weather Node */}
+            <BentoCard className="col-span-1 !bg-blue-900/10 !border-blue-500/10">
+                <div className="flex flex-col justify-between h-full">
+                    <div className="flex items-center justify-between text-blue-400">
+                        <CloudRain size={18} />
+                        <span className="text-xs uppercase tracking-wider opacity-70">S. Paulo</span>
+                    </div>
+                    <div>
+                        <div className="text-2xl font-semibold text-blue-100 tabular-nums">18°</div>
+                        <div className="text-xs text-blue-300/60">Rainy</div>
                     </div>
                 </div>
-            </MagicCard>
-        </BentoCard>
+            </BentoCard>
+
+            {/* Finance Node */}
+            <BentoCard className="col-span-1 !bg-emerald-900/10 !border-emerald-500/10">
+                <div className="flex flex-col justify-between h-full">
+                    <div className="flex items-center justify-between text-emerald-400">
+                        <TrendingUp size={18} />
+                        <span className="text-xs uppercase tracking-wider opacity-70">BTC</span>
+                    </div>
+                    <div>
+                        <div className="text-2xl font-semibold text-emerald-100 tabular-nums font-mono">$94k</div>
+                        <div className="text-xs text-emerald-300/60">+2.4%</div>
+                    </div>
+                </div>
+            </BentoCard>
+
+            {/* System/Health Node (Opcional, expandindo a grid se necessário) */}
+        </div>
     );
 };
-
-export const AiInsightCard = () => {
-    return (
-        <BentoCard
-            className="col-span-1 p-0"
-            noPadding
-        >
-            <MagicCard className="p-4 flex flex-col justify-center h-full w-full" gradientColor="#6e56cf">
-                <h3 className="text-xs font-bold text-purple-400 mb-2 z-10">AI INSIGHT</h3>
-                <p className="text-xs text-gray-300 leading-relaxed z-10">
-                    You're most productive between 09:00 and 11:00. Schedule complex tasks then.
-                </p>
-            </MagicCard>
-        </BentoCard>
-    );
-};
-

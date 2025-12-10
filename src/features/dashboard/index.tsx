@@ -9,22 +9,21 @@ import { BentoGrid, BentoCard } from '@/shared/ui/BentoCard';
 import { XPBar } from '@/features/gamification/components/XPBar';
 
 // Dashboard Widgets
-import { UrgentCard, QuickActionsCard } from './components/Zone1_Now';
+import { Zone1_Now } from './components/Zone1_Now';
+import { Zone2_Today } from './components/Zone2_Today';
+import { Zone3_Context } from './components/Zone3_Context';
 import { StatusCard } from './components/StatusCard';
 import { ResonanceCard } from './components/ResonanceCard';
 import { ArchetypeCard } from '@/features/gamification/components/ArchetypeCard';
-import { VisualLegacy } from '@/features/gamification/components/VisualLegacy';
 import { AchievementsPanel } from '@/features/gamification/components/AchievementsPanel';
 
 // Icons
 import {
     Sparkles,
-    Star,
     Trophy,
     User,
     Gauge,
     Brain,
-    Zap
 } from 'lucide-react';
 
 // Constants
@@ -35,12 +34,12 @@ const GREETINGS: Record<'morning' | 'afternoon' | 'evening', string> = {
 };
 
 /**
- * DashboardPage - Cockpit-style Command Center
+ * DashboardPage - The "Cockpit"
  * 
- * A high-density Bento Grid layout integrating:
- * - Gamification (Archetype, Level, XP, Achievements)
- * - Focus (Urgent Tasks via Dynamic Now)
- * - Intelligence (Neural Resonance mood & insights)
+ * Refactored Phase 6 Layout:
+ * Zone 1: Focus (2x2)
+ * Zone 2: Mission (1x2)
+ * Zone 3: Context (2x1)
  */
 export default function DashboardPage() {
     const { user } = useAuth();
@@ -86,60 +85,42 @@ export default function DashboardPage() {
             </motion.header>
 
             {/* ═══════════════════════════════════════════════════════════════
-                BENTO GRID - Command Center
-                
-                Layout (Desktop 4-col):
-                ┌────────┬────────┬────────┬────────┐
-                │        │        │        │        │
-                │ URGENT │ARCHTYPE│ STATUS │ QUICK  │ Row 1
-                │  2x2   │  1x1   │  1x1   │  1x1   │
-                │        ├────────┴────────┴────────┤
-                │        │                          │ Row 2
-                ├────────┤     CONSTELLATION 3x1    │
-                │        │                          │
-                ├────────┴──────────────────────────┤
-                │   RESONANCE 2x1    │ ACHIEVEMENTS │ Row 3
-                │                    │     2x1      │
-                └────────────────────┴──────────────┘
+                BENTO GRID - Cockpit Layout
             ═══════════════════════════════════════════════════════════════ */}
             <BentoGrid className="auto-rows-[160px] md:auto-rows-[180px]">
 
-                {/* ───────────── 1. URGENT CARD (2x2) - Priority Focus ───────────── */}
-                <UrgentCard />
+                {/* ───────────── Zone 1. NOW (2x2) ───────────── */}
+                <Zone1_Now className="row-span-1 md:row-span-2" />
 
-                {/* ───────────── 2. ARCHETYPE CARD (1x1) - Identity ───────────── */}
-                <BentoCard
-                    className="col-span-1 row-span-1 p-0 overflow-hidden"
-                    title="Identidade"
-                    icon={User}
-                    noPadding
-                >
-                    <ArchetypeCard variant="compact" className="h-full border-none rounded-none shadow-none" />
-                </BentoCard>
+                {/* ───────────── Zone 2. TODAY (1x2) ───────────── */}
+                <Zone2_Today className="row-span-1 md:row-span-2" />
 
-                {/* ───────────── 3. STATUS CARD (1x1) - Level + XP ───────────── */}
-                <BentoCard
-                    className="col-span-1 row-span-1"
-                    title="Nível"
-                    icon={Gauge}
-                >
-                    <StatusCard />
-                </BentoCard>
+                {/* ───────────── Identity & Status (1x2 Col Stack) ───────────── */}
+                <div className="col-span-1 row-span-1 md:row-span-2 flex flex-col gap-4 h-full">
+                    <BentoCard
+                        className="flex-1 p-0 overflow-hidden"
+                        title="Identidade"
+                        icon={User}
+                        noPadding
+                    >
+                        <ArchetypeCard variant="compact" className="h-full border-none rounded-none shadow-none" />
+                    </BentoCard>
 
-                {/* ───────────── 4. QUICK ACTIONS (1x1) ───────────── */}
-                <QuickActionsCard />
+                    <BentoCard
+                        className="flex-1"
+                        title="Nível"
+                        icon={Gauge}
+                    >
+                        <StatusCard />
+                    </BentoCard>
+                </div>
 
-                {/* ───────────── 5. CONSTELLATION (3x1) - Visual Legacy ───────────── */}
-                <BentoCard
-                    className="col-span-1 md:col-span-3 row-span-1 h-[200px] md:h-auto p-0 overflow-hidden bg-black"
-                    title="Constelação"
-                    icon={Star}
-                    noPadding
-                >
-                    <VisualLegacy className="h-full w-full border-none rounded-none" />
-                </BentoCard>
+                {/* ───────────── Zone 3. CONTEXT (2x1) ───────────── */}
+                <div className="col-span-1 md:col-span-2 row-span-1">
+                    <Zone3_Context />
+                </div>
 
-                {/* ───────────── 6. RESONANCE CARD (2x1) - Mood & Insights ───────────── */}
+                {/* ───────────── Intelligence (2x1) ───────────── */}
                 <BentoCard
                     className="col-span-1 md:col-span-2 row-span-1"
                     title="Ressonância Neural"
@@ -148,7 +129,7 @@ export default function DashboardPage() {
                     <ResonanceCard />
                 </BentoCard>
 
-                {/* ───────────── 7. ACHIEVEMENTS (2x1) ───────────── */}
+                {/* ───────────── Gamification (2x1) ───────────── */}
                 <BentoCard
                     className="col-span-1 md:col-span-2 row-span-1"
                     title="Conquistas"
