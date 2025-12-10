@@ -50,8 +50,17 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
-  optimizeDeps: {
-    include: ['animejs'],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'framer': ['framer-motion'],
+          'supabase': ['@supabase/supabase-js'],
+          'query': ['@tanstack/react-query'],
+        }
+      }
+    }
   },
   server: {
     proxy: {
@@ -74,3 +83,4 @@ export default defineConfig({
     }
   }
 })
+

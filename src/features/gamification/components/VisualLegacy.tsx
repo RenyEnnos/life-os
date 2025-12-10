@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { getDailyXP, DailyXP } from '@/features/gamification/api/xpService';
@@ -21,19 +21,19 @@ export function VisualLegacy({ className }: VisualLegacyProps) {
         enabled: !!user,
     });
 
-    useEffect(() => {
+    // Extract drawing logic to callback for reuse on resize
+    const drawConstellation = useCallback(() => {
         if (!canvasRef.current || !containerRef.current || !history) return;
 
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Dimensions
+        // Reset dimensions to fix blur on resize
         const width = containerRef.current.clientWidth;
-        const height = 180; // Fixed height for now
-
-        // Handle high DPI
+        const height = 180;
         const dpr = window.devicePixelRatio || 1;
+
         canvas.width = width * dpr;
         canvas.height = height * dpr;
         ctx.scale(dpr, dpr);
@@ -67,16 +67,6 @@ export function VisualLegacy({ className }: VisualLegacyProps) {
             currentDate.setDate(startDate.getDate() + i);
             const dateStr = currentDate.toISOString().split('T')[0];
 
-            // Calculate grid position (GitHub style: columns are weeks, rows are days of week)
-            // But aligned to right? Or standard left-to-right? 
-            // Standard: Col 0 is 1 year ago.
-            // Row depends on day of week (0 = Sunday)
-            const dayOfWeek = currentDate.getDay();
-            // We need to shift so that the LAST star is today (bottom right? or just right end)
-            // Let's simplify: Linear grid left-to-right, wrapping? 
-            // No, "Constellation" implies spatial mapping.
-            // Let's stick to Week Columns for familiarity but render as stars.
-
             // Offset logic
             const dayDiff = Math.floor((currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
             const col = Math.floor(dayDiff / 7);
@@ -90,8 +80,6 @@ export function VisualLegacy({ className }: VisualLegacyProps) {
             const hasActivity = level > 0;
 
             // Visualization
-            // Level 0: Tiny dim dot
-            // Level 1-4: Growing glowing star
             let radius = starBaseRadius;
             let alpha = 0.1;
             let glow = 0;
@@ -108,7 +96,7 @@ export function VisualLegacy({ className }: VisualLegacyProps) {
             ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
             if (glow > 0) {
                 ctx.shadowBlur = glow;
-                ctx.shadowColor = 'rgba(255, 215, 0, 0.5)'; // Gold glow
+                ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
             } else {
                 ctx.shadowBlur = 0;
             }
@@ -118,10 +106,21 @@ export function VisualLegacy({ className }: VisualLegacyProps) {
             stars.push({ x, y, r: Math.max(radius * 2, cellWidth / 2), data: entry ? entry : { date: dateStr, count: 0, level: 0 } });
         }
 
-        // Attach interactive handler refs (hacky but effective for canvas in react without re-render loop)
+        // Attach interactive handler refs
         (canvas as any).starMap = stars;
-
     }, [history]);
+
+    // Effect for drawing and handling resize
+    useEffect(() => {
+        drawConstellation();
+
+        const handleResize = () => {
+            requestAnimationFrame(drawConstellation);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [drawConstellation]);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const canvas = canvasRef.current;
@@ -138,7 +137,7 @@ export function VisualLegacy({ className }: VisualLegacyProps) {
         const hit = stars.find(s => {
             const dx = s.x - x;
             const dy = s.y - y;
-            return Math.sqrt(dx * dx + dy * dy) < s.r; // Hitbox
+            return Math.sqrt(dx * dx + dy * dy) < s.r;
         });
 
         if (hit) {
@@ -183,3 +182,4 @@ export function VisualLegacy({ className }: VisualLegacyProps) {
         </div>
     );
 }
+

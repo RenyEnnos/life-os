@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Dock, DockIcon } from '@/shared/ui/premium/Dock';
 import { Particles } from '@/shared/ui/premium/Particles';
@@ -7,6 +7,10 @@ import { OnboardingModal } from '@/features/onboarding/OnboardingModal';
 import { useRealtime } from '@/shared/hooks/useRealtime';
 import { SanctuaryOverlay } from '@/shared/ui/sanctuary/SanctuaryOverlay';
 import { useSanctuaryStore } from '@/shared/stores/sanctuaryStore';
+
+// Memoize heavy components to prevent re-renders
+const MemoizedParticles = memo(Particles);
+const MemoizedSanctuaryOverlay = memo(SanctuaryOverlay);
 
 export function AppLayout() {
     const [showOnboarding, setShowOnboarding] = useState(false);
@@ -52,10 +56,10 @@ export function AppLayout() {
 
     return (
         <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground font-sans selection:bg-primary/30">
-            <Particles
+            <MemoizedParticles
                 className="absolute inset-0 z-0"
                 quantity={50}
-                ease={2400} // Slower movement
+                ease={2400}
                 staticity={30}
                 refresh
             />
@@ -104,7 +108,7 @@ export function AppLayout() {
                 </Dock>
             </div>
 
-            <SanctuaryOverlay />
+            <MemoizedSanctuaryOverlay />
         </div>
     );
 }
