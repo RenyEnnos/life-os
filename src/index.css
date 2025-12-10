@@ -43,30 +43,35 @@
     @apply tracking-wide text-xs uppercase font-semibold text-zinc-500;
   }
 
-  /* Frosted Glass Panel - Background escuro com blur */
-  .glass-panel {
-    @apply bg-surface/70 backdrop-blur-xl border border-white/5;
-  }
-
-  /* Vidro Profundo (Para modais ou overlays) */
-  .glass-deep {
-    @apply bg-[#030303]/80 backdrop-blur-2xl border border-white/10 shadow-2xl;
-  }
-
-  /* Textura de Ruído (Noise)
-     Isso evita o banding de cores em monitores ruins e dá textura "física" */
+  /* --- TEXTURA FÍSICA (NOISE) --- 
+     Cria uma camada de granulação subtil sobre as superfícies */
   .bg-noise {
     position: relative;
+    isolation: isolate;
   }
 
   .bg-noise::before {
     content: "";
     position: absolute;
     inset: 0;
-    z-index: 50;
-    pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
-    opacity: 0.4;
+    z-index: -1;
+    /* Fica atrás do conteúdo, mas sobre o fundo */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
     mix-blend-mode: overlay;
+    pointer-events: none;
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.6));
+    /* Noise mais suave embaixo */
+  }
+
+  /* --- VIDROS DO SISTEMA --- */
+
+  /* Vidro Padrão (Sidebar, Paineis Flutuantes) */
+  .glass-panel {
+    @apply bg-surface/70 backdrop-blur-md border border-white/5 shadow-2xl shadow-black/40;
+  }
+
+  /* Vidro Ativo (Item selecionado ou Hover intenso) */
+  .glass-active {
+    @apply bg-white/5 border-white/10 text-zinc-100 backdrop-blur-lg;
   }
 }

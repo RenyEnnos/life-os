@@ -9,6 +9,8 @@ import { useRealtime } from '@/shared/hooks/useRealtime';
 import { SanctuaryOverlay } from '@/shared/ui/sanctuary/SanctuaryOverlay';
 import { useSanctuaryStore } from '@/shared/stores/sanctuaryStore';
 
+import { Sidebar } from './Sidebar';
+
 // Memoize heavy components to prevent re-renders
 const MemoizedParticles = memo(Particles);
 const MemoizedSanctuaryOverlay = memo(SanctuaryOverlay);
@@ -69,6 +71,9 @@ export function AppLayout() {
             {/* Camada 1: Iluminação Atmosférica (Fixa) */}
             <div className="absolute inset-0 vignette-radial z-0" />
 
+            {/* Navigation: Glass Blade Sidebar (Desktop) */}
+            <Sidebar />
+
             <OnboardingModal isOpen={showOnboarding} onClose={handleOnboardingClose} />
 
             {/* Global Background Elements - reduced intensity */}
@@ -77,21 +82,23 @@ export function AppLayout() {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '3s' }} />
             </div>
 
-            <main className="relative z-10 pb-32 px-4 md:px-8 max-w-7xl mx-auto pt-8">
+            <main className="relative z-10 pb-32 px-4 md:px-8 max-w-7xl mx-auto pt-8 md:pl-32 transition-all duration-300">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={location.pathname}
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8 }}
-                        transition={{ duration: 0.3, ease: 'easeOut' }}
+                        initial={{ opacity: 0, scale: 0.98, filter: 'blur(10px)' }}
+                        animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                        exit={{ opacity: 0, scale: 1.02, filter: 'blur(10px)' }}
+                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                        className="w-full"
                     >
                         <Outlet />
                     </motion.div>
                 </AnimatePresence>
             </main>
 
-            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
+            {/* Mobile Navigation (Dock) - Hidden on desktop now that we have Sidebar */}
+            <div className="md:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
                 <Dock className="bg-black/40 border-white/5 shadow-2xl backdrop-blur-xl px-4 py-3 gap-3">
                     <DockIcon href="/" onClick={() => { }}>
                         <LayoutDashboard className="size-6 text-zinc-300" />

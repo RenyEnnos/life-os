@@ -1,94 +1,87 @@
-import { NavLink } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
     LayoutDashboard,
     CheckSquare,
-    Repeat,
+    Calendar,
     Book,
-    Heart,
-    DollarSign,
-    Briefcase,
-    Trophy,
+    Target,
+    CreditCard,
+    Activity,
+    GraduationCap,
     Settings,
-    LogOut,
-    X
+    LogOut
 } from 'lucide-react';
-import { useAuth } from '@/features/auth/contexts/AuthContext';
-import { Button } from '@/shared/ui/Button';
+import { NavLink } from 'react-router-dom';
 import { cn } from '@/shared/lib/cn';
-import ThemeToggle from '@/shared/ui/ThemeToggle';
-import { LevelBadge } from '@/shared/ui/gamification/LevelBadge';
 
-interface SidebarProps {
-    isOpen?: boolean;
-    onClose?: () => void;
-}
+// Menu configuration remains static
+const menuItems = [
+    { icon: LayoutDashboard, path: '/', label: 'Dashboard' },
+    { icon: CheckSquare, path: '/tasks', label: 'Tasks' },
+    { icon: Calendar, path: '/calendar', label: 'Calendar' },
+    { icon: Book, path: '/journal', label: 'Journal' },
+    { icon: Target, path: '/habits', label: 'Habits' },
+    { icon: CreditCard, path: '/finances', label: 'Finances' },
+    { icon: Activity, path: '/health', label: 'Health' },
+    { icon: GraduationCap, path: '/university', label: 'University' },
+];
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
-    const { logout } = useAuth();
-
-    const navItems = [
-        { label: 'Dashboard', path: '/', icon: LayoutDashboard },
-        { label: 'Hábitos', path: '/habits', icon: Repeat },
-        { label: 'Tarefas', path: '/tasks', icon: CheckSquare },
-        { label: 'Diário', path: '/journal', icon: Book },
-        { label: 'Saúde', path: '/health', icon: Heart },
-        { label: 'Finanças', path: '/finances', icon: DollarSign },
-        { label: 'Projetos', path: '/projects', icon: Briefcase },
-        { label: 'Recompensas', path: '/rewards', icon: Trophy },
-        { label: 'Configurações', path: '/settings', icon: Settings },
-    ];
-
+export const Sidebar = () => {
     return (
-        <aside className={cn(
-            "fixed left-0 top-0 h-screen w-64 bg-surface border-r border-border flex flex-col z-50 transition-transform transition-colors transition-all duration-300 md:translate-x-0 bg-noise",
-            isOpen ? "translate-x-0" : "-translate-x-full"
-        )}>
-            <div className="p-6 border-b border-border flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                    <LevelBadge size="md" />
-                    <div>
-                        <h1 className="text-2xl font-semibold text-foreground tracking-tight font-sans">Life OS</h1>
-                        <p className="text-xs text-mutedForeground mt-1 font-sans">v1.0.0</p>
-                    </div>
+        <motion.aside
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            // ATUALIZAÇÃO AQUI: Classes glass-panel e bg-noise aplicadas
+            className="fixed left-4 top-4 bottom-4 w-20 flex flex-col items-center justify-between py-6 rounded-2xl glass-panel bg-noise z-50"
+        >
+            {/* Logo Area */}
+            <div className="flex flex-col items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shadow-inner">
+                    <div className="w-5 h-5 bg-zinc-100 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
                 </div>
-                <button onClick={onClose} className="md:hidden text-mutedForeground hover:text-foreground">
-                    <X size={24} />
+
+                {/* Navigation Items */}
+                <nav className="flex flex-col gap-3 mt-4 w-full px-3">
+                    {menuItems.map((item) => (
+                        <NavLink
+                            key={item.path}
+                            to={item.path}
+                            className={({ isActive }) => cn(
+                                "w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group relative",
+                                // Lógica de estado ativo refinada para o tema Glass
+                                isActive
+                                    ? "glass-active shadow-lg shadow-black/20"
+                                    : "text-zinc-500 hover:text-zinc-200 hover:bg-white/5"
+                            )}
+                        >
+                            {({ isActive }) => (
+                                <>
+                                    <item.icon
+                                        size={22}
+                                        strokeWidth={isActive ? 2 : 1.5}
+                                        className="transition-transform duration-300 group-hover:scale-110"
+                                    />
+                                    {/* Tooltip simples (opcional, pode ser componente separado) */}
+                                    <span className="absolute left-14 bg-surface border border-white/10 px-2 py-1 rounded text-[10px] uppercase tracking-wider text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                        {item.label}
+                                    </span>
+                                </>
+                            )}
+                        </NavLink>
+                    ))}
+                </nav>
+            </div>
+
+            {/* Bottom Actions */}
+            <div className="flex flex-col gap-4 w-full px-3">
+                <button className="w-12 h-12 flex items-center justify-center rounded-xl text-zinc-500 hover:text-zinc-200 hover:bg-white/5 transition-all">
+                    <Settings size={22} strokeWidth={1.5} />
                 </button>
-            </div>
 
-            <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1 transition-colors transition-all duration-300">
-                {navItems.map((item) => (
-                    <NavLink
-                        key={item.path}
-                        to={item.path}
-                        onClick={() => onClose?.()}
-                        className={({ isActive }) =>
-                            `flex items-center gap-3 px-3 py-2 rounded-md transition-colors duration-200 font-sans text-sm ${isActive
-                                ? 'bg-muted text-foreground border border-border'
-                                : 'text-mutedForeground hover:bg-muted hover:text-foreground border border-transparent'
-                            }`
-                        }
-                    >
-                        <item.icon size={18} />
-                        {item.label}
-                    </NavLink>
-                ))}
-            </nav>
-
-            <div className="p-4 border-t border-border">
-                <div className="mb-3 flex justify-between items-center">
-                    <span className="text-xs text-mutedForeground font-sans">Tema</span>
-                    <ThemeToggle inline />
-                </div>
-                <Button
-                    variant="ghost"
-                    className="w-full justify-start gap-3 text-mutedForeground hover:text-destructive hover:bg-destructive/10"
-                    onClick={logout}
-                >
-                    <LogOut size={18} />
-                    Encerrar Sessão
-                </Button>
+                {/* User Avatar Placeholder */}
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 border border-white/10 mx-auto" />
             </div>
-        </aside>
+        </motion.aside>
     );
-}
+};
