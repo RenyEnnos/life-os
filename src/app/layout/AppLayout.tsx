@@ -13,44 +13,26 @@ import { SanctuaryOverlay } from '@/shared/ui/sanctuary/SanctuaryOverlay';
 import { useSanctuaryStore } from '@/shared/stores/sanctuaryStore';
 import { Sidebar } from './Sidebar';
 
-// Otimização: Componentes pesados memoizados
 const MemoizedParticles = memo(Particles);
 const MemoizedSanctuaryOverlay = memo(SanctuaryOverlay);
 
-// Utilitário para resetar o scroll na troca de rota
 const ScrollToTop = () => {
     const { pathname } = useLocation();
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, [pathname]);
+    useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
     return null;
 };
 
-// Definição da Física de Navegação "Deep Flow"
+// FÍSICA CINEMATOGRÁFICA "DEEP FLOW"
+// Refined: Removed y-axis translation for pure optical focus effect
 const pageVariants = {
-    initial: {
-        opacity: 0,
-        y: 8,
-        scale: 0.98,
-        filter: "blur(4px)"
-    },
-    animate: {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        filter: "blur(0px)"
-    },
-    exit: {
-        opacity: 0,
-        y: -8,
-        scale: 0.98,
-        filter: "blur(4px)"
-    }
+    initial: { opacity: 0, scale: 0.98, filter: "blur(4px)" },
+    animate: { opacity: 1, scale: 1, filter: "blur(0px)" },
+    exit: { opacity: 0, scale: 0.98, filter: "blur(4px)" }
 };
 
 const pageTransition = {
     type: "tween",
-    ease: [0.25, 0.1, 0.25, 1], // Curva "Premium" (Rápida no início, suave no fim)
+    ease: [0.25, 0.1, 0.25, 1],
     duration: 0.4
 };
 
@@ -60,16 +42,10 @@ export function AppLayout() {
     useRealtime();
 
     useEffect(() => {
-        const hasCompletedOnboarding = localStorage.getItem('life-os-onboarding-completed');
-        if (!hasCompletedOnboarding) {
+        if (!localStorage.getItem('life-os-onboarding-completed')) {
             setShowOnboarding(true);
         }
-    }, []);
-
-    // Forçar Dark Mode
-    useEffect(() => {
         document.documentElement.classList.add('dark');
-        document.documentElement.classList.remove('light');
         localStorage.setItem('theme', 'dark');
     }, []);
 
@@ -86,38 +62,24 @@ export function AppLayout() {
         return () => window.removeEventListener('keydown', handleGlobalKeyDown);
     }, [isActive, enter, exit]);
 
-    const handleOnboardingClose = () => {
-        localStorage.setItem('life-os-onboarding-completed', 'true');
-        setShowOnboarding(false);
-    };
-
     return (
         <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground font-sans selection:bg-white/10">
             <ScrollToTop />
-
-            {/* Camada 0: Partículas e Atmosfera */}
-            <MemoizedParticles
-                className="absolute inset-0 z-0 opacity-40 pointer-events-none"
-                quantity={40}
-                ease={200}
-                staticity={40}
-                refresh
-            />
-            {/* Vinheta de Luz (Fase 1) */}
+            <MemoizedParticles className="absolute inset-0 z-0 opacity-40 pointer-events-none" quantity={40} ease={200} staticity={40} refresh />
             <div className="absolute inset-0 vignette-radial z-0" />
 
-            {/* Elementos de Cor Ambientais (Sutis) */}
             <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 opacity-20">
                 <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse-slow" />
                 <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-500/10 rounded-full blur-[120px] animate-pulse-slow" style={{ animationDelay: '2s' }} />
             </div>
 
-            <OnboardingModal isOpen={showOnboarding} onClose={handleOnboardingClose} />
+            <OnboardingModal isOpen={showOnboarding} onClose={() => {
+                localStorage.setItem('life-os-onboarding-completed', 'true');
+                setShowOnboarding(false);
+            }} />
 
-            {/* Camada 1: Navegação Lateral (Glass) */}
             <Sidebar />
 
-            {/* Camada 2: Conteúdo Principal com Transição Cinematográfica */}
             <main className="relative z-10 pl-24 pr-4 md:pr-8 pt-8 pb-32 min-h-screen w-full max-w-[1920px] mx-auto">
                 <AnimatePresence mode="wait">
                     <motion.div
@@ -134,7 +96,6 @@ export function AppLayout() {
                 </AnimatePresence>
             </main>
 
-            {/* Camada 3: Dock Flutuante (Apenas Mobile/Tablet ou se preferir redundância) */}
             <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 md:hidden">
                 <Dock className="bg-black/40 border-white/5 shadow-2xl backdrop-blur-xl px-4 py-3 gap-3">
                     <DockIcon href="/" onClick={() => { }}><LayoutDashboard className="size-6 text-zinc-300" /></DockIcon>
@@ -148,7 +109,6 @@ export function AppLayout() {
                     <DockIcon href="/settings" onClick={() => { }}><Settings className="size-6 text-zinc-300" /></DockIcon>
                 </Dock>
             </div>
-
             <MemoizedSanctuaryOverlay />
         </div>
     );
