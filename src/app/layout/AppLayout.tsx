@@ -31,8 +31,8 @@ const pageVariants = {
 };
 
 const pageTransition = {
-    type: "tween",
-    ease: [0.25, 0.1, 0.25, 1],
+    type: "tween" as const,
+    ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number],
     duration: 0.4
 };
 
@@ -78,8 +78,11 @@ export function AppLayout() {
                 setShowOnboarding(false);
             }} />
 
-            <Sidebar />
-
+            {/* 
+                FIX: Sidebar is placed AFTER main in DOM order to prevent NavLink 
+                render-blocking issue on the "/" route. Since Sidebar uses fixed 
+                positioning, the visual layout remains unchanged.
+            */}
             <main className="relative z-10 pl-24 pr-4 md:pr-8 pt-8 pb-32 min-h-screen w-full max-w-[1920px] mx-auto">
                 <AnimatePresence mode="wait">
                     <motion.div
@@ -95,6 +98,9 @@ export function AppLayout() {
                     </motion.div>
                 </AnimatePresence>
             </main>
+
+            {/* Sidebar placed after main to fix render issue on "/" route */}
+            <Sidebar />
 
             <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 md:hidden">
                 <Dock className="bg-black/40 border-white/5 shadow-2xl backdrop-blur-xl px-4 py-3 gap-3">

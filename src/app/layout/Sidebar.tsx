@@ -32,8 +32,8 @@ export const Sidebar = () => {
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            // ATUALIZAÇÃO AQUI: Classes glass-panel e bg-noise aplicadas
-            className="fixed left-4 top-4 bottom-4 w-20 flex flex-col items-center justify-between py-6 rounded-2xl glass-panel bg-noise z-50"
+            className="fixed left-4 top-4 bottom-4 w-20 flex flex-col items-center justify-between py-6 rounded-2xl glass-panel z-50"
+            style={{ position: 'fixed' }}
         >
             {/* Logo Area */}
             <div className="flex flex-col items-center gap-4">
@@ -49,7 +49,6 @@ export const Sidebar = () => {
                             to={item.path}
                             className={({ isActive }) => cn(
                                 "w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group relative",
-                                // Lógica de estado ativo refinada para o tema Glass
                                 isActive
                                     ? "glass-active shadow-lg shadow-black/20"
                                     : "text-zinc-500 hover:text-zinc-200 hover:bg-white/5"
@@ -62,7 +61,7 @@ export const Sidebar = () => {
                                         strokeWidth={isActive ? 2 : 1.5}
                                         className="transition-transform duration-300 group-hover:scale-110"
                                     />
-                                    {/* Tooltip simples (opcional, pode ser componente separado) */}
+                                    {/* Tooltip */}
                                     <span className="absolute left-14 bg-surface border border-white/10 px-2 py-1 rounded text-[10px] uppercase tracking-wider text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                                         {item.label}
                                     </span>
