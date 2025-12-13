@@ -9,13 +9,26 @@ router.get('/auth-url', authenticateToken, async (req: AuthRequest, res: Respons
   res.json({ url: calendarService.getAuthUrl() })
 })
 
-router.get('/callback', async (req: AuthRequest, res: Response) => {
+// Redirect Google callback to Frontend to handle auth state securely
+router.get('/callback', async (req, res) => {
   const { code } = req.query as Record<string, string>
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
+
+  if (!code) {
+    return res.redirect(`${frontendUrl}/calendar?error=no_code`)
+  }
+  // Passing code to frontend to execute the authenticated exchange via POST /connect
+  res.redirect(`${frontendUrl}/calendar?code=${code}`)
+})
+
+// Secure endpoint for frontend to exchange code for tokens
+router.post('/connect', authenticateToken, async (req: AuthRequest, res: Response) => {
+  const { code } = req.body
   if (!code) return res.status(400).json({ error: 'code required' })
-  // In real flow, identify user via session; here we require Authorization
+
   try {
     await calendarService.handleCallback(req.user!.id, code)
-    res.send('Calendar connected. You can close this window.')
+    res.json({ success: true })
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Unknown error'
     res.status(500).json({ error: msg })

@@ -78,7 +78,7 @@ export const BentoCard = ({
             whileHover={{ y: -2, transition: { duration: 0.2 } }}
             whileTap={{ scale: 0.99 }}
             className={cn(
-                "group relative overflow-hidden rounded-xl bg-surface border border-border text-zinc-100 shadow-sm transition-all duration-300",
+                "group relative overflow-hidden rounded-xl glass-panel text-zinc-100 transition-all duration-300",
                 onClick && "cursor-pointer hover:shadow-md hover:shadow-black/20",
                 className
             )}
@@ -103,7 +103,7 @@ export const BentoCard = ({
             />
 
             {/* Camada 3: Conteúdo */}
-            <div className={cn("relative h-full flex flex-col", noPadding ? "" : "p-5 md:p-6")}>
+            <div className={cn("relative h-full flex flex-col min-w-0", noPadding ? "" : "p-5 md:p-6")}>
                 {(title || icon || finalAction) && (
                     <div className={`flex items-center justify-between mb-4 ${noPadding ? "p-5 md:p-6 pb-0" : ""}`}>
                         <div className="flex items-center gap-2.5">

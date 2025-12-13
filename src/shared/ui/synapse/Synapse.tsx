@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Command } from 'cmdk';
 import {
     Search, Calendar, CheckSquare, Sparkles,
@@ -17,6 +17,7 @@ import './synapse.css';
 export const Synapse = () => {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
+    const inputRef = useRef<HTMLInputElement>(null);
 
     // Global keyboard shortcut (Cmd+K / Ctrl+K)
     useEffect(() => {
@@ -25,15 +26,57 @@ export const Synapse = () => {
                 e.preventDefault();
                 setOpen((open) => !open);
             }
+            // Close on Escape if open
+            if (e.key === 'Escape' && open) {
+                setOpen(false);
+            }
         };
         document.addEventListener('keydown', down);
         return () => document.removeEventListener('keydown', down);
-    }, []);
+    }, [open]);
+
+    // Force focus when opened
+    useEffect(() => {
+        if (open) {
+            // Small timeout to Ensure element is mounted before focusing
+            // ignoring strict mode double-mount issues
+            const timer = setTimeout(() => {
+                inputRef.current?.focus();
+            }, 50);
+            return () => clearTimeout(timer);
+        }
+    }, [open]);
 
     const runCommand = (command: () => void) => {
         setOpen(false);
         command();
     };
+
+    // State for HUD Context
+    const [context, setContext] = useState<{
+        weather: { temp: number, condition: string, icon: string };
+        market: { price: number, change: number };
+        focus: { score: number };
+    } | null>(null);
+
+    // Fetch Context Data
+    useEffect(() => {
+        if (open && !context) {
+            fetch('/api/context/synapse-briefing')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        setContext({
+                            weather: data.data.weather,
+                            market: data.data.market,
+                            // Fallback focus score since we don't have a direct "Focus Service" yet fully exposed
+                            focus: { score: 84 }
+                        });
+                    }
+                })
+                .catch(err => console.error('Synapse Context Error', err));
+        }
+    }, [open, context]);
 
     return (
         <AnimatePresence>
@@ -62,29 +105,35 @@ export const Synapse = () => {
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-1.5 text-blue-400/80">
                                     <CloudRain size={12} />
-                                    <span>18°C Rain</span>
+                                    <span>{context ? `${context.weather.temp}°C ${context.weather.condition}` : 'Loading...'}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5 text-emerald-400/80">
                                     <Activity size={12} />
-                                    <span>Focus: 84%</span>
+                                    <span>Focus: {context ? `${context.focus.score}%` : '--'}</span>
                                 </div>
                             </div>
                             <div className="flex items-center gap-1.5 text-zinc-400">
                                 <Bitcoin size={12} className="text-amber-500/80" />
-                                <span className="font-mono">$94,230</span>
+                                <span className="font-mono">{context ? `$${context.market.price.toLocaleString()}` : '---'}</span>
                             </div>
                         </div>
 
                         <Command
                             className="bg-transparent"
                             loop
+                            shouldFilter={true}
                         >
                             {/* 2. Input Principal - Estilo Spotlight */}
                             <div className="flex items-center border-b border-white/5 px-4">
                                 <Search className="mr-3 h-5 w-5 text-zinc-500 shrink-0" />
                                 <Command.Input
+                                    ref={inputRef}
+                                    autoFocus
                                     placeholder="What is your command?"
                                     className="flex h-14 w-full rounded-md bg-transparent py-3 text-lg outline-none placeholder:text-zinc-600 text-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Escape') setOpen(false);
+                                    }}
                                 />
                             </div>
 
@@ -95,19 +144,19 @@ export const Synapse = () => {
                                 </Command.Empty>
 
                                 <Command.Group heading="Navigation" className="text-xs font-medium text-zinc-500 px-2 pb-1.5 pt-2">
-                                    <CommandItem onSelect={() => runCommand(() => navigate('/'))} icon={Sparkles}>
+                                    <CommandItem value="dashboard" onSelect={() => runCommand(() => navigate('/'))} icon={Sparkles}>
                                         Dashboard
                                     </CommandItem>
-                                    <CommandItem onSelect={() => runCommand(() => navigate('/tasks'))} icon={CheckSquare}>
+                                    <CommandItem value="tasks" onSelect={() => runCommand(() => navigate('/tasks'))} icon={CheckSquare}>
                                         Tasks & Protocol
                                     </CommandItem>
-                                    <CommandItem onSelect={() => runCommand(() => navigate('/calendar'))} icon={Calendar}>
+                                    <CommandItem value="calendar" onSelect={() => runCommand(() => navigate('/calendar'))} icon={Calendar}>
                                         Temporal View
                                     </CommandItem>
                                 </Command.Group>
 
                                 <Command.Group heading="System" className="text-xs font-medium text-zinc-500 px-2 pb-1.5 pt-2">
-                                    <CommandItem onSelect={() => runCommand(() => console.log('Terminal'))} icon={Terminal}>
+                                    <CommandItem value="terminal" onSelect={() => runCommand(() => console.log('Terminal'))} icon={Terminal}>
                                         Open Dev Terminal
                                     </CommandItem>
                                 </Command.Group>
@@ -132,9 +181,10 @@ export const Synapse = () => {
 };
 
 // Componente auxiliar para itens da lista
-const CommandItem = ({ children, icon: Icon, onSelect }: { children: React.ReactNode, icon: React.ComponentType<{ className?: string }>, onSelect: () => void }) => {
+const CommandItem = ({ children, icon: Icon, onSelect, value }: { children: React.ReactNode, icon: React.ComponentType<{ className?: string }>, onSelect: () => void, value?: string }) => {
     return (
         <Command.Item
+            value={value}
             onSelect={onSelect}
             className="relative flex cursor-default select-none items-center rounded-lg px-3 py-2.5 text-sm text-zinc-400 outline-none hover:bg-white/5 hover:text-zinc-100 data-[selected=true]:bg-white/10 data-[selected=true]:text-zinc-50 transition-all duration-200 group"
         >

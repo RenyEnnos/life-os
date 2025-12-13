@@ -34,8 +34,7 @@ class TasksServiceImpl {
     return updated
   }
   async remove(userId: string, id: string) {
-    // Soft delete implementation
-    return this.repo.update(userId, id, { deleted_at: new Date().toISOString() } as any)
+    return this.repo.remove(userId, id)
   }
 }
 

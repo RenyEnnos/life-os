@@ -9,7 +9,7 @@ class FinanceServiceImpl {
   async list(userId: string, query: unknown) { void query; return this.repo.list(userId) }
   async create(userId: string, payload: Partial<Transaction>) { return this.repo.create(userId, payload) }
   async update(userId: string, id: string, payload: Partial<Transaction>) { return this.repo.update(userId, id, payload) }
-  async remove(userId: string, id: string) { return this.repo.update(userId, id, { deleted_at: new Date().toISOString() } as any) }
+  async remove(userId: string, id: string) { return this.repo.remove(userId, id) }
   async summary(userId: string) {
     const list = await this.list(userId, {})
     const income = list.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)

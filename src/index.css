@@ -9,42 +9,57 @@
     --color-border-hover: rgba(255, 255, 255, 0.15);
   }
 
+  html {
+    scroll-behavior: smooth;
+    /* User Tip #3: Mobile robustness - preventing address bar layout shifts */
+    height: 100%;
+  }
+
   body {
     @apply bg-background text-zinc-300 antialiased selection:bg-white/20;
-    /* cv11: Single-story 'a' (mais geométrico/moderno)
-       cv05: Lowercase 'l' with tail (evita confusão com 1 ou I)
-       ss01: Alternate digits (números mais técnicos) */
+    /* cv11: Single-story 'a'
+       cv05: Lowercase 'l' with tail
+       ss01: Alternate digits */
     font-feature-settings: "cv11", "cv05", "ss01";
-    /* Melhor renderização de texto em fundos escuros */
+    /* Premium rendering */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    /* User Tip #1: Overflow handling strategy */
+    overflow-x: hidden;
+    position: relative;
+    width: 100%;
+  }
+
+  /* User Tip #4: Global box-sizing enforcement */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
   }
 }
 
 @layer utilities {
 
-  /* O "Palco": Uma luz radial suave vinda do topo central
-     Isso cria um ponto focal natural e elimina a chapação do background */
+  /* O "Palco": Uma luz radial suave vinda do topo central */
   .vignette-radial {
     background: radial-gradient(circle at 50% 0%,
         rgba(255, 255, 255, 0.08) 0%,
         transparent 60%);
     pointer-events: none;
-    /* A luz não bloqueia cliques */
   }
 
-  /* Utilitário para texto de alta legibilidade (ex: Títulos de seção) */
+  /* Utilitário para texto de alta legibilidade */
   .text-premium {
     @apply tracking-tight font-medium text-zinc-100;
   }
 
-  /* Utilitário para labels técnicos (ex: datas, tags) */
+  /* Utilitário para labels técnicos */
   .text-label {
     @apply tracking-wide text-xs uppercase font-semibold text-zinc-500;
   }
 
-  /* --- TEXTURA FÍSICA (NOISE) --- 
-     Cria uma camada de granulação subtil sobre as superfícies */
+  /* --- TEXTURA FÍSICA (NOISE) --- */
   .bg-noise {
     position: relative;
     isolation: isolate;
@@ -55,23 +70,29 @@
     position: absolute;
     inset: 0;
     z-index: -1;
-    /* Fica atrás do conteúdo, mas sobre o fundo */
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
     mix-blend-mode: overlay;
     pointer-events: none;
     mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.6));
-    /* Noise mais suave embaixo */
   }
 
-  /* --- VIDROS DO SISTEMA --- */
+  /* --- VIDROS DO SISTEMA (Refined) --- */
 
-  /* Vidro Padrão (Sidebar, Paineis Flutuantes) */
+  /* Vidro Padrão (Sidebar, Paineis Flutuantes) - More sophisticated blur/opacity */
   .glass-panel {
-    @apply bg-surface/70 backdrop-blur-md border border-white/5 shadow-2xl shadow-black/40;
+    @apply bg-black/40 backdrop-blur-xl border border-white/5 shadow-2xl shadow-black/50;
   }
 
-  /* Vidro Ativo (Item selecionado ou Hover intenso) */
+  /* Vidro Ativo - More distinct "active" state */
   .glass-active {
-    @apply bg-white/5 border-white/10 text-zinc-100 backdrop-blur-lg;
+    @apply bg-white/10 border-white/10 text-zinc-50 backdrop-blur-2xl;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+  }
+
+  /* Input Premium - "Deep" feel */
+  .input-premium {
+    @apply bg-black/20 border border-white/5 text-zinc-100 placeholder:text-zinc-600;
+    @apply focus:border-white/20 focus:bg-black/40 focus:ring-1 focus:ring-white/10 focus:placeholder:text-zinc-400;
+    @apply transition-all duration-300 ease-out;
   }
 }

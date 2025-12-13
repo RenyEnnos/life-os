@@ -8,9 +8,8 @@ export function useRealtime() {
 
   useEffect(() => {
     if (!user) return
-    const token = localStorage.getItem('token')
-    if (!token) return
-    const es = new EventSource(`/api/realtime/stream?token=${encodeURIComponent(token)}`)
+    // Use cookie-based auth for SSE (withCredentials sends HttpOnly cookies)
+    const es = new EventSource('/api/realtime/stream', { withCredentials: true })
 
     const invalidate = (key: QueryKey) => qc.invalidateQueries({ queryKey: key })
 
@@ -18,7 +17,7 @@ export function useRealtime() {
     es.addEventListener('habit_logs', () => invalidate(['habit-logs', user.id]))
     es.addEventListener('tasks', () => invalidate(['tasks']))
     es.addEventListener('ai_logs', () => invalidate(['ai-logs']))
-    es.addEventListener('journal', () => invalidate(['journal', user.id]))
+    es.addEventListener('journal_entries', () => invalidate(['journal', user.id]))
 
     es.onerror = () => {
       // Allow auto-reconnect handled by browser; do nothing

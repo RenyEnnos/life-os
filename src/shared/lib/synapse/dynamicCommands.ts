@@ -3,20 +3,16 @@ import {
     Sun,
     TrendingUp,
     TrendingDown,
-    Code,
-    User,
     Newspaper,
     CloudLightning,
     CloudSnow,
     Cloud,
-    SunDim
 } from 'lucide-react';
 import { SynapseCommand } from './types';
 
 // Tipagem do Briefing que vem da API
 export interface SynapseContext {
     market: any;
-    dev: any;
     weather: any;
     news?: any[];
 }
@@ -89,21 +85,7 @@ export const generateDynamicCommands = (context: SynapseContext | null): Synapse
         });
     }
 
-    // 3. Comando Dev (WakaTime)
-    if (context.dev && context.dev.total_hours) {
-        commands.push({
-            id: 'dev-stats',
-            label: `Coding: ${context.dev.total_hours}`,
-            description: `Top: ${context.dev.languages?.[0]?.name || 'N/A'}`,
-            icon: Code,
-            group: 'nexus',
-            action: () => window.location.href = '/dashboard',
-            keywords: ['coding', 'dev', 'wakatime', 'stats']
-
-        });
-    }
-
-    // 4. News
+    // 3. News
     if (context.news && context.news.length > 0) {
         context.news.forEach((article: any, index: number) => {
             commands.push({

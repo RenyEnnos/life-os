@@ -1,12 +1,15 @@
 export async function apiFetch<T = unknown>(url: string, options: RequestInit = {}): Promise<T> {
-  // Token is now handled via HttpOnly cookies automatically for same-origin (proxy) requests
+  // Destructure to handle credentials separately
+  const { headers: requestHeaders = {}, credentials, ...rest } = options
+
   const headers = {
     'Content-Type': 'application/json',
-    ...options.headers,
+    ...requestHeaders,
   };
 
   const response = await fetch(url, {
-    ...options,
+    ...rest,
+    credentials: credentials ?? 'include', // Send HttpOnly cookies by default
     headers,
   });
 

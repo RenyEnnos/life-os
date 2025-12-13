@@ -1,8 +1,69 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { readTable, writeTable } from './mockStore'
 
+/**
+ * Creates a mock Supabase client backed by the file-based mockStore.
+ * Used when Supabase credentials are not fully configured.
+ */
+function createStoreBackedMock(): SupabaseClient {
+  const mock = {
+    from: (table: string) => {
+      const filters: Record<string, unknown> = {}
+      const api = {
+        select: () => api,
+        eq: (field: string, value: unknown) => { filters[field] = value; return api },
+        contains: () => api,
+        order: () => api,
+        limit: () => api,
+        gte: () => api,
+        lte: () => api,
+        range: () => api,
+        single: async () => {
+          const rows = readTable<Record<string, unknown>>(table)
+          const row = (rows || []).find((r) => Object.entries(filters).every(([k, v]) => (r as Record<string, unknown>)[k] === v)) || null
+          return { data: row, error: null }
+        },
+        insert: (rows: unknown[]) => {
+          const current = readTable<unknown>(table)
+          current.push(...rows)
+          writeTable(table, current)
+          const inserted = rows[0]
+          return { data: inserted, error: null, select: () => ({ single: async () => ({ data: inserted, error: null }) }) }
+        },
+        update: (values: Record<string, unknown>) => ({
+          eq: (field: string, value: unknown) => ({
+            select: () => ({
+              single: async () => {
+                const current = readTable<Record<string, unknown>>(table)
+                const idx = current.findIndex((r) => (r as Record<string, unknown>)[field] === value)
+                if (idx >= 0) current[idx] = { ...(current[idx] as Record<string, unknown>), ...values }
+                writeTable(table, current)
+                return { data: current[idx] || null, error: null }
+              }
+            })
+          })
+        }),
+        delete: async () => ({ data: null, error: null }),
+        upsert: async (rows: unknown[]) => {
+          const current = readTable<unknown>(table)
+          rows.forEach(r => {
+            const i = (current as any[]).findIndex((x) => (x as { id?: unknown }).id === (r as { id?: unknown }).id)
+            if (i >= 0) (current as any[])[i] = r
+            else (current as any[]).push(r)
+          })
+          writeTable(table, current)
+          return { data: rows, error: null }
+        },
+      }
+      return api
+    }
+  }
+  return mock as unknown as SupabaseClient
+}
+
 const isTest = process.env.NODE_ENV === 'test'
 let supabase: SupabaseClient
+
 if (isTest) {
   const mem: Record<string, unknown[]> = { users: [{ id: 'u1', email: 'test@example.com', name: 'Test', preferences: {} }], perf_logs: [] }
   const mock = {
@@ -53,58 +114,16 @@ if (isTest) {
   const supabaseUrl = process.env.SUPABASE_URL
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
   const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
+
   if (!supabaseUrl) {
     // Fallback to in-memory mock for local development without Supabase configured
-    const mock = {
-      from: (table: string) => {
-        const filters: Record<string, unknown> = {}
-        const api = {
-          select: () => api,
-          eq: (field: string, value: unknown) => { filters[field] = value; return api },
-          contains: () => api,
-          order: () => api,
-          limit: () => api,
-          gte: () => api,
-          lte: () => api,
-          range: () => api,
-          single: async () => {
-            const rows = readTable<Record<string, unknown>>(table)
-            const row = (rows || []).find((r) => Object.entries(filters).every(([k, v]) => (r as Record<string, unknown>)[k] === v)) || null
-            return { data: row, error: null }
-          },
-          insert: (rows: unknown[]) => {
-            const current = readTable<unknown>(table)
-            current.push(...rows)
-            writeTable(table, current)
-            const inserted = rows[0]
-            return { data: inserted, error: null, select: () => ({ single: async () => ({ data: inserted, error: null }) }) }
-          },
-          update: (values: Record<string, unknown>) => ({
-            eq: (field: string, value: unknown) => ({
-              select: () => ({
-                single: async () => {
-                  const current = readTable<Record<string, unknown>>(table)
-                  const idx = current.findIndex((r) => (r as Record<string, unknown>)[field] === value)
-                  if (idx >= 0) current[idx] = { ...(current[idx] as Record<string, unknown>), ...values }
-                  writeTable(table, current)
-                  return { data: current[idx] || null, error: null }
-                }
-              })
-            })
-          }),
-          delete: async () => ({ data: null, error: null }),
-          upsert: async (rows: unknown[]) => { const current = readTable<unknown>(table); rows.forEach(r => { const i = (current as any[]).findIndex((x) => (x as { id?: unknown }).id === (r as { id?: unknown }).id); if (i >= 0) (current as any[])[i] = r; else (current as any[]).push(r) }); writeTable(table, current); return { data: rows, error: null } },
-        }
-        return api
-      }
-    }
-    supabase = mock as unknown as SupabaseClient
+    supabase = createStoreBackedMock()
   } else {
     // Prefer service role key; fallback to anon key if service key missing
     const key = supabaseServiceRoleKey || supabaseAnonKey
     if (!key) {
       console.warn('Supabase URL is set but no API key found (service or anon). Falling back to mock store.')
-      // ... mock implementation ...
+      supabase = createStoreBackedMock()
     } else {
       console.log('Initializing Supabase client with key length:', key.length, 'Is Service Role:', key === supabaseServiceRoleKey)
       supabase = createClient(supabaseUrl, key)

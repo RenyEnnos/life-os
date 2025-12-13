@@ -12,7 +12,8 @@ function memoryRepo<T>(): BaseRepo<T> {
   return {
     async list(userId) {
       const space = store[userId] || {}
-      return Object.values(space) as T[]
+      // Filter out soft-deleted items
+      return Object.values(space).filter((item: any) => !item.deleted_at) as T[]
     },
     async create(userId, payload) {
       const id = crypto.randomUUID()
@@ -28,7 +29,8 @@ function memoryRepo<T>(): BaseRepo<T> {
     },
     async remove(userId, id) {
       if (!store[userId] || !store[userId][id]) return false
-      delete store[userId][id]
+      // Soft delete: Mark as deleted instead of removing key
+      store[userId][id] = { ...store[userId][id], deleted_at: new Date().toISOString() }
       return true
     }
   }
@@ -37,7 +39,7 @@ function memoryRepo<T>(): BaseRepo<T> {
 function supabaseRepo<T>(table: string): BaseRepo<T> {
   return {
     async list(userId) {
-      const { data, error } = await supabase.from(table).select('*').eq('user_id', userId)
+      const { data, error } = await supabase.from(table).select('*').eq('user_id', userId).is('deleted_at', null)
       if (error) throw new Error(error.message)
       return (data ?? []) as T[]
     },
@@ -52,7 +54,8 @@ function supabaseRepo<T>(table: string): BaseRepo<T> {
       return data as T
     },
     async remove(userId, id) {
-      const { error } = await supabase.from(table).delete().eq('id', id).eq('user_id', userId)
+      // Soft delete implementation
+      const { error } = await supabase.from(table).update({ deleted_at: new Date().toISOString() }).eq('id', id).eq('user_id', userId)
       if (error) return false
       return true
     },

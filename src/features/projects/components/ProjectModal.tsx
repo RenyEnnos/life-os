@@ -32,7 +32,12 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
     const fetchCover = async (query: string, pageNum: number) => {
         setIsLoadingCover(true);
         try {
-            const res = await fetch(`http://localhost:3000/api/media/images?query=${encodeURIComponent(query)}&page=${pageNum}`);
+            // Use relative path which works with Vite proxy in dev and same-origin in prod
+            const baseUrl = '/api/media/images';
+            const res = await fetch(`${baseUrl}?query=${encodeURIComponent(query)}&page=${pageNum}`);
+
+            if (!res.ok) throw new Error('Failed to fetch media');
+
             const data = await res.json();
             if (data.images && data.images.length > 0) {
                 setCoverUrl(data.images[0].coverUrl);

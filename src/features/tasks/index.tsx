@@ -4,6 +4,7 @@ import { PageTitle } from '@/shared/ui/PageTitle';
 import { Button } from '@/shared/ui/Button';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
 import { PremiumTaskCard } from './components/PremiumTaskCard';
+import { CalendarView } from './components/CalendarView';
 import { CreateTaskDialog } from './components/CreateTaskDialog';
 import { useAI } from '@/features/ai-assistant/hooks/useAI';
 import { clsx } from 'clsx';
@@ -24,6 +25,7 @@ export default function TasksPage() {
     const { showToast } = useToast();
     const [view, setView] = useState<'list' | 'calendar'>('list');
     const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [calendarDate, setCalendarDate] = useState(new Date());
     const [plan, setPlan] = useState<Plan | null>(null);
     const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -204,10 +206,12 @@ export default function TasksPage() {
                     )}
                 </div>
             ) : (
-                <div className="text-center py-20 border border-dashed border-border rounded-lg relative overflow-hidden">
-                    <Meteors number={10} />
-                    <p className="text-muted-foreground font-mono relative z-10">Visualização de calendário em desenvolvimento.</p>
-                </div>
+                <CalendarView
+                    tasks={tasks || []}
+                    currentDate={calendarDate}
+                    onDateChange={setCalendarDate}
+                    onToggleTask={handleToggle}
+                />
             )}
 
             <Modal open={!!plan} onClose={() => setPlan(null)} title="Plano semanal sugerido">

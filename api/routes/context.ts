@@ -10,9 +10,8 @@ router.get('/synapse-briefing', async (req, res) => {
         const lat = req.query.lat ? Number(req.query.lat) : undefined;
         const lon = req.query.lon ? Number(req.query.lon) : undefined;
 
-        const [market, dev, weather, news] = await Promise.all([
+        const [market, weather, news] = await Promise.all([
             ContextGateway.getMarketPulse(),
-            ContextGateway.getDevStats(),
             ContextGateway.getWeather(lat, lon),
             ContextGateway.getNews()
         ]);
@@ -21,7 +20,6 @@ router.get('/synapse-briefing', async (req, res) => {
             success: true,
             data: {
                 market,
-                dev,
                 weather,
                 news,
                 // RoboHash Avatar Generator

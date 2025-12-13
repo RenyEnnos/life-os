@@ -63,7 +63,7 @@ export function AppLayout() {
     }, [isActive, enter, exit]);
 
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground font-sans selection:bg-white/10">
+        <div className="relative min-h-[100dvh] w-full overflow-x-hidden bg-background text-foreground font-sans selection:bg-white/10">
             <ScrollToTop />
             <MemoizedParticles className="absolute inset-0 z-0 opacity-40 pointer-events-none" quantity={40} ease={200} staticity={40} refresh />
             <div className="absolute inset-0 vignette-radial z-0" />

@@ -14,7 +14,7 @@ export function initRealtime() {
     { schema: 'public', table: 'habit_logs' },
     { schema: 'public', table: 'tasks' },
     { schema: 'public', table: 'ai_logs' },
-    { schema: 'public', table: 'journal' },
+    { schema: 'public', table: 'journal_entries' },
   ]
 
   const hasChannel = typeof (supabase as any).channel === 'function'

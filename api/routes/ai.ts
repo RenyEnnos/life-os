@@ -1,9 +1,39 @@
 import { Router, type Response } from 'express'
 import { authenticateToken, AuthRequest } from '../middleware/auth'
 import { aiService } from '../services/aiService'
+import { aiManager } from '../services/ai/AIManager'
 import { z } from 'zod'
 
 const router = Router()
+
+// Chat endpoint for AI conversations
+router.get('/ping', (req, res) => res.json({ status: 'active', service: 'neural-nexus' }))
+
+router.post('/chat', authenticateToken, async (req: AuthRequest, res: Response) => {
+  const schema = z.object({
+    message: z.string().min(1),
+    context: z.string().optional(),
+    mode: z.enum(['speed', 'deep_reason']).optional()
+  })
+  const parsed = schema.safeParse(req.body || {})
+  if (!parsed.success) return res.status(400).json({ error: 'message required' })
+
+  const { message, context, mode } = parsed.data
+
+  try {
+    const aiResponse = await aiManager.execute(mode ?? 'speed', {
+      systemPrompt: context?.trim().length ? context : 'You are the Neural Nexus copilot. Respond concisely.',
+      userPrompt: message,
+    })
+    await aiService.logUsage(req.user!.id, 'chat', true, { tokens: aiResponse.tokens, ms: aiResponse.ms })
+    res.json({ message: aiResponse.text })
+  } catch (error) {
+    await aiService.logUsage(req.user!.id, 'chat', false, { errorMessage: error instanceof Error ? error.message : 'unknown' })
+    const msg = error instanceof Error ? error.message : 'Unknown error'
+    res.status(500).json({ error: msg })
+  }
+})
+
 
 router.post('/tags', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {

@@ -7,7 +7,6 @@ const cache = new NodeCache({ stdTTL: 600 }); // 10 min default
 // Mock Data for development failure modes
 const MOCKS = {
     crypto: { bitcoin: { usd: 64230, change_24h: 2.4 }, ethereum: { usd: 3450, change_24h: -1.2 } },
-    wakatime: { total_hours: '6 hrs 42 mins', languages: [{ name: 'TypeScript', percent: 65 }, { name: 'Rust', percent: 20 }] },
     weather: { temp: 22, condition: 'rain', location: 'São Paulo' },
     news: [
         { title: "AI Revolutionizes Productivity", source: "TechDaily", url: "#" },
@@ -42,23 +41,7 @@ export const ContextGateway = {
         }
     },
 
-    // 2. Dev Stats (WakaTime) - Placeholder for now until user connects OAuth
-    async getDevStats() {
-        const cacheKey = 'dev_stats';
-        if (cache.has(cacheKey)) return cache.get(cacheKey);
-
-        try {
-            // In a real implementation, this would call WakaTime API with user token
-            const data = MOCKS.wakatime;
-            cache.set(cacheKey, data, 3600); // 1 hour cache
-            return data;
-        } catch (error) {
-            console.error('WakaTime API Error:', error instanceof Error ? error.message : String(error));
-            return MOCKS.wakatime;
-        }
-    },
-
-    // 3. Weather (Meteosource)
+    // 2. Weather (Meteosource)
     async getWeather(lat?: number, lon?: number) {
         // Default to Sao Paulo if no coords provided or during SSR
         const cacheKey = `weather_local_${lat || 'default'}_${lon || 'default'}`;

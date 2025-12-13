@@ -13,7 +13,11 @@ router.get('/stream', (req, res) => {
   res.setHeader('Connection', 'keep-alive')
   res.flushHeaders?.()
 
-  const token = (req.query.token as string) || (req.headers['authorization']?.toString().replace(/^Bearer\s+/i, '') || '')
+  // Accept token from: cookie (HttpOnly) > query param > Authorization header
+  const cookieToken = typeof req.cookies?.token === 'string' ? req.cookies.token : undefined
+  const queryToken = typeof req.query.token === 'string' ? req.query.token : undefined
+  const bearerToken = req.headers['authorization']?.toString().replace(/^Bearer\s+/i, '')
+  const token = cookieToken || queryToken || bearerToken || ''
   if (!token) { res.status(401).end(); return }
   if (!JWT_SECRET) { res.status(500).end(); return }
   let userId: string | undefined

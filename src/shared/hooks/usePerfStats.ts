@@ -38,9 +38,8 @@ export function usePerfStats(endpointFilter: string | 'ALL', windowMs = 24 * 60 
     const fetchStats = async () => {
       try {
         setLoading(true)
-        const token = localStorage.getItem('token')
-        const headers: HeadersInit = token ? {} : { Authorization: 'Bearer dev' }
-        const res = await apiFetch<PerfStats>('/api/dev/perf/stats', { headers })
+        // apiFetch now includes credentials by default for cookie auth
+        const res = await apiFetch<PerfStats>('/api/dev/perf/stats')
         const merged = mergeHistory(res.series || [], windowMs)
         const series = endpointFilter === 'ALL' ? merged : merged.filter((p: PerfPoint) => p.endpoint?.startsWith(endpointFilter))
         setStats({ p95: res.p95 || 0, avgMs: res.avgMs || 0, throughput: res.throughput || series.length, series })
