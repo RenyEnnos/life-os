@@ -54,9 +54,9 @@ export const Synapse = () => {
 
     // State for HUD Context
     const [context, setContext] = useState<{
-        weather: { temp: number, condition: string, icon: string };
-        market: { price: number, change: number };
-        focus: { score: number };
+        weather?: { temp?: number, condition?: string };
+        market?: { price?: number, change?: number };
+        focus?: { score?: number };
     } | null>(null);
 
     // Fetch Context Data
@@ -66,11 +66,25 @@ export const Synapse = () => {
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
+                        const weather = data.data?.weather || {};
+                        const marketRaw = data.data?.market || {};
+                        const btc = marketRaw.bitcoin || marketRaw.crypto?.bitcoin || {};
+                        const price = typeof btc.usd === 'number' ? btc.usd : (typeof btc.usd_24h_change === 'number' ? btc.usd_24h_change : undefined);
+                        const change = typeof btc.change_24h === 'number' ? btc.change_24h : (typeof btc.usd_24h_change === 'number' ? btc.usd_24h_change : undefined);
+
+                        const dev = data.data?.dev || {};
+                        const focusScore = (() => {
+                            if (typeof dev.total_hours === 'string') {
+                                const hours = parseFloat(dev.total_hours);
+                                if (!Number.isNaN(hours)) return Math.min(100, Math.round(hours * 10));
+                            }
+                            return 84;
+                        })();
+
                         setContext({
-                            weather: data.data.weather,
-                            market: data.data.market,
-                            // Fallback focus score since we don't have a direct "Focus Service" yet fully exposed
-                            focus: { score: 84 }
+                            weather: { temp: weather.temp, condition: weather.summary || weather.condition },
+                            market: { price, change },
+                            focus: { score: focusScore }
                         });
                     }
                 })

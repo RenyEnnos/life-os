@@ -16,6 +16,29 @@ export default function CalendarPage() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const [isConnecting, setIsConnecting] = useState(false);
+    const [googleEvents, setGoogleEvents] = useState<Event[]>([]);
+
+    // Fetch Google Calendar events
+    const loadGoogleEvents = async () => {
+        try {
+            const events = await apiFetch<any[]>('/api/calendar/events');
+            const mapped: Event[] = (events || []).map((evt) => {
+                const startStr = evt?.start?.dateTime || (evt?.start?.date ? `${evt.start.date}T00:00:00` : '');
+                const start = startStr ? new Date(startStr) : null;
+                return {
+                    id: evt.id || `${evt.summary}-${startStr}`,
+                    name: evt.summary || 'Evento',
+                    time: start ? start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+                    datetime: startStr,
+                    color: 'purple'
+                };
+            });
+            setGoogleEvents(mapped);
+        } catch (err) {
+            // ignore if not connected
+            setGoogleEvents([]);
+        }
+    };
 
     // Handle OAuth Callback
     useEffect(() => {
@@ -37,7 +60,7 @@ export default function CalendarPage() {
                         body: JSON.stringify({ code })
                     });
                     toast.success('Google Calendar connected!');
-                    // Refresh functionality or reload events would happen here
+                    await loadGoogleEvents();
                 } catch (err) {
                     toast.error('Error connecting calendar');
                     console.error(err);
@@ -60,6 +83,10 @@ export default function CalendarPage() {
         }
     };
 
+    useEffect(() => {
+        loadGoogleEvents();
+    }, []);
+
     // Transform tasks into CalendarData
     const calendarData: CalendarData[] = useMemo(() => {
         if (!tasks) return [];
@@ -81,12 +108,20 @@ export default function CalendarPage() {
             }
         });
 
+        googleEvents.forEach(event => {
+            if (event.datetime) {
+                const dateKey = new Date(event.datetime).toDateString();
+                const existing = eventsByDay.get(dateKey) || [];
+                eventsByDay.set(dateKey, [...existing, { ...event, color: event.color || 'purple' }]);
+            }
+        });
+
         const data: CalendarData[] = [];
         eventsByDay.forEach((events, dateString) => {
             data.push({ day: new Date(dateString), events: events });
         });
         return data;
-    }, [tasks]);
+    }, [tasks, googleEvents]);
 
     const isLoading = tasksLoading || isConnecting;
 
