@@ -4,6 +4,31 @@
 
 @layer base {
   :root {
+    /* Deep Glass System Tokens */
+    --background: 0 0% 1.2%;
+    /* #030303 */
+    --surface: 240 5.9% 4%;
+    /* #0A0A0B */
+    --surface-highlight: 240 5% 8%;
+    /* #121214 */
+
+    --foreground: 0 0% 93%;
+    /* #ededed */
+    --primary: 0 0% 93%;
+    /* #ededed */
+    --primary-foreground: 0 0% 0%;
+    /* #000000 */
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --border: 0 0% 100%;
+    /* base for rgba calc */
+    --input: 240 3.7% 15.9%;
+
+    --radius: 0.5rem;
+    --header-height: 4rem;
+
     /* Bento Grid System */
     --bento-radius: 1rem;
     --color-border-hover: rgba(255, 255, 255, 0.15);

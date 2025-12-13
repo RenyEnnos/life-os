@@ -1,17 +1,12 @@
 import { useState, useEffect, memo } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dock, DockIcon } from '@/shared/ui/premium/Dock';
+import { NavigationSystem } from './NavigationSystem';
 import { Particles } from '@/shared/ui/premium/Particles';
-import {
-    LayoutDashboard, CheckSquare, Book, Settings,
-    PlusCircle, DollarSign, GraduationCap, FolderKanban, ListTodo
-} from 'lucide-react';
 import { OnboardingModal } from '@/features/onboarding/OnboardingModal';
 import { useRealtime } from '@/shared/hooks/useRealtime';
 import { SanctuaryOverlay } from '@/shared/ui/sanctuary/SanctuaryOverlay';
 import { useSanctuaryStore } from '@/shared/stores/sanctuaryStore';
-import { Sidebar } from './Sidebar';
 
 const MemoizedParticles = memo(Particles);
 const MemoizedSanctuaryOverlay = memo(SanctuaryOverlay);
@@ -63,7 +58,7 @@ export function AppLayout() {
     }, [isActive, enter, exit]);
 
     return (
-        <div className="relative min-h-[100dvh] w-full overflow-x-hidden bg-background text-foreground font-sans selection:bg-white/10">
+        <div className="relative min-h-[100dvh] w-full bg-background text-foreground font-sans selection:bg-white/10 flex flex-col md:flex-row overflow-x-hidden">
             <ScrollToTop />
             <MemoizedParticles className="absolute inset-0 z-0 opacity-40 pointer-events-none" quantity={40} ease={200} staticity={40} refresh />
             <div className="absolute inset-0 vignette-radial z-0" />
@@ -78,12 +73,10 @@ export function AppLayout() {
                 setShowOnboarding(false);
             }} />
 
-            {/* 
-                FIX: Sidebar is placed AFTER main in DOM order to prevent NavLink 
-                render-blocking issue on the "/" route. Since Sidebar uses fixed 
-                positioning, the visual layout remains unchanged.
-            */}
-            <main className="relative z-10 pl-24 pr-4 md:pr-8 pt-8 pb-32 min-h-screen w-full max-w-[1920px] mx-auto">
+            {/* Unified Navigation System */}
+            <NavigationSystem />
+
+            <main className="relative z-10 flex-1 w-full max-w-[1920px] mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 pb-32 md:pb-6">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={location.pathname}
@@ -99,22 +92,6 @@ export function AppLayout() {
                 </AnimatePresence>
             </main>
 
-            {/* Sidebar placed after main to fix render issue on "/" route */}
-            <Sidebar />
-
-            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 md:hidden">
-                <Dock className="bg-black/40 border-white/5 shadow-2xl backdrop-blur-xl px-4 py-3 gap-3">
-                    <DockIcon href="/" onClick={() => { }}><LayoutDashboard className="size-6 text-zinc-300" /></DockIcon>
-                    <DockIcon href="/tasks" onClick={() => { }}><ListTodo className="size-6 text-zinc-300" /></DockIcon>
-                    <DockIcon href="/habits" onClick={() => { }}><CheckSquare className="size-6 text-zinc-300" /></DockIcon>
-                    <DockIcon href="/finances" onClick={() => { }}><DollarSign className="size-6 text-zinc-300" /></DockIcon>
-                    <DockIcon onClick={() => { }} className="bg-white/10 border-white/20"><PlusCircle className="size-8 text-zinc-100" /></DockIcon>
-                    <DockIcon href="/university" onClick={() => { }}><GraduationCap className="size-6 text-zinc-300" /></DockIcon>
-                    <DockIcon href="/projects" onClick={() => { }}><FolderKanban className="size-6 text-zinc-300" /></DockIcon>
-                    <DockIcon href="/journal" onClick={() => { }}><Book className="size-6 text-zinc-300" /></DockIcon>
-                    <DockIcon href="/settings" onClick={() => { }}><Settings className="size-6 text-zinc-300" /></DockIcon>
-                </Dock>
-            </div>
             <MemoizedSanctuaryOverlay />
         </div>
     );

@@ -16,7 +16,7 @@ export const BentoGrid = ({ className, children }: { className?: string; childre
                 }
             }}
             className={cn(
-                "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-[1600px] mx-auto auto-rows-[180px]",
+                "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-[1920px] mx-auto auto-rows-[180px]",
                 className
             )}
         >
@@ -78,7 +78,7 @@ export const BentoCard = ({
             whileHover={{ y: -2, transition: { duration: 0.2 } }}
             whileTap={{ scale: 0.99 }}
             className={cn(
-                "group relative overflow-hidden rounded-xl glass-panel text-zinc-100 transition-all duration-300",
+                "group relative overflow-hidden rounded-xl glass-panel text-zinc-100 transition-all duration-300 @container",
                 onClick && "cursor-pointer hover:shadow-md hover:shadow-black/20",
                 className
             )}

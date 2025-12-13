@@ -26,14 +26,13 @@ const menuItems = [
     { icon: GraduationCap, path: '/university', label: 'University' },
 ];
 
-export const Sidebar = () => {
+export const Sidebar = ({ className }: { className?: string }) => {
     return (
         <motion.aside
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed left-4 top-4 bottom-4 w-20 flex flex-col items-center justify-between py-6 rounded-2xl glass-panel z-50"
-            style={{ position: 'fixed' }}
+            className={cn("w-20 flex flex-col items-center justify-between py-6 rounded-2xl glass-panel z-50", className)}
         >
             {/* Logo Area */}
             <div className="flex flex-col items-center gap-4">

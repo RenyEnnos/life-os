@@ -89,13 +89,13 @@ export default function DashboardPage() {
             ═══════════════════════════════════════════════════════════════ */}
             <BentoGrid className="auto-rows-[160px] md:auto-rows-[180px]">
 
-                {/* ───────────── Zone 1. NOW (2x2) ───────────── */}
-                <Zone1_Now className="row-span-1 md:row-span-2" />
+                {/* ───────────── Zone 1. NOW (1x2 on Tablet, 1x2 on Desktop) ───────────── */}
+                <Zone1_Now className="col-span-1 row-span-1 md:row-span-2" />
 
-                {/* ───────────── Zone 2. TODAY (1x2) ───────────── */}
-                <Zone2_Today className="row-span-1 md:row-span-2" />
+                {/* ───────────── Zone 2. TODAY (1x2 on Tablet) ───────────── */}
+                <Zone2_Today className="col-span-1 row-span-1 md:row-span-2" />
 
-                {/* ───────────── Identity & Status (1x2 Col Stack) ───────────── */}
+                {/* ───────────── Identity & Status (1x2 Stack) ───────────── */}
                 <div className="col-span-1 row-span-1 md:row-span-2 flex flex-col gap-4 h-full">
                     <BentoCard
                         className="flex-1 p-0 overflow-hidden"
@@ -116,11 +116,15 @@ export default function DashboardPage() {
                 </div>
 
                 {/* ───────────── Zone 3. CONTEXT (2x1) ───────────── */}
-                <div className="col-span-1 md:col-span-2 row-span-1">
+                <div className="col-span-1 md:col-span-1 lg:col-span-1 row-span-1 md:row-span-2">
+                    {/* FIX: Zone3 fits better as a vertical stack in 4-col layout or needs 2-col? 
+                         If 4-col: Zone1(1), Zone2(1), Stack(1), Zone3(1) fills row 1 (height 2).
+                         Perfect. 
+                     */}
                     <Zone3_Context />
                 </div>
 
-                {/* ───────────── Intelligence (2x1) ───────────── */}
+                {/* ───────────── Intelligence (Span 2) ───────────── */}
                 <BentoCard
                     className="col-span-1 md:col-span-2 row-span-1"
                     title="Ressonância Neural"
@@ -129,7 +133,7 @@ export default function DashboardPage() {
                     <ResonanceCard />
                 </BentoCard>
 
-                {/* ───────────── Gamification (2x1) ───────────── */}
+                {/* ───────────── Gamification (Span 2) ───────────── */}
                 <BentoCard
                     className="col-span-1 md:col-span-2 row-span-1"
                     title="Conquistas"
