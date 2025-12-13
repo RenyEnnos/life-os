@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    /* Deep Glass System Tokens */
+    /* Deep Glass System Tokens - Synced with src/design/tokens.ts */
     --background: 0 0% 1.2%;
     /* #030303 */
     --surface: 240 5.9% 4%;
@@ -22,8 +22,10 @@
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
 
+    --destructive: 0 84.2% 60.2%;
+
     --border: 0 0% 100%;
-    /* base for rgba calc */
+    /* #ffffff (used with opacity) */
     --input: 240 3.7% 15.9%;
 
     --radius: 0.5rem;

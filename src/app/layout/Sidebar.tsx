@@ -73,12 +73,36 @@ export const Sidebar = ({ className }: { className?: string }) => {
 
             {/* Bottom Actions */}
             <div className="flex flex-col gap-4 w-full px-3">
-                <button className="w-12 h-12 flex items-center justify-center rounded-xl text-zinc-500 hover:text-zinc-200 hover:bg-white/5 transition-all">
-                    <Settings size={22} strokeWidth={1.5} />
-                </button>
+                <NavLink
+                    to="/settings"
+                    className={({ isActive }) => cn(
+                        "w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group relative",
+                        isActive
+                            ? "glass-active shadow-lg shadow-black/20"
+                            : "text-zinc-500 hover:text-zinc-200 hover:bg-white/5"
+                    )}
+                >
+                    {({ isActive }) => (
+                        <Settings
+                            size={22}
+                            strokeWidth={isActive ? 2 : 1.5}
+                            className="transition-transform duration-300 group-hover:scale-110"
+                        />
+                    )}
+                </NavLink>
 
                 {/* User Avatar Placeholder */}
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 border border-white/10 mx-auto" />
+                <NavLink
+                    to="/profile"
+                    className={({ isActive }) => cn(
+                        "w-10 h-10 rounded-full border border-white/10 mx-auto overflow-hidden transition-all duration-300",
+                        isActive ? "ring-2 ring-white/20 scale-110" : "hover:scale-105"
+                    )}
+                >
+                    <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                        <div className="w-full h-full bg-zinc-900/40" />
+                    </div>
+                </NavLink>
             </div>
         </motion.aside>
     );

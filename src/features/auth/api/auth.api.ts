@@ -28,6 +28,12 @@ export const authApi = {
         return await apiClient.get<User>('/api/auth/verify');
     },
 
+    updateProfile: async (data: { full_name?: string; avatar_url?: string }) => {
+        // Optimistically return the user structure if backend doesn't exist yet for demo purposes
+        // But ideally:
+        return await apiClient.patch<AuthResponse>('/api/auth/profile', data);
+    },
+
     // Deprecated methods that might still be called? 
     // Ideally we remove them, but checking usage elsewhere might be needed.
     // For now, removing them to enforce new flow.

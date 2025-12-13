@@ -17,8 +17,9 @@ export default {
         surface: 'hsl(var(--surface))',
         'surface-highlight': 'hsl(var(--surface-highlight))',
 
-        border: 'rgba(255, 255, 255, 0.08)', // Keep rgba for opacity handling for now
+        border: 'rgba(255, 255, 255, 0.08)',
         'border-strong': 'rgba(255, 255, 255, 0.15)',
+        input: 'hsl(var(--input))',
 
         primary: {
           DEFAULT: 'hsl(var(--primary))',
@@ -28,6 +29,10 @@ export default {
         muted: {
           DEFAULT: 'hsl(var(--muted))',
           foreground: 'hsl(var(--muted-foreground))',
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--primary-foreground))',
         },
       },
       fontFamily: {

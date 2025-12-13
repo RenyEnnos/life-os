@@ -19,6 +19,7 @@ const UniversityPage = lazy(() => import('@/features/university'));
 const RewardsPage = lazy(() => import('@/features/rewards/index'));
 const SettingsPage = lazy(() => import('@/features/settings'));
 const DesignSystemPreview = lazy(() => import('@/features/design-system/Preview'));
+const ProfilePage = lazy(() => import('@/features/profile'));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { user, loading } = useAuth();
@@ -68,6 +69,7 @@ export function AppRoutes() {
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/design" element={<DesignSystemPreview />} />
                     <Route path="/university" element={<UniversityPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" replace />} />

@@ -7,7 +7,8 @@ import { motion, useMotionValue, useTransform, useSpring, Variants } from 'frame
 import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 export default function RegisterPage() {
-    const [name, setName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -53,7 +54,7 @@ export default function RegisterPage() {
         try {
             setError('');
             setLoading(true);
-            await register({ email, password, name });
+            await register({ email, password, name: `${firstName} ${lastName}`.trim() });
             navigate('/');
         } catch (err) {
             console.error('Registration Error:', err);
@@ -126,20 +127,36 @@ export default function RegisterPage() {
                             </motion.div>
                         )}
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            <motion.div variants={itemVariants} className="space-y-2">
-                                <label className="text-sm font-mono text-gray-400 ml-1">Nome</label>
-                                <div className="relative">
-                                    <User className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
-                                    <input
-                                        type="text"
-                                        required
-                                        className="w-full rounded-md pl-10 pr-3 py-3 text-gray-100 font-mono input-premium focus:outline-none"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        placeholder="Seu nome completo"
-                                    />
-                                </div>
-                            </motion.div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <motion.div variants={itemVariants} className="space-y-2">
+                                    <label className="text-sm font-mono text-gray-400 ml-1">Nome</label>
+                                    <div className="relative">
+                                        <User className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
+                                        <input
+                                            type="text"
+                                            required
+                                            className="w-full rounded-md pl-10 pr-3 py-3 text-gray-100 font-mono input-premium focus:outline-none"
+                                            value={firstName}
+                                            onChange={(e) => setFirstName(e.target.value)}
+                                            placeholder="Nome"
+                                        />
+                                    </div>
+                                </motion.div>
+                                <motion.div variants={itemVariants} className="space-y-2">
+                                    <label className="text-sm font-mono text-gray-400 ml-1">Sobrenome</label>
+                                    <div className="relative">
+                                        <User className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
+                                        <input
+                                            type="text"
+                                            required
+                                            className="w-full rounded-md pl-10 pr-3 py-3 text-gray-100 font-mono input-premium focus:outline-none"
+                                            value={lastName}
+                                            onChange={(e) => setLastName(e.target.value)}
+                                            placeholder="Sobrenome"
+                                        />
+                                    </div>
+                                </motion.div>
+                            </div>
                             <motion.div variants={itemVariants} className="space-y-2">
                                 <label className="text-sm font-mono text-gray-400 ml-1">Email</label>
                                 <div className="relative">

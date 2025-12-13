@@ -12,6 +12,7 @@ interface AuthContextType {
   register: (credentials: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
   updateThemePreference: (theme: 'light' | 'dark') => Promise<void>;
+  updateProfile: (data: { full_name?: string; avatar_url?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -83,6 +84,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Updating theme preference to:', theme);
   };
 
+  const updateProfileMutation = useMutation({
+    mutationFn: authApi.updateProfile,
+    onSuccess: (data) => {
+      if (data?.user) {
+        queryClient.setQueryData(['auth_user'], data.user);
+        localStorage.setItem('auth_user', JSON.stringify(data.user));
+      }
+    }
+  });
+
   const value = {
     user: user || null,
     session: null, // Session management is abstracted/cookie-based usually
@@ -91,6 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     register: async (creds: RegisterRequest) => { await registerMutation.mutateAsync(creds); },
     logout: async () => { await logoutMutation.mutateAsync(); },
     updateThemePreference,
+    updateProfile: async (data: { full_name?: string; avatar_url?: string }) => { await updateProfileMutation.mutateAsync(data); }
   };
 
   return (
