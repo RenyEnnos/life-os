@@ -1,5 +1,8 @@
 import { NavLink } from 'react-router-dom';
 import { primaryNav, secondaryNav } from '@/app/layout/navItems';
+import { BentoGrid } from '@/shared/ui/BentoCard';
+import { useDashboardIdentity } from '@/features/dashboard/hooks/useDashboardIdentity';
+import { useDashboardStats } from '@/features/dashboard/hooks/useDashboardStats';
 
 const materialIconByPath: Record<string, string> = {
     '/': 'grid_view',
@@ -16,11 +19,11 @@ const materialIconByPath: Record<string, string> = {
 };
 
 export default function DashboardPage() {
+    const { user, loading: idLoading } = useDashboardIdentity();
+    const { stats } = useDashboardStats();
     return (
         <div className="dashboard-shell relative h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark text-zinc-200 font-display selection:bg-primary/30 selection:text-white">
-            {/* Decorative Glows */}
-            <div className="fixed top-[-100px] left-[20%] w-[500px] h-[500px] rounded-full bg-primary/10 blur-[120px] pointer-events-none z-0" />
-            <div className="fixed bottom-[-100px] right-[10%] w-[400px] h-[400px] rounded-full bg-indigo-500/10 blur-[100px] pointer-events-none z-0" />
+            
 
             <div className="relative flex h-full w-full overflow-hidden z-10">
                 {/* Sidebar Navigation removed - using global AppLayout Sidebar */}
@@ -39,7 +42,7 @@ export default function DashboardPage() {
                     </header>
 
                     {/* Bento Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 lg:grid-rows-4 gap-6 h-auto lg:h-[calc(100vh-180px)] min-h-[800px]">
+                    <BentoGrid className="md:grid-cols-4 lg:grid-cols-6 lg:grid-rows-4 gap-6 h-auto lg:h-[calc(100vh-180px)] min-h-[800px]">
                         {/* 1. Identity & Level (Top Left) */}
                         <div className="glass-card md:col-span-2 lg:col-span-2 lg:row-span-1 rounded-2xl bg-glass-surface backdrop-blur-xl border border-white/10 p-6 flex items-center justify-between relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-white/5 to-transparent pointer-events-none" />
@@ -49,20 +52,29 @@ export default function DashboardPage() {
                                         className="w-full h-full rounded-full bg-cover bg-center grayscale contrast-125"
                                         data-alt="User profile portrait in grayscale"
                                         style={{
-                                            backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDW0nS9wE5ojjemFy7PjLHZ7iACDPAQVlSACLvUSLXvjYsvlm_e2cIruMSJJc15M-Q7mOV6ddqyd5zw8PItbsXnSDBpEuy4NIWPfS45BqePFRecRX7tZEW37JjwJbm-b0MGG_I3JdOpdblWi5Y8rHO4Rfgon5_zQTf5rnf9pjIVA8DjtKbhnnEPHCKrMMxX83PDEUdSMaUJwBNQFLa0psQDiqDwd_vAuZ7R-MGEu8_cvVi_FhlUBuqFpzzozzA81Z2we8XYumvNZM0')"
+                                            backgroundImage: `url('${(user?.avatar_url) || "https://lh3.googleusercontent.com/aida-public/AB6AXuDW0nS9wE5ojjemFy7PjLHZ7iACDPAQVlSACLvUSLXvjYsvlm_e2cIruMSJJc15M-Q7mOV6ddqyd5zw8PItbsXnSDBpEuy4NIWPfS45BqePFRecRX7tZEW37JjwJbm-b0MGG_I3JdOpdblWi5Y8rHO4Rfgon5_zQTf5rnf9pjIVA8DjtKbhnnEPHCKrMMxX83PDEUdSMaUJwBNQFLa0psQDiqDwd_vAuZ7R-MGEu8_cvVi_FhlUBuqFpzzozzA81Z2we8XYumvNZM0"}')`
                                         }}
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <h3 className="text-xl font-medium text-white tracking-tight">Alex V.</h3>
-                                    <span className="text-xs text-primary font-medium tracking-wider uppercase">Architect Lvl. 42</span>
+                                    <h3 className="text-xl font-medium text-white tracking-tight">
+                                        {idLoading ? "Carregando..." : (user?.name || "Usuário")}
+                                    </h3>
+                                    <span className="text-xs text-primary font-medium tracking-wider uppercase">
+                                        {stats?.completionRate != null ? `Completion ${stats.completionRate}%` : "Status"}
+                                    </span>
                                 </div>
                             </div>
                             <div className="flex flex-col items-end gap-1 z-10">
-                                <span className="text-3xl font-light text-white tracking-tighter">85%</span>
+                                <span className="text-3xl font-light text-white tracking-tighter">
+                                    {stats?.toNextLevelPct ?? 0}%
+                                </span>
                                 <span className="text-[10px] text-zinc-500 uppercase tracking-widest">To Next Lvl</span>
                                 <div className="w-24 h-1 bg-zinc-800 rounded-full mt-1 overflow-hidden">
-                                    <div className="h-full bg-white/80 w-[85%] rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
+                                    <div
+                                        className="h-full bg-white/80 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                                        style={{ width: `${stats?.toNextLevelPct ?? 0}%` }}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -286,7 +298,7 @@ export default function DashboardPage() {
                                 <span className="material-symbols-outlined absolute text-zinc-500 text-[18px]">speed</span>
                             </div>
                         </div>
-                    </div>
+                    </BentoGrid>
                 </main>
             </div>
         </div>

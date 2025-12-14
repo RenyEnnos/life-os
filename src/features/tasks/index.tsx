@@ -171,16 +171,17 @@ export default function TasksPage() {
             <div
                 key={task.id}
                 className={cn(
-                    "group flex items-center gap-4 p-4 rounded-xl border border-transparent hover:bg-white/5 hover:border-white/10 transition-all duration-300 cursor-pointer",
+                    "group flex items-center gap-4 p-4 border border-transparent hover:bg-white/5 hover:border-white/10 transition-all duration-300 cursor-pointer",
                     task.completed && "opacity-60"
                 )}
             >
                 <label className="relative flex items-center justify-center cursor-pointer">
                     <input
                         type="checkbox"
-                        className="task-checkbox peer h-5 w-5 appearance-none rounded border border-zinc-700 bg-transparent checked:bg-primary checked:border-primary transition-all"
+                        className="task-checkbox peer h-5 w-5 appearance-none rounded-sm border border-white/15 bg-transparent checked:bg-primary checked:border-primary transition-all"
                         checked={!!task.completed}
                         onChange={() => handleToggle(task)}
+                        disabled={updateTask.isPending}
                     />
                     <span className="material-symbols-outlined absolute pointer-events-none opacity-0 peer-checked:opacity-100 text-white text-[16px]">check</span>
                 </label>
@@ -203,11 +204,12 @@ export default function TasksPage() {
 
                 <button
                     type="button"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-600 hover:text-white"
+                    className={cn("opacity-0 group-hover:opacity-100 transition-opacity hover:text-white", deleteTask.isPending ? "text-zinc-500 cursor-not-allowed" : "text-zinc-600")}
                     onClick={() => setConfirmDelete(task.id)}
                     aria-label="Excluir tarefa"
+                    disabled={deleteTask.isPending}
                 >
-                    <span className="material-symbols-outlined text-[18px]">more_horiz</span>
+                    <span className="material-symbols-outlined text-[18px]">{deleteTask.isPending ? 'hourglass_top' : 'more_horiz'}</span>
                 </button>
             </div>
         );
@@ -223,8 +225,7 @@ export default function TasksPage() {
 
     return (
         <div className="dashboard-shell relative h-full w-full overflow-hidden">
-            <div className="fixed top-[-20%] left-[10%] w-[600px] h-[600px] rounded-full bg-primary/5 blur-[120px] pointer-events-none z-0" />
-            <div className="fixed bottom-[-10%] right-[0%] w-[500px] h-[500px] rounded-full bg-indigo-500/5 blur-[100px] pointer-events-none z-0" />
+            
 
             <div className="relative flex h-screen w-full overflow-hidden z-10">
                 {/* Sidebar Navigation removed - using global AppLayout Sidebar */}
@@ -267,10 +268,14 @@ export default function TasksPage() {
                                 <button
                                     type="button"
                                     onClick={handleCreateTask}
-                                    className="h-full aspect-square bg-white/5 hover:bg-primary hover:text-white hover:border-primary rounded-xl flex items-center justify-center text-zinc-400 transition-all border border-white/5"
+                                    disabled={createTask.isPending || !newTaskTitle.trim()}
+                                    className={cn(
+                                        "h-full aspect-square rounded-xl flex items-center justify-center transition-all border border-white/5",
+                                        createTask.isPending ? "bg-white/10 text-zinc-500 cursor-not-allowed" : "bg-white/5 hover:bg-primary hover:text-white hover:border-primary text-zinc-400"
+                                    )}
                                     aria-label="Adicionar tarefa"
                                 >
-                                    <span className="material-symbols-outlined text-[20px]">add</span>
+                                    <span className="material-symbols-outlined text-[20px]">{createTask.isPending ? 'hourglass_top' : 'add'}</span>
                                 </button>
                             </div>
                         </div>
@@ -301,14 +306,14 @@ export default function TasksPage() {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-2 overflow-y-auto pr-2 custom-scrollbar z-10 h-full max-h-[600px]">
-                                {filteredTasks.map(renderTask)}
-                                {!filteredTasks.length && (
-                                    <div className="text-sm text-zinc-500 py-6 text-center">
-                                        Nenhuma tarefa encontrada para este filtro.
-                                    </div>
-                                )}
+                    <div className="flex flex-col divide-y divide-white/10 overflow-y-auto pr-2 custom-scrollbar z-10 h-full max-h-[600px]">
+                        {filteredTasks.map(renderTask)}
+                        {!filteredTasks.length && (
+                            <div className="text-sm text-zinc-500 py-6 text-center">
+                                Nenhuma tarefa encontrada para este filtro.
                             </div>
+                        )}
+                    </div>
                             <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/20 to-transparent pointer-events-none rounded-b-3xl" />
                         </div>
 

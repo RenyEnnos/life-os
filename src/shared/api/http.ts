@@ -1,47 +1,88 @@
-import { clearAuthToken, getAuthToken } from './authToken';
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
-const API_BASE_URL = (import.meta.env?.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || '';
-
-export const resolveApiUrl = (url: string) => {
-  if (/^https?:\/\//i.test(url)) return url;
-  if (!API_BASE_URL) return url;
-  return url.startsWith('/') ? `${API_BASE_URL}${url}` : `${API_BASE_URL}/${url}`;
-};
-
-export async function apiFetch<T = unknown>(url: string, options: RequestInit = {}): Promise<T> {
-  const { headers: requestHeaders = {}, credentials, ...rest } = options;
-  const headers = new Headers(requestHeaders as HeadersInit);
-  if (!headers.has('Content-Type')) {
-    headers.set('Content-Type', 'application/json');
-  }
-
-  const token = getAuthToken();
-  if (token && !headers.has('authorization')) {
-    headers.set('Authorization', `Bearer ${token}`);
-  }
-
-  const response = await fetch(resolveApiUrl(url), {
-    ...rest,
-    credentials: credentials ?? 'include',
-    headers,
-  });
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      clearAuthToken();
-      window.dispatchEvent(new Event('auth:unauthorized'));
-    }
-    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-    throw new Error(error.error || `Request failed with status ${response.status}`);
-  }
-
-  return response.json();
+export interface FetchOptions extends RequestInit {
+  method?: HttpMethod
+  timeoutMs?: number
 }
 
-export const apiClient = {
-  get: <T>(url: string) => apiFetch<T>(url, { method: 'GET' }),
-  post: <T>(url: string, body: unknown) => apiFetch<T>(url, { method: 'POST', body: JSON.stringify(body) }),
-  put: <T>(url: string, body: unknown) => apiFetch<T>(url, { method: 'PUT', body: JSON.stringify(body) }),
-  delete: <T>(url: string) => apiFetch<T>(url, { method: 'DELETE' }),
-  patch: <T>(url: string, body: unknown) => apiFetch<T>(url, { method: 'PATCH', body: JSON.stringify(body) }),
-};
+export async function fetchJSON<T = unknown>(url: string, options: FetchOptions = {}): Promise<T> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? 15000)
+  try {
+    const res = await fetch(url, {
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
+      signal: controller.signal,
+      ...options,
+    })
+    const contentType = res.headers.get("content-type") || ""
+    const isJson = contentType.includes("application/json")
+    const body = isJson ? await res.json() : await res.text()
+
+    if (!res.ok) {
+      const message = isJson ? (body?.message || body?.error || "Erro na requisição") : (body || "Erro na requisição")
+      throw new Error(`${res.status} ${res.statusText}: ${message}`)
+    }
+    return body as T
+  } catch (err: any) {
+    if (err?.name === "AbortError") {
+      throw new Error("Tempo de requisição excedido")
+    }
+    throw err
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+export function getJSON<T = unknown>(url: string, headers?: Record<string, string>) {
+  return fetchJSON<T>(url, { method: "GET", headers })
+}
+
+export function postJSON<T = unknown>(url: string, data?: unknown, headers?: Record<string, string>) {
+  return fetchJSON<T>(url, { method: "POST", body: data ? JSON.stringify(data) : undefined, headers })
+}
+
+export function patchJSON<T = unknown>(url: string, data?: unknown, headers?: Record<string, string>) {
+  return fetchJSON<T>(url, { method: "PATCH", body: data ? JSON.stringify(data) : undefined, headers })
+}
+
+export function putJSON<T = unknown>(url: string, data?: unknown, headers?: Record<string, string>) {
+  return fetchJSON<T>(url, { method: "PUT", body: data ? JSON.stringify(data) : undefined, headers })
+}
+
+export function delJSON<T = unknown>(url: string, headers?: Record<string, string>) {
+  return fetchJSON<T>(url, { method: "DELETE", headers })
+}
+
+export type ApiClient = {
+  get<T = unknown>(url: string, headers?: Record<string, string>): Promise<T>
+  post<T = unknown>(url: string, data?: unknown, headers?: Record<string, string>): Promise<T>
+  put<T = unknown>(url: string, data?: unknown, headers?: Record<string, string>): Promise<T>
+  patch<T = unknown>(url: string, data?: unknown, headers?: Record<string, string>): Promise<T>
+  delete<T = unknown>(url: string, headers?: Record<string, string>): Promise<T>
+}
+
+export const apiClient: ApiClient = {
+  get: getJSON,
+  post: postJSON,
+  put: putJSON,
+  patch: patchJSON,
+  delete: delJSON,
+}
+
+export const apiFetch = fetchJSON
+
+export function resolveApiUrl(path: string): string {
+  if (!path) return ""
+  if (/^https?:\/\//i.test(path)) return path
+  const base = (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_API_BASE_URL) || ""
+  const cleanedPath = path.replace(/^\/+/, "")
+  if (base) {
+    return `${String(base).replace(/\/+$/, "")}/${cleanedPath}`
+  }
+  const origin = typeof window !== "undefined" ? window.location.origin : ""
+  return origin ? `${origin}/${cleanedPath}` : `/${cleanedPath}`
+}

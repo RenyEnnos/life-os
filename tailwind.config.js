@@ -16,6 +16,8 @@ export default {
     },
     extend: {
       colors: {
+        "oled": "#050505",
+        "glass": "rgba(24, 24, 27, 0.3)",
         "primary": "#308ce8",
         "background-light": "#f6f7f8",
         "background-dark": "#050505", // OLED Black
@@ -43,6 +45,10 @@ export default {
       fontFamily: {
         "display": ["Inter", "sans-serif"],
         "sans": ["Inter", "sans-serif"],
+      },
+      boxShadow: {
+        "glass": "0 20px 60px rgba(0, 0, 0, 0.80)",
+        "ambient": "0 0 0 1px rgba(255,255,255,0.08), 0 10px 30px rgba(0,0,0,0.60)"
       },
       borderRadius: {
         "DEFAULT": "0.5rem",

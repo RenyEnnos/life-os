@@ -87,35 +87,12 @@ export const BentoCard = ({
             whileHover={{ scale: 1.01, transition: { duration: 0.3, ease: "easeOut" } }}
             whileTap={{ scale: 0.98 }}
             className={cn(
-                "group/bento-card relative overflow-hidden rounded-3xl glass-card glass-panel flex flex-col transition-all duration-300",
-                // Hover states integrated with utility classes
-                "hover:bg-white/[0.02]",
+                "group relative overflow-hidden rounded-3xl border border-white/5 bg-zinc-900/30 backdrop-blur-xl flex flex-col transition-all duration-300 hover:border-white/10 hover:bg-zinc-900/40 shadow-2xl shadow-black/80",
                 onClick && "cursor-pointer",
                 className
             )}
         >
-            {/* Layer 1: Internal Spotlight (Background) */}
-            <motion.div
-                className="pointer-events-none absolute -inset-px opacity-0 transition-opacity duration-300 z-0"
-                animate={{ opacity: enableSpotlight && isHovering ? 1 : 0 }}
-                style={{
-                    background: "radial-gradient(500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.06), transparent 40%)"
-                }}
-            />
-
-            {/* Layer 2: Glowing Border (Mask Composite) */}
-            <motion.div
-                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 z-50 rounded-3xl"
-                style={{
-                    opacity: enableSpotlight && isHovering ? 1 : 0,
-                    background: "radial-gradient(300px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.15), transparent 40%)",
-                    maskImage: `linear-gradient(black, black), linear-gradient(black, black)`,
-                    maskClip: "content-box, border-box",
-                    maskComposite: "exclude",
-                    WebkitMaskComposite: "xor",
-                    padding: "1px" // Border thickness
-                }}
-            />
+            
 
             {/* Layer 3: Content */}
             <div className={cn("relative z-10 h-full flex flex-col min-w-0 w-full", noPadding ? "" : "p-5 md:p-6")}>
@@ -129,7 +106,7 @@ export const BentoCard = ({
                                     )}
                                 </div>
                             )}
-                            {title && <h3 className="text-[10px] uppercase font-bold tracking-widest text-zinc-500 group-hover/bento-card:text-zinc-400 transition-colors">{title}</h3>}
+                            {title && <h3 className="text-[10px] uppercase font-medium tracking-widest text-zinc-500 transition-colors">{title}</h3>}
                         </div>
                         {finalAction && <div>{finalAction}</div>}
                     </div>

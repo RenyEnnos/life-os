@@ -28,7 +28,7 @@ export const authApi = {
         return await apiClient.get<User>('/api/auth/verify');
     },
 
-    updateProfile: async (data: { name?: string; avatar_url?: string }) => {
+    updateProfile: async (data: { name?: string; avatar_url?: string; preferences?: Record<string, unknown>; theme?: 'light' | 'dark' }) => {
         // Optimistically return the user structure if backend doesn't exist yet for demo purposes
         // But ideally:
         return await apiClient.patch<AuthResponse>('/api/auth/profile', data);

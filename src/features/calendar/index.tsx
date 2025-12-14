@@ -13,7 +13,7 @@ import {
 import { NavLink } from 'react-router-dom';
 import { primaryNav, secondaryNav } from '@/app/layout/navItems';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
-import { apiFetch } from '@/shared/api/http';
+import { useCalendarEvents } from '@/features/dashboard/hooks/useCalendarEvents';
 import { Loader } from '@/shared/ui/Loader';
 import { cn } from '@/shared/lib/cn';
 
@@ -46,38 +46,27 @@ const materialIconByPath: Record<string, string> = {
 
 export default function CalendarPage() {
     const { tasks, isLoading: tasksLoading } = useTasks();
+    const { events, loading: loadingEvents, error: eventsError, authUrl, refresh } = useCalendarEvents();
     const [googleEvents, setGoogleEvents] = useState<AgendaEvent[]>([]);
-    const [loadingEvents, setLoadingEvents] = useState(false);
     const [viewDate, setViewDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(new Date());
 
     useEffect(() => {
-        const fetchEvents = async () => {
-            setLoadingEvents(true);
-            try {
-                const events = await apiFetch<any[]>('/api/calendar/events');
-                const mapped: AgendaEvent[] = (events || []).map((evt) => {
-                    const datetime = evt?.start?.dateTime || evt?.start?.date || null;
-                    return {
-                        id: evt.id || `${evt.summary}-${datetime}`,
-                        title: evt.summary || 'Evento',
-                        datetime,
-                        location: evt?.location,
-                        icon: evt?.conferenceData ? 'videocam' : 'event',
-                        tag: 'Google',
-                        color: 'purple',
-                        source: 'google',
-                    };
-                });
-                setGoogleEvents(mapped);
-            } catch (error) {
-                setGoogleEvents([]);
-            } finally {
-                setLoadingEvents(false);
-            }
-        };
-        fetchEvents();
-    }, []);
+        const mapped: AgendaEvent[] = (events || []).map((evt: any) => {
+            const datetime = evt?.start?.dateTime || evt?.start?.date || null;
+            return {
+                id: evt.id || `${evt.summary}-${datetime}`,
+                title: evt.summary || 'Evento',
+                datetime,
+                location: evt?.location,
+                icon: evt?.conferenceData ? 'videocam' : 'event',
+                tag: 'Google',
+                color: 'purple',
+                source: 'google',
+            };
+        });
+        setGoogleEvents(mapped);
+    }, [events]);
 
     const taskEvents: AgendaEvent[] = useMemo(() => {
         if (!tasks) return [];
@@ -164,12 +153,33 @@ export default function CalendarPage() {
                                     >
                                         Today
                                     </button>
+                                    <button
+                                        className="px-5 py-2.5 rounded-lg border border-white/10 text-sm text-zinc-300 hover:text-white hover:bg-white/5 transition-colors"
+                                        onClick={() => refresh()}
+                                        disabled={loadingEvents}
+                                    >
+                                        {loadingEvents ? 'Syncing...' : 'Refresh'}
+                                    </button>
                                     <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900/40 border border-white/5 text-zinc-300 text-sm backdrop-blur-md">
-                                        <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(48,140,232,0.6)]" />
-                                        Sync Active
+                                        <span className={cn("w-2 h-2 rounded-full", eventsError ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]" : "bg-primary shadow-[0_0_8px_rgba(48,140,232,0.6)]")} />
+                                        {eventsError ? "Disconnected" : "Sync Active"}
                                     </div>
                                 </div>
                             </header>
+                            {eventsError && (
+                                <div className="mb-6 px-4 py-3 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-300 text-sm flex items-center justify-between">
+                                    <span>Não foi possível carregar eventos do Google Calendar.</span>
+                                    {authUrl ? (
+                                        <a href={authUrl} className="px-3 py-1 rounded-lg border border-white/10 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition-colors">
+                                            Conectar Calendário
+                                        </a>
+                                    ) : (
+                                        <button className="px-3 py-1 rounded-lg border border-white/10 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition-colors" onClick={() => refresh()}>
+                                            Tentar novamente
+                                        </button>
+                                    )}
+                                </div>
+                            )}
 
                             <div className="flex flex-col lg:flex-row gap-8 h-full min-h-0">
                                 {/* Month grid */}

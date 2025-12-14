@@ -42,6 +42,11 @@ export default function RewardsPage() {
         loadData()
     }, [user])
 
+    useEffect(() => {
+        if (achievements.length > 0 && !loading) {
+        }
+    }, [achievements, loading])
+
     if (loading) return <div className="p-8 text-center text-muted-foreground">Carregando recompensas...</div>
 
     const currentLevel = score?.level || 1
@@ -49,14 +54,6 @@ export default function RewardsPage() {
     const nextLevelXp = currentLevel * 1000
     const progress = (currentXp % 1000) / 1000 * 100
 
-
-    // Effect to trigger confetti if we have unlocked achievements recently (simulated)
-    useEffect(() => {
-        if (achievements.length > 0 && !loading) {
-            // Optional: only trigger if one was just unlocked. For now, just a demo effect on load if user has achievements
-            // Confetti(); 
-        }
-    }, [achievements, loading]);
 
     const handleAchievementClick = (unlocked: boolean) => {
         if (unlocked) {

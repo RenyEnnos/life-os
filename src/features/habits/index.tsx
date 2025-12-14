@@ -23,18 +23,14 @@ const materialIconByPath: Record<string, string> = {
     '/settings': 'settings',
 };
 
-const sampleHabits: Habit[] = [
-    { id: '1', name: 'Morning Meditation', title: 'Morning Meditation', routine: 'morning' as any, frequency: ['daily'], streak: 12, energy_level: 'any', time_block: 'morning', created_at: '', user_id: '', schedule: { frequency: 'daily' } as any },
-    { id: '2', name: 'Workout Session', title: 'Workout Session', routine: 'afternoon' as any, frequency: ['daily'], streak: 45, energy_level: 'high', time_block: 'afternoon', created_at: '', user_id: '', schedule: { frequency: 'daily' } as any },
-    { id: '3', name: 'Hydration 3L', title: 'Hydration 3L', routine: 'morning' as any, frequency: ['daily'], streak: 8, energy_level: 'any', time_block: 'morning', created_at: '', user_id: '', schedule: { frequency: 'daily' } as any },
-];
+ 
 
 export default function HabitsPage() {
     const { habits, logs, isLoading, createHabit, logHabit } = useHabits();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
 
     const todayKey = new Date().toISOString().split('T')[0];
-    const list = habits?.length ? habits : sampleHabits;
+    const list = habits || [];
 
     const recentDays = useMemo(() => {
         const days: { label: string; completed: number; active: boolean }[] = [];
@@ -60,7 +56,9 @@ export default function HabitsPage() {
                 Confetti({ particleCount: 120, spread: 60, origin: { x: 0.5, y: 0.7 } });
             }
         }
-        logHabit.mutate({ id: habitId, value: isCompleted ? 0 : 1, date: todayKey });
+        if (!logHabit.isPending) {
+            logHabit.mutate({ id: habitId, value: isCompleted ? 0 : 1, date: todayKey });
+        }
     };
 
     return (
@@ -176,6 +174,11 @@ export default function HabitsPage() {
                     </div>
 
                     <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20 animate-enter animate-enter-delay-2">
+                        {list.length === 0 && (
+                            <div className="lg:col-span-3 h-32 rounded-2xl border border-dashed border-white/10 bg-transparent flex items-center justify-center text-zinc-500 text-sm">
+                                Nenhum hábito cadastrado. Adicione um novo para começar.
+                            </div>
+                        )}
                         {list.slice(0, 5).map((habit) => {
                             const isCompleted = logs?.some((log: HabitLog) => log.habit_id === habit.id && (log.date || '').startsWith(todayKey) && log.value > 0);
                             const streak = calculateStreak(logs, habit.id) || habit.streak || 0;
@@ -207,9 +210,11 @@ export default function HabitsPage() {
                             );
                         })}
 
-                        <div className="h-32 rounded-2xl border border-dashed border-zinc-800 bg-transparent flex flex-col items-center justify-center gap-3 text-zinc-600 hover:border-zinc-600 hover:text-zinc-400 hover:bg-white/[0.02] transition-all duration-300 cursor-pointer group active:scale-[0.98]" onClick={() => setIsCreateOpen(true)}>
+                        <div className={cn("h-32 rounded-2xl border border-dashed bg-transparent flex flex-col items-center justify-center gap-3 transition-all duration-300 cursor-pointer group active:scale-[0.98]",
+                            createHabit.isPending ? "border-white/10 text-zinc-500 cursor-not-allowed" : "border-zinc-800 text-zinc-600 hover:border-zinc-600 hover:text-zinc-400 hover:bg-white/[0.02]"
+                        )} onClick={() => { if (!createHabit.isPending) setIsCreateOpen(true) }}>
                             <div className="w-10 h-10 rounded-full border border-zinc-700/50 flex items-center justify-center group-hover:border-zinc-500 transition-colors">
-                                <span className="material-symbols-outlined text-[20px]">add</span>
+                                <span className="material-symbols-outlined text-[20px]">{createHabit.isPending ? 'hourglass_top' : 'add'}</span>
                             </div>
                             <span className="text-xs font-medium tracking-wide uppercase">New Habit</span>
                         </div>

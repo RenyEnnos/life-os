@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Target, Folder, Clock, CheckCircle2, AlertCircle, Zap } from 'lucide-react';
+import { Plus, Target, Folder, Clock, CheckCircle2, AlertCircle, Zap, Search, Bell, BarChart3 } from 'lucide-react';
 import { PageTitle } from '@/shared/ui/PageTitle';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
@@ -12,25 +12,6 @@ import { EmptyState } from '@/shared/ui/EmptyState';
 import { ProjectModal } from './components/ProjectModal';
 import { SwotAnalysis } from './components/SwotAnalysis';
 
-import { useState } from 'react';
-import {
-    Clock,
-    Search,
-    Bell,
-    Plus,
-    CreditCard,
-    BarChart3,
-    Calendar,
-    Target
-} from 'lucide-react';
-import { useProjects } from '@/features/projects/hooks/useProjects';
-import { useAI } from '@/features/ai-assistant/hooks/useAI';
-import { clsx } from 'clsx';
-import type { Project } from '@/shared/types';
-import { Loader } from '@/shared/ui/Loader';
-import { EmptyState } from '@/shared/ui/EmptyState';
-import { ProjectModal } from './components/ProjectModal';
-import { SwotAnalysis } from './components/SwotAnalysis';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

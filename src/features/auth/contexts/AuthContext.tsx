@@ -102,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [logoutMutation]);
 
   const updateThemePreference = async (theme: 'light' | 'dark') => {
-    console.log('Updating theme preference to:', theme);
+    await updateProfileMutation.mutateAsync({ theme, preferences: { theme } });
   };
 
   const updateProfileMutation = useMutation({

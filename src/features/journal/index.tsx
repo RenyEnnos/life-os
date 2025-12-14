@@ -102,13 +102,13 @@ export default function JournalPage() {
 
     const { todayCards, yesterdayCards } = useMemo(() => {
         if (!entries?.length) {
-            return { todayCards: sampleToday, yesterdayCards: sampleYesterday };
+            return { todayCards: [], yesterdayCards: [] };
         }
         const todayEntries = entries.filter((e) => new Date(e.entry_date).toDateString() === todayKey);
         const yEntries = entries.filter((e) => new Date(e.entry_date).toDateString() === yesterdayKey);
         return {
-            todayCards: todayEntries.length ? mapEntriesToCards(todayEntries, 'Journal') : sampleToday,
-            yesterdayCards: yEntries.length ? mapEntriesToCards(yEntries, 'Journal') : sampleYesterday,
+            todayCards: mapEntriesToCards(todayEntries, 'Journal'),
+            yesterdayCards: mapEntriesToCards(yEntries, 'Journal'),
         };
     }, [entries, todayKey, yesterdayKey]);
 
@@ -192,9 +192,15 @@ export default function JournalPage() {
                                             <h3 className="text-zinc-500 text-sm font-medium tracking-widest uppercase">Today</h3>
                                             <span className="text-zinc-700 text-xs">{formatDate(today)}</span>
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            {todayCards.map(renderCard)}
-                                        </div>
+                                        {todayCards.length === 0 ? (
+                                            <div className="w-full py-8 rounded-xl border border-dashed border-white/5 text-zinc-500 text-sm">
+                                                Sem entradas para hoje.
+                                            </div>
+                                        ) : (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                {todayCards.map(renderCard)}
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="flex flex-col gap-6">
@@ -202,9 +208,15 @@ export default function JournalPage() {
                                             <h3 className="text-zinc-500 text-sm font-medium tracking-widest uppercase">Yesterday</h3>
                                             <span className="text-zinc-700 text-xs">{formatDate(yesterday)}</span>
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            {yesterdayCards.map(renderCard)}
-                                        </div>
+                                        {yesterdayCards.length === 0 ? (
+                                            <div className="w-full py-8 rounded-xl border border-dashed border-white/5 text-zinc-500 text-sm">
+                                                Sem entradas de ontem.
+                                            </div>
+                                        ) : (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                {yesterdayCards.map(renderCard)}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 

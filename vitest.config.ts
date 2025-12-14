@@ -1,25 +1,21 @@
-import { defineConfig } from 'vitest/config';
-import path from 'path';
+import { defineConfig } from 'vitest/config'
+import { fileURLToPath } from 'url'
+import { dirname, resolve as pathResolve } from 'path'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
-// More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   test: {
-    environment: 'node',
-    include: ['api/tests/**/*.test.ts', 'src/**/__tests__/**/*.test.ts', 'src/**/__tests__/**/*.test.tsx'],
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
     globals: true,
-    environmentMatchGlobs: [
-      ['**/*.test.tsx', 'jsdom'],
-      ['**/*.snapshot.test.tsx', 'jsdom'],
-      ['src/**/__tests__/**/*.test.tsx', 'jsdom']
-    ],
     coverage: {
-      reporter: ['text', 'html']
-    },
-    // Storybook snapshot tests handled via standard jsdom tests
+      provider: 'v8'
+    }
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src')
+      '@': pathResolve(__dirname, './src')
     }
   }
-});
+})

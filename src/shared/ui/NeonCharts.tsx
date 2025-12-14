@@ -15,7 +15,7 @@ interface NeonChartProps {
 export function NeonChart({ title, data, color = '#8b5cf6', className }: NeonChartProps) {
     return (
         <div className={`w-full h-full flex flex-col ${className}`}>
-            <h3 className="text-xs font-medium text-gray-500 font-mono tracking-widest uppercase mb-4 px-2">
+            <h3 className="text-xs font-medium text-zinc-500 font-mono tracking-widest uppercase mb-4 px-2">
                 {title}
             </h3>
             <div className="flex-1 w-full min-h-[150px]">
@@ -52,7 +52,7 @@ export function NeonChart({ title, data, color = '#8b5cf6', className }: NeonCha
                             stroke={color}
                             strokeWidth={2}
                             fill={`url(#gradient-${title})`}
-                            filter={`drop-shadow(0 0 6px ${color}40)`}
+                            
                         />
                     </AreaChart>
                 </ResponsiveContainer>

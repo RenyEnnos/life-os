@@ -2,14 +2,12 @@ import { useState, useEffect, memo } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, type Transition } from 'framer-motion';
 import { NavigationSystem } from './NavigationSystem';
-import { Particles } from '@/shared/ui/premium/Particles';
 import { OnboardingModal } from '@/features/onboarding/OnboardingModal';
 import { useRealtime } from '@/shared/hooks/useRealtime';
 import { SanctuaryOverlay } from '@/shared/ui/sanctuary/SanctuaryOverlay';
 import { useSanctuaryStore } from '@/shared/stores/sanctuaryStore';
 import { cn } from '@/shared/lib/cn';
 
-const MemoizedParticles = memo(Particles);
 const MemoizedSanctuaryOverlay = memo(SanctuaryOverlay);
 
 const ScrollToTop = () => {
@@ -66,13 +64,9 @@ export function AppLayout() {
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
                 {/* 1. Global Noise */}
                 <div className="absolute inset-0 bg-noise opacity-[0.03] mix-blend-overlay" />
-
-                {/* 2. Deep Glows */}
-                <div className="absolute top-[-20%] left-[10%] w-[600px] h-[600px] rounded-full bg-primary/5 blur-[120px]" />
-                <div className="absolute bottom-[-10%] right-[0%] w-[500px] h-[500px] rounded-full bg-indigo-500/5 blur-[100px]" />
             </div>
 
-            <MemoizedParticles className="absolute inset-0 z-0 opacity-20 pointer-events-none" quantity={30} ease={100} staticity={50} refresh />
+            
 
             <OnboardingModal isOpen={showOnboarding} onClose={() => {
                 localStorage.setItem('life-os-onboarding-completed', 'true');

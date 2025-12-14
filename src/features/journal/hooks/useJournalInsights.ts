@@ -94,23 +94,9 @@ export async function triggerJournalAnalysis(entryId: string): Promise<{
     error?: string;
 }> {
     try {
-        const response = await fetch(`/api/resonance/analyze/${entryId}`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            console.warn('[Neural Resonance] Analysis failed:', error);
-            return { success: false, error: error.error || 'Analysis failed' };
-        }
-
-        const data = await response.json();
-        console.log('[Neural Resonance] Analysis complete:', data);
-        return { success: true, insight: data.insight };
-    } catch (error) {
-        console.error('[Neural Resonance] Network error:', error);
-        return { success: false, error: 'Network error' };
+        const data = await apiClient.post<{ success: boolean; insight?: { mood_score: number; themes: string[]; summary: string } }>(`/api/resonance/analyze/${entryId}`, {});
+        return { success: !!data?.success, insight: data?.insight };
+    } catch (error: any) {
+        return { success: false, error: error?.message || 'Analysis failed' };
     }
 }

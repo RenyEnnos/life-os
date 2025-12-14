@@ -48,8 +48,7 @@ export default function ProfilePage() {
 
     return (
         <div className="dashboard-shell relative h-screen w-full overflow-hidden">
-            <div className="fixed top-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full bg-primary/5 blur-[120px] pointer-events-none z-0" />
-            <div className="fixed bottom-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-purple-500/10 blur-[100px] pointer-events-none z-0" />
+            
 
             <div className="relative flex h-full w-full overflow-hidden z-10">
 
@@ -73,12 +72,9 @@ export default function ProfilePage() {
                     </header>
 
                     <section className="w-full max-w-6xl mx-auto animate-enter animate-enter-delay-1">
-                        <div className="relative w-full rounded-3xl bg-zinc-900/40 backdrop-blur-xl border border-white/10 p-8 lg:p-12 overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5 opacity-50 pointer-events-none" />
+                        <div className="group relative w-full rounded-3xl border border-white/5 bg-zinc-900/30 p-8 lg:p-12 backdrop-blur-xl transition-all duration-300 hover:border-white/10 hover:bg-zinc-900/40 overflow-hidden">
                             <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
                                 <div className="relative cursor-pointer">
-                                    <div className="absolute -inset-4 border border-dashed border-zinc-700/50 rounded-full animate-[spin_8s_linear_infinite] opacity-30" />
-                                    <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-primary to-purple-500 opacity-20 blur-md" />
                                     <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-zinc-900 border-2 border-white/10 relative overflow-hidden shadow-[0_0_0_2px_rgba(5,5,5,1),0_0_0_4px_rgba(48,140,232,0.3),0_0_30px_rgba(48,140,232,0.2)]">
                                         <img
                                             alt="User Avatar"

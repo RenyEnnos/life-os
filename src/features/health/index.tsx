@@ -24,13 +24,7 @@ const materialIconByPath: Record<string, string> = {
     '/settings': 'settings',
 };
 
-const sampleSleepBars = [70, 75, 80, 55, 60];
-const sampleMedications: MedicationReminder[] = [
-    { id: 'med-1', user_id: 'sample', name: 'Omega-3 EPA', dosage: '1g', times: ['08:00'], active: true, created_at: new Date().toISOString() },
-    { id: 'med-2', user_id: 'sample', name: 'Vitamin D3', dosage: '5000 IU', times: ['12:00'], active: true, created_at: new Date().toISOString() },
-    { id: 'med-3', user_id: 'sample', name: 'Magnesium Glycinate', dosage: '400mg', times: ['22:00'], active: true, created_at: new Date().toISOString() },
-    { id: 'med-4', user_id: 'sample', name: 'Creatine Monohydrate', dosage: '5g', times: ['11:00'], active: true, created_at: new Date().toISOString() },
-];
+ 
 
 const metricValue = (metrics: HealthMetric[] | undefined, metricType: string, fallback: number) => {
     const found = metrics?.find((m) => m.metric_type === metricType);
@@ -50,8 +44,7 @@ export default function HealthPage() {
     const sleepTotal = metricValue(metrics, 'sleep', 7.7);
 
     const medicationsList = useMemo<MedicationReminder[]>(() => {
-        if (medications && medications.length) return medications;
-        return sampleMedications;
+        return medications || [];
     }, [medications]);
 
     return (
@@ -159,15 +152,17 @@ export default function HealthPage() {
                                                 <span className="material-symbols-outlined text-zinc-600 group-hover:text-[#308ce8] transition-colors text-lg">bedtime</span>
                                             </div>
                                             <div className="flex items-end gap-1.5 h-20 w-full mt-4">
-                                                {sampleSleepBars.map((bar, idx) => (
-                                                    <div key={idx} className={cn(
-                                                        "w-full bg-zinc-800 rounded-sm h-full flex flex-col justify-end overflow-hidden",
-                                                        idx === 2 && "border border-white/20"
-                                                    )}>
-                                                        <div className="w-full bg-[#308ce8]/30" style={{ height: `${Math.max(10, bar - 30)}%` }} />
-                                                        <div className="w-full bg-[#308ce8]" style={{ height: `${bar}%` }} />
+                                                {sleepTotal > 0 ? (
+                                                    Array.from({ length: 5 }).map((_, idx) => (
+                                                        <div key={idx} className="w-full bg-zinc-800 rounded-sm h-full flex flex-col justify-end overflow-hidden">
+                                                            <div className="w-full bg-[#308ce8]" style={{ height: `${Math.min(100, Math.max(10, sleepTotal * 10))}%` }} />
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-xs text-zinc-500 border border-dashed border-white/5 rounded">
+                                                        Sem dados suficientes
                                                     </div>
-                                                ))}
+                                                )}
                                             </div>
                                             <div className="mt-2">
                                                 <span className="text-xl font-light text-white">{sleepTotal.toFixed(1)}h</span>
@@ -236,6 +231,11 @@ export default function HealthPage() {
                                         </button>
                                     </div>
                                     <div className="flex flex-col gap-4 overflow-y-auto pr-1 custom-scrollbar flex-1">
+                                        {medicationsList.length === 0 && (
+                                            <div className="w-full py-6 rounded-xl border border-dashed border-white/10 text-zinc-500 text-sm text-center">
+                                                Nenhuma medicação cadastrada.
+                                            </div>
+                                        )}
                                         {medicationsList.map((med) => (
                                             <label key={med.id} className="group relative cursor-pointer">
                                                 <input className="peer sr-only" type="checkbox" />
@@ -251,7 +251,7 @@ export default function HealthPage() {
                                                             aria-label="Remover"
                                                             onClick={(e) => {
                                                                 e.preventDefault();
-                                                                deleteMedication.mutate(med.id);
+                                                                if (!deleteMedication.isPending) deleteMedication.mutate(med.id);
                                                             }}
                                                         >
                                                             delete

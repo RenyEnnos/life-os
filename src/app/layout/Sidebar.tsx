@@ -5,7 +5,7 @@ import { primaryNav, secondaryNav } from './navItems';
 
 export const Sidebar = ({ className }: { className?: string }) => {
     return (
-        <aside className={cn("flex flex-col items-center py-8 w-24 h-full shrink-0 border-r border-white/5 bg-zinc-900/20 backdrop-blur-xl z-50", className)}>
+        <aside className={cn("flex flex-col items-center py-8 w-24 h-full shrink-0 border-r border-white/10 bg-white/5 dark:bg-zinc-900/20 backdrop-blur-2xl shadow-xl z-50", className)}>
             <div className="mb-8 shrink-0">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-zinc-800 to-zinc-700 flex items-center justify-center border border-white/10 shadow-lg hover:border-primary/40 transition-colors group cursor-pointer">
                     <span className="text-white/80 font-bold text-sm tracking-widest group-hover:text-white transition-colors">OS</span>

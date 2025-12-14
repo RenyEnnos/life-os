@@ -7,7 +7,7 @@ import type { FinanceSummary, Transaction } from '@/shared/types';
 import { Loader } from '@/shared/ui/Loader';
 import { TransactionModal } from './components/TransactionModal';
 import { primaryNav, secondaryNav } from '@/app/layout/navItems';
-import { NeonChart } from '@/shared/ui/NeonCharts';
+// Removed NeonChart in favor of minimal inline bars
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
 
@@ -27,74 +27,7 @@ const materialIconByPath: Record<string, string> = {
     '/settings': 'settings',
 };
 
-const sampleTransactions: Transaction[] = [
-    {
-        id: 'sample-1',
-        user_id: 'sample',
-        amount: 4500,
-        category: 'Salário',
-        created_at: '2025-10-14T09:00:00Z',
-        date: '2025-10-14',
-        description: 'Design Project X',
-        type: 'income',
-        tags: ['income']
-    },
-    {
-        id: 'sample-2',
-        user_id: 'sample',
-        amount: 1299,
-        category: 'Eletrônicos',
-        created_at: '2025-10-14T14:30:00Z',
-        date: '2025-10-14',
-        description: 'Apple Store',
-        type: 'expense',
-        tags: ['tech']
-    },
-    {
-        id: 'sample-3',
-        user_id: 'sample',
-        amount: 1850,
-        category: 'Investimentos',
-        created_at: '2025-10-13T10:00:00Z',
-        date: '2025-10-13',
-        description: 'Aporte mensal',
-        type: 'expense',
-        tags: ['invest']
-    },
-    {
-        id: 'sample-4',
-        user_id: 'sample',
-        amount: 8.5,
-        category: 'Cafés',
-        created_at: '2025-10-13T16:45:00Z',
-        date: '2025-10-13',
-        description: 'Starbucks',
-        type: 'expense',
-        tags: ['food']
-    },
-    {
-        id: 'sample-5',
-        user_id: 'sample',
-        amount: 240,
-        category: 'Saúde',
-        created_at: '2025-10-10T18:30:00Z',
-        date: '2025-10-10',
-        description: 'Equinox Gym',
-        type: 'expense',
-        tags: ['health']
-    },
-    {
-        id: 'sample-6',
-        user_id: 'sample',
-        amount: 3200,
-        category: 'Serviços',
-        created_at: '2025-10-05T10:30:00Z',
-        date: '2025-10-05',
-        description: 'Contrato UX',
-        type: 'income',
-        tags: ['consulting']
-    }
-];
+// Removed sampleTransactions fallback
 
 const computeSummary = (transactions: Transaction[] = []): FinanceSummary => {
     const income = transactions.filter((t) => t.type === 'income').reduce((acc, t) => acc + Number(t.amount || 0), 0);
@@ -128,15 +61,12 @@ export default function FinancesPage() {
     const usingSampleData = !transactions || transactions.length === 0;
 
     const transactionsToShow = useMemo<Transaction[]>(() => {
-        if (!usingSampleData && transactions && transactions.length > 0) {
-            return [...transactions].sort((a, b) => {
-                const aDate = safeParseDate(a.date);
-                const bDate = safeParseDate(b.date);
-                return (bDate?.getTime() || 0) - (aDate?.getTime() || 0);
-            });
-        }
-        return sampleTransactions;
-    }, [transactions, usingSampleData]);
+        return (transactions || []).slice().sort((a, b) => {
+            const aDate = safeParseDate(a.date);
+            const bDate = safeParseDate(b.date);
+            return (bDate?.getTime() || 0) - (aDate?.getTime() || 0);
+        });
+    }, [transactions]);
 
     const summaryToShow = useMemo<FinanceSummary>(() => {
         if (summary) return summary;
@@ -174,8 +104,7 @@ export default function FinancesPage() {
 
     return (
         <div className="dashboard-shell relative h-screen w-full overflow-hidden">
-            <div className="fixed top-[-20%] left-[10%] w-[600px] h-[600px] rounded-full bg-primary/5 blur-[120px] pointer-events-none z-0" />
-            <div className="fixed bottom-[-10%] right-[0%] w-[500px] h-[500px] rounded-full bg-indigo-500/5 blur-[100px] pointer-events-none z-0" />
+            
 
             <div className="relative flex h-full w-full overflow-hidden z-10">
                 {/* Sidebar Navigation removed - using global AppLayout Sidebar */}
@@ -264,7 +193,27 @@ export default function FinancesPage() {
                                                 Sem dados suficientes
                                             </div>
                                         ) : (
-                                            <NeonChart title="" data={cashFlowData} color="#308ce8" className="w-full h-[260px]" />
+                                            <div className="w-full h-[240px] flex items-end gap-2">
+                                                {cashFlowData.map((d, idx) => {
+                                                    const height = `${Math.min(100, Math.max(10, Math.round((Math.abs(d.value) / Math.max(1, Math.max(...cashFlowData.map(x => Math.abs(x.value))))) * 100)))}%`;
+                                                    const positive = d.value >= 0;
+                                                    return (
+                                                        <div key={idx} className="group relative flex-1 h-full flex items-end justify-center">
+                                                            <div
+                                                                className={cn(
+                                                                    "w-5 rounded-sm transition-colors",
+                                                                    positive ? "bg-emerald-500/80 hover:bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]" : "bg-red-500/70 hover:bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+                                                                )}
+                                                                style={{ height }}
+                                                                title={`${d.name}: ${d.value}`}
+                                                            />
+                                                            <div className="absolute -bottom-5 text-[10px] text-zinc-400">
+                                                                {d.name}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
                                         )}
                                     </div>
                                 </div>
@@ -320,6 +269,11 @@ export default function FinancesPage() {
                                     </div>
                                 </div>
                                 <div className="flex flex-col divide-y divide-white/5">
+                                    {transactionsToShow.length === 0 && (
+                                        <div className="w-full py-10 flex items-center justify-center text-sm text-zinc-500 border border-dashed border-white/5 rounded-2xl">
+                                            Nenhuma transação. Adicione uma nova para começar.
+                                        </div>
+                                    )}
                                     {transactionsToShow.map((t) => (
                                         <div key={t.id} className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors group cursor-pointer">
                                             <div className="flex items-center gap-4">
