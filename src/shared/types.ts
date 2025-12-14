@@ -149,6 +149,7 @@ export interface LifeScore {
     level: number;
     current_xp: number;
     life_score: number;
+    attributes?: any;
     updated_at: string;
 }
 

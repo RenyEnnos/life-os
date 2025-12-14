@@ -1,0 +1,9 @@
+- [x] **Specs**: Define the unified sidebar and icon requirements.
+- [x] **Design**: Document the "Deep Glass" sidebar aesthetic and icon grid system.
+- [x] **Refactor AppLayout**: Remove `isCustomShell` logic for Sidebar visibility. Ensure `NavigationSystem` serves all authenticated routes.
+- [x] **Clean Dashboard**: Remove `<aside>` and manual sidebar code from `src/features/dashboard/index.tsx`.
+- [x] **Clean Tasks**: Remove `<aside>` and manual sidebar code from `src/features/tasks/index.tsx`.
+- [x] **Clean Others**: Check and remove sidebar code from `finances/index.tsx`, `habits/index.tsx`, `calendar/index.tsx` if present.
+- [x] **Upgrade Sidebar**: Refactor `src/app/layout/Sidebar.tsx` to use `Bento` glass aesthetics, correct spacing, and "perfect" 20px/24px Lucide icons.
+- [x] **Verify Icons**: Audit `navItems.ts` to ensure optimal Lucide icon choices (stroke width, visual weight).
+- [x] **Validation**: Verify navigation works seamlessly on Desktop and Mobile (via Dock) without double-bars or missing bars.

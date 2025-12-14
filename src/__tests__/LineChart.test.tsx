@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import React from 'react'
 import { render } from '@testing-library/react'
-import LineChart from '../components/charts/LineChart'
+import LineChart from '@/shared/ui/charts/LineChart'
 
 describe('LineChart', () => {
   it('renders without errors', () => {

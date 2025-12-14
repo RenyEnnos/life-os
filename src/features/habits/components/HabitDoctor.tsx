@@ -53,7 +53,7 @@ export function HabitDoctor({ habits, logs }: HabitDoctorProps) {
             <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-lg text-indigo-300 flex items-center gap-2">
                     <Stethoscope size={20} />
-                    Habit Doctor <Badge tone="outline" className="text-[10px] h-5">AI BETA</Badge>
+                    Habit Doctor <Badge variant="outline" className="text-[10px] h-5">AI BETA</Badge>
                 </CardTitle>
                 <Button
                     variant="ghost"

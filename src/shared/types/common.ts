@@ -31,4 +31,5 @@ export interface Habit {
     type: 'binary' | 'numeric';
     progress?: number;
     goal?: number;
+    active?: boolean;
 }

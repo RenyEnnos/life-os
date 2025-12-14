@@ -88,7 +88,6 @@ export default function Tabs({
                 ? 'border-b-2'
                 : 'rounded-xl',
               variant === 'segmented' && 'flex-1 rounded-2xl',
-              containerClass,
               isActive ? activeClass : inactiveClass,
             )}
           >

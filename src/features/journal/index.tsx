@@ -156,57 +156,8 @@ export default function JournalPage() {
             <div className="fixed bottom-[-10%] right-[0%] w-[500px] h-[500px] rounded-full bg-indigo-500/5 blur-[120px] pointer-events-none z-0" />
 
             <div className="relative flex h-full w-full overflow-hidden z-10">
-                <aside className="hidden lg:flex flex-col w-20 h-full border-r border-white/5 bg-zinc-900/20 backdrop-blur-xl py-8 items-center gap-8 z-30 shrink-0">
-                    <div className="mb-4">
-                        <NavLink
-                            to="/"
-                            className="w-10 h-10 rounded-xl bg-gradient-to-tr from-zinc-800 to-zinc-900 flex items-center justify-center border border-white/10 shadow-lg group hover:border-primary/50 transition-colors"
-                        >
-                            <span
-                                className="material-symbols-outlined text-white/80 group-hover:text-primary transition-colors"
-                                style={{ fontSize: 20 }}
-                            >
-                                all_inclusive
-                            </span>
-                        </NavLink>
-                    </div>
-                    <nav className="flex flex-col gap-6 w-full px-4 items-center">
-                        {['/', '/journal', '/calendar', '/projects'].map((path) => (
-                            <NavLink
-                                key={path}
-                                to={path}
-                                className={({ isActive }) => cn(
-                                    "group relative flex items-center justify-center w-10 h-10 rounded-xl transition-all",
-                                    isActive
-                                        ? "bg-primary/20 text-primary border border-primary/20 shadow-[0_0_15px_rgba(48,140,232,0.2)]"
-                                        : "text-zinc-500 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10"
-                                )}
-                            >
-                                <span
-                                    className="material-symbols-outlined"
-                                    style={{ fontSize: 24 }}
-                                >
-                                    {materialIconByPath[path] || 'grid_view'}
-                                </span>
-                                <span className="absolute left-12 bg-zinc-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap border border-white/10">
-                                    {path === '/' ? 'Dashboard' : path.replace('/', '').charAt(0).toUpperCase() + path.slice(2)}
-                                </span>
-                                {path === '/journal' && (
-                                    <div className="absolute right-0 top-0 w-2 h-2 rounded-full bg-primary shadow-[0_0_4px_rgba(48,140,232,0.8)]" />
-                                )}
-                            </NavLink>
-                        ))}
-                    </nav>
-                    <div className="mt-auto flex flex-col gap-6 w-full px-4 items-center">
-                        <NavLink
-                            to="/profile"
-                            className="w-8 h-8 rounded-full bg-center bg-cover border border-white/10 opacity-60 hover:opacity-100 transition-opacity cursor-pointer"
-                            style={{ backgroundImage: `url('${profileAvatar}')` }}
-                        />
-                    </div>
-                </aside>
-
-                <main className="flex-1 h-full overflow-hidden flex flex-col relative">
+                {/* Sidebar Navigation removed - using global AppLayout Sidebar */}
+                <main className="flex-1 h-full overflow-hidden flex flex-col relative custom-scrollbar">
                     <div className="flex-1 overflow-y-auto w-full relative z-0 scroll-smooth">
                         <div className="max-w-7xl mx-auto px-4 lg:px-12 py-8 lg:py-12 flex flex-col min-h-full">
 

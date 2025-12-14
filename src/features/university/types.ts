@@ -15,7 +15,7 @@ export interface Assignment {
     course_id: string;
     title: string;
     description?: string;
-    type: 'exam' | 'homework' | 'paper' | 'project' | 'reading' | 'lab' | 'essay' | 'quiz';
+    type: 'exam' | 'homework' | 'paper' | 'project' | 'reading' | 'lab' | 'essay' | 'quiz' | 'problem_set';
     due_date: string;
     grade?: number;
     weight: number;

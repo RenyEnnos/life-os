@@ -60,55 +60,7 @@ export default function HealthPage() {
             <div className="fixed bottom-[-10%] right-[0%] w-[500px] h-[500px] rounded-full bg-[#308ce8]/5 blur-[100px] pointer-events-none z-0" />
 
             <div className="relative flex h-full w-full overflow-hidden z-10">
-                <aside className="hidden lg:flex flex-col w-24 h-full border-r border-white/5 bg-zinc-900/20 backdrop-blur-xl py-8 items-center gap-8 z-20">
-                    <div className="mb-4">
-                        <NavLink
-                            to="/"
-                            className="w-10 h-10 rounded-xl bg-gradient-to-tr from-zinc-800 to-zinc-700 flex items-center justify-center border border-white/10 shadow-lg hover:border-primary/40 transition-colors"
-                        >
-                            <span className="material-symbols-outlined text-white/80" style={{ fontSize: 20 }}>vital_signs</span>
-                        </NavLink>
-                    </div>
-                    <nav className="flex flex-col gap-6 w-full px-4">
-                        {primaryNav.map((item) => (
-                            <NavLink
-                                key={item.path}
-                                to={item.path}
-                                className={({ isActive }) => (
-                                    isActive
-                                        ? "group flex items-center justify-center p-3 rounded-xl bg-primary/20 text-primary border border-primary/20 shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all"
-                                        : "group flex items-center justify-center p-3 rounded-xl text-zinc-500 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-all"
-                                )}
-                            >
-                                <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
-                                    {materialIconByPath[item.path] || 'apps'}
-                                </span>
-                            </NavLink>
-                        ))}
-                    </nav>
-                    <div className="mt-auto flex flex-col gap-6 w-full px-4">
-                        {secondaryNav.map((item) => (
-                            <NavLink
-                                key={item.path}
-                                to={item.path}
-                                className={({ isActive }) => (
-                                    isActive
-                                        ? "group flex items-center justify-center p-3 rounded-xl bg-primary/20 text-primary border border-primary/20 shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all"
-                                        : "group flex items-center justify-center p-3 rounded-xl text-zinc-500 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-all"
-                                )}
-                            >
-                                <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
-                                    {materialIconByPath[item.path] || 'settings'}
-                                </span>
-                            </NavLink>
-                        ))}
-                        <NavLink
-                            to="/profile"
-                            className="w-10 h-10 rounded-full bg-center bg-cover border border-white/10 opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
-                            style={{ backgroundImage: `url('${profileAvatar}')` }}
-                        />
-                    </div>
-                </aside>
+
 
                 <main className="flex-1 h-full overflow-y-auto relative p-4 lg:p-10 flex flex-col gap-10 custom-scrollbar">
                     {isLoading ? (

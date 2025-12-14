@@ -64,55 +64,7 @@ export default function SettingsPage() {
             <div className="fixed bottom-[-10%] right-[0%] w-[500px] h-[500px] rounded-full bg-indigo-500/5 blur-[100px] pointer-events-none z-0" />
 
             <div className="relative flex h-full w-full overflow-hidden z-10">
-                <aside className="hidden lg:flex flex-col w-20 h-full border-r border-white/5 bg-zinc-900/20 backdrop-blur-xl py-8 items-center gap-8 z-30 shrink-0">
-                    <div className="mb-4">
-                        <NavLink
-                            to="/"
-                            className="w-10 h-10 rounded-xl bg-gradient-to-tr from-zinc-800 to-zinc-700 flex items-center justify-center border border-white/10 shadow-lg"
-                        >
-                            <span className="material-symbols-outlined text-white/80" style={{ fontSize: 20 }}>all_inclusive</span>
-                        </NavLink>
-                    </div>
-                    <nav className="flex flex-col gap-6 w-full px-2 items-center">
-                        {primaryNav.map((item) => (
-                            <NavLink
-                                key={item.path}
-                                to={item.path}
-                                className={({ isActive }) => (
-                                    isActive
-                                        ? "group flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-[0_0_15px_rgba(48,140,232,0.1)] transition-all"
-                                        : "group flex items-center justify-center w-10 h-10 rounded-xl text-zinc-500 hover:text-white hover:bg-white/5 transition-all"
-                                )}
-                            >
-                                <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
-                                    {materialIconByPath[item.path] || 'apps'}
-                                </span>
-                            </NavLink>
-                        ))}
-                    </nav>
-                    <div className="mt-auto flex flex-col gap-6 w-full px-2 items-center">
-                        {secondaryNav.map((item) => (
-                            <NavLink
-                                key={item.path}
-                                to={item.path}
-                                className={({ isActive }) => (
-                                    isActive
-                                        ? "group flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-[0_0_15px_rgba(48,140,232,0.1)] transition-all"
-                                        : "group flex items-center justify-center w-10 h-10 rounded-xl text-zinc-500 hover:text-white hover:bg-white/5 transition-all"
-                                )}
-                            >
-                                <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
-                                    {materialIconByPath[item.path] || 'settings'}
-                                </span>
-                            </NavLink>
-                        ))}
-                        <NavLink
-                            to="/profile"
-                            className="w-8 h-8 rounded-full bg-center bg-cover border border-white/10 opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
-                            style={{ backgroundImage: `url('${profileAvatar}')` }}
-                        />
-                    </div>
-                </aside>
+
 
                 <main className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden bg-background-dark/80">
                     <div className="w-full lg:w-64 flex flex-col border-b lg:border-b-0 lg:border-r border-white/5 bg-zinc-900/10 backdrop-blur-md z-20">

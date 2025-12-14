@@ -34,13 +34,7 @@ const pageTransition: Transition = {
 export function AppLayout() {
     const [showOnboarding, setShowOnboarding] = useState(false);
     const location = useLocation();
-    const isCustomShell =
-        location.pathname === '/'
-        || location.pathname.startsWith('/tasks')
-        || location.pathname.startsWith('/calendar')
-        || location.pathname.startsWith('/journal')
-        || location.pathname.startsWith('/habits')
-        || location.pathname.startsWith('/finances');
+    const isCustomShell = false; // Deprecated, enabling global navigation
     useRealtime();
 
     useEffect(() => {
@@ -85,25 +79,20 @@ export function AppLayout() {
                 setShowOnboarding(false);
             }} />
 
-            {/* Sidebar Navigation */}
-            {!isCustomShell && (
-                <aside className="hidden lg:flex flex-col w-24 h-screen shrink-0 border-r border-white/5 bg-zinc-900/20 backdrop-blur-xl z-20">
-                    <NavigationSystem isSanctuaryActive={isActive} />
-                </aside>
-            )}
+            {/* Sidebar Navigation - Always Visible on Desktop */}
+            <aside className="hidden lg:flex flex-col w-24 h-screen shrink-0 z-50">
+                <NavigationSystem isSanctuaryActive={isActive} />
+            </aside>
 
-            {/* Mobile Navigation (Floating or Bottom) - handled by NavigationSystem mostly, but ensuring structure */}
-            {!isCustomShell && (
-                <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-4">
+            {/* Mobile Navigation - Always Visible on Mobile */}
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pointer-events-none">
+                <div className="pointer-events-auto">
                     <NavigationSystem isSanctuaryActive={isActive} />
                 </div>
-            )}
+            </div>
 
             {/* Main Content Area */}
-            <main className={cn(
-                "flex-1 h-screen overflow-x-hidden relative z-10 w-full",
-                isCustomShell ? "overflow-hidden" : "overflow-y-auto custom-scrollbar"
-            )}>
+            <main className="flex-1 h-screen overflow-hidden relative z-10 w-full">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={location.pathname}
@@ -112,10 +101,7 @@ export function AppLayout() {
                         animate="animate"
                         exit="exit"
                         transition={pageTransition}
-                        className={cn(
-                            "w-full min-h-full p-4 lg:p-10 pb-32 lg:pb-10",
-                            isCustomShell && "p-0 lg:p-0"
-                        )}
+                        className="w-full h-full overflow-hidden"
                     >
                         <Outlet />
                     </motion.div>

@@ -16,7 +16,7 @@ const HealthPage = lazy(() => import('@/features/health'));
 const FinancesPage = lazy(() => import('@/features/finances'));
 const ProjectsPage = lazy(() => import('@/features/projects'));
 const UniversityPage = lazy(() => import('@/features/university'));
-const RewardsPage = lazy(() => import('@/features/rewards/index'));
+
 const SettingsPage = lazy(() => import('@/features/settings'));
 const DesignSystemPreview = lazy(() => import('@/features/design-system/Preview'));
 const ProfilePage = lazy(() => import('@/features/profile'));
@@ -65,7 +65,7 @@ export function AppRoutes() {
                     <Route path="/health" element={<HealthPage />} />
                     <Route path="/finances" element={<FinancesPage />} />
                     <Route path="/projects" element={<ProjectsPage />} />
-                    <Route path="/rewards" element={<RewardsPage />} />
+
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/design" element={<DesignSystemPreview />} />
                     <Route path="/university" element={<UniversityPage />} />

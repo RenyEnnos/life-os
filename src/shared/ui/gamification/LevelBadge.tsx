@@ -28,7 +28,7 @@ export function LevelBadge({ className, size = 'md' }: LevelBadgeProps) {
     const progressPercent = Math.min(100, Math.max(0, (xpInLevel / xpNeededForLevel) * 100));
 
     // Get archetype for color
-    const attributes = userXP.attributes as XPAttributes | null;
+    const attributes = userXP.attributes as unknown as XPAttributes | null;
     const archetype = getArchetype(attributes);
 
     const sizeClasses = {

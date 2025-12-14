@@ -100,8 +100,8 @@ export default function TasksPage() {
             if (!aDue && bDue) return 1;
 
             const priorityOrder = { high: 0, medium: 1, low: 2 } as const;
-            const aPriority = priorityOrder[a.priority ?? 'low'] ?? 3;
-            const bPriority = priorityOrder[b.priority ?? 'low'] ?? 3;
+            const aPriority = priorityOrder[(a.priority ?? 'low') as keyof typeof priorityOrder] ?? 3;
+            const bPriority = priorityOrder[(b.priority ?? 'low') as keyof typeof priorityOrder] ?? 3;
             if (aPriority !== bPriority) return aPriority - bPriority;
 
             return a.title.localeCompare(b.title);
@@ -179,7 +179,7 @@ export default function TasksPage() {
                     <input
                         type="checkbox"
                         className="task-checkbox peer h-5 w-5 appearance-none rounded border border-zinc-700 bg-transparent checked:bg-primary checked:border-primary transition-all"
-                        checked={task.completed}
+                        checked={!!task.completed}
                         onChange={() => handleToggle(task)}
                     />
                     <span className="material-symbols-outlined absolute pointer-events-none opacity-0 peer-checked:opacity-100 text-white text-[16px]">check</span>
@@ -227,53 +227,8 @@ export default function TasksPage() {
             <div className="fixed bottom-[-10%] right-[0%] w-[500px] h-[500px] rounded-full bg-indigo-500/5 blur-[100px] pointer-events-none z-0" />
 
             <div className="relative flex h-screen w-full overflow-hidden z-10">
-                {/* Sidebar Navigation wired to app routes */}
-                <aside className="hidden lg:flex flex-col w-24 h-full border-r border-white/5 bg-zinc-900/20 backdrop-blur-xl py-8 items-center gap-8 z-20">
-                    <div className="mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-zinc-800 to-zinc-700 flex items-center justify-center border border-white/10 shadow-lg">
-                            <span className="material-symbols-outlined text-white/80" style={{ fontSize: 20 }}>all_inclusive</span>
-                        </div>
-                    </div>
-                    <nav className="flex flex-col gap-6 w-full px-4">
-                        {primaryNav.map((item) => (
-                            <NavLink
-                                key={item.path}
-                                to={item.path}
-                                className={({ isActive }) => cn(
-                                    "group flex items-center justify-center p-3 rounded-xl transition-all",
-                                    isActive
-                                        ? "bg-primary/10 text-primary border border-primary/20 shadow-[0_0_15px_rgba(48,140,232,0.2)]"
-                                        : "text-zinc-500 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10"
-                                )}
-                            >
-                                <item.icon className="h-5 w-5" />
-                            </NavLink>
-                        ))}
-                    </nav>
-                    <div className="mt-auto flex flex-col gap-6 w-full px-4">
-                        {secondaryNav.map((item) => (
-                            <NavLink
-                                key={item.path}
-                                to={item.path}
-                                className={({ isActive }) => cn(
-                                    "group flex items-center justify-center p-3 rounded-xl transition-all",
-                                    isActive
-                                        ? "bg-primary/10 text-primary border border-primary/20 shadow-[0_0_15px_rgba(48,140,232,0.2)]"
-                                        : "text-zinc-500 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10"
-                                )}
-                            >
-                                <item.icon className="h-5 w-5" />
-                            </NavLink>
-                        ))}
-                        <NavLink
-                            to="/profile"
-                            className="w-10 h-10 rounded-full bg-center bg-cover border border-white/10 opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
-                            style={{ backgroundImage: `url('${profileAvatar}')` }}
-                        />
-                    </div>
-                </aside>
-
-                <main className="flex-1 h-full overflow-y-auto relative p-4 lg:p-10 flex flex-col gap-8">
+                {/* Sidebar Navigation removed - using global AppLayout Sidebar */}
+                <main className="flex-1 h-full overflow-y-auto relative p-4 lg:p-10 flex flex-col gap-8 custom-scrollbar">
                     <div className="w-full flex flex-col gap-6 animate-enter">
                         <div className="flex items-end justify-between px-2">
                             <div>

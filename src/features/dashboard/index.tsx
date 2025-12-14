@@ -23,63 +23,8 @@ export default function DashboardPage() {
             <div className="fixed bottom-[-100px] right-[10%] w-[400px] h-[400px] rounded-full bg-indigo-500/10 blur-[100px] pointer-events-none z-0" />
 
             <div className="relative flex h-full w-full overflow-hidden z-10">
-                {/* Sidebar Navigation */}
-                <aside className="hidden lg:flex flex-col w-24 h-full border-r border-white/5 bg-zinc-900/20 backdrop-blur-xl py-8 items-center gap-8 z-20">
-                    <div className="mb-4">
-                        <NavLink
-                            to="/"
-                            className="w-10 h-10 rounded-xl bg-gradient-to-tr from-zinc-800 to-zinc-700 flex items-center justify-center border border-white/10 shadow-lg hover:border-primary/40 transition-colors"
-                        >
-                            <span className="material-symbols-outlined text-white/80" style={{ fontSize: 20 }}>all_inclusive</span>
-                        </NavLink>
-                    </div>
-
-                    <nav className="flex flex-col gap-6 w-full px-4">
-                        {primaryNav.map((item) => (
-                            <NavLink
-                                key={item.path}
-                                to={item.path}
-                                className={({ isActive }) => (
-                                    isActive
-                                        ? "group flex items-center justify-center p-3 rounded-xl bg-primary/20 text-primary border border-primary/20 shadow-[0_0_15px_rgba(48,140,232,0.2)] transition-all"
-                                        : "group flex items-center justify-center p-3 rounded-xl text-zinc-500 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-all"
-                                )}
-                            >
-                                <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
-                                    {materialIconByPath[item.path] || 'apps'}
-                                </span>
-                            </NavLink>
-                        ))}
-                    </nav>
-
-                    <div className="mt-auto flex flex-col gap-6 w-full px-4">
-                        {secondaryNav.map((item) => (
-                            <NavLink
-                                key={item.path}
-                                to={item.path}
-                                className={({ isActive }) => (
-                                    isActive
-                                        ? "group flex items-center justify-center p-3 rounded-xl bg-primary/20 text-primary border border-primary/20 shadow-[0_0_15px_rgba(48,140,232,0.2)] transition-all"
-                                        : "group flex items-center justify-center p-3 rounded-xl text-zinc-500 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-all"
-                                )}
-                            >
-                                <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
-                                    {materialIconByPath[item.path] || 'settings'}
-                                </span>
-                            </NavLink>
-                        ))}
-                        <NavLink
-                            to="/profile"
-                            className="w-10 h-10 rounded-full bg-center bg-cover border border-white/10 opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
-                            style={{
-                                backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCVPqcPWDT3hPr01e2HDirC5oJIReGS_I9VQWtVcd9Jeg7-ZvWFgDQfCv6EutPiYTzuE-re3TH5gEjialXzk5Eb8SJ3m82eLKwBuKSLDpWKr4JkJ_yftg1ioQEeRmNNBPiKJhA7IAj11REAjyt_eN6G3ka3T_PoSQNNU9d7cQ6Af9A6u-pdRHLfzCaPzGvoxAzXj6ge63w7ZFJhPW4J6cxpsTQe-UV2JJuJ124QPZ8DgIYXHP4uJji-EBFIe1WQsTDEKAGbz-RlcuI')"
-                            }}
-                        />
-                    </div>
-                </aside>
-
-                {/* Main Content Area */}
-                <main className="flex-1 h-full overflow-y-auto p-4 lg:p-8 relative">
+                {/* Sidebar Navigation removed - using global AppLayout Sidebar */}
+                <main className="flex-1 h-full overflow-y-auto p-4 lg:p-8 relative custom-scrollbar">
                     <header className="flex justify-between items-end mb-8 pl-2">
                         <div>
                             <h2 className="text-zinc-500 text-sm font-medium tracking-widest uppercase mb-1">Good Morning</h2>

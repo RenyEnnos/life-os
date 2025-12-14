@@ -172,7 +172,7 @@ export function AssignmentKanban({ assignments, onStatusChange }: AssignmentKanb
                         <div key={col.id} className="flex flex-col gap-4 min-w-[300px]">
                             <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-900 border border-zinc-800">
                                 <h3 className="font-bold text-zinc-300 font-mono uppercase">{col.title}</h3>
-                                <Badge tone="outline" className="bg-zinc-800 border-zinc-700">
+                                <Badge variant="outline" className="bg-zinc-800 border-zinc-700">
                                     {colAssignments.length}
                                 </Badge>
                             </div>
