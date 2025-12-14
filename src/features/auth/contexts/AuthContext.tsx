@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { Session } from '@supabase/supabase-js';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api/auth.api';
-import { LoginRequest, RegisterRequest } from '@/shared/types';
+import { LoginRequest, RegisterRequest, User } from '@/shared/types';
 
 interface AuthContextType {
   user: User | null;
@@ -12,7 +12,7 @@ interface AuthContextType {
   register: (credentials: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
   updateThemePreference: (theme: 'light' | 'dark') => Promise<void>;
-  updateProfile: (data: { full_name?: string; avatar_url?: string }) => Promise<void>;
+  updateProfile: (data: { name?: string; avatar_url?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -102,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     register: async (creds: RegisterRequest) => { await registerMutation.mutateAsync(creds); },
     logout: async () => { await logoutMutation.mutateAsync(); },
     updateThemePreference,
-    updateProfile: async (data: { full_name?: string; avatar_url?: string }) => { await updateProfileMutation.mutateAsync(data); }
+    updateProfile: async (data: { name?: string; avatar_url?: string }) => { await updateProfileMutation.mutateAsync(data); }
   };
 
   return (

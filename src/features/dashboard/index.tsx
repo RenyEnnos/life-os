@@ -43,7 +43,7 @@ const GREETINGS: Record<'morning' | 'afternoon' | 'evening', string> = {
  */
 export default function DashboardPage() {
     const { user } = useAuth();
-    const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Comandante';
+    const firstName = user?.name?.split(' ')[0] || 'Comandante';
     const timeBlock = getCurrentTimeBlock();
 
     // Get weekly advice from Neural Resonance

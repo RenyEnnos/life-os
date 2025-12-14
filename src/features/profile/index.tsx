@@ -12,13 +12,13 @@ export default function ProfilePage() {
     const { user, logout, updateProfile } = useAuth();
     const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(false);
-    const [fullName, setFullName] = useState(user?.user_metadata?.full_name || '');
+    const [fullName, setFullName] = useState(user?.name || '');
     const [isSaving, setIsSaving] = useState(false);
 
     const handleSaveProfile = async () => {
         try {
             setIsSaving(true);
-            await updateProfile({ full_name: fullName });
+            await updateProfile({ name: fullName });
             setIsEditing(false);
         } catch (error) {
             console.error('Failed to update profile:', error);
@@ -69,8 +69,8 @@ export default function ProfilePage() {
                         <div className="relative group">
                             <div className="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-1 shadow-2xl shadow-indigo-500/20">
                                 <div className="w-full h-full rounded-full bg-zinc-900 border-4 border-black/50 overflow-hidden flex items-center justify-center">
-                                    {user?.user_metadata?.avatar_url ? (
-                                        <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                                    {user?.avatar_url ? (
+                                        <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                                     ) : (
                                         <User size={48} className="text-indigo-200" />
                                     )}

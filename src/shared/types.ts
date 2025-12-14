@@ -4,6 +4,10 @@ import { Database } from './types/database';
 export interface DbUser {
     id: string;
     email?: string;
+    name?: string;
+    avatar_url?: string;
+    preferences?: Record<string, any>;
+    theme?: string;
     created_at: string;
     updated_at?: string;
 }

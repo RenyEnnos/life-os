@@ -236,7 +236,7 @@ router.get('/verify', async (req: Request, res: Response): Promise<void> => {
 
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, email, name, preferences, theme, created_at, updated_at')
+      .select('id, email, name, avatar_url, preferences, theme, created_at, updated_at')
       .eq('id', decoded.userId)
       .single()
 
@@ -253,9 +253,9 @@ router.get('/verify', async (req: Request, res: Response): Promise<void> => {
 
 /**
  * Update Profile
- * PUT /api/auth/profile
+ * PATCH /api/auth/profile
  */
-router.put('/profile', async (req: Request, res: Response): Promise<void> => {
+router.patch('/profile', async (req: Request, res: Response): Promise<void> => {
   try {
     const authHeader = req.headers.authorization
     const token = authHeader && authHeader.split(' ')[1]
@@ -265,11 +265,16 @@ router.put('/profile', async (req: Request, res: Response): Promise<void> => {
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & { userId: string; email: string }
-    const { preferences } = req.body
+    const { preferences, name, avatar_url } = req.body
+
+    const updates: Record<string, any> = {}
+    if (preferences) updates.preferences = preferences
+    if (name) updates.name = name
+    if (avatar_url) updates.avatar_url = avatar_url
 
     const { data: user, error } = await supabase
       .from('users')
-      .update({ preferences })
+      .update(updates)
       .eq('id', decoded.userId)
       .select()
       .single()
