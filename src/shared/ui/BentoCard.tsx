@@ -16,7 +16,7 @@ export const BentoGrid = ({ className, children }: { className?: string; childre
                 }
             }}
             className={cn(
-                "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-[1920px] mx-auto auto-rows-[180px]",
+                "group/bento grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-[1920px] mx-auto auto-rows-[180px]",
                 className
             )}
         >
@@ -75,11 +75,15 @@ export const BentoCard = ({
             onMouseLeave={() => setOpacity(0)}
             onClick={onClick}
             // FÍSICA TÁTIL
-            whileHover={{ y: -2, transition: { duration: 0.2 } }}
-            whileTap={{ scale: 0.99 }}
+            // Scale sutil (breath) em vez de movimento Y puro.
+            whileHover={{ scale: 1.01, transition: { duration: 0.3, ease: "easeOut" } }}
+            whileTap={{ scale: 0.98 }}
             className={cn(
-                "group relative overflow-hidden rounded-xl glass-panel text-zinc-100 transition-all duration-300 @container",
-                onClick && "cursor-pointer hover:shadow-md hover:shadow-black/20",
+                "group/bento-card relative overflow-hidden rounded-xl glass-panel text-zinc-100 transition-all duration-300 transition-opacity @container",
+                // Bordas unificadas e surface highlight
+                "border border-white/5 hover:bg-white/[0.02] group-hover/bento:opacity-90 hover:opacity-100",
+                onClick && "cursor-pointer",
+                // Old classes logic preserved but cleaned up via cn
                 className
             )}
         >
