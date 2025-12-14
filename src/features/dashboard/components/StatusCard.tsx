@@ -28,11 +28,11 @@ export function StatusCard({ className }: { className?: string }) {
     }
 
     const currentLevel = userXP.level;
-    const totalXp = userXP.total_xp;
+    const totalXp = userXP.current_xp;
 
-    // XP math
-    const xpForCurrentLevel = Math.pow(currentLevel, 2) * 100;
-    const xpForNextLevel = calculateNextLevelXp(currentLevel);
+    // XP math aligned with backend (1000 XP per level)
+    const xpForCurrentLevel = (currentLevel - 1) * 1000;
+    const xpForNextLevel = currentLevel * 1000;
     const xpGainedInLevel = totalXp - xpForCurrentLevel;
     const levelSize = xpForNextLevel - xpForCurrentLevel;
     const progress = Math.min(100, Math.max(0, (xpGainedInLevel / levelSize) * 100));

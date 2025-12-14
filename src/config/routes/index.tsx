@@ -32,7 +32,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         );
     }
 
-    if (!user) {
+    if (!user?.id) {
         return <Navigate to="/login" replace />;
     }
 

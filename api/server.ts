@@ -1,5 +1,6 @@
 /**
  * local server entry file, for local development
+ * (restart trigger)
  */
 import app from './app';
 

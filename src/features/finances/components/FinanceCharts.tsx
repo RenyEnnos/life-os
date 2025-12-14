@@ -13,6 +13,7 @@ import {
 import type { Transaction, FinanceSummary } from '@/shared/types';
 import { NeonChart } from '@/shared/ui/NeonCharts';
 import { motion, AnimatePresence } from 'framer-motion';
+import { BentoCard } from '@/shared/ui/BentoCard';
 
 interface FinanceChartsProps {
     transactions: Transaction[] | undefined;
@@ -35,7 +36,7 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
 
         // Sort transactions by date ascending
         const sorted = [...transactions].sort((a, b) =>
-            new Date(a.transaction_date).getTime() - new Date(b.transaction_date).getTime()
+            new Date(a.date).getTime() - new Date(b.date).getTime()
         );
 
         let runningBalance = 0;
@@ -45,7 +46,7 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
             else runningBalance -= amount;
 
             return {
-                name: new Date(t.transaction_date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                name: new Date(t.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
                 value: runningBalance
             };
         });
@@ -54,36 +55,36 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {/* Balance History Chart (New) */}
-            <div className="lg:col-span-2 xl:col-span-2 h-[300px] p-6 rounded-2xl border border-white/5 bg-[#111] backdrop-blur-sm">
-                <div className="flex items-center gap-2 mb-4">
-                    <TrendingUp size={16} className="text-primary" />
-                    <h3 className="font-sans font-medium text-sm text-gray-400 tracking-wider uppercase">
-                        Fluxo de Caixa
-                    </h3>
+            <BentoCard
+                title="Fluxo de Caixa"
+                icon={TrendingUp}
+                className="lg:col-span-2 xl:col-span-2 h-[300px]"
+            >
+                <div className="h-full w-full pt-4">
+                    {balanceHistoryData.length > 0 ? (
+                        <NeonChart
+                            title=""
+                            data={balanceHistoryData}
+                            color="#8b5cf6"
+                            className="h-full w-full"
+                        />
+                    ) : (
+                        <div className="h-full flex items-center justify-center text-muted-foreground font-mono text-sm">
+                            Dados insuficientes
+                        </div>
+                    )}
                 </div>
-                {balanceHistoryData.length > 0 ? (
-                    <NeonChart
-                        title=""
-                        data={balanceHistoryData}
-                        color="#8b5cf6"
-                        className="h-full -mt-4"
-                    />
-                ) : (
-                    <div className="h-full flex items-center justify-center text-muted-foreground font-mono text-sm">
-                        Dados insuficientes
-                    </div>
-                )}
-            </div>
+            </BentoCard>
 
             {/* Expenses Chart */}
-            <div className="h-[300px] p-6 rounded-2xl border border-white/5 bg-[#111] backdrop-blur-sm flex flex-col">
-                <h3 className="font-sans font-medium text-sm text-gray-400 tracking-wider uppercase mb-6 flex items-center gap-2">
-                    <PieChartIcon size={16} className="text-primary" />
-                    Gastos por Categoria
-                </h3>
-                <div className="flex-1 relative">
+            <BentoCard
+                title="Gastos por Categoria"
+                icon={PieChartIcon}
+                className="h-[300px]"
+            >
+                <div className="h-full w-full pt-4 relative">
                     {!pieData.length ? (
-                        <div className="h-full flex items-center justify-center text-muted-foreground font-mono text-sm">
+                        <div className="h-full flex items-center justify-center text-muted-foreground font-mono text-sm pb-8">
                             Dados insuficientes
                         </div>
                     ) : (
@@ -93,8 +94,8 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
                                     data={pieData}
                                     cx="50%"
                                     cy="50%"
-                                    innerRadius={50}
-                                    outerRadius={80}
+                                    innerRadius={40}
+                                    outerRadius={70}
                                     paddingAngle={4}
                                     dataKey="value"
                                     stroke="none"
@@ -120,76 +121,79 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
                                     layout="horizontal"
                                     verticalAlign="bottom"
                                     align="center"
-                                    wrapperStyle={{ fontSize: '12px', color: '#a1a1aa', paddingTop: '10px' }}
+                                    wrapperStyle={{ fontSize: '10px', color: '#a1a1aa', paddingTop: '0px' }}
                                     iconType="circle"
                                 />
                             </PieChart>
                         </ResponsiveContainer>
                     )}
                 </div>
-            </div>
+            </BentoCard>
 
             {/* Transactions List */}
-            <div className="lg:col-span-2 xl:col-span-3 p-6 rounded-2xl border border-white/5 bg-[#111] backdrop-blur-sm">
-                <h3 className="font-sans font-medium text-sm text-gray-400 tracking-wider uppercase mb-6 flex items-center gap-2">
-                    <DollarSign size={16} className="text-primary" />
-                    Últimas Transações
-                </h3>
+            <BentoCard
+                title="Últimas Transações"
+                icon={DollarSign}
+                className="lg:col-span-2 xl:col-span-3 min-h-[300px]"
+            >
+                <div className="pt-4  pb-2">
+                    {!transactions?.length ? (
+                        <div className="text-center py-10 text-muted-foreground font-mono text-sm">
+                            Nenhuma transação encontrada.
+                        </div>
+                    ) : (
+                        <div ref={listRef} className="space-y-3">
+                            <AnimatePresence>
+                                {transactions.map((t: Transaction, index: number) => (
+                                    <motion.div
+                                        key={t.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                                        className="flex items-center justify-between p-4 bg-zinc-900/40 rounded-xl border border-white/5 hover:border-white/10 hover:bg-zinc-800/50 transition-all duration-200 group relative overflow-hidden"
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
-                {!transactions?.length ? (
-                    <div className="text-center py-10 text-muted-foreground font-mono text-sm">
-                        Nenhuma transação encontrada.
-                    </div>
-                ) : (
-                    <div ref={listRef} className="space-y-3">
-                        <AnimatePresence>
-                            {transactions.map((t: Transaction, index: number) => (
-                                <motion.div
-                                    key={t.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.95 }}
-                                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                                    className="flex items-center justify-between p-4 bg-zinc-900/50 rounded-xl border border-white/5 hover:border-white/10 hover:bg-zinc-800/50 transition-all duration-200 group"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className={clsx(
-                                            "w-1 h-8 rounded-full",
-                                            t.type === 'income' ? "bg-green-500" : "bg-red-500"
-                                        )} />
-                                        <div>
-                                            <div className="font-medium text-white">{t.description}</div>
-                                            <div className="text-xs text-gray-500 font-mono flex gap-2">
-                                                <span>{new Date(t.transaction_date).toLocaleDateString('pt-BR')}</span>
-                                                <span className="text-zinc-600">•</span>
-                                                <span className="uppercase">{t.category}</span>
+                                        <div className="flex items-center gap-4 relative z-10">
+                                            <div className={clsx(
+                                                "w-1 h-8 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)]",
+                                                t.type === 'income' ? "bg-green-500 shadow-green-500/20" : "bg-red-500 shadow-red-500/20"
+                                            )} />
+                                            <div>
+                                                <div className="font-medium text-white">{t.description}</div>
+                                                <div className="text-xs text-gray-500 font-mono flex gap-2">
+                                                    <span>{new Date(t.date).toLocaleDateString('pt-BR')}</span>
+                                                    <span className="text-zinc-600">•</span>
+                                                    <span className="uppercase tracking-wider text-[10px]">{t.category}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div className="flex items-center gap-4">
-                                        <span className={clsx(
-                                            "font-mono font-medium",
-                                            t.type === 'income' ? "text-green-400" : "text-red-400"
-                                        )}>
-                                            {t.type === 'income' ? '+' : '-'} R$ {Number(t.amount).toFixed(2)}
-                                        </span>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 hover:bg-red-400/10 transition-all"
-                                            onClick={() => onDeleteTransaction(t.id)}
-                                            aria-label="Excluir transação"
-                                        >
-                                            <Trash2 size={16} />
-                                        </Button>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </div>
-                )}
-            </div>
+                                        <div className="flex items-center gap-4 relative z-10">
+                                            <span className={clsx(
+                                                "font-mono font-medium tracking-tight",
+                                                t.type === 'income' ? "text-green-400" : "text-red-400"
+                                            )}>
+                                                {t.type === 'income' ? '+' : '-'} R$ {Number(t.amount).toFixed(2)}
+                                            </span>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                                                onClick={() => onDeleteTransaction(t.id)}
+                                                aria-label="Excluir transação"
+                                            >
+                                                <Trash2 size={16} />
+                                            </Button>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </div>
+                    )}
+                </div>
+            </BentoCard>
         </div>
     );
 }

@@ -4,6 +4,7 @@ import { habitsApi } from '@/features/habits/api/habits.api';
 import { healthApi } from '@/features/health/api/health.api';
 import { financesApi } from '@/features/finances/api/finances.api';
 import { rewardsApi } from '@/features/rewards/api/rewards.api';
+import type { LifeScore } from '@/shared/types';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import type { Task, Habit, HealthMetric } from '@/shared/types';
 
@@ -14,7 +15,7 @@ export function useDashboardData() {
 
   const { data: tasks, isLoading: tasksLoading } = useQuery<Task[]>({
     queryKey: ['tasks', 'dashboard'],
-    queryFn: () => tasksApi.getAll(user!.id),
+    queryFn: () => tasksApi.getAll(),
     enabled: !!user,
   });
 
@@ -32,18 +33,18 @@ export function useDashboardData() {
 
   const { data: finance, isLoading: financeLoading } = useQuery<{ income: number; expenses: number; balance: number }>({
     queryKey: ['finance', 'summary'],
-    queryFn: () => financesApi.getSummary(user!.id),
+    queryFn: () => financesApi.getSummary(),
     enabled: !!user,
   });
 
-  const { data: lifeScoreData, isLoading: scoreLoading } = useQuery({
+  const { data: lifeScoreData, isLoading: scoreLoading } = useQuery<LifeScore>({
     queryKey: ['life-score', 'dashboard'],
-    queryFn: () => rewardsApi.getUserScore(user!.id),
+    queryFn: () => rewardsApi.getUserScore(),
     enabled: !!user
   });
 
   const lifeScore = {
-    score: lifeScoreData?.current_xp || 0, // Using XP as score proxy for now
+    score: lifeScoreData?.current_xp || 0,
     trend: 'up' as const,
     statusText: lifeScoreData?.level ? `Nível ${lifeScoreData.level}` : 'Iniciante'
   };

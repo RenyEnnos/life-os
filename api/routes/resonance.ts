@@ -109,6 +109,26 @@ router.post('/analyze/:entryId', authenticateToken, async (req: AuthRequest, res
     }
 });
 
+// General insights listing (optional filters)
+router.get('/insights', authenticateToken, async (req: AuthRequest, res: Response) => {
+    const userId = req.user!.id;
+    const { entryId, type, limit } = req.query as { entryId?: string; type?: string; limit?: string };
+
+    let q = supabase
+        .from('journal_insights')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    if (entryId) q = q.eq('journal_entry_id', entryId);
+    if (type) q = q.eq('insight_type', type);
+    if (limit) q = q.limit(Number(limit));
+
+    const { data, error } = await q;
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data || []);
+});
+
 // Get insights for an entry
 router.get('/insights/:entryId', authenticateToken, async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id;

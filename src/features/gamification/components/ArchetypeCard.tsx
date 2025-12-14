@@ -22,7 +22,7 @@ export function ArchetypeCard({ className, variant = 'default' }: ArchetypeCardP
 
     if (!userXP) return null;
 
-    const attributes = userXP.attributes as XPAttributes | null;
+    const attributes = (userXP as any)?.attributes as XPAttributes | null;
     const archetype = getArchetype(attributes);
     const dominant = getDominantAttribute(attributes);
     const Icon = archetype.icon;
@@ -133,4 +133,3 @@ export function ArchetypeCard({ className, variant = 'default' }: ArchetypeCardP
         </MagicCard>
     );
 }
-

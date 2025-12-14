@@ -9,7 +9,7 @@ export function useJournal() {
 
     const { data: entries, isLoading } = useQuery<JournalEntry[]>({
         queryKey: ['journal', user?.id],
-        queryFn: async () => journalApi.list(user!.id),
+        queryFn: async () => journalApi.list(),
         enabled: !!user,
     });
 
@@ -17,21 +17,6 @@ export function useJournal() {
         mutationFn: journalApi.create,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['journal'] });
-
-            // Gamification: Award XP for journal entry
-            import('@/features/gamification/api/xpService').then(({ awardXP }) => {
-                if (user?.id) {
-                    awardXP(user.id, 30, 'spirit', 'journal_entry').then((result) => {
-                        if (result.success) {
-                            import('react-hot-toast').then(({ default: toast }) => {
-                                toast.success(`+30 XP Spirit${result.newLevel ? ` • Level Up! ${result.newLevel}` : ''}`, {
-                                    style: { background: '#050505', color: '#fff', border: '1px solid #333' }
-                                });
-                            });
-                        }
-                    });
-                }
-            });
         },
     });
 

@@ -2,11 +2,7 @@ import { apiClient } from '@/shared/api/http';
 import { Habit } from '@/shared/types';
 
 export const habitsApi = {
-    list: async (userId: string) => {
-        // Backend handles userId from token, but might still accept query params or ignore userId arg if it relies on auth context's user id.
-        // The backend route is router.get('/', authenticateToken, ...) and uses req.user!.id.
-        // So we don't strictly need to pass userId in the URL if the backend ignores it, 
-        // but let's just call the endpoint.
+    list: async (_userId?: string) => {
         const data = await apiClient.get<Habit[]>('/api/habits');
         return data;
     },
@@ -25,13 +21,16 @@ export const habitsApi = {
         await apiClient.delete(`/api/habits/${id}`);
     },
 
-    getLogs: async (userId: string, date?: string) => {
+    getLogs: async (_userId?: string, date?: string) => {
         const query = date ? `?date=${date}` : '';
         const data = await apiClient.get<any[]>(`/api/habits/logs${query}`);
-        return data;
+        return (data || []).map(log => ({
+            ...log,
+            date: log.date ?? log.logged_date ?? ''
+        }));
     },
 
-    log: async (userId: string, habitId: string, value: number, date: string) => {
+    log: async (_userId: string, habitId: string, value: number, date: string) => {
         const data = await apiClient.post<any>(`/api/habits/${habitId}/log`, { value, date });
         return data;
     }

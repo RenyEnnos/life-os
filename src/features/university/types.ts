@@ -15,10 +15,10 @@ export interface Assignment {
     course_id: string;
     title: string;
     description?: string;
-    type: 'exam' | 'homework' | 'paper' | 'project';
+    type: 'exam' | 'homework' | 'paper' | 'project' | 'reading' | 'lab' | 'essay' | 'quiz';
     due_date: string;
     grade?: number;
     weight: number;
-    status: 'todo' | 'submitted' | 'graded';
+    status: 'todo' | 'submitted' | 'graded' | 'in_progress';
     completed?: boolean;
 }

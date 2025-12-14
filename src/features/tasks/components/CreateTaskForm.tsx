@@ -63,15 +63,14 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit({
+        const payload = {
             title,
             description,
             due_date: dueDate ? new Date(dueDate).toISOString() : undefined,
             completed: false,
-            tags,
-            energy_level: energyLevel,
-            time_block: timeBlock
-        });
+            tags
+        };
+        onSubmit(payload);
     };
 
     return (

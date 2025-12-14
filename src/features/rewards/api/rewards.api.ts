@@ -1,38 +1,24 @@
-import { supabase } from '@/shared/api/supabase';
+import { apiClient } from '@/shared/api/http';
+import type { LifeScore, Achievement } from '@/shared/types';
 
 export const rewardsApi = {
-    getUserScore: async (userId: string) => {
-        const { data, error } = await supabase
-            .from('user_scores')
-            .select('*')
-            .eq('user_id', userId)
-            .single();
-
-        if (error && error.code !== 'PGRST116') throw error;
-
-        // If not found, return default (mocked empty state for now instead of inserting) or insert secure defaults if safe.
-        // For security, let's just return a default if not found.
-        return data || { current_xp: 0, level: 1 };
+    getUserScore: async (): Promise<LifeScore> => {
+        const data = await apiClient.get<LifeScore>('/api/rewards/score');
+        return data;
     },
 
-    getUnlockedAchievements: async (userId: string) => {
-        const { data, error } = await supabase
-            .from('user_achievements')
-            .select('*, achievement:achievements(*)')
-            .eq('user_id', userId);
-
-        if (error) throw error;
+    getUnlockedAchievements: async (): Promise<Achievement[]> => {
+        const data = await apiClient.get<Achievement[]>('/api/rewards/achievements');
         return data || [];
     },
 
-    // MOCKED/DISABLED for Security Constraints (Logic moved to DB Triggers)
-    addXp: async (userId: string, amount: number) => {
-        console.warn('XP addition is now handled by Database Triggers for security.');
-        return null;
+    getAchievementsCatalog: async () => {
+        const data = await apiClient.get<Array<Achievement & { unlocked?: boolean; unlockedAt?: string | null }>>('/api/rewards/achievements/full');
+        return data || [];
     },
 
-    checkAndUnlockAchievement: async (userId: string, achievementCode: string) => {
-        console.warn('Achievement unlocking is now handled by Database Triggers for security.');
-        return null;
-    }
+    addXp: async (amount: number) => {
+        const data = await apiClient.post<{ success: boolean; current_xp: number; level: number }>('/api/rewards/xp', { amount });
+        return data;
+    },
 };

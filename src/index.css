@@ -4,122 +4,159 @@
 
 @layer base {
   :root {
-    /* Deep Glass System Tokens - Synced with src/design/tokens.ts */
-    --background: 0 0% 1.2%;
-    /* #030303 */
-    --surface: 240 5.9% 4%;
-    /* #0A0A0B */
-    --surface-highlight: 240 5% 8%;
-    /* #121214 */
-
+    /* Deep Glass System Tokens */
+    --background: 0 0% 1.2%; /* #030303 */
+    --surface: 240 5.9% 6%;  /* #0f0f11 - Slightly lighter than bg */
+    --surface-highlight: 240 5% 10%;
+    
     --foreground: 0 0% 93%;
-    /* #ededed */
-    --primary: 0 0% 93%;
-    /* #ededed */
-    --primary-foreground: 0 0% 0%;
-    /* #000000 */
+    --primary: 210 79% 55%; /* #308ce8 */
+    --primary-foreground: 0 0% 100%;
 
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
 
     --destructive: 0 84.2% 60.2%;
-
+    
     --border: 0 0% 100%;
-    /* #ffffff (used with opacity) */
     --input: 240 3.7% 15.9%;
-
+    
     --radius: 0.5rem;
-    --header-height: 4rem;
-
-    /* Bento Grid System */
-    --bento-radius: 1rem;
-    --color-border-hover: rgba(255, 255, 255, 0.15);
   }
 
   html {
     scroll-behavior: smooth;
-    /* User Tip #3: Mobile robustness - preventing address bar layout shifts */
     height: 100%;
   }
 
   body {
-    @apply bg-background text-zinc-300 antialiased selection:bg-white/20;
-    /* cv11: Single-story 'a'
-       cv05: Lowercase 'l' with tail
-       ss01: Alternate digits */
+    @apply bg-background-dark text-zinc-200 font-display selection:bg-primary/30 selection:text-white antialiased overflow-hidden;
     font-feature-settings: "cv11", "cv05", "ss01";
-    /* Premium rendering */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-
-    /* User Tip #1: Overflow handling strategy */
-    overflow-x: hidden;
-    position: relative;
-    width: 100%;
   }
 
-  /* User Tip #4: Global box-sizing enforcement */
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+  }
+
+  /* Dashboard shell scoped styling */
+  .dashboard-shell {
+    @apply bg-background-light dark:bg-background-dark text-zinc-200 font-display selection:bg-primary/30 selection:text-white;
+  }
+  .dashboard-shell ::-webkit-scrollbar {
+    width: 6px;
+  }
+  .dashboard-shell ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .dashboard-shell ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+  }
+  .dashboard-shell .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .dashboard-shell .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  .dashboard-shell .glow-spot {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(48,140,232,0.15) 0%, rgba(0,0,0,0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(40px);
   }
 }
 
 @layer utilities {
-
-  /* O "Palco": Uma luz radial suave vinda do topo central */
-  .vignette-radial {
-    background: radial-gradient(circle at 50% 0%,
-        rgba(255, 255, 255, 0.08) 0%,
-        transparent 60%);
-    pointer-events: none;
+  .glass-card {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .glass-card:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    transform: translateY(-2px);
   }
 
-  /* Utilitário para texto de alta legibilidade */
-  .text-premium {
-    @apply tracking-tight font-medium text-zinc-100;
+  .dashboard-shell .glass-card {
+    transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
+  }
+  .dashboard-shell .glass-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    transform: translateY(-2px);
   }
 
-  /* Utilitário para labels técnicos */
+  .glass-panel {
+    @apply bg-glass-surface backdrop-blur-xl border border-glass-border shadow-2xl;
+  }
+
   .text-label {
-    @apply tracking-wide text-xs uppercase font-semibold text-zinc-500;
+    @apply text-[10px] text-zinc-500 font-medium tracking-widest uppercase;
   }
 
-  /* --- TEXTURA FÍSICA (NOISE) --- */
+  /* Subtle noise overlay for hero/atmosphere layers */
   .bg-noise {
     position: relative;
     isolation: isolate;
   }
-
   .bg-noise::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: -1;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.12'/%3E%3C/svg%3E");
     mix-blend-mode: overlay;
     pointer-events: none;
-    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.6));
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.7));
   }
 
-  /* --- VIDROS DO SISTEMA (Refined) --- */
-
-  /* Vidro Padrão (Sidebar, Paineis Flutuantes) - More sophisticated blur/opacity */
-  .glass-panel {
-    @apply bg-black/40 backdrop-blur-xl border border-white/5 shadow-2xl shadow-black/50;
+  .animate-enter {
+    animation: enter 0.6s ease-out forwards;
+    opacity: 0;
+    transform: translateY(10px);
   }
+  
+  .animate-enter-delay-1 { animation-delay: 0.1s; }
+  .animate-enter-delay-2 { animation-delay: 0.2s; }
+  .animate-enter-delay-3 { animation-delay: 0.3s; }
 
-  /* Vidro Ativo - More distinct "active" state */
-  .glass-active {
-    @apply bg-white/10 border-white/10 text-zinc-50 backdrop-blur-2xl;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+  @keyframes enter {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-
-  /* Input Premium - "Deep" feel */
-  .input-premium {
-    @apply bg-black/20 border border-white/5 text-zinc-100 placeholder:text-zinc-600;
-    @apply focus:border-white/20 focus:bg-black/40 focus:ring-1 focus:ring-white/10 focus:placeholder:text-zinc-400;
-    @apply transition-all duration-300 ease-out;
-  }
-}
+} 

@@ -16,17 +16,13 @@ export function XPBar({ className, showLevel = true }: XPBarProps) {
     if (isLoading || !userXP) return null;
 
     const currentLevel = userXP.level;
-    const totalXp = userXP.total_xp;
+    const totalXp = userXP.current_xp;
 
-    // 2. Lógica matemática alinhada com o xpService
-    // XP necessário para chegar no nível ATUAL
-    const xpForCurrentLevel = Math.pow(currentLevel, 2) * 100;
-    // XP necessário para o PRÓXIMO nível
-    const xpForNextLevel = calculateNextLevelXp(currentLevel);
+    // Nível baseado em regra do backend (1000 XP por nível)
+    const xpForCurrentLevel = (currentLevel - 1) * 1000;
+    const xpForNextLevel = currentLevel * 1000;
 
-    // XP ganho DENTRO deste nível
     const xpGainedInLevel = totalXp - xpForCurrentLevel;
-    // Tamanho total da barra deste nível
     const levelSize = xpForNextLevel - xpForCurrentLevel;
 
     // Porcentagem (0 a 100)

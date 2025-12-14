@@ -9,13 +9,13 @@ export function useHealth() {
 
     const { data: metrics, isLoading: loadingMetrics } = useQuery<HealthMetric[]>({
         queryKey: ['health-metrics', user?.id],
-        queryFn: async () => healthApi.listMetrics(user!.id),
+        queryFn: async () => healthApi.listMetrics(),
         enabled: !!user,
     });
 
     const { data: medications, isLoading: loadingMedications } = useQuery<MedicationReminder[]>({
         queryKey: ['medications', user?.id],
-        queryFn: async () => healthApi.listReminders(user!.id),
+        queryFn: async () => healthApi.listReminders(),
         enabled: !!user,
     });
 

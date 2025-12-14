@@ -130,7 +130,7 @@ export function ResonanceCard({ className }: { className?: string }) {
             >
                 {weeklySummary?.content?.summary ? (
                     <div className="flex items-start gap-2">
-                        <Sparkles size={12} className="text-purple-400 mt-0.5 flex-shrink-0" />
+                        <Sparkles size={12} className="text-zinc-400 mt-0.5 flex-shrink-0" />
                         <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                             {weeklySummary.content.summary}
                         </p>

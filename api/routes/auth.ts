@@ -14,6 +14,14 @@ import { loginSchema, registerSchema } from '@/shared/schemas/auth'
 
 const router = Router()
 const JWT_SECRET = process.env.JWT_SECRET
+const isProduction = process.env.NODE_ENV === 'production'
+const authCookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? 'none' as const : 'lax' as const,
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+  path: '/'
+}
 
 if (!JWT_SECRET) {
   console.error('FATAL: JWT_SECRET is not defined in environment variables.')
@@ -41,22 +49,31 @@ router.post('/register', validate(registerSchema), async (req: Request<Record<st
     const { email, password, name } = req.body
 
     // Check if user already exists
-    const { data: existingUser } = await supabase
+    console.log('[Register] Checking for existing user:', email);
+    const { data: existingUser, error: checkError } = await supabase
       .from('users')
       .select('id')
       .eq('email', email)
       .single()
 
+    // Ignore error if it's just "not found" (PGRST116)
+    if (checkError && checkError.code !== 'PGRST116') {
+      console.error('[Register] Check Error:', checkError);
+    }
+
     if (existingUser) {
+      console.log('[Register] User exists:', existingUser.id);
       await logAuth(email, 'fail', { code: 'USER_EXISTS', reason: 'duplicate' }, req)
       res.status(400).json({ error: 'User already exists', code: 'USER_EXISTS' })
       return
     }
 
     // Hash password
+    console.log('[Register] Hashing password...');
     const passwordHash = await bcrypt.hash(password, 10)
 
     // Create user
+    console.log('[Register] Inserting user into DB...');
     const { data: user, error } = await supabase
       .from('users')
       .insert([{
@@ -85,12 +102,7 @@ router.post('/register', validate(registerSchema), async (req: Request<Record<st
     )
 
     // Set HttpOnly cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    })
+    res.cookie('token', token, authCookieOptions)
 
     const response: AuthResponse = {
       token,
@@ -108,7 +120,8 @@ router.post('/register', validate(registerSchema), async (req: Request<Record<st
     await logAuth(email, 'success', { code: 'REGISTER_OK' }, req)
     res.status(201).json(response)
   } catch (error) {
-    console.error('Registration error:', error)
+    console.error('[Register] CRITICAL ERROR:', error)
+    if (error instanceof Error) console.error(error.stack);
     await logAuth(req.body?.email || 'unknown', 'fail', { code: 'SERVER_ERROR', reason: 'exception' }, req)
     res.status(500).json({ error: 'Internal server error', code: 'SERVER_ERROR' })
   }
@@ -179,12 +192,7 @@ router.post('/login', validate(loginSchema), async (req: Request<Record<string, 
     )
 
     // Set HttpOnly cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    })
+    res.cookie('token', token, authCookieOptions)
 
     if (loginAttempts[email]) delete loginAttempts[email]
 
@@ -215,7 +223,7 @@ router.post('/login', validate(loginSchema), async (req: Request<Record<string, 
  * POST /api/auth/logout
  */
 router.post('/logout', async (req: Request, res: Response): Promise<void> => {
-  res.clearCookie('token')
+  res.clearCookie('token', authCookieOptions)
   res.json({ message: 'Logged out successfully' })
 })
 

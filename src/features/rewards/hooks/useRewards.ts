@@ -15,13 +15,13 @@ export function useRewards() {
 
     const { data: achievements, isLoading: loadingAchievements } = useQuery<Achievement[]>({
         queryKey: ['achievements', user?.id],
-        queryFn: async () => rewardsApi.getUnlockedAchievements(user!.id),
+        queryFn: async () => rewardsApi.getUnlockedAchievements(),
         enabled: !!user,
     });
 
     const { data: lifeScore, isLoading: loadingScore } = useQuery<LifeScore>({
         queryKey: ['life-score', user?.id],
-        queryFn: async () => rewardsApi.getUserScore(user!.id),
+        queryFn: async () => rewardsApi.getUserScore(),
         enabled: !!user,
     });
 

@@ -11,11 +11,12 @@ export class CalendarService {
     return oauth2Client
   }
 
-  getAuthUrl() {
+  getAuthUrl(state?: string) {
     const oauth2Client = this.getOAuth2Client()
     const url = oauth2Client.generateAuthUrl({
       access_type: 'offline',
-      scope: ['https://www.googleapis.com/auth/calendar']
+      scope: ['https://www.googleapis.com/auth/calendar'],
+      state
     })
     return url
   }

@@ -36,7 +36,7 @@ export const HabitCard = memo(({
                         className="flex items-center gap-2"
                     >
                         <h3 className="text-xl font-bold tracking-tight text-white">
-                            {habit.title}
+                            {habit.name || habit.title}
                         </h3>
                         {streak > 0 && (
                             <div className="flex items-center gap-1 rounded-full bg-orange-500/10 px-2 py-0.5 text-xs font-medium text-orange-500">

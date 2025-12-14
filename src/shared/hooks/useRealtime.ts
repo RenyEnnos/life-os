@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 import { useQueryClient, QueryKey } from '@tanstack/react-query'
+import { getAuthToken } from '@/shared/api/authToken'
+import { resolveApiUrl } from '@/shared/api/http'
 
 export function useRealtime() {
   const { user } = useAuth()
@@ -8,8 +10,10 @@ export function useRealtime() {
 
   useEffect(() => {
     if (!user) return
-    // Use cookie-based auth for SSE (withCredentials sends HttpOnly cookies)
-    const es = new EventSource('/api/realtime/stream', { withCredentials: true })
+    const token = getAuthToken()
+    const path = '/api/realtime/stream'
+    const streamUrl = resolveApiUrl(token ? `${path}?token=${encodeURIComponent(token)}` : path)
+    const es = new EventSource(streamUrl, { withCredentials: true })
 
     const invalidate = (key: QueryKey) => qc.invalidateQueries({ queryKey: key })
 
@@ -26,4 +30,3 @@ export function useRealtime() {
     return () => { es.close() }
   }, [user, qc])
 }
-

@@ -28,6 +28,7 @@ import dbRoutes from './routes/db'
 import realtimeRoutes from './routes/realtime'
 import projectsRoutes from './routes/projects'
 import resonanceRoutes from './routes/resonance'
+import calendarRoutes from './routes/calendar'
 
 // for esm mode
 
@@ -40,21 +41,57 @@ if (process.env.NODE_ENV === 'production') {
   // Sentry SDK v8+ initialization
 }
 
-// trust proxy to capture correct client IP behind reverse proxies
-app.set('trust proxy', true)
+// trust first proxy (vercel/nginx) without allowing spoofed IP headers
+app.set('trust proxy', 1)
 
 // Security Headers
 app.use(helmet())
 
-// trust proxy to capture correct client IP behind reverse proxies
+// CORS allowlist for common localhost/preview origins plus env overrides
+const defaultOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:4173'
+]
+const loopbackOrigins = [
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:4173'
+]
+const envOrigins = [
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+  ...(process.env.CORS_ORIGIN || '').split(',').map(o => o.trim()).filter(Boolean)
+]
+const allowedOrigins = new Set([
+  ...defaultOrigins,
+  ...loopbackOrigins,
+  ...envOrigins
+])
+
+const isLocalhostLike = (origin?: string) => {
+  if (!origin) return false
+  try {
+    const { hostname } = new URL(origin)
+    if (hostname === 'localhost' || hostname === '127.0.0.1') return true
+
+    // Allow private network IPs for local dev (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
+    return (
+      hostname.startsWith('192.168.') ||
+      hostname.startsWith('10.') ||
+      (/^172\.(1[6-9]|2[0-9]|3[0-1])\./).test(hostname)
+    )
+  } catch {
+    return false
+  }
+}
+
 app.use(cors({
   origin: (origin, callback) => {
-    const allowed = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:3000').split(',')
-    if (!origin || allowed.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
+    if (!origin || allowedOrigins.has(origin) || isLocalhostLike(origin)) {
+      return callback(null, true)
     }
+    console.warn('Blocked CORS origin:', origin)
+    callback(new Error('CORS_NOT_ALLOWED'))
   },
   credentials: true
 }))
@@ -92,6 +129,7 @@ app.use('/api/db', dbRoutes)
 app.use('/api/realtime', realtimeRoutes)
 app.use('/api/projects', projectsRoutes)
 app.use('/api/resonance', resonanceRoutes)
+app.use('/api/calendar', calendarRoutes)
 import contextRoutes from './routes/context'
 app.use('/api/context', contextRoutes)
 import mediaRoutes from './routes/media'
@@ -108,6 +146,13 @@ if (process.env.NODE_ENV === 'production') {
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   if (process.env.NODE_ENV === 'production') {
     Sentry.captureException(error);
+  }
+  if (error?.message === 'CORS_NOT_ALLOWED' || error?.message === 'Not allowed by CORS') {
+    res.status(403).json({
+      success: false,
+      error: 'CORS origin not allowed',
+    })
+    return
   }
   void next
   res.status(500).json({

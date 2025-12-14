@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
-import { supabase } from '@/shared/api/supabase';
+import { apiClient } from '@/shared/api/http';
 import type { JournalInsight, InsightType } from '@/shared/types';
 
 interface UseJournalInsightsOptions {
@@ -19,23 +19,12 @@ export function useJournalInsights(options: UseJournalInsightsOptions = {}) {
     const { data: insights, isLoading: isLoadingInsights } = useQuery<JournalInsight[]>({
         queryKey: ['journal-insights', user?.id, entryId, type],
         queryFn: async () => {
-            let query = supabase
-                .from('journal_insights')
-                .select('*')
-                .eq('user_id', user!.id)
-                .order('created_at', { ascending: false });
-
-            if (entryId) {
-                query = query.eq('journal_entry_id', entryId);
-            }
-
-            if (type) {
-                query = query.eq('insight_type', type);
-            }
-
-            const { data, error } = await query.limit(20);
-            if (error) throw error;
-            return (data as JournalInsight[]) || [];
+            const params = new URLSearchParams();
+            if (entryId) params.append('entryId', entryId);
+            if (type) params.append('type', type);
+            params.append('limit', '20');
+            const data = await apiClient.get<JournalInsight[]>(`/api/resonance/insights?${params.toString()}`);
+            return data || [];
         },
         enabled: !!user,
     });
@@ -44,17 +33,9 @@ export function useJournalInsights(options: UseJournalInsightsOptions = {}) {
     const { data: weeklySummary, isLoading: isLoadingWeekly } = useQuery<JournalInsight | null>({
         queryKey: ['journal-insights-weekly', user?.id],
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from('journal_insights')
-                .select('*')
-                .eq('user_id', user!.id)
-                .eq('insight_type', 'weekly')
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .single();
-
-            if (error && error.code !== 'PGRST116') throw error;
-            return data as JournalInsight | null;
+            const params = new URLSearchParams({ type: 'weekly', limit: '1' });
+            const data = await apiClient.get<JournalInsight[]>('/api/resonance/insights?' + params.toString());
+            return data?.[0] ?? null;
         },
         enabled: !!user,
     });
@@ -63,21 +44,14 @@ export function useJournalInsights(options: UseJournalInsightsOptions = {}) {
     const { data: moodTrend } = useQuery<{ date: string; score: number }[]>({
         queryKey: ['mood-trend', user?.id],
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from('journal_insights')
-                .select('created_at, content')
-                .eq('user_id', user!.id)
-                .eq('insight_type', 'mood')
-                .order('created_at', { ascending: false })
-                .limit(7);
-
-            if (error) throw error;
+            const params = new URLSearchParams({ type: 'mood', limit: '7' });
+            const data = await apiClient.get<JournalInsight[]>(`/api/resonance/insights?${params.toString()}`);
 
             return (data || [])
-                .filter(d => d.content?.mood_score !== undefined)
+                .filter(d => (d as any).content?.mood_score !== undefined)
                 .map(d => ({
                     date: new Date(d.created_at).toLocaleDateString('pt-BR', { weekday: 'short' }),
-                    score: (d.content as { mood_score?: number }).mood_score || 5,
+                    score: ((d as any).content as { mood_score?: number }).mood_score || 5,
                 }))
                 .reverse();
         },

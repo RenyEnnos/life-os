@@ -11,10 +11,10 @@ type ModalProps = {
   ariaDescriptionId?: string
 }
 
-// Spring Physics para entrada orgânica (Pop-up fluido)
+// Spring Physics (Gold Standard) para todas as entradas/saídas
 const springTransition = {
   type: "spring" as const,
-  damping: 30,
+  damping: 20,
   stiffness: 300,
   mass: 0.8
 };
@@ -30,7 +30,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop com Blur progressivo */}
@@ -39,6 +39,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
             exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
             onClick={onClose}
+            transition={springTransition}
             className="absolute inset-0 bg-black/60 backdrop-blur-md"
           />
 
@@ -50,7 +51,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={springTransition}
-            className={cn('relative w-full max-w-md bg-surface border border-white/10 rounded-xl shadow-2xl overflow-hidden')}
+            className={cn('relative w-full max-w-md bg-surface border border-white/10 rounded-3xl shadow-2xl overflow-hidden')}
           >
             {title && (
               <div className="px-6 py-4 border-b border-white/5 bg-white/[0.02]">

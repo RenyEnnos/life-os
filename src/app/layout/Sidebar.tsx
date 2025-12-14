@@ -1,109 +1,66 @@
-import { motion } from 'framer-motion';
-import {
-    LayoutDashboard,
-    CheckSquare,
-    Calendar,
-    Book,
-    Target,
-    CreditCard,
-    Activity,
-    GraduationCap,
-    Settings,
-    LogOut
-} from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/shared/lib/cn';
-
-// Menu configuration remains static
-const menuItems = [
-    { icon: LayoutDashboard, path: '/', label: 'Dashboard' },
-    { icon: CheckSquare, path: '/tasks', label: 'Tasks' },
-    { icon: Calendar, path: '/calendar', label: 'Calendar' },
-    { icon: Book, path: '/journal', label: 'Journal' },
-    { icon: Target, path: '/habits', label: 'Habits' },
-    { icon: CreditCard, path: '/finances', label: 'Finances' },
-    { icon: Activity, path: '/health', label: 'Health' },
-    { icon: GraduationCap, path: '/university', label: 'University' },
-];
+import { primaryNav, secondaryNav } from './navItems';
 
 export const Sidebar = ({ className }: { className?: string }) => {
     return (
-        <motion.aside
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className={cn("w-20 flex flex-col items-center justify-between py-6 rounded-2xl glass-panel z-50", className)}
-        >
-            {/* Logo Area */}
-            <div className="flex flex-col items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shadow-inner">
-                    <div className="w-5 h-5 bg-zinc-100 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+        <div className={cn("flex flex-col items-center gap-8 py-8 w-full h-full", className)}>
+            <div className="mb-4 shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary/20 via-primary/40 to-primary/10 flex items-center justify-center border border-white/10 shadow-lg cursor-pointer hover:border-primary/50 transition-colors">
+                    <span className="text-white text-sm font-bold tracking-widest">OS</span>
                 </div>
-
-                {/* Navigation Items */}
-                <nav className="flex flex-col gap-3 mt-4 w-full px-3">
-                    {menuItems.map((item) => (
-                        <NavLink
-                            key={item.path}
-                            to={item.path}
-                            className={({ isActive }) => cn(
-                                "w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group relative",
-                                isActive
-                                    ? "glass-active shadow-lg shadow-black/20"
-                                    : "text-zinc-500 hover:text-zinc-200 hover:bg-white/5"
-                            )}
-                        >
-                            {({ isActive }) => (
-                                <>
-                                    <item.icon
-                                        size={22}
-                                        strokeWidth={isActive ? 2 : 1.5}
-                                        className="transition-transform duration-300 group-hover:scale-110"
-                                    />
-                                    {/* Tooltip */}
-                                    <span className="absolute left-14 bg-surface border border-white/10 px-2 py-1 rounded text-[10px] uppercase tracking-wider text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                                        {item.label}
-                                    </span>
-                                </>
-                            )}
-                        </NavLink>
-                    ))}
-                </nav>
             </div>
 
-            {/* Bottom Actions */}
-            <div className="flex flex-col gap-4 w-full px-3">
-                <NavLink
-                    to="/settings"
-                    className={({ isActive }) => cn(
-                        "w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 group relative",
-                        isActive
-                            ? "glass-active shadow-lg shadow-black/20"
-                            : "text-zinc-500 hover:text-zinc-200 hover:bg-white/5"
-                    )}
-                >
-                    {({ isActive }) => (
-                        <Settings
-                            size={22}
-                            strokeWidth={isActive ? 2 : 1.5}
-                            className="transition-transform duration-300 group-hover:scale-110"
-                        />
-                    )}
-                </NavLink>
+            <nav className="flex flex-col gap-4 w-full px-3 flex-1 overflow-y-auto hide-scrollbar">
+                {primaryNav.map((item) => (
+                    <NavLink
+                        key={item.path}
+                        to={item.path}
+                        className={({ isActive }) => cn(
+                            "group flex items-center justify-center p-3 rounded-xl transition-all duration-300 relative border border-transparent",
+                            isActive
+                                ? "bg-primary/10 text-primary border-primary/30 shadow-[0_0_20px_rgba(48,140,232,0.2)]"
+                                : "text-zinc-500 hover:text-white hover:bg-white/5 hover:border-white/10"
+                        )}
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <item.icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-zinc-400 group-hover:text-white")} />
 
-                {/* User Avatar Placeholder */}
+                                <span className="absolute left-full ml-4 bg-zinc-900/90 backdrop-blur border border-white/10 px-2 py-1 rounded text-[10px] uppercase tracking-wider text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                                    {item.label}
+                                </span>
+                            </>
+                        )}
+                    </NavLink>
+                ))}
+            </nav>
+
+            <div className="mt-auto flex flex-col gap-4 w-full px-3 shrink-0">
+                {secondaryNav.map((item) => (
+                    <NavLink
+                        key={item.path}
+                        to={item.path}
+                        className={({ isActive }) => cn(
+                            "group flex items-center justify-center p-3 rounded-xl transition-all duration-300 relative border border-transparent",
+                            isActive
+                                ? "bg-primary/10 text-primary border-primary/30 shadow-[0_0_20px_rgba(48,140,232,0.2)]"
+                                : "text-zinc-500 hover:text-white hover:bg-white/5 hover:border-white/10"
+                        )}
+                    >
+                        <item.icon className="h-5 w-5 group-hover:text-white" />
+                        <span className="absolute left-full ml-4 bg-zinc-900/90 backdrop-blur border border-white/10 px-2 py-1 rounded text-[10px] uppercase tracking-wider text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                            {item.label}
+                        </span>
+                    </NavLink>
+                ))}
+
                 <NavLink
                     to="/profile"
-                    className={({ isActive }) => cn(
-                        "w-10 h-10 rounded-full border border-white/10 mx-auto overflow-hidden transition-all duration-300",
-                        isActive ? "ring-2 ring-white/20 scale-110" : "hover:scale-105"
-                    )}
-                >
-                    <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                        <div className="w-full h-full bg-zinc-900/40" />
-                    </div>
-                </NavLink>
+                    className="w-10 h-10 rounded-full bg-center bg-cover border border-white/10 opacity-80 hover:opacity-100 transition-opacity cursor-pointer mx-auto block"
+                    style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCVPqcPWDT3hPr01e2HDirC5oJIReGS_I9VQWtVcd9Jeg7-ZvWFgDQfCv6EutPiYTzuE-re3TH5gEjialXzk5Eb8SJ3m82eLKwBuKSLDpWKr4JkJ_yftg1ioQEeRmNNBPiKJhA7IAj11REAjyt_eN6G3ka3T_PoSQNNU9d7cQ6Af9A6u-pdRHLfzCaPzGvoxAzXj6ge63w7ZFJhPW4J6cxpsTQe-UV2JJuJ124QPZ8DgIYXHP4uJji-EBFIe1WQsTDEKAGbz-RlcuI')" }}
+                />
             </div>
-        </motion.aside>
+        </div>
     );
 };

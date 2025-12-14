@@ -18,12 +18,13 @@ export function LevelBadge({ className, size = 'md' }: LevelBadgeProps) {
     if (!userXP) return null;
 
     const currentLevel = userXP.level;
-    const currentTotalXp = userXP.total_xp;
+    const currentTotalXp = userXP.current_xp;
 
-    // Calculate Progress
-    const xpInLevel = currentTotalXp - (currentLevel === 1 ? 0 : calculateNextLevelXp(currentLevel - 1));
-    const nextLevelXp = calculateNextLevelXp(currentLevel);
-    const xpNeededForLevel = nextLevelXp - (currentLevel === 1 ? 0 : calculateNextLevelXp(currentLevel - 1));
+    // Calculate Progress (1000 XP per level)
+    const prevLevelXp = (currentLevel - 1) * 1000;
+    const nextLevelXp = currentLevel * 1000;
+    const xpInLevel = currentTotalXp - prevLevelXp;
+    const xpNeededForLevel = nextLevelXp - prevLevelXp;
     const progressPercent = Math.min(100, Math.max(0, (xpInLevel / xpNeededForLevel) * 100));
 
     // Get archetype for color
@@ -78,4 +79,3 @@ export function LevelBadge({ className, size = 'md' }: LevelBadgeProps) {
         </div>
     );
 }
-

@@ -2,10 +2,7 @@ import { motion } from 'framer-motion';
 import { useMediaQuery } from '@/shared/hooks/use-media-query';
 import { Sidebar } from './Sidebar';
 import { Dock, DockIcon } from '@/shared/ui/premium/Dock';
-import {
-    LayoutDashboard, CheckSquare, Book, Settings,
-    PlusCircle, DollarSign, GraduationCap, FolderKanban, ListTodo
-} from 'lucide-react';
+import { mobileNav } from './navItems';
 
 type NavigationSystemProps = {
     isSanctuaryActive?: boolean;
@@ -38,15 +35,11 @@ export function NavigationSystem({ isSanctuaryActive = false }: NavigationSystem
             }}
         >
             <Dock className="bg-black/40 border-white/5 shadow-2xl backdrop-blur-xl px-4 py-3 gap-3">
-                <DockIcon href="/" onClick={() => { }}><LayoutDashboard className="size-6 text-zinc-300" /></DockIcon>
-                <DockIcon href="/tasks" onClick={() => { }}><ListTodo className="size-6 text-zinc-300" /></DockIcon>
-                <DockIcon href="/habits" onClick={() => { }}><CheckSquare className="size-6 text-zinc-300" /></DockIcon>
-                <DockIcon href="/finances" onClick={() => { }}><DollarSign className="size-6 text-zinc-300" /></DockIcon>
-                <DockIcon onClick={() => { }} className="bg-white/10 border-white/20"><PlusCircle className="size-8 text-zinc-100" /></DockIcon>
-                <DockIcon href="/university" onClick={() => { }}><GraduationCap className="size-6 text-zinc-300" /></DockIcon>
-                <DockIcon href="/projects" onClick={() => { }}><FolderKanban className="size-6 text-zinc-300" /></DockIcon>
-                <DockIcon href="/journal" onClick={() => { }}><Book className="size-6 text-zinc-300" /></DockIcon>
-                <DockIcon href="/settings" onClick={() => { }}><Settings className="size-6 text-zinc-300" /></DockIcon>
+                {mobileNav.map((item) => (
+                    <DockIcon key={item.path} href={item.path}>
+                        <item.icon className="size-6 text-zinc-300" />
+                    </DockIcon>
+                ))}
             </Dock>
         </motion.div>
     );

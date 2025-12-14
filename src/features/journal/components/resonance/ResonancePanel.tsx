@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
-import { Sparkles, TrendingUp, TrendingDown, Minus, Tag } from 'lucide-react';
+import { Sparkles, TrendingUp, TrendingDown, Minus, Tag, BrainCircuit } from 'lucide-react';
 import { useJournalInsights } from '../../hooks/useJournalInsights';
 import { MoodIndicator } from './MoodIndicator';
-import './resonance.css';
+import { BentoCard } from '@/shared/ui/BentoCard';
+import { clsx } from 'clsx';
 
 interface ResonancePanelProps {
     entryId?: string;
@@ -42,108 +43,104 @@ export function ResonancePanel({ entryId, showWeekly = true }: ResonancePanelPro
 
     if (isLoading) {
         return (
-            <div className="resonance-panel resonance-loading">
-                <Sparkles size={20} className="resonance-loading-icon" />
-                <span>Analisando...</span>
-            </div>
+            <BentoCard title="ANÁLISE NEURAL" icon={BrainCircuit} className="h-full min-h-[400px]">
+                <div className="flex flex-col items-center justify-center h-full gap-3 text-muted-foreground animate-pulse">
+                    <Sparkles size={24} />
+                    <span className="font-mono text-xs tracking-widest uppercase">Sincronizando...</span>
+                </div>
+            </BentoCard>
         );
     }
 
     if (!insights?.length && !weeklySummary) {
         return (
-            <div className="resonance-panel resonance-empty">
-                <Sparkles size={20} />
-                <span>Continue escrevendo para ver insights</span>
-            </div>
+            <BentoCard title="ANÁLISE NEURAL" icon={BrainCircuit} className="h-full min-h-[400px]">
+                <div className="flex flex-col items-center justify-center h-full gap-3 text-muted-foreground">
+                    <BrainCircuit size={24} />
+                    <span className="font-mono text-xs tracking-widest uppercase text-center max-w-[200px]">
+                        Aguardando dados para ressonância
+                    </span>
+                </div>
+            </BentoCard>
         );
     }
 
     return (
-        <motion.div
-            className="resonance-panel"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-        >
-            <div className="resonance-header">
-                <Sparkles size={16} />
-                <span>Ressonância Neural</span>
-            </div>
-
+        <div className="sticky top-4 space-y-4">
             {/* Current Mood */}
             {currentMood !== null && (
-                <div className="resonance-section">
-                    <div className="resonance-section-title">Humor Atual</div>
-                    <div className="resonance-mood-row">
+                <BentoCard title="ESTADO ATUAL" icon={Sparkles} className="min-h-[140px]">
+                    <div className="flex items-center gap-4 mt-2">
                         <MoodIndicator score={currentMood} size="large" />
-                        <div className="resonance-mood-info">
-                            <span className="resonance-mood-score">{currentMood}/10</span>
-                            <span className="resonance-mood-label">
-                                {currentMood >= 7 ? 'Positivo' : currentMood >= 4 ? 'Neutro' : 'Baixo'}
-                            </span>
+                        <div>
+                            <div className="text-3xl font-bold font-mono text-white tabular-nums">{currentMood}/10</div>
+                            <div className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                                {currentMood >= 7 ? 'Ressonância Alta' : currentMood >= 4 ? 'Estável' : 'Desalinhado'}
+                            </div>
                         </div>
                     </div>
-                </div>
+                </BentoCard>
             )}
 
             {/* Mood Trend */}
             {moodTrend && moodTrend.length >= 3 && (
-                <div className="resonance-section">
-                    <div className="resonance-section-title">Tendência (7 dias)</div>
-                    <div className="resonance-trend">
-                        <div className="resonance-trend-bars">
-                            {moodTrend.map((point, i) => (
-                                <div
-                                    key={i}
-                                    className="resonance-trend-bar"
-                                    style={{
-                                        height: `${point.score * 10}%`,
-                                        backgroundColor: `hsl(${point.score * 12}, 70%, 50%)`
-                                    }}
-                                    title={`${point.date}: ${point.score}`}
-                                />
-                            ))}
-                        </div>
-                        <div className="resonance-trend-direction">
-                            {trendDirection === 'up' && <TrendingUp size={14} className="trend-up" />}
-                            {trendDirection === 'down' && <TrendingDown size={14} className="trend-down" />}
-                            {trendDirection === 'neutral' && <Minus size={14} className="trend-neutral" />}
+                <BentoCard title="TENDÊNCIA (7 DIAS)" icon={TrendingUp} className="min-h-[160px]">
+                    <div className="flex items-end gap-1 h-[60px] mt-4 w-full">
+                        {moodTrend.map((point, i) => (
+                            <div
+                                key={i}
+                                className="flex-1 rounded-t-sm bg-primary/20 hover:bg-primary/40 transition-colors relative group"
+                                style={{
+                                    height: `${(point.score / 10) * 100}%`,
+                                }}
+                            >
+                                <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-black/90 text-[10px] text-white px-2 py-1 rounded border border-white/10 whitespace-nowrap z-50 pointer-events-none transition-opacity">
+                                    {point.date}: {point.score}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-white/5">
+                        <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Direção</span>
+                        <div className="flex items-center gap-2 text-xs font-mono text-white">
+                            {trendDirection === 'up' && <><TrendingUp size={14} className="text-green-400" /> Ascendente</>}
+                            {trendDirection === 'down' && <><TrendingDown size={14} className="text-red-400" /> Descendente</>}
+                            {trendDirection === 'neutral' && <><Minus size={14} className="text-zinc-500" /> Estável</>}
                         </div>
                     </div>
-                </div>
+                </BentoCard>
             )}
 
             {/* Themes */}
             {themes.length > 0 && (
-                <div className="resonance-section">
-                    <div className="resonance-section-title">Temas Detectados</div>
-                    <div className="resonance-themes">
+                <BentoCard title="PADRÕES TEMÁTICOS" icon={Tag} className="min-h-[120px]">
+                    <div className="flex flex-wrap gap-2 mt-2">
                         {themes.map((theme, i) => (
-                            <span key={i} className="resonance-theme-tag">
-                                <Tag size={10} />
+                            <span key={i} className="text-[10px] font-mono uppercase tracking-wider bg-white/5 hover:bg-white/10 text-zinc-300 px-2 py-1 rounded border border-white/5 transition-colors cursor-default">
                                 {theme}
                             </span>
                         ))}
                     </div>
-                </div>
+                </BentoCard>
             )}
 
             {/* Weekly Summary */}
             {showWeekly && weeklySummary?.content?.summary && (
-                <div className="resonance-section resonance-weekly">
-                    <div className="resonance-section-title">Resumo Semanal</div>
-                    <p className="resonance-summary">
+                <BentoCard title="SÍNTESE SEMANAL" icon={BrainCircuit}>
+                    <p className="text-xs text-zinc-400 leading-relaxed font-mono border-l-2 border-primary/20 pl-3 my-2">
                         {weeklySummary.content.summary}
                     </p>
-                    {weeklySummary.content.recommendations?.slice(0, 2).map((rec, i) => (
-                        <div key={i} className="resonance-recommendation">
-                            <Sparkles size={12} />
-                            <span>{rec}</span>
-                        </div>
-                    ))}
-                </div>
+                    <div className="space-y-2 mt-4">
+                        {weeklySummary.content.recommendations?.slice(0, 2).map((rec, i) => (
+                            <div key={i} className="flex gap-2 items-start text-[11px] text-zinc-500 font-mono">
+                                <Sparkles size={12} className="shrink-0 mt-0.5 text-primary/60" />
+                                <span>{rec}</span>
+                            </div>
+                        ))}
+                    </div>
+                </BentoCard>
             )}
-        </motion.div>
+        </div>
     );
 }
 

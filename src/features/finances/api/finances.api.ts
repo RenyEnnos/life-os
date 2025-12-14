@@ -1,81 +1,36 @@
-import { supabase } from '@/shared/api/supabase';
+import { apiClient } from '@/shared/api/http';
 import { Transaction } from '@/shared/types';
 
 export const financesApi = {
-    list: async (userId: string, filters?: Record<string, string>) => {
-        let q = supabase
-            .from('transactions')
-            .select('*')
-            .eq('user_id', userId)
-            .order('transaction_date', { ascending: false });
+    list: async (_userId?: string, filters?: Record<string, string>) => {
+        const params = new URLSearchParams();
+        if (filters?.startDate) params.append('startDate', filters.startDate);
+        if (filters?.endDate) params.append('endDate', filters.endDate);
+        if (filters?.type) params.append('type', filters.type);
+        if (filters?.category) params.append('category', filters.category);
 
-        if (filters?.startDate) q = q.gte('transaction_date', filters.startDate);
-        if (filters?.endDate) q = q.lte('transaction_date', filters.endDate);
-        if (filters?.type) q = q.eq('type', filters.type);
-        if (filters?.category) q = q.eq('category', filters.category);
-
-        const { data, error } = await q;
-        if (error) throw error;
-        return data as Transaction[];
+        const query = params.toString();
+        const data = await apiClient.get<Transaction[]>(`/api/finances/transactions${query ? `?${query}` : ''}`);
+        return data;
     },
 
     create: async (transaction: Partial<Transaction>) => {
-        const { data, error } = await supabase
-            .from('transactions')
-            .insert(transaction)
-            .select()
-            .single();
-
-        if (error) throw error;
-        return data as Transaction;
+        const data = await apiClient.post<Transaction>('/api/finances/transactions', transaction);
+        return data;
     },
 
     update: async (id: string, updates: Partial<Transaction>) => {
-        const { data, error } = await supabase
-            .from('transactions')
-            .update(updates)
-            .eq('id', id)
-            .select()
-            .single();
-
-        if (error) throw error;
-        return data as Transaction;
+        const data = await apiClient.put<Transaction>(`/api/finances/transactions/${id}`, updates);
+        return data;
     },
 
     delete: async (id: string) => {
-        const { error } = await supabase
-            .from('transactions')
-            .delete()
-            .eq('id', id);
-
-        if (error) throw error;
+        await apiClient.delete(`/api/finances/transactions/${id}`);
     },
 
     // Simplified client-side summary (Safe for small data sets, temporary solution)
-    getSummary: async (userId: string) => {
-        const today = new Date();
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
-
-        const { data: transactions, error } = await supabase
-            .from('transactions')
-            .select('amount, type')
-            .eq('user_id', userId)
-            .gte('transaction_date', startOfMonth);
-
-        if (error) throw error;
-
-        const income = transactions
-            ?.filter(t => t.type === 'income')
-            .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
-
-        const expenses = transactions
-            ?.filter(t => t.type === 'expense')
-            .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
-
-        return {
-            income,
-            expenses,
-            balance: income - expenses
-        };
+    getSummary: async () => {
+        const data = await apiClient.get<{ income: number; expenses: number; balance: number; byCategory?: Record<string, number> }>('/api/finances/summary');
+        return data;
     }
 };

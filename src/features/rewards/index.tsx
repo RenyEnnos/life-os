@@ -31,8 +31,8 @@ export default function RewardsPage() {
         const loadData = async () => {
             try {
                 const [userScore, userAchievements] = await Promise.all([
-                    rewardsApi.getUserScore(user.id),
-                    rewardsApi.getUnlockedAchievements(user.id)
+                    rewardsApi.getUserScore(),
+                    rewardsApi.getUnlockedAchievements()
                 ])
                 setScore(userScore)
                 setAchievements(userAchievements || [])
@@ -184,4 +184,3 @@ export default function RewardsPage() {
         </div>
     )
 }
-

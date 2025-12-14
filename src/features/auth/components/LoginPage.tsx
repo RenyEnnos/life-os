@@ -26,6 +26,14 @@ export default function LoginPage() {
     const rotateX = useTransform(mouseY, [-0.5, 0.5], ["7deg", "-7deg"]);
     const rotateY = useTransform(mouseX, [-0.5, 0.5], ["-7deg", "7deg"]);
 
+    // Better:
+    const { user } = useAuth();
+    useEffect(() => {
+        if (user && !loading) {
+            navigate('/', { replace: true });
+        }
+    }, [user, loading, navigate]);
+
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
         const width = rect.width;
@@ -129,7 +137,7 @@ export default function LoginPage() {
                                     <input
                                         type="email"
                                         required
-                                        className="w-full rounded-md pl-10 pr-3 py-3 text-gray-100 font-mono input-premium focus:outline-none"
+                                        className="w-full rounded-md pl-10 pr-3 py-3 text-white font-mono bg-white/5 border border-white/10 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 placeholder:text-zinc-500"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="seu@email.com"
@@ -143,7 +151,7 @@ export default function LoginPage() {
                                     <input
                                         type={showPassword ? "text" : "password"}
                                         required
-                                        className="w-full rounded-md pl-10 pr-10 py-3 text-gray-100 font-mono input-premium focus:outline-none"
+                                        className="w-full rounded-md pl-10 pr-10 py-3 text-white font-mono bg-white/5 border border-white/10 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 placeholder:text-zinc-500"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="••••••••"

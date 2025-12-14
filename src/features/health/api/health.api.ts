@@ -1,85 +1,45 @@
-import { supabase } from '@/shared/api/supabase';
+import { apiClient } from '@/shared/api/http';
 import { HealthMetric, MedicationReminder } from '@/shared/types';
 
 export const healthApi = {
     // Metrics
-    listMetrics: async (userId: string, query?: { date?: string; type?: string; limit?: number }) => {
-        let q = supabase
-            .from('health_metrics')
-            .select('*')
-            .eq('user_id', userId)
-            .order('recorded_date', { ascending: false });
+    listMetrics: async (_userId?: string, query?: { date?: string; type?: string; limit?: number }) => {
+        const params = new URLSearchParams();
+        if (query?.date) params.append('date', query.date);
+        if (query?.type) params.append('type', query.type);
+        if (query?.limit) params.append('limit', String(query.limit));
 
-        if (query?.date) q = q.eq('recorded_date', query.date);
-        if (query?.type) q = q.eq('metric_type', query.type);
-        if (query?.limit) q = q.limit(query.limit);
-
-        const { data, error } = await q;
-        if (error) throw error;
-        return data as HealthMetric[];
+        const data = await apiClient.get<HealthMetric[]>(`/api/health${params.toString() ? `?${params.toString()}` : ''}`);
+        return data;
     },
 
     createMetric: async (metric: Partial<HealthMetric>) => {
-        const { data, error } = await supabase
-            .from('health_metrics')
-            .insert(metric)
-            .select()
-            .single();
-
-        if (error) throw error;
-        return data as HealthMetric;
+        const payload = { ...metric, recorded_at: (metric as any)?.recorded_date };
+        const data = await apiClient.post<HealthMetric>('/api/health', payload);
+        return data;
     },
 
     deleteMetric: async (id: string) => {
-        const { error } = await supabase
-            .from('health_metrics')
-            .delete()
-            .eq('id', id);
-
-        if (error) throw error;
+        await apiClient.delete(`/api/health/${id}`);
     },
 
     // Reminders
-    listReminders: async (userId: string) => {
-        const { data, error } = await supabase
-            .from('medication_reminders')
-            .select('*')
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        return data as MedicationReminder[];
+    listReminders: async () => {
+        const data = await apiClient.get<MedicationReminder[]>('/api/health/medications');
+        return data;
     },
 
     createReminder: async (reminder: Partial<MedicationReminder>) => {
-        const { data, error } = await supabase
-            .from('medication_reminders')
-            .insert(reminder)
-            .select()
-            .single();
-
-        if (error) throw error;
-        return data as MedicationReminder;
+        const data = await apiClient.post<MedicationReminder>('/api/health/medications', reminder);
+        return data;
     },
 
     updateReminder: async (id: string, updates: Partial<MedicationReminder>) => {
-        const { data, error } = await supabase
-            .from('medication_reminders')
-            .update(updates)
-            .eq('id', id)
-            .select()
-            .single();
-
-        if (error) throw error;
-        return data as MedicationReminder;
+        const data = await apiClient.put<MedicationReminder>(`/api/health/medications/${id}`, updates);
+        return data;
     },
 
     deleteReminder: async (id: string) => {
-        const { error } = await supabase
-            .from('medication_reminders')
-            .delete()
-            .eq('id', id);
-
-        if (error) throw error;
+        await apiClient.delete(`/api/health/medications/${id}`);
     }
 };

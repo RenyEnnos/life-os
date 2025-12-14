@@ -24,10 +24,7 @@ export function QuickCapture() {
 
             const mockParsed = {
                 title: input,
-                due_date: new Date().toISOString(),
-                priority: input.toLowerCase().includes('urgent') ? 'high' : 'medium',
-                energy_level: 'medium',
-                category_id: 'inbox' // default
+                due_date: new Date().toISOString()
             };
 
             await createTask.mutateAsync(mockParsed as any);

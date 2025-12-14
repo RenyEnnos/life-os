@@ -1,10 +1,10 @@
-
 import { Router } from 'express';
 import { MediaService } from '../services/mediaService';
+import { authenticateToken, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/images', async (req, res) => {
+router.get('/images', authenticateToken, async (req: AuthRequest, res) => {
     try {
         const query = req.query.query as string;
         const page = req.query.page ? Number(req.query.page) : 1;

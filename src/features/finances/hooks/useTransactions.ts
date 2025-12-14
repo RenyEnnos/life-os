@@ -9,7 +9,7 @@ export function useTransactions() {
 
     const { data: transactions, isLoading } = useQuery({
         queryKey: ['transactions', user?.id],
-        queryFn: ({ queryKey }) => financesApi.list(queryKey[1] as string),
+        queryFn: () => financesApi.list(),
         enabled: !!user,
     });
 

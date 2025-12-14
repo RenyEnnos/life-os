@@ -1,4 +1,4 @@
-import { supabase } from '@/shared/api/supabase';
+import { apiClient } from '@/shared/api/http';
 import { AttributeType, UserXP, XPHistoryEntry } from './types';
 
 
@@ -21,99 +21,10 @@ export const awardXP = async (
     category: AttributeType,
     source: string
 ): Promise<{ success: boolean; newLevel?: number; error?: any }> => {
+    void userId; void category; void source;
     try {
-        // 1. Fetch current user_xp
-        const { data: userXp, error: fetchError } = await supabase
-            .from('user_xp')
-            .select('*')
-            .eq('user_id', userId)
-            .single();
-
-        if (fetchError) {
-            // If row doesn't exist, create it (should happen on signup trigger, but good for safety)
-            if (fetchError.code === 'PGRST116') {
-                const { error: insertError } = await supabase.from('user_xp').insert({ user_id: userId });
-                if (insertError) throw insertError;
-                // Retry fetch
-                return awardXP(userId, amount, category, source);
-            }
-            throw fetchError;
-        }
-
-        // 2. Anti-Cheat: Check for spamming
-        // Allow max 1 journal entry reward per day
-        if (source === 'journal_entry') {
-            const today = new Date().toISOString().split('T')[0];
-            const history = (userXp.xp_history as unknown as XPHistoryEntry[]) || [];
-            const hasJournaledToday = history.some(
-                (entry) =>
-                    entry.source === 'journal_entry' &&
-                    entry.date.startsWith(today)
-            );
-
-            if (hasJournaledToday) {
-                console.log('XP Limit reached for journal_entry today');
-                return { success: false, error: 'Daily limit reached' };
-            }
-        }
-
-        // 3. Calculate new values
-        const currentAttributes = (userXp.attributes as unknown as Record<string, number>) || {
-            body: 0,
-            mind: 0,
-            spirit: 0,
-            output: 0,
-        };
-
-        const newAttributes = {
-            ...currentAttributes,
-            [category]: (currentAttributes[category] || 0) + amount,
-        };
-
-        const newTotalXp = userXp.total_xp + amount;
-        const newLevel = calculateLevel(newTotalXp);
-        const leveledUp = newLevel > userXp.level;
-
-        const historyEntry: XPHistoryEntry = {
-            date: new Date().toISOString(),
-            amount,
-            category,
-            source,
-            previous_level: userXp.level,
-            new_level: newLevel,
-        };
-
-        // Keep history manageable (last 365 entries for Visual Legacy)
-        const currentHistory = (userXp.xp_history as unknown as XPHistoryEntry[]) || [];
-        const newHistory = [historyEntry, ...currentHistory].slice(0, 365);
-
-        // 4. Update Database
-        const { error: updateError } = await supabase
-            .from('user_xp')
-            .update({
-                total_xp: newTotalXp,
-                level: newLevel,
-                attributes: newAttributes,
-                xp_history: newHistory as any, // Cast to any for JSONB
-            })
-            .eq('user_id', userId);
-
-        if (updateError) throw updateError;
-
-        // 5. Check and Unlock Achievements
-        try {
-            const { checkAndUnlockAchievements, notifyAchievementUnlock } = await import('./achievementService');
-            const newlyUnlocked = await checkAndUnlockAchievements(userId);
-            if (newlyUnlocked.length > 0) {
-                notifyAchievementUnlock(newlyUnlocked);
-            }
-        } catch (achievementError) {
-            console.warn('Achievement check failed:', achievementError);
-            // Non-critical, don't fail the XP award
-        }
-
-        return { success: true, newLevel: leveledUp ? newLevel : undefined };
-
+        const res = await apiClient.post<{ success: boolean; current_xp: number; level: number }>('/api/rewards/xp', { amount });
+        return { success: res.success, newLevel: res.level };
     } catch (error) {
         console.error('Error awarding XP:', error);
         return { success: false, error };
@@ -122,19 +33,18 @@ export const awardXP = async (
 // ... existing code ...
 
 export const getUserXP = async (userId: string): Promise<UserXP | null> => {
-    const { data, error } = await supabase
-        .from('user_xp')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-
-    if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
-        console.error('Error fetching user XP:', error);
-        throw error;
-    }
-
-    return data;
+    void userId;
+    const data = await apiClient.get<{ current_xp: number; level: number; attributes?: Record<string, number>; xp_history?: XPHistoryEntry[]; created_at?: string; updated_at?: string }>('/api/rewards/score');
+    if (!data) return null;
+    return {
+        user_id: userId,
+        total_xp: data.current_xp ?? 0,
+        level: data.level ?? 1,
+        attributes: (data.attributes as any) ?? { body: 0, mind: 0, spirit: 0, output: 0 },
+        xp_history: (data.xp_history as any) ?? [],
+        created_at: data.created_at ?? new Date().toISOString(),
+        updated_at: data.updated_at ?? new Date().toISOString(),
+    };
 };
 
 export interface DailyXP {
@@ -144,17 +54,15 @@ export interface DailyXP {
 }
 
 export const getDailyXP = async (userId: string): Promise<DailyXP[]> => {
-    const userXP = await getUserXP(userId);
-    if (!userXP || !userXP.xp_history) return [];
+    const xp = await getUserXP(userId);
+    if (!xp || !xp.xp_history) return [];
 
-    const history = userXP.xp_history as unknown as XPHistoryEntry[];
+    const history = xp.xp_history as unknown as XPHistoryEntry[];
     const dailyMap = new Map<string, number>();
 
     history.forEach(entry => {
-        // Date is ISO string, split to YYYY-MM-DD
         const dateKey = entry.date.split('T')[0];
-        const current = dailyMap.get(dateKey) || 0;
-        dailyMap.set(dateKey, current + entry.amount);
+        dailyMap.set(dateKey, (dailyMap.get(dateKey) || 0) + entry.amount);
     });
 
     const result: DailyXP[] = [];
@@ -164,7 +72,6 @@ export const getDailyXP = async (userId: string): Promise<DailyXP[]> => {
         if (count > 50) level = 2;
         if (count > 100) level = 3;
         if (count > 200) level = 4;
-
         result.push({ date, count, level });
     });
 

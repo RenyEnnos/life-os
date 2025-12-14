@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { Button } from '@/shared/ui/Button';
@@ -16,8 +16,15 @@ export default function RegisterPage() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { register } = useAuth();
+    const { register, user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (user && !authLoading) {
+            navigate('/', { replace: true });
+        }
+    }, [user, authLoading, navigate]);
 
     // 3D Tilt Effect Logic
     const x = useMotionValue(0);

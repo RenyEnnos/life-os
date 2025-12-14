@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { apiFetch } from '@/shared/api/http';
 import './synapse.css';
 
 /**
@@ -58,39 +59,56 @@ export const Synapse = () => {
         market?: { price?: number, change?: number };
         focus?: { score?: number };
     } | null>(null);
+    const [contextLoading, setContextLoading] = useState(false);
+    const [contextError, setContextError] = useState<string | null>(null);
 
     // Fetch Context Data
     useEffect(() => {
-        if (open && !context) {
-            fetch('/api/context/synapse-briefing')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        const weather = data.data?.weather || {};
-                        const marketRaw = data.data?.market || {};
-                        const btc = marketRaw.bitcoin || marketRaw.crypto?.bitcoin || {};
-                        const price = typeof btc.usd === 'number' ? btc.usd : (typeof btc.usd_24h_change === 'number' ? btc.usd_24h_change : undefined);
-                        const change = typeof btc.change_24h === 'number' ? btc.change_24h : (typeof btc.usd_24h_change === 'number' ? btc.usd_24h_change : undefined);
+        if (!open) return;
+        setContextLoading(true);
+        setContextError(null);
+        apiFetch<{ success: boolean; data?: any }>('/api/context/synapse-briefing')
+            .then((payload) => {
+                if (!payload?.success || !payload.data) {
+                    throw new Error('Context offline');
+                }
+                const weather = payload.data?.weather || {};
+                const marketRaw = payload.data?.market || {};
+                const btc = marketRaw.bitcoin || marketRaw.crypto?.bitcoin || {};
+                const price = typeof btc.usd === 'number' ? btc.usd : undefined;
+                const change = typeof btc.usd_24h_change === 'number'
+                    ? btc.usd_24h_change
+                    : (typeof btc.change_24h === 'number' ? btc.change_24h : undefined);
 
-                        const dev = data.data?.dev || {};
-                        const focusScore = (() => {
-                            if (typeof dev.total_hours === 'string') {
-                                const hours = parseFloat(dev.total_hours);
-                                if (!Number.isNaN(hours)) return Math.min(100, Math.round(hours * 10));
-                            }
-                            return 84;
-                        })();
-
-                        setContext({
-                            weather: { temp: weather.temp, condition: weather.summary || weather.condition },
-                            market: { price, change },
-                            focus: { score: focusScore }
-                        });
+                const dev = payload.data?.dev || {};
+                const focusScore = (() => {
+                    if (typeof dev.focus === 'number') return Math.round(dev.focus);
+                    if (typeof dev.total_hours === 'string') {
+                        const hours = parseFloat(dev.total_hours);
+                        if (!Number.isNaN(hours)) return Math.min(100, Math.round(hours * 10));
                     }
-                })
-                .catch(err => console.error('Synapse Context Error', err));
-        }
-    }, [open, context]);
+                    return undefined;
+                })();
+
+                setContext({
+                    weather: { temp: weather.temp, condition: weather.summary || weather.condition },
+                    market: { price, change },
+                    focus: { score: focusScore }
+                });
+            })
+            .catch(err => {
+                console.error('Synapse Context Error', err);
+                setContext(null);
+                setContextError('Context HUD offline');
+            })
+            .finally(() => setContextLoading(false));
+    }, [open]);
+
+    const tempLabel = context?.weather?.temp !== undefined
+        ? `${Math.round(context.weather.temp)}°C ${context.weather?.condition || ''}`.trim()
+        : '--';
+    const focusLabel = context?.focus?.score !== undefined ? `${context.focus.score}%` : '--';
+    const priceLabel = context?.market?.price !== undefined ? `$${context.market.price.toLocaleString()}` : '--';
 
     return (
         <AnimatePresence>
@@ -119,16 +137,16 @@ export const Synapse = () => {
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-1.5 text-blue-400/80">
                                     <CloudRain size={12} />
-                                    <span>{context ? `${context.weather.temp}°C ${context.weather.condition}` : 'Loading...'}</span>
+                                    <span>{contextLoading ? 'Loading...' : (contextError ? contextError : tempLabel)}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5 text-emerald-400/80">
                                     <Activity size={12} />
-                                    <span>Focus: {context ? `${context.focus.score}%` : '--'}</span>
+                                    <span>Focus: {contextLoading ? '--' : focusLabel}</span>
                                 </div>
                             </div>
                             <div className="flex items-center gap-1.5 text-zinc-400">
                                 <Bitcoin size={12} className="text-amber-500/80" />
-                                <span className="font-mono">{context ? `$${context.market.price.toLocaleString()}` : '---'}</span>
+                                <span className="font-mono">{contextLoading ? '---' : priceLabel}</span>
                             </div>
                         </div>
 

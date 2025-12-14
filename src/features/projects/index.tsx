@@ -59,8 +59,25 @@ export default function ProjectsPage() {
         }
     };
 
+    const totalProjects = projects?.length || 0;
+    const activeCount = projects?.filter((p) => p.status === 'active').length || 0;
+    const completedCount = projects?.filter((p) => p.status === 'completed').length || 0;
+    const onHoldCount = projects?.filter((p) => p.status === 'on_hold').length || 0;
+    const priorityScore = projects?.reduce((acc, p) => {
+        if (p.priority === 'high') return acc + 3;
+        if (p.priority === 'medium') return acc + 2;
+        return acc + 1;
+    }, 0) || 0;
+    const priorityLabel = totalProjects
+        ? priorityScore / totalProjects >= 2.5
+            ? 'Alta'
+            : priorityScore / totalProjects >= 1.75
+                ? 'Média'
+                : 'Baixa'
+        : '--';
+
     return (
-        <div className="space-y-8 pb-20">
+        <div className="space-y-8 pb-20 max-w-6xl mx-auto px-2 sm:px-0">
             <PageTitle
                 title="PROJETOS"
                 subtitle="Gestão estratégica e análise de viabilidade."
@@ -90,12 +107,39 @@ export default function ProjectsPage() {
                             }
                         />
                     ) : (
-                        <div className="grid gap-6">
-                            {projects.map((project: Project) => (
-                                <Card key={project.id} className={clsx(
-                                    "p-6 border-border bg-card transition-all duration-300",
-                                    selectedProject === project.id ? "ring-1 ring-primary shadow-[0_0_20px_rgba(13,242,13,0.1)]" : "hover:border-primary/30"
-                                )}>
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <Card className="bg-white/5 border-white/10 p-4">
+                                    <p className="text-xs text-zinc-500 uppercase tracking-wider">Projetos Ativos</p>
+                                    <div className="text-3xl font-bold text-primary tabular-nums">{activeCount}</div>
+                                    <p className="text-xs text-zinc-500 mt-1">de {totalProjects} totais</p>
+                                </Card>
+                                <Card className="bg-white/5 border-white/10 p-4">
+                                    <p className="text-xs text-zinc-500 uppercase tracking-wider">Concluídos</p>
+                                    <div className="text-3xl font-bold text-emerald-400 tabular-nums">{completedCount}</div>
+                                    <p className="text-xs text-zinc-500 mt-1">{onHoldCount} em pausa</p>
+                                </Card>
+                                <Card className="bg-white/5 border-white/10 p-4">
+                                    <p className="text-xs text-zinc-500 uppercase tracking-wider">Prioridade Média</p>
+                                    <div className="text-3xl font-bold text-amber-300 tabular-nums">{priorityLabel}</div>
+                                    <p className="text-xs text-zinc-500 mt-1">Escala: Baixa / Média / Alta</p>
+                                </Card>
+                                <Card className="bg-white/5 border-white/10 p-4">
+                                    <p className="text-xs text-zinc-500 uppercase tracking-wider">Próximo Deadline</p>
+                                    <div className="text-3xl font-bold text-white tabular-nums">
+                                        {projects?.find((p) => p.deadline)?.deadline
+                                            ? new Date(projects.find((p) => p.deadline)!.deadline as string).toLocaleDateString()
+                                            : '--'}
+                                    </div>
+                                    <p className="text-xs text-zinc-500 mt-1">Atualize prazos para priorizar</p>
+                                </Card>
+                            </div>
+                            <div className="grid gap-6">
+                                {projects.map((project: Project) => (
+                                    <Card key={project.id} className={clsx(
+                                        "p-6 border-border bg-card transition-all duration-300",
+                                        selectedProject === project.id ? "ring-1 ring-primary shadow-[0_0_20px_rgba(13,242,13,0.1)]" : "hover:border-primary/30"
+                                    )}>
                                     <div className="flex flex-col md:flex-row gap-6">
                                         <div className="flex-1 space-y-4">
                                             <div className="flex items-start justify-between">
@@ -152,7 +196,8 @@ export default function ProjectsPage() {
                                     </div>
                                 </Card>
                             ))}
-                        </div>
+                            </div>
+                        </>
                     )}
                 </>
             )}

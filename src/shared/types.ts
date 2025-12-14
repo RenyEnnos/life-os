@@ -59,6 +59,7 @@ export interface JournalInsightContent {
     // Added fields for different insight types
     summary?: string;
     themes?: string[];
+    recommendations?: string[];
 }
 
 export type InsightType = 'neural_resonance' | 'weekly' | 'mood' | 'theme';

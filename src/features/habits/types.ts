@@ -1,21 +1,11 @@
-export interface Habit {
-    id: string;
-    user_id: string;
-    title: string;
-    description?: string | null;
-    active: boolean;
-    frequency: string[]; // db: frequency (text[])
-    routine: 'morning' | 'afternoon' | 'evening' | 'any'; // strictly typed logic
-    created_at?: string;
-    streak: number; // db: streak
+import { Habit as SharedHabit } from '@/shared/types';
 
-    // Compatibility with Shared Type
-    type: 'binary' | 'numeric'; // Made required to match shared
-    goal: number; // Made required to match shared
-
-    // Optional extras
-    name?: string;
-    updated_at?: string;
+export interface Habit extends SharedHabit {
+    // Frontend specific aliases or optional props if not in shared yet
+    title?: string; // Legacy support or alias
+    active?: boolean; // Derived or missing in shared
+    type?: 'binary' | 'numeric';
+    goal?: number;
     category?: string;
     icon?: string;
     completed?: boolean;

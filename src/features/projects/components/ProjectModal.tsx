@@ -4,6 +4,7 @@ import { Button } from '@/shared/ui/Button';
 import type { Project } from '@/shared/types';
 import { useDebounce } from '@/shared/hooks/useDebounce';
 import { RefreshCw, Image as ImageIcon } from 'lucide-react';
+import { apiFetch } from '@/shared/api/http';
 
 interface ProjectModalProps {
     onClose: () => void;
@@ -32,16 +33,11 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
     const fetchCover = async (query: string, pageNum: number) => {
         setIsLoadingCover(true);
         try {
-            // Use relative path which works with Vite proxy in dev and same-origin in prod
-            const baseUrl = '/api/media/images';
-            const res = await fetch(`${baseUrl}?query=${encodeURIComponent(query)}&page=${pageNum}`);
-
-            if (!res.ok) throw new Error('Failed to fetch media');
-
-            const data = await res.json();
-            if (data.images && data.images.length > 0) {
-                setCoverUrl(data.images[0].coverUrl);
-            }
+            const data = await apiFetch<{ images?: Array<{ coverUrl?: string }> }>(
+                `/api/media/images?query=${encodeURIComponent(query)}&page=${pageNum}`
+            );
+            const cover = data.images?.[0]?.coverUrl;
+            setCoverUrl(cover || null);
         } catch (err) {
             console.error('Failed to fetch cover', err);
         } finally {

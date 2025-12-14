@@ -1,47 +1,23 @@
-import { supabase } from '@/shared/api/supabase';
+import { apiClient } from '@/shared/api/http';
 import { Task } from '@/shared/types';
 
 export const tasksApi = {
-    getAll: async (userId: string) => {
-        const { data, error } = await supabase
-            .from('tasks')
-            .select('*')
-            .eq('user_id', userId)
-            .order('due_date', { ascending: true });
-
-        if (error) throw error;
-        return data as Task[];
+    getAll: async () => {
+        const data = await apiClient.get<Task[]>('/api/tasks');
+        return data;
     },
 
     create: async (task: Partial<Task>) => {
-        const { data, error } = await supabase
-            .from('tasks')
-            .insert(task)
-            .select()
-            .single();
-
-        if (error) throw error;
-        return data as Task;
+        const data = await apiClient.post<Task>('/api/tasks', task);
+        return data;
     },
 
     update: async (id: string, updates: Partial<Task>) => {
-        const { data, error } = await supabase
-            .from('tasks')
-            .update(updates)
-            .eq('id', id)
-            .select()
-            .single();
-
-        if (error) throw error;
-        return data as Task;
+        const data = await apiClient.put<Task>(`/api/tasks/${id}`, updates);
+        return data;
     },
 
     delete: async (id: string) => {
-        const { error } = await supabase
-            .from('tasks')
-            .delete()
-            .eq('id', id);
-
-        if (error) throw error;
+        await apiClient.delete(`/api/tasks/${id}`);
     }
 };

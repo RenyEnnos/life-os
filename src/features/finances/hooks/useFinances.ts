@@ -9,13 +9,13 @@ export function useFinances() {
 
     const { data: transactions, isLoading: loadingTransactions } = useQuery<Transaction[]>({
         queryKey: ['transactions', user?.id],
-        queryFn: async () => financesApi.list(user!.id),
+        queryFn: async () => financesApi.list(),
         enabled: !!user,
     });
 
     const { data: summary, isLoading: loadingSummary } = useQuery<{ income: number; expenses: number; balance: number; byCategory?: Record<string, number> }>({
         queryKey: ['finance-summary', user?.id],
-        queryFn: async () => financesApi.getSummary(user!.id),
+        queryFn: async () => financesApi.getSummary(),
         enabled: !!user,
     });
 
