@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api/auth.api';
 import { LoginRequest, RegisterRequest, User } from '@/shared/types';
 import { clearAuthToken, setAuthToken } from '@/shared/api/authToken';
+import { normalizeEmail, normalizeName } from '@/shared/lib/normalize';
 
 interface AuthContextType {
   user: User | null;
@@ -43,17 +44,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem('auth_user', JSON.stringify(user));
         return user;
       } catch (error) {
+        console.warn('[AuthContext] Session verification failed:', error);
         localStorage.removeItem('auth_user');
         clearAuthToken();
-        throw error;
+        // Return null instead of throwing to avoid error state, allowing UI to show public view
+        return null;
       }
     },
     initialData: getInitialUser,
     retry: false,
     staleTime: 1000 * 60 * 5, // 5 minutes
-    onError: () => {
-      queryClient.setQueryData(['auth_user'], null);
-    }
   });
 
   const loginMutation = useMutation({
@@ -119,8 +119,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user: user || null,
     session: null, // Session management is abstracted/cookie-based usually
     loading: isLoading || isFetching,
-    login: async (creds: LoginRequest) => { await loginMutation.mutateAsync(creds); },
-    register: async (creds: RegisterRequest) => { await registerMutation.mutateAsync(creds); },
+    login: async (creds: LoginRequest) => { 
+      const normalized = { ...creds, email: normalizeEmail(creds.email) }
+      await loginMutation.mutateAsync(normalized); 
+    },
+    register: async (creds: RegisterRequest) => { 
+      const normalized = { ...creds, email: normalizeEmail(creds.email), name: normalizeName(creds.name) }
+      await registerMutation.mutateAsync(normalized); 
+    },
     logout: async () => { await logoutMutation.mutateAsync(); },
     updateThemePreference,
     updateProfile: async (data: { name?: string; avatar_url?: string }) => { await updateProfileMutation.mutateAsync(data); }

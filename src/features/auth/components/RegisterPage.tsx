@@ -5,6 +5,9 @@ import { Button } from '@/shared/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
 import { motion, useMotionValue, useTransform, useSpring, Variants } from 'framer-motion';
 import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { cn } from '@/shared/lib/cn';
+
+import { ApiError } from '@/shared/api/http';
 
 export default function RegisterPage() {
     const [firstName, setFirstName] = useState('');
@@ -14,7 +17,7 @@ export default function RegisterPage() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState<React.ReactNode>(null);
     const [loading, setLoading] = useState(false);
     const { register, user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
@@ -53,19 +56,62 @@ export default function RegisterPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
 
+        // Client-side validation
+        if (!firstName.trim() || !lastName.trim()) {
+            return setError('Por favor, preencha nome e sobrenome.');
+        }
+        if (!email.trim()) {
+            return setError('O e-mail é obrigatório.');
+        }
+        if (password.length < 6) {
+            return setError('A senha deve ter no mínimo 6 caracteres.');
+        }
         if (password !== confirmPassword) {
             return setError('As senhas não conferem');
         }
 
         try {
-            setError('');
             setLoading(true);
             await register({ email, password, name: `${firstName} ${lastName}`.trim() });
             navigate('/');
-        } catch (err) {
+        } catch (err: unknown) {
             console.error('Registration Error:', err);
-            setError('Falha ao criar conta.');
+            
+            let userFriendlyError: React.ReactNode = 'Falha ao criar conta.';
+            
+            if (err instanceof ApiError && err.status === 400 && err.details) {
+                 userFriendlyError = (
+                    <div className="flex flex-col gap-1">
+                        <span className="font-semibold">Atenção</span>
+                        {Array.isArray(err.details) ? (
+                            <ul className="list-disc pl-4 space-y-0.5">
+                                {err.details.map((d: any, i: number) => {
+                                    const field = d.path || 'Campo desconhecido';
+                                    let msg = d.message;
+                                    
+                                    // Translate fallback if backend sends raw Zod "Required"
+                                    if (msg === "Required") {
+                                        if (field.includes('email')) msg = "O e-mail é obrigatório.";
+                                        else if (field.includes('password')) msg = "A senha é obrigatória.";
+                                        else if (field.includes('name')) msg = "O nome é obrigatório.";
+                                        else msg = "Preencha todos os campos.";
+                                    }
+                                    
+                                    return <li key={i}>{msg}</li>;
+                                })}
+                            </ul>
+                        ) : (
+                            <span>{JSON.stringify(err.details)}</span>
+                        )}
+                    </div>
+                );
+            } else if (err instanceof ApiError && err.status === 400 && err.message.includes('already exists')) {
+                userFriendlyError = 'Este e-mail já está cadastrado.';
+            }
+
+            setError(userFriendlyError);
         } finally {
             setLoading(false);
         }
@@ -92,7 +138,9 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 animated-gradient-bg overflow-hidden relative perspective-1000">
+        <div className="min-h-screen flex items-center justify-center p-4 animated-gradient-bg overflow-hidden relative perspective-1000 bg-background transition-colors duration-300">
+            {/* Theme follows browser preference; no manual toggle */}
+
             {/* Decorative background elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[100px] animate-pulse" />
@@ -112,7 +160,7 @@ export default function RegisterPage() {
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
             >
-                <Card className="glass-panel border-primary/20 transform-gpu">
+                <Card className="glass-panel border-primary/20 transform-gpu dark:bg-zinc-900/30 bg-white/70 backdrop-blur-xl shadow-2xl">
                     <CardHeader className="text-center">
                         <motion.div variants={itemVariants} className="transform-gpu translate-z-10">
                             <h1 className="text-4xl font-bold text-primary tracking-widest font-mono glow-text mb-2">
@@ -120,7 +168,7 @@ export default function RegisterPage() {
                             </h1>
                         </motion.div>
                         <motion.div variants={itemVariants} className="transform-gpu translate-z-5">
-                            <CardTitle className="text-xl text-gray-200">Novo Usuário</CardTitle>
+                            <CardTitle className="text-xl dark:text-gray-200 text-gray-800 font-semibold">Novo Usuário</CardTitle>
                         </motion.div>
                     </CardHeader>
                     <CardContent>
@@ -136,13 +184,18 @@ export default function RegisterPage() {
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <motion.div variants={itemVariants} className="space-y-2">
-                                    <label className="text-sm font-mono text-gray-400 ml-1">Nome</label>
-                                    <div className="relative">
-                                        <User className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
+                                    <label className="text-sm font-mono dark:text-gray-300 text-gray-700 font-medium ml-1">Nome</label>
+                                    <div className="relative group">
+                                        <User className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors" />
                                         <input
                                             type="text"
                                             required
-                                            className="w-full rounded-md pl-10 pr-3 py-3 text-gray-100 font-mono input-premium focus:outline-none"
+                                            className={cn(
+                                                "w-full rounded-md pl-10 pr-3 py-3 font-mono input-premium focus:outline-none transition-all duration-200",
+                                                "dark:bg-white/5 dark:text-gray-100 dark:border-white/10 dark:placeholder:text-zinc-500",
+                                                "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 border shadow-sm",
+                                                "focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                                            )}
                                             value={firstName}
                                             onChange={(e) => setFirstName(e.target.value)}
                                             placeholder="Nome"
@@ -150,13 +203,18 @@ export default function RegisterPage() {
                                     </div>
                                 </motion.div>
                                 <motion.div variants={itemVariants} className="space-y-2">
-                                    <label className="text-sm font-mono text-gray-400 ml-1">Sobrenome</label>
-                                    <div className="relative">
-                                        <User className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
+                                    <label className="text-sm font-mono dark:text-gray-300 text-gray-700 font-medium ml-1">Sobrenome</label>
+                                    <div className="relative group">
+                                        <User className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors" />
                                         <input
                                             type="text"
                                             required
-                                            className="w-full rounded-md pl-10 pr-3 py-3 text-gray-100 font-mono input-premium focus:outline-none"
+                                            className={cn(
+                                                "w-full rounded-md pl-10 pr-3 py-3 font-mono input-premium focus:outline-none transition-all duration-200",
+                                                "dark:bg-white/5 dark:text-gray-100 dark:border-white/10 dark:placeholder:text-zinc-500",
+                                                "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 border shadow-sm",
+                                                "focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                                            )}
                                             value={lastName}
                                             onChange={(e) => setLastName(e.target.value)}
                                             placeholder="Sobrenome"
@@ -165,13 +223,18 @@ export default function RegisterPage() {
                                 </motion.div>
                             </div>
                             <motion.div variants={itemVariants} className="space-y-2">
-                                <label className="text-sm font-mono text-gray-400 ml-1">Email</label>
-                                <div className="relative">
-                                    <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
+                                <label className="text-sm font-mono dark:text-gray-300 text-gray-700 font-medium ml-1">Email</label>
+                                <div className="relative group">
+                                    <Mail className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors" />
                                     <input
                                         type="email"
                                         required
-                                        className="w-full rounded-md pl-10 pr-3 py-3 text-gray-100 font-mono input-premium focus:outline-none"
+                                        className={cn(
+                                            "w-full rounded-md pl-10 pr-3 py-3 font-mono input-premium focus:outline-none transition-all duration-200",
+                                            "dark:bg-white/5 dark:text-gray-100 dark:border-white/10 dark:placeholder:text-zinc-500",
+                                            "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 border shadow-sm",
+                                            "focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                                        )}
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="seu@email.com"
@@ -179,13 +242,18 @@ export default function RegisterPage() {
                                 </div>
                             </motion.div>
                             <motion.div variants={itemVariants} className="space-y-2">
-                                <label className="text-sm font-mono text-gray-400 ml-1">Senha</label>
-                                <div className="relative">
-                                    <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
+                                <label className="text-sm font-mono dark:text-gray-300 text-gray-700 font-medium ml-1">Senha</label>
+                                <div className="relative group">
+                                    <Lock className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors" />
                                     <input
                                         type={showPassword ? "text" : "password"}
                                         required
-                                        className="w-full rounded-md pl-10 pr-10 py-3 text-gray-100 font-mono input-premium focus:outline-none"
+                                        className={cn(
+                                            "w-full rounded-md pl-10 pr-10 py-3 font-mono input-premium focus:outline-none transition-all duration-200",
+                                            "dark:bg-white/5 dark:text-gray-100 dark:border-white/10 dark:placeholder:text-zinc-500",
+                                            "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 border shadow-sm",
+                                            "focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                                        )}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="••••••••"
@@ -193,20 +261,25 @@ export default function RegisterPage() {
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-3 text-gray-500 hover:text-gray-300 transition-colors"
+                                        className="absolute right-3 top-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
                                     >
                                         {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                     </button>
                                 </div>
                             </motion.div>
                             <motion.div variants={itemVariants} className="space-y-2">
-                                <label className="text-sm font-mono text-gray-400 ml-1">Confirmar Senha</label>
-                                <div className="relative">
-                                    <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
+                                <label className="text-sm font-mono dark:text-gray-300 text-gray-700 font-medium ml-1">Confirmar Senha</label>
+                                <div className="relative group">
+                                    <Lock className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors" />
                                     <input
                                         type={showConfirmPassword ? "text" : "password"}
                                         required
-                                        className="w-full rounded-md pl-10 pr-10 py-3 text-gray-100 font-mono input-premium focus:outline-none"
+                                        className={cn(
+                                            "w-full rounded-md pl-10 pr-10 py-3 font-mono input-premium focus:outline-none transition-all duration-200",
+                                            "dark:bg-white/5 dark:text-gray-100 dark:border-white/10 dark:placeholder:text-zinc-500",
+                                            "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 border shadow-sm",
+                                            "focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                                        )}
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         placeholder="••••••••"
@@ -214,7 +287,7 @@ export default function RegisterPage() {
                                     <button
                                         type="button"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-3 top-3 text-gray-500 hover:text-gray-300 transition-colors"
+                                        className="absolute right-3 top-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
                                     >
                                         {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                     </button>

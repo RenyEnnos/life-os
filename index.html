@@ -22,6 +22,18 @@
         })
       }
     </script>
+    <script>
+      try {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        const apply = (isDark) => {
+          const el = document.documentElement;
+          el.classList.remove('light','dark');
+          el.classList.add(isDark ? 'dark' : 'light');
+        };
+        apply(mq.matches);
+        mq.addEventListener('change', (e) => apply(e.matches));
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

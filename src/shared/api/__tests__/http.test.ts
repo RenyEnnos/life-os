@@ -3,8 +3,7 @@ import { fetchJSON, getJSON, postJSON, resolveApiUrl } from "../http"
 
 const originalFetch = global.fetch
 
-function mockFetch(response: Partial<Response> & { body?: any }) {
-  // @ts-expect-error override
+function mockFetch(response: { status?: number; statusText?: string; headers?: Headers; body?: any }) {
   global.fetch = vi.fn(async () => {
     const { status = 200, statusText = "OK", headers = new Headers({ "Content-Type": "application/json" }), body } = response
     return {
@@ -24,7 +23,6 @@ describe("http.ts", () => {
   })
   afterEach(() => {
     vi.useRealTimers()
-    // @ts-expect-error restore
     global.fetch = originalFetch
   })
 
@@ -49,7 +47,6 @@ describe("http.ts", () => {
         if (signal) {
           signal.addEventListener("abort", () => {
             const err = new Error("Tempo de requisição excedido")
-            // @ts-expect-error name
             err.name = "AbortError"
             reject(err)
           })

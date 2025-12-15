@@ -13,7 +13,7 @@ export function NavigationSystem({ isSanctuaryActive = false }: NavigationSystem
 
     const slideProps = {
         animate: { x: isSanctuaryActive ? '-100%' : '0%' },
-        transition: { ease: 'easeInOut', duration: 0.3 },
+        transition: { ease: 'easeInOut' as const, duration: 0.3 },
         style: { transformStyle: 'preserve-3d' as const }
     };
 

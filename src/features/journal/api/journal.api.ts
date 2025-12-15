@@ -1,5 +1,5 @@
 import { apiClient } from '@/shared/api/http';
-import { JournalEntry } from '@/shared/types';
+import { JournalEntry, JournalInsight } from '@/shared/types';
 
 export const journalApi = {
     list: async (_userId?: string, date?: string) => {
@@ -22,9 +22,9 @@ export const journalApi = {
         await apiClient.delete(`/api/journal/${id}`);
     },
 
-    analyzeEntry: async (entry: JournalEntry) => {
+    analyzeEntry: async (entry: JournalEntry): Promise<JournalInsight | null> => {
         if (!entry.id) throw new Error('Entry id required for analysis');
-        const data = await apiClient.post<{ success: boolean; insight?: unknown }>(`/api/resonance/analyze/${entry.id}`, {});
+        const data = await apiClient.post<{ success: boolean; insight?: JournalInsight }>(`/api/resonance/analyze/${entry.id}`, {});
         return data.insight ?? null;
     }
 };

@@ -34,8 +34,7 @@ export const authApi = {
         return await apiClient.patch<AuthResponse>('/api/auth/profile', data);
     },
 
-    // Deprecated methods that might still be called? 
-    // Ideally we remove them, but checking usage elsewhere might be needed.
-    // For now, removing them to enforce new flow.
-    // If something breaks, we fix the caller.
+    resetPassword: async (email: string) => {
+        await apiClient.post('/api/auth/reset-password', { email });
+    },
 };

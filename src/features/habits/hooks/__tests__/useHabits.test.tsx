@@ -31,15 +31,15 @@ describe('useHabits', () => {
     });
 
     it('fetches habits for the user', async () => {
-        const mockHabits = [{ id: '1', title: 'Drink Water' }];
-        (habitsApi.list as any).mockResolvedValue(mockHabits);
+        const habitsData = [{ id: '1', title: 'Drink Water' }];
+        (habitsApi.list as any).mockResolvedValue(habitsData);
         (habitsApi.getLogs as any).mockResolvedValue([]);
 
         const { result } = renderHook(() => useHabits(), { wrapper });
 
         await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-        expect(result.current.habits).toEqual(mockHabits);
+        expect(result.current.habits).toEqual(habitsData);
         expect(habitsApi.list).toHaveBeenCalledWith('user-123');
     });
 });

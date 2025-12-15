@@ -5,7 +5,7 @@ vi.mock("@/shared/api/http", () => {
   return {
     apiFetch: vi.fn(async (_url: string, _init?: RequestInit) => {
       if (_url.includes("/ai/logs")) return [{ message: "ok", timestamp: Date.now() }]
-      return { content: "response", tags: ["a"], plan: ["x"], summary: "s" }
+      return { message: "response", content: "response", tags: ["a"], plan: ["x"], summary: "s", swot: { strengths: [] } }
     }),
   }
 })
@@ -13,7 +13,7 @@ vi.mock("@/shared/api/http", () => {
 describe("ai.api", () => {
   it("chat posts message", async () => {
     const res = await aiApi.chat("Hi", "ctx")
-    expect(res.content).toBeDefined()
+    expect(res.message).toBeDefined()
   })
   it("generateTags posts context", async () => {
     const res = await aiApi.generateTags("ctx", "task")
@@ -21,7 +21,7 @@ describe("ai.api", () => {
   })
   it("generateSwot posts context", async () => {
     const res = await aiApi.generateSwot("ctx")
-    expect(res.content).toBeDefined()
+    expect(res.swot).toBeDefined()
   })
   it("generatePlan posts context", async () => {
     const res = await aiApi.generatePlan("ctx")

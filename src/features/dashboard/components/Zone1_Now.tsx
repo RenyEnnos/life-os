@@ -34,7 +34,7 @@ export const Zone1_Now = ({ className }: { className?: string }) => {
                             <FastForward size={20} />
                         </Button>
                         <Button
-                            variant="default"
+                            variant="primary"
                             size="icon"
                             className="h-14 w-14 rounded-full bg-primary text-black hover:bg-primary/90 shadow-[0_0_20px_rgba(48,140,232,0.4)] flex items-center justify-center transition-transform active:scale-95"
                         >

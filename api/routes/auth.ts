@@ -8,6 +8,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken'
 import { supabase } from '../lib/supabase'
 import { LoginRequest, RegisterRequest, AuthResponse } from '../../shared/types'
 import { z } from 'zod'
+import { normalizeEmail, normalizeName } from '@/shared/lib/normalize'
 
 import { validate } from '../middleware/validate'
 import { loginSchema, registerSchema } from '@/shared/schemas/auth'
@@ -47,13 +48,15 @@ async function logAuth(email: string, status: 'success' | 'fail', meta?: { code?
 router.post('/register', validate(registerSchema), async (req: Request<Record<string, never>, unknown, RegisterRequest>, res: Response): Promise<void> => {
   try {
     const { email, password, name } = req.body
+    const normEmail = normalizeEmail(email)
+    const normName = normalizeName(name)
 
     // Check if user already exists
     console.log('[Register] Checking for existing user:', email);
     const { data: existingUser, error: checkError } = await supabase
       .from('users')
       .select('id')
-      .eq('email', email)
+      .eq('email', normEmail)
       .single()
 
     // Ignore error if it's just "not found" (PGRST116)
@@ -77,9 +80,9 @@ router.post('/register', validate(registerSchema), async (req: Request<Record<st
     const { data: user, error } = await supabase
       .from('users')
       .insert([{
-        email,
+        email: normEmail,
         password_hash: passwordHash,
-        name,
+        name: normName,
         preferences: {},
         theme: 'dark'
       }])
@@ -134,6 +137,7 @@ router.post('/register', validate(registerSchema), async (req: Request<Record<st
 router.post('/login', validate(loginSchema), async (req: Request<Record<string, never>, unknown, LoginRequest>, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body
+    const normEmail = normalizeEmail(email)
 
     if (!email || !password) {
       await logAuth(email || 'unknown', 'fail', { code: 'BAD_REQUEST', reason: 'missing_fields' }, req)
@@ -152,7 +156,7 @@ router.post('/login', validate(loginSchema), async (req: Request<Record<string, 
     const { data: user, error } = await supabase
       .from('users')
       .select('*')
-      .eq('email', email)
+      .eq('email', normEmail)
       .single()
 
     if (error || !user) {
@@ -209,7 +213,7 @@ router.post('/login', validate(loginSchema), async (req: Request<Record<string, 
       }
     }
 
-    await logAuth(email, 'success', { code: 'LOGIN_OK' }, req)
+    await logAuth(normEmail, 'success', { code: 'LOGIN_OK' }, req)
     res.json(response)
   } catch (error) {
     console.error('Login error:', error)

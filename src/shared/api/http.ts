@@ -5,6 +5,18 @@ export interface FetchOptions extends RequestInit {
   timeoutMs?: number
 }
 
+export class ApiError extends Error {
+  status: number;
+  details?: any;
+
+  constructor(message: string, status: number, details?: any) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.details = details;
+  }
+}
+
 export async function fetchJSON<T = unknown>(url: string, options: FetchOptions = {}): Promise<T> {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? 15000)
@@ -24,12 +36,31 @@ export async function fetchJSON<T = unknown>(url: string, options: FetchOptions 
 
     if (!res.ok) {
       const message = isJson ? (body?.message || body?.error || "Erro na requisição") : (body || "Erro na requisição")
-      throw new Error(`${res.status} ${res.statusText}: ${message}`)
+      console.warn(`[HTTP] Error ${res.status} on ${url}:`, message, isJson ? body : '')
+      
+      if (isJson && body?.details) {
+         throw new ApiError(message, res.status, body.details)
+      }
+      
+      throw new ApiError(message, res.status)
     }
     return body as T
   } catch (err: any) {
+    // Log operacional errors (4xx) as warnings, not errors to avoid console noise
+    if (err instanceof ApiError && err.status < 500) {
+        console.warn(`[HTTP] Validation/Client error on ${url}:`, err.message);
+    } else {
+        console.error(`[HTTP] Fetch failed for ${url}:`, err);
+    }
+
+    if (err instanceof ApiError) {
+        throw err;
+    }
     if (err?.name === "AbortError") {
       throw new Error("Tempo de requisição excedido")
+    }
+    if (err?.message?.includes("Failed to fetch")) {
+        throw new Error("Falha na conexão com o servidor. Verifique se o backend está rodando.")
     }
     throw err
   } finally {

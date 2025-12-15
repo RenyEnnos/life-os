@@ -1,7 +1,7 @@
 import { Check } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
-import { Habit } from '@/shared/types';
+import { Habit } from '../types';
 import { clsx } from 'clsx';
 
 interface HabitItemProps {

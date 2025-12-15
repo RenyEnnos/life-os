@@ -1,3 +1,4 @@
+/** @vitest-environment node */
 import request from 'supertest'
 import { describe, it, expect, beforeAll } from 'vitest'
 let app: any
@@ -15,10 +16,15 @@ describe('Auth integration flow', () => {
     expect(login.status).toBe(200)
     const userToken = login.body.token
 
+    // Login again with spaces/upper-case should also succeed due to normalization
+    const emailWeird = `  ${email.toUpperCase()}  `
+    const loginWeird = await request(app).post('/api/auth/login').send({ email: emailWeird, password })
+    expect(loginWeird.status).toBe(200)
+
     const verify = await request(app).get('/api/auth/verify').set('Authorization', `Bearer ${userToken}`)
     expect(verify.status).toBe(200)
 
-    const update = await request(app).put('/api/auth/profile').set('Authorization', `Bearer ${userToken}`).send({ preferences: { theme: 'light' } })
+    const update = await request(app).patch('/api/auth/profile').set('Authorization', `Bearer ${userToken}`).send({ preferences: { theme: 'light' } })
     expect(update.status).toBe(200)
     expect(update.body?.preferences?.theme || update.body?.theme).toBe('light')
 

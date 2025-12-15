@@ -18,17 +18,16 @@ export function QuickCapture() {
 
         setIsThinking(true);
         try {
-            // Mock AI parsing for now (Simulation)
-            // In real integration: const parsed = await aiApi.parseTask(input);
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate AI delay
-
-            const mockParsed = {
+            // Direct creation for now
+            // Future: const parsed = await aiApi.parseTask(input);
+            
+            const taskData = {
                 title: input,
                 due_date: new Date().toISOString()
             };
 
-            await createTask.mutateAsync(mockParsed as any);
-            showToast('Task captured with AI!', 'success');
+            await createTask.mutateAsync(taskData as any);
+            showToast('Task captured!', 'success');
             setInput('');
         } catch (error) {
             console.error('Quick Capture Error:', error);

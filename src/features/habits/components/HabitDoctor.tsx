@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
 import { Stethoscope, Sparkles, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
-import { Habit } from '@/shared/types';
+import { Habit } from '../types';
 import { Badge } from '@/shared/ui/Badge';
 import { motion, AnimatePresence } from 'framer-motion';
 

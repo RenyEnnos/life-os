@@ -1,5 +1,5 @@
 import { apiClient } from '@/shared/api/http';
-import { Habit } from '@/shared/types';
+import { Habit } from '../types';
 
 export const habitsApi = {
     list: async (_userId?: string) => {

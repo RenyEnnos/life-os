@@ -6,6 +6,22 @@ const router = Router()
 // In-memory fallback for development when database is not configured
 const memPerf: Array<{ user_id: string; endpoint: string; latency_ms: number; status: number; timestamp: string }> = []
 
+router.get('/status', async (_req, res: Response) => {
+  const url = process.env.SUPABASE_URL || null
+  const hasServiceKey = Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY)
+  const hasAnonKey = Boolean(process.env.SUPABASE_ANON_KEY)
+  const mode = process.env.NODE_ENV
+  res.json({
+    nodeEnv: mode,
+    supabase: {
+      urlConfigured: Boolean(url),
+      hasServiceKey,
+      hasAnonKey,
+      usingMock: false
+    }
+  })
+})
+
 router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response) => {
   if (process.env.NODE_ENV === 'test') return res.json({ aiCalls: 0, avgMs: 0, errors: 0 })
   const { data } = await supabase.from('ai_logs').select('response_time_ms, success').eq('user_id', req.user!.id)

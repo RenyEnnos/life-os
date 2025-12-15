@@ -3,8 +3,8 @@ import { describe, it, expect, vi } from 'vitest'
 import React from 'react'
 import { renderHook } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import * as api from '../../lib/api'
-import { useAI } from '../../hooks/useAI'
+import * as api from '@/shared/api/http'
+import { useAI } from '../useAI'
 
 describe('useAI hook', () => {
   it('calls /api/ai/summary and returns data', async () => {

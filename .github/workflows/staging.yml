@@ -1,0 +1,25 @@
+name: Staging Pipeline
+on:
+  workflow_dispatch:
+  push:
+    branches: [ staging ]
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run check
+      - run: npm run test
+      - run: npm run test:integration
+      - run: npm run build
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: E2E tests
+        env:
+          E2E_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+        run: npm run test:e2e

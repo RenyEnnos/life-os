@@ -49,47 +49,7 @@ function mapEntriesToCards(entries: JournalEntry[], label: MemoryCard['type']): 
     }));
 }
 
-const sampleToday: MemoryCard[] = [
-    {
-        id: 'insight-1',
-        title: 'The paradox of choice in minimal design',
-        excerpt: 'Reducing options doesn\'t limit creativity; it channels it.',
-        type: 'Insight',
-        tags: ['design', 'minimalism'],
-    },
-    {
-        id: 'bookmark-1',
-        title: 'Rust for WebAssembly: A comprehensive guide',
-        excerpt: 'Optimizing memory management when compiling Rust to Wasm targets.',
-        type: 'Bookmark',
-        tags: ['dev', 'rust', 'wasm'],
-    },
-    {
-        id: 'voice-1',
-        title: 'Meeting notes: Q4 Roadmap Strategy',
-        excerpt: '"Focus on user journey mapping..."',
-        type: 'Voice',
-        tags: ['strategy', 'work'],
-        media: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDW0nS9wE5ojjemFy7PjLHZ7iACDPAQVlSACLvUSLXvjYsvlm_e2cIruMSJJc15M-Q7mOV6ddqyd5zw8PItbsXnSDBpEuy4NIWPfS45BqePFRecRX7tZEW37JjwJbm-b0MGG_I3JdOpdblWi5Y8rHO4Rfgon5_zQTf5rnf9pjIVA8DjtKbhnnEPHCKrMMxX83PDEUdSMaUJwBNQFLa0psQDiqDwd_vAuZ7R-MGEu8_cvVi_FhlUBuqFpzzozzA81Z2we8XYumvNZM0',
-    },
-];
-
-const sampleYesterday: MemoryCard[] = [
-    {
-        id: 'journal-1',
-        title: 'Evening Reflection',
-        excerpt: 'Felt productive today but slightly burnt out by 4 PM. Need to adjust Pomodoro to 50/10.',
-        type: 'Journal',
-        tags: ['reflection', 'productivity'],
-    },
-    {
-        id: 'inspiration-1',
-        title: 'Architecture of Tadao Ando',
-        excerpt: 'The use of concrete and light. "If you give people nothingness, they can ponder what can be achieved from that nothingness."',
-        type: 'Inspiration',
-        tags: ['architecture', 'art'],
-    },
-];
+ 
 
 export default function JournalPage() {
     const { entries, isLoading } = useJournal();

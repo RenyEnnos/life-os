@@ -23,21 +23,6 @@ const materialIconByPath: Record<string, string> = {
     '/settings': 'settings',
 };
 
-const sampleCourses: Course[] = [
-    { id: 'csb-20', user_id: 'sample', name: 'Advanced Algorithms', professor: 'Dr. Ada', schedule: 'Mon/Wed 10:00', color: '#8b5cf6', semester: '2025-1', grade: 9.2 },
-    { id: 'mth-401', user_id: 'sample', name: 'Linear Algebra II', professor: 'Dr. Emmy', schedule: 'Tue/Thu 14:00', color: '#10b981', semester: '2025-1', grade: 8.8 },
-    { id: 'phy-22', user_id: 'sample', name: 'Quantum Mechanics', professor: 'Dr. Feynman', schedule: 'Fri 09:00', color: '#f59e0b', semester: '2025-1', grade: 9.5 },
-    { id: 'his-10', user_id: 'sample', name: 'Modern Architecture', professor: 'Dr. Wright', schedule: 'Wed 16:00', color: '#3b82f6', semester: '2025-1', grade: 8.8 },
-];
-
-const sampleAssignments: Assignment[] = [
-    { id: 'a1', course_id: 'csb-20', title: 'Read Chapter 4: Neural Networks', type: 'reading', due_date: '2025-10-14', status: 'todo', weight: 0.1, completed: false },
-    { id: 'a2', course_id: 'phy-22', title: 'Pre-lab calculations for optics', type: 'lab', due_date: '2025-10-16', status: 'todo', weight: 0.1, completed: false },
-    { id: 'a3', course_id: 'his-10', title: 'Modernism Analysis Draft', type: 'essay', due_date: '2025-10-14', status: 'in_progress', weight: 0.2, completed: false },
-    { id: 'a4', course_id: 'mth-401', title: 'Matrix Operations Set 3', type: 'problem_set', due_date: '2025-10-12', status: 'submitted', weight: 0.05, completed: true },
-    { id: 'a5', course_id: 'csb-20', title: 'Weekly Quiz 4', type: 'quiz', due_date: '2025-10-13', status: 'submitted', weight: 0.05, completed: true },
-];
-
 const formatCourseCode = (course: Course) => course.id?.toUpperCase() || 'COURSE';
 
 const averageGrade = (courses: Course[]) => {
@@ -56,8 +41,8 @@ export default function UniversityPage() {
     const { courses, assignments, addCourse, removeCourse, isLoading } = useUniversity();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const displayCourses = useMemo(() => (courses.length ? courses : sampleCourses), [courses]);
-    const displayAssignments = useMemo(() => (assignments.length ? assignments : sampleAssignments), [assignments]);
+    const displayCourses = useMemo(() => courses, [courses]);
+    const displayAssignments = useMemo(() => assignments, [assignments]);
     const gpa = averageGrade(displayCourses);
 
     return (

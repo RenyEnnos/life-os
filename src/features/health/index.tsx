@@ -1,30 +1,10 @@
 import { useMemo, useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { primaryNav, secondaryNav } from '@/app/layout/navItems';
 import { useHealth } from '@/features/health/hooks/useHealth';
 import type { HealthMetric, MedicationReminder } from '@/shared/types';
 import { Loader } from '@/shared/ui/Loader';
 import { MetricModal } from './components/MetricModal';
 import { MedicationModal } from './components/MedicationModal';
 import { cn } from '@/shared/lib/cn';
-
-const profileAvatar = "https://lh3.googleusercontent.com/aida-public/AB6AXuCVPqcPWDT3hPr01e2HDirC5oJIReGS_I9VQWtVcd9Jeg7-ZvWFgDQfCv6EutPiYTzuE-re3TH5gEjialXzk5Eb8SJ3m82eLKwBuKSLDpWKr4JkJ_yftg1ioQEeRmNNBPiKJhA7IAj11REAjyt_eN6G3ka3T_PoSQNNU9d7cQ6Af9A6u-pdRHLfzCaPzGvoxAzXj6ge63w7ZFJhPW4J6cxpsTQe-UV2JJuJ124QPZ8DgIYXHP4uJji-EBFIe1WQsTDEKAGbz-RlcuI";
-
-const materialIconByPath: Record<string, string> = {
-    '/': 'grid_view',
-    '/tasks': 'check_circle',
-    '/calendar': 'calendar_month',
-    '/habits': 'timer',
-    '/health': 'monitor_heart',
-    '/finances': 'show_chart',
-    '/projects': 'folder_open',
-    '/journal': 'menu_book',
-    '/rewards': 'emoji_events',
-    '/university': 'school',
-    '/settings': 'settings',
-};
-
- 
 
 const metricValue = (metrics: HealthMetric[] | undefined, metricType: string, fallback: number) => {
     const found = metrics?.find((m) => m.metric_type === metricType);
@@ -36,12 +16,12 @@ export default function HealthPage() {
     const [isMetricModalOpen, setIsMetricModalOpen] = useState(false);
     const [isMedicationModalOpen, setIsMedicationModalOpen] = useState(false);
 
-    const readiness = metricValue(metrics, 'readiness', 92);
-    const strain = metricValue(metrics, 'strain', 14.2);
-    const hrv = metricValue(metrics, 'hrv', 105);
-    const hydration = metricValue(metrics, 'hydration', 1.8);
-    const restingHr = metricValue(metrics, 'resting_hr', 58);
-    const sleepTotal = metricValue(metrics, 'sleep', 7.7);
+    const readiness = metricValue(metrics, 'readiness', 0);
+    const strain = metricValue(metrics, 'strain', 0);
+    const hrv = metricValue(metrics, 'hrv', 0);
+    const hydration = metricValue(metrics, 'hydration', 0);
+    const restingHr = metricValue(metrics, 'resting_hr', 0);
+    const sleepTotal = metricValue(metrics, 'sleep', 0);
 
     const medicationsList = useMemo<MedicationReminder[]>(() => {
         return medications || [];
@@ -80,7 +60,7 @@ export default function HealthPage() {
                                         <span className="material-symbols-outlined text-zinc-600 group-focus-within:text-primary transition-colors">bolt</span>
                                     </div>
                                     <input
-                                        className="w-full bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-2xl py-4 pl-14 pr-24 text-md font-light text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-white/10 focus:ring-0 focus:bg-zinc-900/60 transition-all shadow-lg hover:border-white/10"
+                                        className="w-full bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-2xl py-4 pl-14 pr-24 text-base font-light text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-white/10 focus:ring-0 focus:bg-zinc-900/60 transition-all shadow-lg hover:border-white/10"
                                         placeholder="Log workout, symptoms, or supplements..."
                                         type="text"
                                         onFocus={() => setIsMetricModalOpen(true)}

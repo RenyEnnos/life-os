@@ -116,19 +116,13 @@ if (isTest) {
   const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
 
   if (!supabaseUrl) {
-    // Fallback to in-memory mock for local development without Supabase configured
-    supabase = createStoreBackedMock()
-  } else {
-    // Prefer service role key; fallback to anon key if service key missing
-    const key = supabaseServiceRoleKey || supabaseAnonKey
-    if (!key) {
-      console.warn('Supabase URL is set but no API key found (service or anon). Falling back to mock store.')
-      supabase = createStoreBackedMock()
-    } else {
-      console.log('Initializing Supabase client with key length:', key.length, 'Is Service Role:', key === supabaseServiceRoleKey)
-      supabase = createClient(supabaseUrl, key)
-    }
+    throw new Error('SUPABASE_URL não configurada. Configure credenciais reais no .env')
   }
+  const key = supabaseServiceRoleKey || supabaseAnonKey
+  if (!key) {
+    throw new Error('Nenhuma chave Supabase encontrada (SUPABASE_SERVICE_ROLE_KEY ou SUPABASE_ANON_KEY). Configure credenciais reais no .env')
+  }
+  supabase = createClient(supabaseUrl, key)
 }
 
 export { supabase }

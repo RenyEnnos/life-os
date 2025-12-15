@@ -1,31 +1,13 @@
 import { useMemo, useState } from 'react';
-import { NavLink } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Plus } from 'lucide-react';
 import { useFinances } from '@/features/finances/hooks/useFinances';
 import type { FinanceSummary, Transaction } from '@/shared/types';
 import { Loader } from '@/shared/ui/Loader';
 import { TransactionModal } from './components/TransactionModal';
-import { primaryNav, secondaryNav } from '@/app/layout/navItems';
 // Removed NeonChart in favor of minimal inline bars
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
-
-const profileAvatar = "https://lh3.googleusercontent.com/aida-public/AB6AXuCVPqcPWDT3hPr01e2HDirC5oJIReGS_I9VQWtVcd9Jeg7-ZvWFgDQfCv6EutPiYTzuE-re3TH5gEjialXzk5Eb8SJ3m82eLKwBuKSLDpWKr4JkJ_yftg1ioQEeRmNNBPiKJhA7IAj11REAjyt_eN6G3ka3T_PoSQNNU9d7cQ6Af9A6u-pdRHLfzCaPzGvoxAzXj6ge63w7ZFJhPW4J6cxpsTQe-UV2JJuJ124QPZ8DgIYXHP4uJji-EBFIe1WQsTDEKAGbz-RlcuI";
-
-const materialIconByPath: Record<string, string> = {
-    '/': 'grid_view',
-    '/tasks': 'check_circle',
-    '/calendar': 'calendar_month',
-    '/habits': 'timer',
-    '/health': 'monitor_heart',
-    '/finances': 'show_chart',
-    '/projects': 'folder_open',
-    '/journal': 'menu_book',
-    '/rewards': 'emoji_events',
-    '/university': 'school',
-    '/settings': 'settings',
-};
 
 // Removed sampleTransactions fallback
 
@@ -58,7 +40,7 @@ export default function FinancesPage() {
     const { transactions, summary, isLoading, createTransaction, deleteTransaction } = useFinances();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const usingSampleData = !transactions || transactions.length === 0;
+    const isEmpty = !transactions || transactions.length === 0;
 
     const transactionsToShow = useMemo<Transaction[]>(() => {
         return (transactions || []).slice().sort((a, b) => {
@@ -93,8 +75,8 @@ export default function FinancesPage() {
         return months.map((m) => ({ name: m, value: Number((monthTotals.get(m) || 0).toFixed(2)) }));
     }, [transactionsToShow]);
 
-    const monthlyCapTarget = summaryToShow.income > 0 ? summaryToShow.income * 0.7 : 4500;
-    const monthlyCapPct = Math.min(100, Math.round((summaryToShow.expenses / (monthlyCapTarget || 1)) * 100));
+    const monthlyCapTarget = summaryToShow.income > 0 ? summaryToShow.income * 0.7 : 0;
+    const monthlyCapPct = monthlyCapTarget > 0 ? Math.min(100, Math.round((summaryToShow.expenses / monthlyCapTarget) * 100)) : 0;
     const investmentTotal = transactionsToShow
         .filter((t) => (t.category || '').toLowerCase().includes('invest'))
         .reduce((acc, t) => acc + Number(t.amount || 0), 0);
@@ -241,7 +223,7 @@ export default function FinancesPage() {
                                     </div>
                                     <div className="mb-4">
                                         <div className="flex items-baseline gap-1">
-                                            <span className="text-xl font-light text-white">R$ {investmentTotal > 0 ? investmentTotal.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : (1850).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                            <span className="text-xl font-light text-white">R$ {investmentTotal.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                                             <span className="text-xs text-emerald-500">Automated</span>
                                         </div>
                                     </div>
@@ -302,7 +284,7 @@ export default function FinancesPage() {
                                                 )}>
                                                     {t.type === 'income' ? '+' : '-'} R$ {Number(t.amount).toFixed(2)}
                                                 </span>
-                                                {!usingSampleData && (
+                                                {!isEmpty && (
                                                     <button
                                                         className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400 transition-colors"
                                                         onClick={() => deleteTransaction.mutate(t.id)}

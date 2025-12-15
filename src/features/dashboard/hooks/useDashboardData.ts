@@ -6,7 +6,9 @@ import { financesApi } from '@/features/finances/api/finances.api';
 import { rewardsApi } from '@/features/rewards/api/rewards.api';
 import type { LifeScore } from '@/shared/types';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
-import type { Task, Habit, HealthMetric } from '@/shared/types';
+import type { Task } from '@/features/tasks/types';
+import type { Habit } from '@/features/habits/types';
+import type { HealthMetric } from '@/shared/types';
 
 type HabitLog = { habit_id: string; date: string };
 

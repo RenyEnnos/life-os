@@ -1,0 +1,24 @@
+name: Mock Scan
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan for mock patterns outside tests
+        run: |
+          echo "Scanning for forbidden mock patterns..."
+          forbidden='(vi\.mock\\(|msw|mockStore|createStoreBackedMock|\\bstub\\b|\\bfake\\b)'
+          # Allowlist: tests, stories, vitest setup, test helpers
+          grep -REn "$forbidden" \
+            --exclude-dir='**/__tests__' \
+            --exclude-dir='src/test' \
+            --exclude='vitest.setup.ts' \
+            --exclude='**/*.stories.*' \
+            --exclude-dir='.github' \
+            --exclude='CHANGELOG.md' \
+            --include='**/*.*' \
+            . && { echo "Forbidden mock patterns found in source files"; exit 1; } || echo "No forbidden patterns found"

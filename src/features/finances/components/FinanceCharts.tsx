@@ -8,10 +8,12 @@ import {
     Cell,
     Tooltip,
     ResponsiveContainer,
-    Legend
+    Legend,
+    AreaChart,
+    Area,
+    XAxis
 } from 'recharts';
 import type { Transaction, FinanceSummary } from '@/shared/types';
-import { NeonChart } from '@/shared/ui/NeonCharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BentoCard } from '@/shared/ui/BentoCard';
 
@@ -62,12 +64,45 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
             >
                 <div className="h-full w-full pt-4">
                     {balanceHistoryData.length > 0 ? (
-                        <NeonChart
-                            title=""
-                            data={balanceHistoryData}
-                            color="#8b5cf6"
-                            className="h-full w-full"
-                        />
+                        <div className="w-full h-full">
+                             <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={balanceHistoryData}>
+                                    <defs>
+                                        <linearGradient id="gradient-balance" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.4} />
+                                            <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <XAxis
+                                        dataKey="name"
+                                        stroke="#52525b"
+                                        fontSize={10}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        dy={10}
+                                    />
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: '#18181b',
+                                            border: '1px solid #27272a',
+                                            borderRadius: '8px',
+                                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.5)',
+                                        }}
+                                        itemStyle={{ color: '#fff', fontSize: '12px' }}
+                                        labelStyle={{ display: 'none' }}
+                                        cursor={{ stroke: '#8b5cf6', strokeWidth: 1, strokeDasharray: '4 4' }}
+                                        formatter={(value: number) => `R$ ${value.toFixed(2)}`}
+                                    />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="value"
+                                        stroke="#8b5cf6"
+                                        strokeWidth={2}
+                                        fill="url(#gradient-balance)"
+                                    />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
                     ) : (
                         <div className="h-full flex items-center justify-center text-muted-foreground font-mono text-sm">
                             Dados insuficientes
