@@ -193,12 +193,14 @@ export default function CalendarPage() {
                                             <button
                                                 className="w-11 h-11 rounded-full flex items-center justify-center border border-white/5 text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
                                                 onClick={() => setViewDate(addMonths(viewDate, -1))}
+                                                aria-label="Previous month"
                                             >
                                                 <span className="material-symbols-outlined text-[20px]">chevron_left</span>
                                             </button>
                                             <button
                                                 className="w-11 h-11 rounded-full flex items-center justify-center border border-white/5 text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
                                                 onClick={() => setViewDate(addMonths(viewDate, 1))}
+                                                aria-label="Next month"
                                             >
                                                 <span className="material-symbols-outlined text-[20px]">chevron_right</span>
                                             </button>
@@ -222,6 +224,7 @@ export default function CalendarPage() {
                                                     key={key}
                                                     type="button"
                                                     onClick={() => setSelectedDate(day)}
+                                                    aria-label={format(day, 'PPPP')}
                                                     className={cn(
                                                         "day-cell rounded-2xl px-3 py-3 min-h-[72px] flex flex-col items-center justify-start cursor-pointer border border-transparent",
                                                         isSameMonth(day, viewDate) ? "text-zinc-300" : "text-zinc-600 opacity-60",
