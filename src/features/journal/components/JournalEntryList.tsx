@@ -34,11 +34,24 @@ export function JournalEntryList({ entries, onEdit, onDelete }: JournalEntryList
                                 {format(new Date(entry.entry_date), "dd 'de' MMMM, yyyy", { locale: ptBR })}
                             </p>
                         </div>
-                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button variant="ghost" size="icon" onClick={() => onEdit(entry)}>
+                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => onEdit(entry)}
+                                aria-label="Editar entrada"
+                                title="Editar entrada"
+                            >
                                 <Edit2 size={16} />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={() => onDelete(entry.id)} className="text-destructive hover:bg-destructive/10">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => onDelete(entry.id)}
+                                className="text-destructive hover:bg-destructive/10"
+                                aria-label="Excluir entrada"
+                                title="Excluir entrada"
+                            >
                                 <Trash2 size={16} />
                             </Button>
                         </div>

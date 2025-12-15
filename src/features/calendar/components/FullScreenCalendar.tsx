@@ -148,13 +148,13 @@ export function FullScreenCalendar({ data, onAddEvent, onEventClick, onSearch }:
 
                         <div className="flex items-center gap-2">
                             <div className="flex items-center bg-black/20 rounded-lg border border-white/5 p-1 mr-2">
-                                <Button onClick={previousMonth} variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10 text-zinc-400">
+                                <Button onClick={previousMonth} variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10 text-zinc-400" aria-label="Mês anterior">
                                     <ChevronLeftIcon size={18} />
                                 </Button>
                                 <Button onClick={goToToday} variant="ghost" className="h-8 px-3 text-xs font-mono text-zinc-300 hover:text-white hover:bg-white/10">
                                     HOJE
                                 </Button>
-                                <Button onClick={nextMonth} variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10 text-zinc-400">
+                                <Button onClick={nextMonth} variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10 text-zinc-400" aria-label="Próximo mês">
                                     <ChevronRightIcon size={18} />
                                 </Button>
                             </div>
@@ -282,7 +282,7 @@ export function FullScreenCalendar({ data, onAddEvent, onEventClick, onSearch }:
                                         <h4 className="text-sm font-semibold text-zinc-200 group-hover:text-white transition-colors line-clamp-2">
                                             {event.name}
                                         </h4>
-                                        <button className="text-zinc-600 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button className="text-zinc-600 hover:text-white opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity" aria-label="Opções do evento">
                                             <MoreVertical size={14} />
                                         </button>
                                     </div>
