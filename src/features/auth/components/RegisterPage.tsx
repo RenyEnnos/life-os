@@ -74,7 +74,9 @@ export default function RegisterPage() {
 
         try {
             setLoading(true);
-            await register({ email, password, name: `${firstName} ${lastName}`.trim() });
+            const normalizedEmail = email.trim().toLowerCase();
+            const normalizedName = `${firstName} ${lastName}`.trim();
+            await register({ email: normalizedEmail, password, name: normalizedName });
             navigate('/');
         } catch (err: unknown) {
             console.error('Registration Error:', err);

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useCallback } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api/auth.api';
@@ -99,7 +99,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     window.addEventListener('auth:unauthorized', handleUnauthorized);
     return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
-  }, [logoutMutation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount
 
   const updateThemePreference = async (theme: 'light' | 'dark') => {
     await updateProfileMutation.mutateAsync({ theme, preferences: { theme } });
@@ -115,22 +116,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
 
-  const value = {
+  const login = useCallback(async (creds: LoginRequest) => {
+    const normalized = { ...creds, email: normalizeEmail(creds.email) }
+    await loginMutation.mutateAsync(normalized);
+  }, [loginMutation]);
+
+  const register = useCallback(async (creds: RegisterRequest) => {
+    const normalized = { ...creds, email: normalizeEmail(creds.email), name: normalizeName(creds.name) }
+    await registerMutation.mutateAsync(normalized);
+  }, [registerMutation]);
+
+  const logout = useCallback(async () => {
+    await logoutMutation.mutateAsync();
+  }, [logoutMutation]);
+
+  const updateProfile = useCallback(async (data: { name?: string; avatar_url?: string }) => {
+    await updateProfileMutation.mutateAsync(data);
+  }, [updateProfileMutation]);
+
+  const value = useMemo(() => ({
     user: user || null,
-    session: null, // Session management is abstracted/cookie-based usually
+    session: null,
     loading: isLoading || isFetching,
-    login: async (creds: LoginRequest) => { 
-      const normalized = { ...creds, email: normalizeEmail(creds.email) }
-      await loginMutation.mutateAsync(normalized); 
-    },
-    register: async (creds: RegisterRequest) => { 
-      const normalized = { ...creds, email: normalizeEmail(creds.email), name: normalizeName(creds.name) }
-      await registerMutation.mutateAsync(normalized); 
-    },
-    logout: async () => { await logoutMutation.mutateAsync(); },
+    login,
+    register,
+    logout,
     updateThemePreference,
-    updateProfile: async (data: { name?: string; avatar_url?: string }) => { await updateProfileMutation.mutateAsync(data); }
-  };
+    updateProfile,
+  }), [user, isLoading, isFetching, login, register, logout, updateThemePreference, updateProfile]);
 
   return (
     <AuthContext.Provider value={value}>

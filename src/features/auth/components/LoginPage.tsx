@@ -15,11 +15,11 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState<React.ReactNode>(null);
     const [successMessage, setSuccessMessage] = useState('');
-    const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [isRecovering, setIsRecovering] = useState(false);
-    const { login } = useAuth();
+    const { login, user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // 3D Tilt Effect Logic
     const x = useMotionValue(0);
@@ -31,13 +31,12 @@ export default function LoginPage() {
     const rotateX = useTransform(mouseY, [-0.5, 0.5], ["7deg", "-7deg"]);
     const rotateY = useTransform(mouseX, [-0.5, 0.5], ["-7deg", "7deg"]);
 
-    // Better:
-    const { user } = useAuth();
+    // Redirect if already logged in
     useEffect(() => {
-        if (user && !loading) {
+        if (user && !authLoading) {
             navigate('/', { replace: true });
         }
-    }, [user, loading, navigate]);
+    }, [user, authLoading, navigate]);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -69,8 +68,8 @@ export default function LoginPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        const emailClean = email.trim();
+
+        const emailClean = email.trim().toLowerCase();
         const passwordClean = password;
 
         // Client-side validation to avoid unnecessary API calls
@@ -79,14 +78,14 @@ export default function LoginPage() {
             return;
         }
         if (!passwordClean || passwordClean.length < 6) {
-             setError('A senha deve ter pelo menos 6 caracteres.');
-             return;
+            setError('A senha deve ter pelo menos 6 caracteres.');
+            return;
         }
 
         try {
             setError(null);
             setSuccessMessage('');
-            setLoading(true);
+            setIsSubmitting(true);
             await login({ email: emailClean, password: passwordClean });
             logAuthAttempt('SUCCESS', email);
             navigate('/');
@@ -98,10 +97,10 @@ export default function LoginPage() {
             const msg = err instanceof Error ? err.message : '';
             let userFriendlyError: React.ReactNode = 'Falha no login. Verifique suas credenciais.';
             let logStatus = 'UNKNOWN_ERROR';
-            
+
             // Handle Validation Errors from Zod (via ApiError)
             if (err instanceof ApiError && err.status === 400 && err.details) {
-                 userFriendlyError = (
+                userFriendlyError = (
                     <div className="flex flex-col gap-1">
                         <span className="font-semibold">Atenção</span>
                         {Array.isArray(err.details) ? (
@@ -122,7 +121,7 @@ export default function LoginPage() {
                                         else if (field.includes('password')) msg = "A senha é obrigatória.";
                                         else msg = "Preencha todos os campos.";
                                     }
-                                    
+
                                     return <li key={i}>{msg}</li>;
                                 })}
                             </ul>
@@ -191,7 +190,7 @@ export default function LoginPage() {
             setError(userFriendlyError);
             logAuthAttempt(logStatus, email);
         } finally {
-            setLoading(false);
+            setIsSubmitting(false);
         }
     };
 
@@ -204,7 +203,7 @@ export default function LoginPage() {
         try {
             setError('');
             setSuccessMessage('');
-            setLoading(true);
+            setIsSubmitting(true);
             await authApi.resetPassword(email);
             setSuccessMessage('Link de recuperação enviado! Verifique seu e-mail.');
             logAuthAttempt('RECOVERY_REQUESTED', email);
@@ -213,7 +212,7 @@ export default function LoginPage() {
             setError('Erro ao enviar link. Tente novamente.');
             logAuthAttempt('RECOVERY_FAILED', email);
         } finally {
-            setLoading(false);
+            setIsSubmitting(false);
         }
     };
 
@@ -318,9 +317,9 @@ export default function LoginPage() {
                                     <MagneticButton
                                         type="submit"
                                         className="w-full h-12 text-lg font-bold tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/40 bg-primary text-black rounded-md"
-                                        disabled={loading}
+                                        disabled={isSubmitting}
                                     >
-                                        {loading ? 'ENVIANDO...' : 'ENVIAR LINK'}
+                                        {isSubmitting ? 'ENVIANDO...' : 'ENVIAR LINK'}
                                     </MagneticButton>
                                     <button
                                         type="button"
@@ -384,9 +383,9 @@ export default function LoginPage() {
                                     <MagneticButton
                                         type="submit"
                                         className="w-full h-12 text-lg font-bold tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/40 bg-primary text-black rounded-md"
-                                        disabled={loading}
+                                        disabled={isSubmitting}
                                     >
-                                        {loading ? (
+                                        {isSubmitting ? (
                                             <span className="flex items-center gap-2 justify-center">
                                                 <span className="animate-spin">⏳</span> ACESSANDO...
                                             </span>

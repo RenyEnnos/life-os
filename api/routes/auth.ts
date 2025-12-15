@@ -14,7 +14,7 @@ import { validate } from '../middleware/validate'
 import { loginSchema, registerSchema } from '@/shared/schemas/auth'
 
 const router = Router()
-const JWT_SECRET = process.env.JWT_SECRET
+const JWT_SECRET = process.env.JWT_SECRET || process.env.VITE_JWT_SECRET
 const isProduction = process.env.NODE_ENV === 'production'
 const authCookieOptions = {
   httpOnly: true,
@@ -25,7 +25,7 @@ const authCookieOptions = {
 }
 
 if (!JWT_SECRET) {
-  console.error('FATAL: JWT_SECRET is not defined in environment variables.')
+  console.error('FATAL: JWT_SECRET is not defined in environment variables (checked JWT_SECRET and VITE_JWT_SECRET).')
   process.exit(1)
 }
 

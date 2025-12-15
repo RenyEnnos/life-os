@@ -111,12 +111,12 @@ if (isTest) {
   }
   supabase = mock as unknown as SupabaseClient
 } else {
-  const supabaseUrl = process.env.SUPABASE_URL
-  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
-  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY
+  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY
 
   if (!supabaseUrl) {
-    throw new Error('SUPABASE_URL não configurada. Configure credenciais reais no .env')
+    throw new Error('SUPABASE_URL não configurada. Configure credenciais reais no .env (ou VITE_SUPABASE_URL)')
   }
   const key = supabaseServiceRoleKey || supabaseAnonKey
   if (!key) {
