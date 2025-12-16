@@ -67,6 +67,7 @@ export function CourseCard({ course, onClick, onDelete }: CourseCardProps) {
                                         e.stopPropagation();
                                         onDelete(course.id);
                                     }}
+                                    aria-label="Excluir curso"
                                 >
                                     <Trash2 size={14} />
                                 </Button>

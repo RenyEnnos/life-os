@@ -30,13 +30,14 @@ export const Zone1_Now = ({ className }: { className?: string }) => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <Button variant="ghost" size="icon" className="h-10 w-10 text-zinc-500 hover:text-white hover:bg-white/5 rounded-full">
+                        <Button variant="ghost" size="icon" className="h-10 w-10 text-zinc-500 hover:text-white hover:bg-white/5 rounded-full" aria-label="Avançar">
                             <FastForward size={20} />
                         </Button>
                         <Button
                             variant="primary"
                             size="icon"
                             className="h-14 w-14 rounded-full bg-primary text-black hover:bg-primary/90 shadow-[0_0_20px_rgba(48,140,232,0.4)] flex items-center justify-center transition-transform active:scale-95"
+                            aria-label={isFocusing ? "Pausar foco" : "Iniciar foco"}
                         >
                             {isFocusing ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
                         </Button>
