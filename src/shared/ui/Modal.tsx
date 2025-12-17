@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/shared/lib/cn'
 import { createPortal } from 'react-dom'
+import { X } from 'lucide-react'
 
 type ModalProps = {
   open: boolean
@@ -53,6 +54,13 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             transition={springTransition}
             className={cn('relative w-full max-w-md bg-surface border border-white/10 rounded-3xl shadow-2xl overflow-hidden')}
           >
+            <button
+              onClick={onClose}
+              className="absolute right-4 top-4 z-10 p-1 text-zinc-400 transition-colors rounded-full hover:text-zinc-100 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
+              aria-label="Close modal"
+            >
+              <X size={20} />
+            </button>
             {title && (
               <div className="px-6 py-4 border-b border-white/5 bg-white/[0.02]">
                 <h2 className="text-lg font-medium text-zinc-100 font-sans">{title}</h2>
