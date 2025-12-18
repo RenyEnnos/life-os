@@ -11,11 +11,29 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Prom
   const userId = req.user!.id
   try {
     const data = await tasksService.list(userId, req.query)
+    const { due_today } = req.query as Record<string, string>
+    if (due_today === 'true') {
+      const today = new Date().toISOString().split('T')[0]
+      const filtered = data.filter((t: any) => typeof t.due_date === 'string' && t.due_date.startsWith(today))
+      res.json(filtered)
+      return
+    }
     res.json(data)
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'Unknown error'
     res.status(400).json({ error: msg })
   }
+})
+
+// Summary (counts)
+router.get('/summary', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  const userId = req.user!.id
+  const tasks = await tasksService.list(userId, req.query)
+  const total = tasks.length
+  const completed = tasks.filter((t: any) => t.completed).length
+  const today = new Date().toISOString().split('T')[0]
+  const dueToday = tasks.filter((t: any) => typeof t.due_date === 'string' && t.due_date.startsWith(today)).length
+  res.json({ total, completed, dueToday })
 })
 
 // Create task

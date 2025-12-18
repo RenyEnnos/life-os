@@ -26,3 +26,11 @@ export interface AILog {
     error_message?: string;
     created_at: string;
 }
+
+export interface SynapseSuggestion {
+    id: string;
+    title: string;
+    rationale: string;
+    action_label: string;
+    source: 'gemini' | 'heuristic' | 'cache';
+}

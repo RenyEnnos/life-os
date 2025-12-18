@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 import { useQueryClient, QueryKey } from '@tanstack/react-query'
-import { getAuthToken } from '@/shared/api/authToken'
 import { resolveApiUrl } from '@/shared/api/http'
 
 export function useRealtime() {
@@ -10,16 +9,29 @@ export function useRealtime() {
 
   useEffect(() => {
     if (!user) return
-    const token = getAuthToken()
-    const path = '/api/realtime/stream'
-    const streamUrl = resolveApiUrl(token ? `${path}?token=${encodeURIComponent(token)}` : path)
+    const streamUrl = resolveApiUrl('/api/realtime/stream')
     const es = new EventSource(streamUrl, { withCredentials: true })
 
     const invalidate = (key: QueryKey) => qc.invalidateQueries({ queryKey: key })
 
-    es.addEventListener('habits', () => invalidate(['habits', user.id]))
-    es.addEventListener('habit_logs', () => invalidate(['habit-logs', user.id]))
-    es.addEventListener('tasks', () => invalidate(['tasks']))
+    es.addEventListener('habits', () => {
+      invalidate(['habits', user.id])
+      invalidate(['habits'])
+    })
+    es.addEventListener('habit_logs', () => {
+      invalidate(['habit-logs', user.id])
+      invalidate(['habits', 'logs'])
+    })
+    es.addEventListener('tasks', () => {
+      invalidate(['tasks'])
+      invalidate(['tasks', user.id])
+    })
+    es.addEventListener('transactions', () => {
+      invalidate(['finance', 'summary', user.id])
+    })
+    es.addEventListener('task_habit_links', () => {
+      invalidate(['symbiosis', user.id])
+    })
     es.addEventListener('ai_logs', () => invalidate(['ai-logs']))
     es.addEventListener('journal_entries', () => invalidate(['journal', user.id]))
 

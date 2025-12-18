@@ -91,6 +91,8 @@ export type DbTransaction = Database['public']['Tables']['transactions']['Row'];
 export interface Transaction extends Omit<DbTransaction, 'tags'> {
     tags?: string[];
     category: string;
+    // Retrocompat for clients that still send transaction_date
+    transaction_date?: string | null;
 }
 
 export type DbProject = Database['public']['Tables']['projects']['Row'];
@@ -158,4 +160,25 @@ export interface FinanceSummary {
     expenses: number;
     balance: number;
     byCategory?: Record<string, number>;
+}
+
+// Symbiosis (task ↔ habit links)
+export interface SymbiosisLink {
+    id: string;
+    task_id: string;
+    habit_id: string;
+    impact_vital: number;
+    custo_financeiro?: number | null;
+    notes?: string | null;
+    created_at?: string;
+    updated_at?: string;
+    deleted_at?: string | null;
+}
+
+export type VitalLoadState = 'balanced' | 'overloaded' | 'underloaded';
+
+export interface VitalLoadSummary {
+    totalImpact: number;
+    state: VitalLoadState;
+    label: string;
 }

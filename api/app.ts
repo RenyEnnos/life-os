@@ -29,6 +29,8 @@ import realtimeRoutes from './routes/realtime'
 import projectsRoutes from './routes/projects'
 import resonanceRoutes from './routes/resonance'
 import calendarRoutes from './routes/calendar'
+import symbiosisRoutes from './routes/symbiosis'
+import synapseRoutes from './routes/synapse'
 
 // for esm mode
 
@@ -130,6 +132,8 @@ app.use('/api/realtime', realtimeRoutes)
 app.use('/api/projects', projectsRoutes)
 app.use('/api/resonance', resonanceRoutes)
 app.use('/api/calendar', calendarRoutes)
+app.use('/api/symbiosis', symbiosisRoutes)
+app.use('/api/synapse', synapseRoutes)
 import contextRoutes from './routes/context'
 app.use('/api/context', contextRoutes)
 import mediaRoutes from './routes/media'

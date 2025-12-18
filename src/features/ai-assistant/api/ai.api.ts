@@ -1,5 +1,5 @@
 import { apiFetch } from '@/shared/api/http';
-import { AIResponse, AILog } from '../types';
+import { AIResponse, AILog, SynapseSuggestion } from '../types';
 
 export const aiApi = {
     chat: async (message: string, context?: string) => {
@@ -43,5 +43,16 @@ export const aiApi = {
 
     getLogs: async () => {
         return apiFetch<AILog[]>('/api/ai/logs');
+    },
+
+    getSuggestions: async () => {
+        return apiFetch<{ suggestions: SynapseSuggestion[] }>('/api/synapse/suggestions');
+    },
+
+    sendSuggestionFeedback: async (payload: { suggestionId: string; action: 'accepted' | 'dismissed'; source?: string }) => {
+        return apiFetch<{ success: boolean }>('/api/synapse/feedback', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
     }
 };

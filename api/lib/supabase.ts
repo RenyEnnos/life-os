@@ -114,15 +114,17 @@ if (isTest) {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY
   const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY
+  const key = supabaseServiceRoleKey || supabaseAnonKey
 
   if (!supabaseUrl) {
-    throw new Error('SUPABASE_URL não configurada. Configure credenciais reais no .env (ou VITE_SUPABASE_URL)')
+    // Local dev without Supabase credentials: fall back to mock store silently
+    supabase = createStoreBackedMock()
+  } else if (!key) {
+    console.warn('Supabase URL provided but no key found. Falling back to mock store.')
+    supabase = createStoreBackedMock()
+  } else {
+    supabase = createClient(supabaseUrl, key)
   }
-  const key = supabaseServiceRoleKey || supabaseAnonKey
-  if (!key) {
-    throw new Error('Nenhuma chave Supabase encontrada (SUPABASE_SERVICE_ROLE_KEY ou SUPABASE_ANON_KEY). Configure credenciais reais no .env')
-  }
-  supabase = createClient(supabaseUrl, key)
 }
 
 export { supabase }
