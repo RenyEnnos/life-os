@@ -20,8 +20,7 @@ export function SanctuaryOverlay() {
         volume,
         exit,
         toggleSound,
-        setSoundType,
-        setVolume
+        setSoundType
     } = useSanctuaryStore();
 
     // Handle audio playback
@@ -129,6 +128,9 @@ export function SanctuaryOverlay() {
                             onClick={toggleSound}
                             className="text-white/60 hover:text-white transition-colors"
                             title="Toggle Sound (S)"
+                            aria-label="Toggle Sound"
+                            aria-pressed={soundEnabled}
+                            aria-keyshortcuts="s"
                         >
                             {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
                         </button>
@@ -137,10 +139,16 @@ export function SanctuaryOverlay() {
                         <div className="w-px h-4 bg-white/10" />
 
                         {/* Sound Types */}
-                        <div className="flex items-center gap-2">
+                        <div
+                            className="flex items-center gap-2"
+                            role="radiogroup"
+                            aria-label="Background sound type"
+                        >
                             {(['brown', 'pink', 'white'] as SoundType[]).map((type) => (
                                 <button
                                     key={type}
+                                    role="radio"
+                                    aria-checked={soundType === type}
                                     onClick={() => handleSoundTypeChange(type)}
                                     className={`
                                         px-3 py-1 rounded-full text-xs font-medium transition-all
