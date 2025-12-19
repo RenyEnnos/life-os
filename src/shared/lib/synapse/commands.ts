@@ -102,7 +102,7 @@ export const getStaticCommands = (navigate: NavigateFunction): SynapseCommand[] 
         description: 'Record a new transaction',
         icon: Plus,
         group: 'resources',
-        action: () => { /* TODO: Open new transaction modal */ },
+        action: () => { navigate('/finances?new=true'); },
         keywords: ['expense', 'income', 'add', 'create'],
     },
 
