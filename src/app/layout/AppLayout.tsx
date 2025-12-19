@@ -57,7 +57,7 @@ export function AppLayout() {
     }, [isActive, enter, exit]);
 
     return (
-        <div className="relative min-h-[100dvh] w-full bg-background-dark text-zinc-200 font-display selection:bg-primary/30 flex flex-row overflow-hidden">
+        <div className="relative min-h-[100dvh] w-full bg-background-dark text-zinc-200 font-display selection:bg-primary/30 flex flex-row overflow-x-hidden">
             <ScrollToTop />
 
             {/* ATMOSPHERE LAYER - Fixed Background Elements */}
@@ -86,7 +86,7 @@ export function AppLayout() {
             </div>
 
             {/* Main Content Area */}
-            <main className="flex-1 h-screen overflow-hidden relative z-10 w-full">
+            <main className="flex-1 min-h-screen overflow-y-auto relative z-10 w-full">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={location.pathname}
@@ -95,7 +95,7 @@ export function AppLayout() {
                         animate="animate"
                         exit="exit"
                         transition={pageTransition}
-                        className="w-full h-full overflow-hidden"
+                        className="w-full min-h-screen"
                     >
                         <Outlet />
                     </motion.div>

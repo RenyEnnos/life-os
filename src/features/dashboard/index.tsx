@@ -244,8 +244,8 @@ export default function DashboardPage() {
   })
 
   return (
-    <div className="dashboard-shell relative min-h-screen w-full overflow-hidden bg-black text-zinc-200 font-display selection:bg-primary/30 selection:text-white">
-      <main className="flex-1 h-full overflow-y-auto p-4 lg:p-8 relative custom-scrollbar">
+    <div className="dashboard-shell relative min-h-screen w-full bg-black text-zinc-200 font-display selection:bg-primary/30 selection:text-white">
+      <main className="flex-1 min-h-screen overflow-visible p-4 lg:p-8 relative custom-scrollbar">
         <header className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6">
           <div>
             <h2 className="text-zinc-500 text-sm font-medium tracking-widest uppercase mb-1">Nexus</h2>

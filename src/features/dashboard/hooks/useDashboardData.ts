@@ -18,8 +18,8 @@ export function useDashboardData() {
   const userId = user?.id;
 
   const { data: tasks, isLoading: tasksLoading } = useQuery<Task[]>({
-    queryKey: ['tasks', userId, 'due_today'],
-    queryFn: () => tasksApi.getAll({ due_today: true }),
+    queryKey: ['tasks', userId],
+    queryFn: () => tasksApi.getAll(),
     enabled: !!userId,
   });
 
