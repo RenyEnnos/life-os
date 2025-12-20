@@ -386,6 +386,7 @@ export default function DashboardPage() {
                 value={linkTaskId}
                 onChange={(e) => setLinkTaskId(e.target.value)}
                 className="col-span-2 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                aria-label="Selecione tarefa"
               >
                 <option value="">Selecione tarefa</option>
                 {tasks.map((t) => <option key={t.id} value={t.id}>{(t as any).title || 'Tarefa'}</option>)}
@@ -394,6 +395,7 @@ export default function DashboardPage() {
                 value={linkHabitId}
                 onChange={(e) => setLinkHabitId(e.target.value)}
                 className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                aria-label="Selecione hábito"
               >
                 <option value="">Selecione hábito</option>
                 {habits.map((h) => <option key={(h as any).id} value={(h as any).id}>{(h as any).title || (h as any).name || 'Hábito'}</option>)}
@@ -406,12 +408,14 @@ export default function DashboardPage() {
                 onChange={(e) => setLinkImpact(Number(e.target.value))}
                 className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
                 placeholder="Impacto"
+                aria-label="Impacto vital"
               />
               <input
                 value={linkNotes}
                 onChange={(e) => setLinkNotes(e.target.value)}
                 placeholder="Notas (opcional)"
                 className="md:col-span-3 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                aria-label="Notas do vínculo"
               />
               <button
                 type="button"
@@ -443,6 +447,8 @@ export default function DashboardPage() {
                       type="button"
                       onClick={() => deleteLink.mutate(link.id)}
                       className="text-zinc-400 hover:text-red-400 transition"
+                      aria-label="Excluir vínculo"
+                      disabled={deleteLink.isPending}
                     >
                       <Trash2 size={16} />
                     </button>
