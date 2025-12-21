@@ -38,4 +38,25 @@ describe('FinancesPage integration', () => {
     // Expect the modal title or some element in the modal to be present
     expect(await screen.findByText(/NOVA TRANSAÇÃO/)).toBeTruthy()
   })
+
+  it('shows delete button on focus for accessibility', async () => {
+    const client = new QueryClient()
+    render(
+      <QueryClientProvider client={client}>
+        <MemoryRouter>
+          <FinancesPage />
+        </MemoryRouter>
+      </QueryClientProvider>
+    )
+
+    // Wait for transactions to load
+    await screen.findByText(/Groceries/)
+
+    // Find all delete buttons
+    const deleteButtons = screen.getAllByLabelText('Excluir transação')
+    expect(deleteButtons.length).toBeGreaterThan(0)
+
+    // Check if the first button has the focus-visible class
+    expect(deleteButtons[0].className).toContain('focus-visible:opacity-100')
+  })
 })

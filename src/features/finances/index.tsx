@@ -305,7 +305,7 @@ export default function FinancesPage() {
                                                 </span>
                                                 {!isEmpty && (
                                                     <button
-                                                        className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400 transition-colors"
+                                                        className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-zinc-500 hover:text-red-400 transition-colors"
                                                         onClick={() => deleteTransaction.mutate(t.id)}
                                                         aria-label="Excluir transação"
                                                     >
