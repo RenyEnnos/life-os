@@ -18,6 +18,7 @@ export function CreateTaskDialog({ isOpen, onClose, onSubmit }: CreateTaskDialog
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+                    aria-label="Close dialog"
                 >
                     <X size={20} />
                 </button>

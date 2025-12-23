@@ -76,8 +76,9 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-                <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Título</label>
+                <label htmlFor="task-title" className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Título</label>
                 <Input
+                    id="task-title"
                     type="text"
                     required
                     value={title}
@@ -88,8 +89,9 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Descrição (Opcional)</label>
+                <label htmlFor="task-description" className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Descrição (Opcional)</label>
                 <textarea
+                    id="task-description"
                     className="flex min-h-[80px] w-full rounded-md border border-input bg-surface/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono focus:bg-surface transition-colors"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -98,8 +100,9 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Data de Vencimento</label>
+                <label htmlFor="task-due-date" className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Data de Vencimento</label>
                 <Input
+                    id="task-due-date"
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
@@ -110,10 +113,11 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
             {/* Dynamic Now Fields */}
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">
+                    <label htmlFor="task-energy" className="text-sm font-mono text-muted-foreground uppercase tracking-wider">
                         Energia
                     </label>
                     <select
+                        id="task-energy"
                         value={energyLevel}
                         onChange={(e) => setEnergyLevel(e.target.value as EnergyLevel)}
                         className="w-full bg-surface/50 border border-border rounded-md p-2 text-sm font-mono text-foreground focus:bg-surface focus:border-primary focus:outline-none transition-colors"
@@ -125,10 +129,11 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">
+                    <label htmlFor="task-period" className="text-sm font-mono text-muted-foreground uppercase tracking-wider">
                         Período
                     </label>
                     <select
+                        id="task-period"
                         value={timeBlock}
                         onChange={(e) => setTimeBlock(e.target.value as TimeBlock)}
                         className="w-full bg-surface/50 border border-border rounded-md p-2 text-sm font-mono text-foreground focus:bg-surface focus:border-primary focus:outline-none transition-colors"
@@ -169,8 +174,9 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                             }
                         }}
                         placeholder="Adicionar tag..."
+                        aria-label="New tag name"
                     />
-                    <Button type="button" variant="outline" onClick={addTag}>
+                    <Button type="button" variant="outline" onClick={addTag} aria-label="Add new tag">
                         <X size={16} className="rotate-45" />
                     </Button>
                 </div>
@@ -182,7 +188,12 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                             className="gap-1 pr-1"
                         >
                             {tag}
-                            <button type="button" onClick={() => removeTag(tag)} className="hover:text-destructive">
+                            <button
+                                type="button"
+                                onClick={() => removeTag(tag)}
+                                className="hover:text-destructive"
+                                aria-label={`Remove tag ${tag}`}
+                            >
                                 <X size={12} />
                             </button>
                         </Tag>
