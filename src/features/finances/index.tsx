@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Plus } from 'lucide-react';
 import { useFinances } from '@/features/finances/hooks/useFinances';
@@ -38,7 +39,25 @@ const safeParseDate = (value?: string | null) => {
 
 export default function FinancesPage() {
     const { transactions, summary, isLoading, createTransaction, deleteTransaction } = useFinances();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    useEffect(() => {
+        if (searchParams.get('new') === 'true') {
+            setIsModalOpen(true);
+        }
+    }, [searchParams]);
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        if (searchParams.get('new') === 'true') {
+            setSearchParams((prev) => {
+                const newParams = new URLSearchParams(prev);
+                newParams.delete('new');
+                return newParams;
+            });
+        }
+    };
 
     const isEmpty = !transactions || transactions.length === 0;
 
@@ -304,7 +323,7 @@ export default function FinancesPage() {
             </div>
 
             {isModalOpen && (
-                <TransactionModal onClose={() => setIsModalOpen(false)} onSubmit={createTransaction.mutate} />
+                <TransactionModal onClose={handleCloseModal} onSubmit={createTransaction.mutate} />
             )}
         </div>
     );

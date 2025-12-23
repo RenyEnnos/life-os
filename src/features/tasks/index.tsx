@@ -200,9 +200,9 @@ export default function TasksPage() {
 
                 <button
                     type="button"
-                    className={cn("opacity-0 group-hover:opacity-100 transition-opacity hover:text-white", deleteTask.isPending ? "text-zinc-500 cursor-not-allowed" : "text-zinc-600")}
+                    className={cn("opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity hover:text-white", deleteTask.isPending ? "text-zinc-500 cursor-not-allowed" : "text-zinc-600")}
                     onClick={() => setConfirmDelete(task.id)}
-                    aria-label="Excluir tarefa"
+                    aria-label="Delete task"
                     disabled={deleteTask.isPending}
                 >
                     <span className="material-symbols-outlined text-[18px]">{deleteTask.isPending ? 'hourglass_top' : 'more_horiz'}</span>
@@ -269,7 +269,7 @@ export default function TasksPage() {
                                         "h-full aspect-square rounded-xl flex items-center justify-center transition-all border border-white/5",
                                         createTask.isPending ? "bg-white/10 text-zinc-500 cursor-not-allowed" : "bg-white/5 hover:bg-primary hover:text-white hover:border-primary text-zinc-400"
                                     )}
-                                    aria-label="Adicionar tarefa"
+                                    aria-label="Add task"
                                 >
                                     <span className="material-symbols-outlined text-[20px]">{createTask.isPending ? 'hourglass_top' : 'add'}</span>
                                 </button>
