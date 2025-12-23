@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Sparkles, ArrowRight, Loader } from 'lucide-react';
-import { useAuth } from '@/features/auth/contexts/AuthContext';
 // import { aiApi } from '@/features/ai-assistant/api/ai.api'; // TODO: Implement parseTask in api
 import { useTasks } from '@/features/tasks/hooks/useTasks';
-import { useToast } from '@/shared/ui/GlassToast';
+import { useToast } from '@/shared/ui/useToast';
 
 export function QuickCapture() {
     const [input, setInput] = useState('');
@@ -26,7 +25,7 @@ export function QuickCapture() {
                 due_date: new Date().toISOString()
             };
 
-            await createTask.mutateAsync(taskData as any);
+            await createTask.mutateAsync(taskData);
             showToast('Task captured!', 'success');
             setInput('');
         } catch (error) {

@@ -101,7 +101,7 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
                                 <select
                                     className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono text-sm"
                                     value={status}
-                                    onChange={e => setStatus(e.target.value as any)}
+                                    onChange={e => setStatus(e.target.value as Project['status'])}
                                 >
                                     <option value="active">Em Andamento</option>
                                     <option value="completed">Concluído</option>
@@ -113,7 +113,7 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
                                 <select
                                     className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono text-sm"
                                     value={priority}
-                                    onChange={e => setPriority(e.target.value as any)}
+                                    onChange={e => setPriority(e.target.value as Project['priority'])}
                                 >
                                     <option value="low">Baixa</option>
                                     <option value="medium">Média</option>

@@ -23,14 +23,21 @@ export const MediaService = {
                 timeout: 5000
             });
 
-            const images = res.data.results.map((img: any) => ({
-                regular: img.urls.regular,
-                small: img.urls.small,
-                // optimize for cover with query param if needed
-                coverUrl: `${img.urls.raw}&w=600&fit=max&q=80`
-            }));
+            type UnsplashImage = { urls?: { regular?: string; small?: string; raw?: string } }
+            type UnsplashResponse = { results?: UnsplashImage[]; total?: number }
+            const payload = res.data as UnsplashResponse
 
-            const result = { images, total: res.data.total };
+            const images = (payload.results ?? []).map((img) => {
+                const raw = img.urls?.raw ?? ''
+                return {
+                    regular: img.urls?.regular ?? '',
+                    small: img.urls?.small ?? '',
+                    // optimize for cover with query param if needed
+                    coverUrl: raw ? `${raw}&w=600&fit=max&q=80` : ''
+                }
+            });
+
+            const result = { images, total: payload.total ?? 0 };
             cache.set(cacheKey, result);
             return result;
         } catch (error) {

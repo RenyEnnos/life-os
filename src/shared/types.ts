@@ -6,12 +6,12 @@ export interface DbUser {
     email?: string;
     name?: string;
     avatar_url?: string;
-    preferences?: Record<string, any>;
+    preferences?: Record<string, unknown>;
     theme?: string;
     created_at: string;
     updated_at?: string;
 }
-export interface User extends DbUser { }
+export type User = DbUser
 
 export interface AuthResponse {
     token: string;
@@ -151,7 +151,7 @@ export interface LifeScore {
     level: number;
     current_xp: number;
     life_score: number;
-    attributes?: any;
+    attributes?: Record<string, unknown>;
     updated_at: string;
 }
 

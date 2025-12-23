@@ -51,15 +51,14 @@ export const useSyncQueue = create<SyncQueueState>()(
                 // Process sequentially to maintain order
                 for (const item of queue) {
                     try {
-                        let response;
                         if (item.method === 'POST') {
-                            response = await apiClient.post(item.endpoint, item.payload);
+                            await apiClient.post(item.endpoint, item.payload);
                         } else if (item.method === 'PUT') {
-                            response = await apiClient.put(item.endpoint, item.payload);
+                            await apiClient.put(item.endpoint, item.payload);
                         } else if (item.method === 'DELETE') {
-                            response = await apiClient.delete(item.endpoint);
+                            await apiClient.delete(item.endpoint);
                         } else if (item.method === 'PATCH') {
-                            response = await apiClient.patch(item.endpoint, item.payload);
+                            await apiClient.patch(item.endpoint, item.payload);
                         }
 
                         // If successful, remove from queue

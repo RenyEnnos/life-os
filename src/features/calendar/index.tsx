@@ -34,7 +34,7 @@ export default function CalendarPage() {
     const [selectedDate, setSelectedDate] = useState(new Date());
 
     useEffect(() => {
-        const mapped: AgendaEvent[] = (events || []).map((evt: any) => {
+        const mapped: AgendaEvent[] = (events || []).map((evt) => {
             const datetime = evt?.start?.dateTime || evt?.start?.date || null;
             return {
                 id: evt.id || `${evt.summary}-${datetime}`,

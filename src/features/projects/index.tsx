@@ -1,31 +1,31 @@
 import { useState } from 'react';
-import { Plus, Target, Folder, Clock, CheckCircle2, AlertCircle, Zap, Search, Bell, BarChart3 } from 'lucide-react';
-import { PageTitle } from '@/shared/ui/PageTitle';
-import { Card } from '@/shared/ui/Card';
-import { Button } from '@/shared/ui/Button';
+import { Plus, Target, Clock, Search, Bell, BarChart3 } from 'lucide-react';
 import { useProjects } from '@/features/projects/hooks/useProjects';
 import { useAI } from '@/features/ai-assistant/hooks/useAI';
 import { clsx } from 'clsx';
 import type { Project } from '@/shared/types';
 import { Loader } from '@/shared/ui/Loader';
-import { EmptyState } from '@/shared/ui/EmptyState';
 import { ProjectModal } from './components/ProjectModal';
 import { SwotAnalysis } from './components/SwotAnalysis';
 
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+
+type SwotResult = {
+    strengths: string[];
+    weaknesses: string[];
+    opportunities: string[];
+    threats: string[];
+};
 
 export default function ProjectsPage() {
     const { projects, isLoading, createProject, deleteProject } = useProjects();
     const { generateSwot } = useAI();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<string | null>(null);
-    const [swotData, setSwotData] = useState<Record<string, any>>({});
-    const [isGeneratingSwot, setIsGeneratingSwot] = useState(false);
+    const [swotData, setSwotData] = useState<Record<string, SwotResult>>({});
 
     const handleGenerateSwot = async (e: React.MouseEvent, project: Project) => {
         e.stopPropagation();
-        setIsGeneratingSwot(true);
         try {
             const result = await generateSwot.mutateAsync({
                 context: `Project: ${project.title}\nDescription: ${project.description}\nStatus: ${project.status}`
@@ -36,8 +36,6 @@ export default function ProjectsPage() {
             }
         } catch (error) {
             console.error('Failed to generate SWOT', error);
-        } finally {
-            setIsGeneratingSwot(false);
         }
     };
 

@@ -19,10 +19,10 @@ export function initRealtime() {
     { schema: 'public', table: 'task_habit_links' },
   ]
 
-  const hasChannel = typeof (supabase as any).channel === 'function'
+  const hasChannel = typeof supabase.channel === 'function'
   if (!hasChannel) return
   for (const t of tables) {
-    ; (supabase as any)
+    supabase
       .channel(`realtime:${t.table}`)
       .on('postgres_changes', { event: '*', schema: t.schema, table: t.table }, (payload: Record<string, unknown>) => {
         realtimeBus.emit('db_change', { table: t.table, payload })

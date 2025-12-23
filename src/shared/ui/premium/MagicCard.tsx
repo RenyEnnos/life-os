@@ -1,6 +1,6 @@
 
 import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
-import { CSSProperties, useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { cn } from "@/shared/lib/cn";
 
 export interface MagicCardProps extends React.HTMLAttributes<HTMLDivElement> {

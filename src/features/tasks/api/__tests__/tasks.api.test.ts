@@ -2,11 +2,19 @@ import { describe, it, expect, vi } from "vitest"
 import { tasksApi } from "../tasks.api"
 
 vi.mock("@/shared/api/http", () => {
-  return {
+      return {
     apiClient: {
       get: vi.fn(async () => [{ id: "1", title: "Test", completed: false }]),
-      post: vi.fn(async (_url: string, body?: any) => ({ id: "2", title: body?.title ?? "", completed: false })),
-      put: vi.fn(async (_url: string, body?: any) => ({ id: "1", title: body?.title ?? "Test", completed: !!body?.completed })),
+      post: vi.fn(async (_url: string, body?: Record<string, unknown>) => ({
+        id: "2",
+        title: typeof body?.title === 'string' ? body.title : "",
+        completed: false
+      })),
+      put: vi.fn(async (_url: string, body?: Record<string, unknown>) => ({
+        id: "1",
+        title: typeof body?.title === 'string' ? body.title : "Test",
+        completed: Boolean(body?.completed)
+      })),
       delete: vi.fn(async () => ({})),
     },
   }

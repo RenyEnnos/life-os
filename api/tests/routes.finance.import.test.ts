@@ -1,7 +1,9 @@
 /** @vitest-environment node */
 import request from 'supertest'
+import type { Application } from 'express'
 import { describe, it, expect, beforeAll } from 'vitest'
-let app: any
+
+let app: Application
 import jwt from 'jsonwebtoken'
 
 let token = ''

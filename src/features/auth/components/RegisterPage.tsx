@@ -9,6 +9,19 @@ import { cn } from '@/shared/lib/cn';
 
 import { ApiError } from '@/shared/api/http';
 
+type ValidationDetail = {
+    path?: string | string[];
+    message: string;
+};
+
+const isValidationDetail = (detail: unknown): detail is ValidationDetail => {
+    if (!detail || typeof detail !== 'object') {
+        return false;
+    }
+    const candidate = detail as { message?: unknown };
+    return typeof candidate.message === 'string';
+};
+
 export default function RegisterPage() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -89,9 +102,11 @@ export default function RegisterPage() {
                         <span className="font-semibold">Atenção</span>
                         {Array.isArray(err.details) ? (
                             <ul className="list-disc pl-4 space-y-0.5">
-                                {err.details.map((d: any, i: number) => {
-                                    const field = d.path || 'Campo desconhecido';
-                                    let msg = d.message;
+                                {err.details.filter(isValidationDetail).map((detail, i: number) => {
+                                    const field = Array.isArray(detail.path)
+                                        ? detail.path.join('.')
+                                        : (detail.path || 'Campo desconhecido');
+                                    let msg = detail.message;
                                     
                                     // Translate fallback if backend sends raw Zod "Required"
                                     if (msg === "Required") {

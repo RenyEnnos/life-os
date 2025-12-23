@@ -1,6 +1,4 @@
-import React from 'react';
 import { useUserXP } from '@/features/gamification/hooks/useUserXP';
-import { calculateNextLevelXp } from '@/features/gamification/api/xpService';
 import { getArchetype } from '@/features/gamification/logic/archetypes';
 import type { XPAttributes } from '@/features/gamification/api/types';
 import { cn } from '@/shared/lib/cn';

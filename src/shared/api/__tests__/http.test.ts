@@ -3,7 +3,7 @@ import { fetchJSON, getJSON, postJSON, resolveApiUrl } from "../http"
 
 const originalFetch = global.fetch
 
-function mockFetch(response: { status?: number; statusText?: string; headers?: Headers; body?: any }) {
+function mockFetch(response: { status?: number; statusText?: string; headers?: Headers; body?: unknown }) {
   global.fetch = vi.fn(async () => {
     const { status = 200, statusText = "OK", headers = new Headers({ "Content-Type": "application/json" }), body } = response
     return {
@@ -13,7 +13,7 @@ function mockFetch(response: { status?: number; statusText?: string; headers?: H
       headers,
       json: async () => body,
       text: async () => (typeof body === "string" ? body : JSON.stringify(body)),
-    } as any
+    } as Response
   })
 }
 
@@ -40,7 +40,7 @@ describe("http.ts", () => {
 
   it("timeout aborts request", async () => {
     // Simulate fetch that rejects on abort
-    // @ts-expect-error override
+    // @ts-expect-error override fetch for abort simulation
     global.fetch = vi.fn((_url: string, init?: RequestInit) => {
       const signal = init?.signal as AbortSignal | undefined
       return new Promise((_resolve, reject) => {
@@ -70,7 +70,7 @@ describe("http.ts", () => {
     const abs = resolveApiUrl("http://example.com/api/x")
     expect(abs).toBe("http://example.com/api/x")
     // Simulate window
-    // @ts-expect-error
+    // @ts-expect-error override window for URL resolution
     global.window = { location: { origin: "http://localhost:5174" } }
     const rel = resolveApiUrl("/api/x")
     expect(rel).toBe("http://localhost:5174/api/x")

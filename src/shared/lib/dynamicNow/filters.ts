@@ -1,4 +1,4 @@
-import { Task, EnergyLevel, TimeBlock } from '../../types';
+import { Task } from '../../types';
 
 export interface FilterResult {
     visibleTasks: Task[];

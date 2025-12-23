@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest"
 import { journalApi } from "../journal.api"
+import type { JournalEntry } from "@/shared/types"
 
 vi.mock("@/shared/api/http", () => {
   return {
@@ -13,12 +14,12 @@ vi.mock("@/shared/api/http", () => {
         }
         return []
       }),
-      post: vi.fn(async (_url: string, body?: any) => {
+      post: vi.fn(async (_url: string, body?: Record<string, unknown>) => {
         if (_url.startsWith("/api/journal")) return { id: "2", ...body }
         if (_url.includes("/resonance/analyze/")) return { success: true, insight: { mood_score: 8, themes: ["focus"], summary: "Good" } }
         return {}
       }),
-      put: vi.fn(async (_url: string, body?: any) => ({ id: "1", ...body })),
+      put: vi.fn(async (_url: string, body?: Record<string, unknown>) => ({ id: "1", ...(body ?? {}) })),
       delete: vi.fn(async () => ({})),
     },
   }
@@ -41,7 +42,8 @@ describe("journal.api", () => {
     await expect(journalApi.delete("1")).resolves.toBeUndefined()
   })
   it("analyzeEntry posts to resonance", async () => {
-    const insight = await journalApi.analyzeEntry({ id: "1", entry_date: "2025-01-01", content: "Hello" } as any)
+    const entry: JournalEntry = { id: "1", user_id: "u1", entry_date: "2025-01-01", content: "Hello", created_at: new Date().toISOString() }
+    const insight = await journalApi.analyzeEntry(entry)
     expect(insight).toBeDefined()
   })
 })

@@ -14,7 +14,7 @@ export const healthApi = {
     },
 
     createMetric: async (metric: Partial<HealthMetric>) => {
-        const payload = { ...metric, recorded_at: (metric as any)?.recorded_date };
+        const payload = { ...metric, recorded_at: metric.recorded_date };
         const data = await apiClient.post<HealthMetric>('/api/health', payload);
         return data;
     },

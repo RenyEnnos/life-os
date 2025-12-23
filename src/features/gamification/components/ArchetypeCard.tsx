@@ -10,6 +10,16 @@ interface ArchetypeCardProps {
     variant?: 'default' | 'compact';
 }
 
+const toXPAttributes = (value?: Record<string, unknown>): XPAttributes | null => {
+    if (!value) return null;
+    return {
+        body: typeof value.body === 'number' ? value.body : 0,
+        mind: typeof value.mind === 'number' ? value.mind : 0,
+        spirit: typeof value.spirit === 'number' ? value.spirit : 0,
+        output: typeof value.output === 'number' ? value.output : 0,
+    };
+};
+
 export function ArchetypeCard({ className, variant = 'default' }: ArchetypeCardProps) {
     const { userXP, isLoading } = useUserXP();
     const isCompact = variant === 'compact';
@@ -22,7 +32,7 @@ export function ArchetypeCard({ className, variant = 'default' }: ArchetypeCardP
 
     if (!userXP) return null;
 
-    const attributes = (userXP as any)?.attributes as XPAttributes | null;
+    const attributes = toXPAttributes(userXP.attributes);
     const archetype = getArchetype(attributes);
     const dominant = getDominantAttribute(attributes);
     const Icon = archetype.icon;

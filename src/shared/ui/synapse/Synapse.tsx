@@ -67,7 +67,12 @@ export const Synapse = () => {
         if (!open) return;
         setContextLoading(true);
         setContextError(null);
-        apiFetch<{ success: boolean; data?: any }>('/api/context/synapse-briefing')
+        type SynapseApiData = {
+            weather?: { temp?: number; summary?: string; condition?: string | number }
+            market?: { bitcoin?: { usd?: number; usd_24h_change?: number; change_24h?: number } }
+            dev?: { focus?: number; total_hours?: string }
+        }
+        apiFetch<{ success: boolean; data?: SynapseApiData }>('/api/context/synapse-briefing')
             .then((payload) => {
                 if (!payload?.success || !payload.data) {
                     throw new Error('Context offline');

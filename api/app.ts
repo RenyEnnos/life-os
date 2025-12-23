@@ -49,13 +49,15 @@ app.set('trust proxy', 1)
 // Security Headers
 app.use(helmet())
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 // CORS allowlist for common localhost/preview origins plus env overrides
-const defaultOrigins = [
+const defaultOrigins = isProduction ? [] : [
   'http://localhost:5173',
   'http://localhost:3000',
   'http://localhost:4173'
 ]
-const loopbackOrigins = [
+const loopbackOrigins = isProduction ? [] : [
   'http://127.0.0.1:5173',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:4173'
@@ -89,7 +91,7 @@ const isLocalhostLike = (origin?: string) => {
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.has(origin) || isLocalhostLike(origin)) {
+    if (!origin || allowedOrigins.has(origin) || (!isProduction && isLocalhostLike(origin))) {
       return callback(null, true)
     }
     console.warn('Blocked CORS origin:', origin)

@@ -19,7 +19,7 @@ router.get('/images', authenticateToken, async (req: AuthRequest, res) => {
         res.setHeader('X-Debounce-Recommended', '800');
 
         res.json(data);
-    } catch (error) {
+    } catch {
         res.status(500).json({ error: 'Media Service Unavailable' });
     }
 });

@@ -1,8 +1,10 @@
 /** @vitest-environment node */
-import request from 'supertest'
-import { describe, it, expect, beforeAll } from 'vitest'
-let app: any
 import jwt from 'jsonwebtoken'
+import request from 'supertest'
+import type { Application } from 'express'
+import { describe, it, expect, beforeAll } from 'vitest'
+
+let app: Application
 
 let token = ''
 beforeAll(async () => { process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret'; app = (await import('../app')).default; token = jwt.sign({ userId: 'u1', email: 'user@example.com' }, process.env.JWT_SECRET!) }, 30000)

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useMemo } from 'react';
+import { useRef, useMemo } from 'react';
 import { Button } from '@/shared/ui/Button';
 import { DollarSign, Trash2, PieChart as PieChartIcon, TrendingUp } from 'lucide-react';
 import { clsx } from 'clsx';

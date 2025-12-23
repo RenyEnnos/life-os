@@ -16,6 +16,7 @@ import { apiFetch } from '@/shared/api/http'
 
 type WeatherData = { temp?: number; summary?: string; location?: string }
 type DashboardTask = Task & { due_date?: string | null; description?: string | null; created_at?: string; completed?: boolean | null }
+type HabitLog = { habit_id: string; date: string }
 
 export default function DashboardPage() {
   const qc = useQueryClient()
@@ -56,14 +57,8 @@ export default function DashboardPage() {
     qc.invalidateQueries({ queryKey: ['tasks', user?.id] })
   }
 
-  const invalidateDashboard = () => {
-    invalidateAllTasks()
-    qc.invalidateQueries({ queryKey: ['finance', 'summary', user?.id] })
-    qc.invalidateQueries({ queryKey: ['symbiosis', user?.id] })
-  }
-
   const createTask = useMutation({
-    mutationFn: (payload: Partial<DashboardTask>) => tasksApi.create(payload as any),
+    mutationFn: (payload: Partial<DashboardTask>) => tasksApi.create(payload),
     onMutate: async (payload) => {
       await qc.cancelQueries({ queryKey: ['tasks', user?.id] })
       const prev = qc.getQueryData<DashboardTask[]>(['tasks', user?.id]) || []
@@ -74,10 +69,12 @@ export default function DashboardPage() {
         description: payload.description || null,
         created_at: new Date().toISOString(),
         completed: false,
-        tags: [],
-        priority: payload.priority,
+        tags: payload.tags ?? [],
+        priority: payload.priority ?? null,
+        status: null,
+        project_id: null,
         user_id: user?.id || ''
-      } as any
+      }
       qc.setQueryData(['tasks', user?.id], [optimistic, ...prev])
       return { prev }
     },
@@ -149,7 +146,7 @@ export default function DashboardPage() {
     },
     onMutate: async (habitId: string) => {
       await qc.cancelQueries({ predicate: (q) => Array.isArray(q.queryKey) && q.queryKey[0] === 'habits' && q.queryKey[1] === 'logs' })
-      const prev = qc.getQueryData<any>(['habits', 'logs']) || []
+      const prev = qc.getQueryData<HabitLog[]>(['habits', 'logs']) || []
       const today = new Date().toISOString().split('T')[0]
       const optimistic = [...prev, { habit_id: habitId, date: today }]
       qc.setQueryData(['habits', 'logs'], optimistic)
@@ -214,10 +211,11 @@ export default function DashboardPage() {
 
   const todaysTasks = useMemo(() => agenda || [], [agenda])
 
-  const findHabit = (id: string) => habits.find((h: Habit) => (h as any).id === id)
-  const findTask = (id: string) => tasks.find((t: any) => t.id === id)
+  const resolveHabitTitle = (habit: Habit & { title?: string | null }) => habit.title || habit.name || 'Hábito'
+  const findHabit = (id: string) => habits.find((h) => h.id === id)
+  const findTask = (id: string) => tasks.find((t) => t.id === id)
 
-  const renderTaskItem = (task: any) => {
+  const renderTaskItem = (task: Task) => {
     const due = task.due_date ? new Date(task.due_date) : null
     const dueLabel = due ? new Intl.DateTimeFormat('default', { hour: '2-digit', minute: '2-digit' }).format(due) : 'Sem horário'
     return (
@@ -356,7 +354,7 @@ export default function DashboardPage() {
                 className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
               >
                 <option value="">Registrar hábito de hoje...</option>
-                {habits.map((h) => <option key={(h as any).id} value={(h as any).id}>{(h as any).title || (h as any).name}</option>)}
+                {habits.map((h) => <option key={h.id} value={h.id}>{resolveHabitTitle(h)}</option>)}
               </select>
               <button
                 type="button"
@@ -388,7 +386,7 @@ export default function DashboardPage() {
                 className="col-span-2 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
               >
                 <option value="">Selecione tarefa</option>
-                {tasks.map((t) => <option key={t.id} value={t.id}>{(t as any).title || 'Tarefa'}</option>)}
+                {tasks.map((t) => <option key={t.id} value={t.id}>{t.title || 'Tarefa'}</option>)}
               </select>
               <select
                 value={linkHabitId}
@@ -396,7 +394,7 @@ export default function DashboardPage() {
                 className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
               >
                 <option value="">Selecione hábito</option>
-                {habits.map((h) => <option key={(h as any).id} value={(h as any).id}>{(h as any).title || (h as any).name || 'Hábito'}</option>)}
+                {habits.map((h) => <option key={h.id} value={h.id}>{resolveHabitTitle(h)}</option>)}
               </select>
               <input
                 type="number"
@@ -435,8 +433,8 @@ export default function DashboardPage() {
                 return (
                   <div key={link.id} className="flex items-center justify-between gap-3 p-3 rounded-xl border border-white/10 bg-white/[0.03]">
                     <div className="flex flex-col">
-                      <span className="text-sm text-white">{task ? (task as any).title : 'Tarefa'}</span>
-                      <span className="text-xs text-zinc-500">{habit ? (habit as any).title || (habit as any).name : 'Hábito'}</span>
+                      <span className="text-sm text-white">{task?.title || 'Tarefa'}</span>
+                      <span className="text-xs text-zinc-500">{habit ? resolveHabitTitle(habit) : 'Hábito'}</span>
                       <span className="text-xs text-amber-300">Impacto: {link.impact_vital}</span>
                     </div>
                     <button

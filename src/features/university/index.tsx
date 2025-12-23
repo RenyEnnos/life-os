@@ -1,27 +1,9 @@
 import { useMemo, useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { primaryNav, secondaryNav } from '@/app/layout/navItems';
 import { useUniversity } from './hooks/useUniversity';
 import { CreateCourseModal } from './components/CreateCourseModal';
-import type { Assignment, Course } from './types';
+import type { Course } from './types';
 import { cn } from '@/shared/lib/cn';
 import { Loader } from '@/shared/ui/Loader';
-
-const profileAvatar = "https://lh3.googleusercontent.com/aida-public/AB6AXuCVPqcPWDT3hPr01e2HDirC5oJIReGS_I9VQWtVcd9Jeg7-ZvWFgDQfCv6EutPiYTzuE-re3TH5gEjialXzk5Eb8SJ3m82eLKwBuKSLDpWKr4JkJ_yftg1ioQEeRmNNBPiKJhA7IAj11REAjyt_eN6G3ka3T_PoSQNNU9d7cQ6Af9A6u-pdRHLfzCaPzGvoxAzXj6ge63w7ZFJhPW4J6cxpsTQe-UV2JJuJ124QPZ8DgIYXHP4uJji-EBFIe1WQsTDEKAGbz-RlcuI";
-
-const materialIconByPath: Record<string, string> = {
-    '/': 'grid_view',
-    '/tasks': 'check_circle',
-    '/calendar': 'calendar_month',
-    '/habits': 'timer',
-    '/health': 'monitor_heart',
-    '/finances': 'show_chart',
-    '/projects': 'folder_open',
-    '/journal': 'menu_book',
-    '/rewards': 'emoji_events',
-    '/university': 'school',
-    '/settings': 'settings',
-};
 
 const formatCourseCode = (course: Course) => course.id?.toUpperCase() || 'COURSE';
 

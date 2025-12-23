@@ -4,7 +4,6 @@ import type { HealthMetric, MedicationReminder } from '@/shared/types';
 import { Loader } from '@/shared/ui/Loader';
 import { MetricModal } from './components/MetricModal';
 import { MedicationModal } from './components/MedicationModal';
-import { cn } from '@/shared/lib/cn';
 
 const metricValue = (metrics: HealthMetric[] | undefined, metricType: string, fallback: number) => {
     const found = metrics?.find((m) => m.metric_type === metricType);

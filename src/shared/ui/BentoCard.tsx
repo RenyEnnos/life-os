@@ -48,7 +48,6 @@ export const BentoCard = ({
     noPadding = false
 }: BentoCardProps) => {
     const divRef = useRef<HTMLDivElement>(null);
-    const [isHovering, setIsHovering] = useState(false);
     const [enableSpotlight, setEnableSpotlight] = useState(false);
 
     useEffect(() => {
@@ -67,11 +66,6 @@ export const BentoCard = ({
         const y = e.clientY - rect.top;
         divRef.current.style.setProperty('--mouse-x', `${x}px`);
         divRef.current.style.setProperty('--mouse-y', `${y}px`);
-        setIsHovering(true);
-    };
-
-    const handlePointerLeave = () => {
-        setIsHovering(false);
     };
 
     const finalAction = action || headerAction;
@@ -81,7 +75,6 @@ export const BentoCard = ({
             ref={divRef}
             onPointerMove={handlePointerMove}
             onPointerEnter={handlePointerMove}
-            onPointerLeave={handlePointerLeave}
             onClick={onClick}
             // FÍSICA TÁTIL: Subtle breathe effect
             whileHover={{ scale: 1.01, transition: { duration: 0.3, ease: "easeOut" } }}

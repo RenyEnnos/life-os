@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 import { rewardsApi } from './api/rewards.api'
 import { LifeScore, Achievement } from '@/shared/types'
@@ -8,9 +8,6 @@ import { AchievementCard } from './components/AchievementCard'
 import { Trophy, Star, TrendingUp } from 'lucide-react'
 import { PageTitle } from '@/shared/ui/PageTitle'
 import { Card } from '@/shared/ui/Card'
-import { clsx } from 'clsx'
-import { MagicCard } from '@/shared/ui/premium/MagicCard'
-import { ShineBorder } from '@/shared/ui/premium/ShineBorder'
 import { AnimatedCircularProgressBar } from '@/shared/ui/premium/AnimatedCircularProgressBar'
 import { Confetti } from '@/shared/ui/premium/Confetti'
 import { toast } from 'react-hot-toast'
@@ -41,11 +38,6 @@ export default function RewardsPage() {
 
         loadData()
     }, [user])
-
-    useEffect(() => {
-        if (achievements.length > 0 && !loading) {
-        }
-    }, [achievements, loading])
 
     if (loading) return <div className="p-8 text-center text-muted-foreground">Carregando recompensas...</div>
 

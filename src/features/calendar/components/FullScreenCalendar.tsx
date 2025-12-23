@@ -7,22 +7,18 @@ import {
     endOfMonth,
     endOfWeek,
     format,
-    getDay,
-    isEqual,
     isSameDay,
     isSameMonth,
     isToday,
     parse,
     startOfToday,
-    startOfWeek,
-    isBefore
+    startOfWeek
 } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import {
     ChevronLeftIcon,
     ChevronRightIcon,
     PlusCircleIcon,
-    SearchIcon,
     Calendar as CalendarIcon,
     Clock,
     MoreVertical
@@ -30,7 +26,6 @@ import {
 
 import { cn } from "@/shared/lib/cn"
 import { Button } from "@/shared/ui/Button"
-import { useMediaQuery } from "@/shared/hooks/use-media-query"
 
 export interface Event {
     id: string | number
@@ -49,43 +44,16 @@ interface FullScreenCalendarProps {
     data: CalendarData[]
     onAddEvent?: () => void
     onEventClick?: (event: Event) => void
-    onSearch?: (query: string) => void
 }
 
-const colStartClasses = [
-    "",
-    "col-start-2",
-    "col-start-3",
-    "col-start-4",
-    "col-start-5",
-    "col-start-6",
-    "col-start-7",
-]
-
-export function FullScreenCalendar({ data, onAddEvent, onEventClick, onSearch }: FullScreenCalendarProps) {
+export function FullScreenCalendar({ data, onAddEvent, onEventClick }: FullScreenCalendarProps) {
     const today = startOfToday()
     const [selectedDay, setSelectedDay] = React.useState(today)
     const [currentMonth, setCurrentMonth] = React.useState(format(today, "MMM-yyyy"))
-    const [searchQuery, setSearchQuery] = React.useState("")
     const firstDayCurrentMonth = parse(currentMonth, "MMM-yyyy", new Date())
-    const isDesktop = useMediaQuery("(min-width: 1024px)")
-
-    // Handle Search
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const query = e.target.value;
-        setSearchQuery(query);
-        onSearch?.(query);
-    }
 
     // Filter Data
-    const filteredData = React.useMemo(() => {
-        if (!searchQuery) return data;
-        const lowerQuery = searchQuery.toLowerCase();
-        return data.map(d => ({
-            ...d,
-            events: d.events.filter(e => e.name.toLowerCase().includes(lowerQuery))
-        })).filter(d => d.events.length > 0);
-    }, [data, searchQuery]);
+    const filteredData = data;
 
     // Calendar Days Logic
     const days = React.useMemo(() => {
@@ -178,7 +146,7 @@ export function FullScreenCalendar({ data, onAddEvent, onEventClick, onSearch }:
                 {/* Calendar Grid */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
                     <div className="grid grid-cols-7 grid-rows-6 min-h-[600px] h-full">
-                        {days.map((day, dayIdx) => {
+                        {days.map((day) => {
                             const isSelected = isSameDay(day, selectedDay);
                             const isCurrentMonth = isSameMonth(day, firstDayCurrentMonth);
                             const dayEvents = filteredData.filter(d => isSameDay(d.day, day)).flatMap(d => d.events);
@@ -264,7 +232,7 @@ export function FullScreenCalendar({ data, onAddEvent, onEventClick, onSearch }:
                             </Button>
                         </div>
                     ) : (
-                        selectedDayEvents.map((event, idx) => (
+                        selectedDayEvents.map((event) => (
                             <div
                                 key={event.id}
                                 onClick={(e) => { e.stopPropagation(); onEventClick?.(event); }}

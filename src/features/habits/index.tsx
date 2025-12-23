@@ -1,13 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useHabits } from '@/features/habits/hooks/useHabits';
-import type { Habit, HabitLog } from '@/features/habits/types';
+import type { HabitLog } from '@/features/habits/types';
 import { calculateStreak } from './logic/streak';
 import { cn } from '@/shared/lib/cn';
 import { CreateHabitDialog } from './components/CreateHabitDialog';
 import { Confetti } from '@/shared/ui/premium/Confetti';
 
 export default function HabitsPage() {
-    const { habits, logs, isLoading, createHabit, logHabit } = useHabits();
+    const { habits, logs, createHabit, logHabit } = useHabits();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
 
     const todayKey = new Date().toISOString().split('T')[0];

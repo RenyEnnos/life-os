@@ -10,8 +10,8 @@ vi.mock("@/shared/api/http", () => {
         }
         return [{ id: "h1", metric_type: "sleep", value: 7.5 }]
       }),
-      post: vi.fn(async (_url: string, body?: any) => ({ id: "new", ...body })),
-      put: vi.fn(async (_url: string, body?: any) => ({ id: "m1", ...body })),
+      post: vi.fn(async (_url: string, body?: Record<string, unknown>) => ({ id: "new", ...(body ?? {}) })),
+      put: vi.fn(async (_url: string, body?: Record<string, unknown>) => ({ id: "m1", ...(body ?? {}) })),
       delete: vi.fn(async () => ({})),
     },
   }

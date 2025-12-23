@@ -4,7 +4,6 @@ import { cn } from '@/shared/lib/cn';
 interface AnimatedCircularProgressBarProps extends React.ComponentProps<'div'> {
     value?: number;
     max?: number;
-    min?: number;
     gaugePrimaryColor?: string;
     gaugeSecondaryColor?: string;
     className?: string;
@@ -12,7 +11,6 @@ interface AnimatedCircularProgressBarProps extends React.ComponentProps<'div'> {
 
 export function AnimatedCircularProgressBar({
     max = 100,
-    min = 0,
     value = 0,
     gaugePrimaryColor = "#22c55e", // Green-500 equivalent
     gaugeSecondaryColor = "#3f3f46", // Zinc-700 equivalent

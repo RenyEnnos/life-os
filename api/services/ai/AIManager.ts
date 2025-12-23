@@ -1,4 +1,4 @@
-import { AIProvider, AIRequest, AIResponse, Intent } from './types';
+import { AIRequest, AIResponse, Intent } from './types';
 import { GroqProvider } from './providers/GroqProvider';
 import { GeminiProvider } from './providers/GeminiProvider';
 

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import DashboardPage from '../index';
-import { AuthProvider } from '@/features/auth/contexts/AuthContext';
+import { AuthProvider } from '@/features/auth/contexts/AuthProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';

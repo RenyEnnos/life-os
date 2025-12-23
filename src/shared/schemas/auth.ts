@@ -21,6 +21,21 @@ export const registerSchema = z.object({
         .min(2, 'O nome deve ter no mínimo 2 caracteres'),
 });
 
+export const profileUpdateSchema = z.object({
+    name: z.string()
+        .trim()
+        .min(2, 'O nome deve ter no mínimo 2 caracteres')
+        .max(80, 'O nome deve ter no máximo 80 caracteres')
+        .optional(),
+    avatar_url: z.string()
+        .trim()
+        .min(1, 'O avatar_url não pode ser vazio')
+        .max(2048, 'O avatar_url deve ter no máximo 2048 caracteres')
+        .optional(),
+    preferences: z.record(z.unknown()).optional(),
+    theme: z.enum(['light', 'dark']).optional(),
+}).strict();
+
 export const authResponseSchema = z.object({
     token: z.string(),
     user: z.object({
@@ -32,3 +47,4 @@ export const authResponseSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;

@@ -9,6 +9,9 @@ interface VisualLegacyProps {
     className?: string;
 }
 
+type StarPoint = { x: number; y: number; r: number; data: DailyXP };
+type CanvasWithStars = HTMLCanvasElement & { starMap?: StarPoint[] };
+
 export function VisualLegacy({ className }: VisualLegacyProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -25,7 +28,7 @@ export function VisualLegacy({ className }: VisualLegacyProps) {
     const drawConstellation = useCallback(() => {
         if (!canvasRef.current || !containerRef.current || !history) return;
 
-        const canvas = canvasRef.current;
+        const canvas = canvasRef.current as CanvasWithStars;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
@@ -60,7 +63,7 @@ export function VisualLegacy({ className }: VisualLegacyProps) {
         // Clear
         ctx.clearRect(0, 0, width, height);
 
-        const stars: { x: number, y: number, r: number, data: DailyXP | null }[] = [];
+        const stars: StarPoint[] = [];
 
         for (let i = 0; i < 365; i++) {
             const currentDate = new Date(startDate);
@@ -103,11 +106,11 @@ export function VisualLegacy({ className }: VisualLegacyProps) {
             ctx.fill();
 
             // Store for interaction
-            stars.push({ x, y, r: Math.max(radius * 2, cellWidth / 2), data: entry ? entry : { date: dateStr, count: 0, level: 0 } });
+            stars.push({ x, y, r: Math.max(radius * 2, cellWidth / 2), data: entry ?? { date: dateStr, count: 0, level: 0 } });
         }
 
         // Attach interactive handler refs
-        (canvas as any).starMap = stars;
+        canvas.starMap = stars;
     }, [history]);
 
     // Effect for drawing and handling resize
@@ -123,14 +126,14 @@ export function VisualLegacy({ className }: VisualLegacyProps) {
     }, [drawConstellation]);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-        const canvas = canvasRef.current;
+        const canvas = canvasRef.current as CanvasWithStars | null;
         if (!canvas) return;
 
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        const stars = (canvas as any).starMap as { x: number, y: number, r: number, data: DailyXP }[];
+        const stars = canvas.starMap;
         if (!stars) return;
 
         // Find closest

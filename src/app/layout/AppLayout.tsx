@@ -6,7 +6,6 @@ import { OnboardingModal } from '@/features/onboarding/OnboardingModal';
 import { useRealtime } from '@/shared/hooks/useRealtime';
 import { SanctuaryOverlay } from '@/shared/ui/sanctuary/SanctuaryOverlay';
 import { useSanctuaryStore } from '@/shared/stores/sanctuaryStore';
-import { cn } from '@/shared/lib/cn';
 
 const MemoizedSanctuaryOverlay = memo(SanctuaryOverlay);
 
@@ -32,7 +31,6 @@ const pageTransition: Transition = {
 export function AppLayout() {
     const [showOnboarding, setShowOnboarding] = useState(false);
     const location = useLocation();
-    const isCustomShell = false; // Deprecated, enabling global navigation
     useRealtime();
 
     useEffect(() => {
@@ -49,7 +47,11 @@ export function AppLayout() {
         const handleGlobalKeyDown = (e: KeyboardEvent) => {
             if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.code === 'KeyF') {
                 e.preventDefault();
-                isActive ? exit() : enter('quick-focus', 'Deep Focus');
+                if (isActive) {
+                    exit();
+                } else {
+                    enter('quick-focus', 'Deep Focus');
+                }
             }
         };
         window.addEventListener('keydown', handleGlobalKeyDown);

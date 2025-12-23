@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { BentoCard } from '@/shared/ui/BentoCard';
 import { cn } from '@/shared/lib/cn';
-import { subDays, eachDayOfInterval, format, isSameDay, getDay, startOfWeek } from 'date-fns';
+import { subDays, eachDayOfInterval, format, getDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { HabitLog } from '@/features/habits/types';
 import { Activity } from 'lucide-react';
@@ -59,7 +59,7 @@ export const HabitContributionGraph = ({ logs, className }: HabitContributionGra
                 <div className="flex items-end gap-1 overflow-x-auto pb-2 hide-scrollbar">
                     {weeks.map((week, wIdx) => (
                         <div key={wIdx} className="flex flex-col gap-1">
-                            {week.map((day, dIdx) => {
+                            {week.map((day) => {
                                 const level = getActivityLevel(day);
                                 return (
                                     <div

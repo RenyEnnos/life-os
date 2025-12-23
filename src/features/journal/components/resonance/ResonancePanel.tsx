@@ -1,9 +1,7 @@
-import { motion } from 'framer-motion';
 import { Sparkles, TrendingUp, TrendingDown, Minus, Tag, BrainCircuit } from 'lucide-react';
 import { useJournalInsights } from '../../hooks/useJournalInsights';
 import { MoodIndicator } from './MoodIndicator';
 import { BentoCard } from '@/shared/ui/BentoCard';
-import { clsx } from 'clsx';
 
 interface ResonancePanelProps {
     entryId?: string;

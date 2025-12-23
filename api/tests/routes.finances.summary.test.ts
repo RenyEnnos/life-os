@@ -1,8 +1,9 @@
 /** @vitest-environment node */
 import request from 'supertest'
 import jwt from 'jsonwebtoken'
+import type { Application } from 'express'
 
-let app: any
+let app: Application
 
 const JWT_SECRET = 'test-secret'
 const authHeader = () => `Bearer ${jwt.sign({ userId: 'u1', email: 'user@example.com' }, JWT_SECRET)}`

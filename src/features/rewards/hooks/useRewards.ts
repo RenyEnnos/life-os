@@ -28,6 +28,7 @@ export function useRewards() {
     // MOCKED/DISABLED for Security Constraints
     const createReward = useMutation({
         mutationFn: async (data: Partial<Reward>) => {
+            void data;
             console.warn('Creating rewards is disabled for security');
             return null;
         },
@@ -38,6 +39,7 @@ export function useRewards() {
 
     const deleteReward = useMutation({
         mutationFn: async (id: string) => {
+            void id;
             console.warn('Deleting rewards is disabled for security');
             return null;
         },

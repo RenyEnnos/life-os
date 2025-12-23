@@ -3,6 +3,7 @@ import { useHabits } from '../useHabits';
 import { habitsApi } from '../../api/habits.api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
+import type { Habit, HabitLog } from '../../types';
 
 // Mock dependencies
 vi.mock('../../api/habits.api', () => ({
@@ -31,9 +32,10 @@ describe('useHabits', () => {
     });
 
     it('fetches habits for the user', async () => {
-        const habitsData = [{ id: '1', title: 'Drink Water' }];
-        (habitsApi.list as any).mockResolvedValue(habitsData);
-        (habitsApi.getLogs as any).mockResolvedValue([]);
+        const habitsData = [{ id: '1', name: 'Drink Water' }] as unknown as Habit[];
+        const mockedHabitsApi = vi.mocked(habitsApi, true);
+        mockedHabitsApi.list.mockResolvedValue(habitsData);
+        mockedHabitsApi.getLogs.mockResolvedValue([] as HabitLog[]);
 
         const { result } = renderHook(() => useHabits(), { wrapper });
 

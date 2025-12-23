@@ -14,7 +14,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Prom
     const { due_today } = req.query as Record<string, string>
     if (due_today === 'true') {
       const today = new Date().toISOString().split('T')[0]
-      const filtered = data.filter((t: any) => typeof t.due_date === 'string' && t.due_date.startsWith(today))
+      const filtered = data.filter((t) => typeof t.due_date === 'string' && t.due_date.startsWith(today))
       res.json(filtered)
       return
     }
@@ -30,9 +30,9 @@ router.get('/summary', authenticateToken, async (req: AuthRequest, res: Response
   const userId = req.user!.id
   const tasks = await tasksService.list(userId, req.query)
   const total = tasks.length
-  const completed = tasks.filter((t: any) => t.completed).length
+  const completed = tasks.filter((t) => t.completed).length
   const today = new Date().toISOString().split('T')[0]
-  const dueToday = tasks.filter((t: any) => typeof t.due_date === 'string' && t.due_date.startsWith(today)).length
+  const dueToday = tasks.filter((t) => typeof t.due_date === 'string' && t.due_date.startsWith(today)).length
   res.json({ total, completed, dueToday })
 })
 

@@ -73,7 +73,7 @@ export function useDashboardData() {
   // Calculate Agenda (Today's tasks)
   const agenda = (tasks || [])
     .filter((t) => {
-      const due = (t as any).due_date as string | null | undefined
+      const due = t.due_date
       return typeof due === 'string' && due.startsWith(today)
     })
     .slice(0, 5);

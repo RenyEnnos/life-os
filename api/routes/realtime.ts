@@ -28,8 +28,8 @@ router.get('/stream', (req, res) => {
     res.status(403).end(); return
   }
 
-  const handler = (evt: { table: string, payload: { new?: Record<string, any>; old?: Record<string, any> } }) => {
-    const row = evt.payload?.new ?? evt.payload?.old ?? {}
+  const handler = (evt: { table: string, payload: { new?: Record<string, unknown>; old?: Record<string, unknown> } }) => {
+    const row = (evt.payload?.new ?? evt.payload?.old ?? {}) as { user_id?: string; id?: string }
     const belongsToUser = row.user_id === userId || row.id === userId
     if (!belongsToUser) return
     res.write(`event: ${evt.table}\n`)

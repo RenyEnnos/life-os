@@ -48,10 +48,10 @@ export function useJournalInsights(options: UseJournalInsightsOptions = {}) {
             const data = await apiClient.get<JournalInsight[]>(`/api/resonance/insights?${params.toString()}`);
 
             return (data || [])
-                .filter(d => (d as any).content?.mood_score !== undefined)
+                .filter(d => typeof d.content?.mood_score === 'number')
                 .map(d => ({
                     date: new Date(d.created_at).toLocaleDateString('pt-BR', { weekday: 'short' }),
-                    score: ((d as any).content as { mood_score?: number }).mood_score || 5,
+                    score: d.content.mood_score ?? 5,
                 }))
                 .reverse();
         },
@@ -96,7 +96,8 @@ export async function triggerJournalAnalysis(entryId: string): Promise<{
     try {
         const data = await apiClient.post<{ success: boolean; insight?: { mood_score: number; themes: string[]; summary: string } }>(`/api/resonance/analyze/${entryId}`, {});
         return { success: !!data?.success, insight: data?.insight };
-    } catch (error: any) {
-        return { success: false, error: error?.message || 'Analysis failed' };
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Analysis failed';
+        return { success: false, error: message };
     }
 }

@@ -41,7 +41,7 @@ router.get('/weather', async (req, res) => {
         const lon = req.query.lon ? Number(req.query.lon) : undefined;
         const weather = await ContextGateway.getWeather(lat, lon);
         res.json(weather);
-    } catch (error) {
+    } catch {
         res.status(500).json({ error: 'Weather Service Unavailable' });
     }
 });

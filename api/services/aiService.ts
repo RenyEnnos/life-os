@@ -96,7 +96,7 @@ export const aiService = {
       await setCache(userId, 'generateTags', { type, context }, tags)
       await this.logUsage(userId, 'generateTags', true, { tokens: response.tokens, ms: response.ms })
       return tags
-    } catch (error) {
+    } catch {
       await this.logUsage(userId, 'generateTags', false, { errorMessage: 'JSON/Schema error', tokens: response?.tokens, ms: response?.ms })
       return []
     }
@@ -139,7 +139,7 @@ export const aiService = {
       await setCache(userId, 'generateSwot', { projectContext }, swot)
       await this.logUsage(userId, 'generateSwot', true, { tokens: response.tokens, ms: response.ms })
       return swot
-    } catch (error) {
+    } catch {
       await this.logUsage(userId, 'generateSwot', false, { errorMessage: 'JSON/Schema error', tokens: response?.tokens, ms: response?.ms })
       throw new Error('Failed to parse AI response')
     }
@@ -183,7 +183,7 @@ export const aiService = {
       await setCache(userId, 'generateWeeklyPlan', { tasksContext }, plan)
       await this.logUsage(userId, 'generateWeeklyPlan', true, { tokens: response.tokens, ms: response.ms })
       return plan
-    } catch (error) {
+    } catch {
       await this.logUsage(userId, 'generateWeeklyPlan', false, { errorMessage: 'JSON/Schema error', tokens: response?.tokens, ms: response?.ms })
       throw new Error('Failed to parse AI response')
     }
@@ -236,7 +236,7 @@ export const aiService = {
       await setCache(userId, 'generateDailySummary_v2', { journalContent }, summary)
       await this.logUsage(userId, 'generateDailySummary', true, { tokens: response.tokens, ms: response.ms })
       return summary
-    } catch (error) {
+    } catch {
       await this.logUsage(userId, 'generateDailySummary', false, { errorMessage: 'JSON/Schema error', tokens: response?.tokens, ms: response?.ms })
       throw new Error('Failed to parse AI response')
     }

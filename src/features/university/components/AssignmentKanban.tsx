@@ -14,7 +14,6 @@ import {
     useSensor,
     useSensors,
     DragStartEvent,
-    DragOverEvent,
     DragEndEvent,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
@@ -167,7 +166,7 @@ export function AssignmentKanban({ assignments, onStatusChange }: AssignmentKanb
         >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full overflow-x-auto pb-4">
                 {COLUMNS.map(col => {
-                    const colAssignments = getColumnAssignments(col.id as any);
+                    const colAssignments = getColumnAssignments(col.id);
                     return (
                         <div key={col.id} className="flex flex-col gap-4 min-w-[300px]">
                             <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-900 border border-zinc-800">

@@ -1,5 +1,5 @@
 import { BrowserRouter as Router } from "react-router-dom";
-import { AuthProvider } from "@/features/auth/contexts/AuthContext";
+import { AuthProvider } from "@/features/auth/contexts/AuthProvider";
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { queryClient, persister } from "@/shared/lib/react-query";
 import { AppRoutes } from "@/config/routes/index";

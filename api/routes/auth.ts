@@ -7,14 +7,14 @@ import bcrypt from 'bcryptjs'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { supabase } from '../lib/supabase'
 import { LoginRequest, RegisterRequest, AuthResponse } from '../../shared/types'
-import { z } from 'zod'
 import { normalizeEmail, normalizeName } from '@/shared/lib/normalize'
 
+import { authenticateToken, type AuthRequest } from '../middleware/auth'
 import { validate } from '../middleware/validate'
-import { loginSchema, registerSchema } from '@/shared/schemas/auth'
+import { loginSchema, registerSchema, profileUpdateSchema } from '@/shared/schemas/auth'
 
 const router = Router()
-const JWT_SECRET = process.env.JWT_SECRET || process.env.VITE_JWT_SECRET
+const JWT_SECRET = process.env.JWT_SECRET
 const isProduction = process.env.NODE_ENV === 'production'
 const authCookieOptions = {
   httpOnly: true,
@@ -24,8 +24,8 @@ const authCookieOptions = {
   path: '/'
 }
 
-if (!JWT_SECRET) {
-  console.error('FATAL: JWT_SECRET is not defined in environment variables (checked JWT_SECRET and VITE_JWT_SECRET).')
+if (!JWT_SECRET && process.env.NODE_ENV !== 'test') {
+  console.error('FATAL: JWT_SECRET is not defined in environment variables.')
   process.exit(1)
 }
 
@@ -46,6 +46,7 @@ async function logAuth(email: string, status: 'success' | 'fail', meta?: { code?
  * POST /api/auth/register
  */
 router.post('/register', validate(registerSchema), async (req: Request<Record<string, never>, unknown, RegisterRequest>, res: Response): Promise<void> => {
+  const logEmail = normalizeEmail(req.body?.email ?? '') || req.body?.email || 'unknown'
   try {
     const { email, password, name } = req.body
     const normEmail = normalizeEmail(email)
@@ -66,7 +67,7 @@ router.post('/register', validate(registerSchema), async (req: Request<Record<st
 
     if (existingUser) {
       console.log('[Register] User exists:', existingUser.id);
-      await logAuth(email, 'fail', { code: 'USER_EXISTS', reason: 'duplicate' }, req)
+      await logAuth(logEmail, 'fail', { code: 'USER_EXISTS', reason: 'duplicate' }, req)
       res.status(400).json({ error: 'User already exists', code: 'USER_EXISTS' })
       return
     }
@@ -91,7 +92,7 @@ router.post('/register', validate(registerSchema), async (req: Request<Record<st
 
     if (error) {
       console.error('Supabase registration error:', error)
-      await logAuth(email, 'fail', { code: 'REGISTER_FAILED', reason: 'db_error' }, req)
+      await logAuth(logEmail, 'fail', { code: 'REGISTER_FAILED', reason: 'db_error' }, req)
       res.status(500).json({ error: 'Failed to create user', code: 'REGISTER_FAILED' })
       return
     }
@@ -120,12 +121,12 @@ router.post('/register', validate(registerSchema), async (req: Request<Record<st
       }
     }
 
-    await logAuth(email, 'success', { code: 'REGISTER_OK' }, req)
+    await logAuth(logEmail, 'success', { code: 'REGISTER_OK' }, req)
     res.status(201).json(response)
   } catch (error) {
     console.error('[Register] CRITICAL ERROR:', error)
     if (error instanceof Error) console.error(error.stack);
-    await logAuth(req.body?.email || 'unknown', 'fail', { code: 'SERVER_ERROR', reason: 'exception' }, req)
+    await logAuth(logEmail, 'fail', { code: 'SERVER_ERROR', reason: 'exception' }, req)
     res.status(500).json({ error: 'Internal server error', code: 'SERVER_ERROR' })
   }
 })
@@ -135,19 +136,21 @@ router.post('/register', validate(registerSchema), async (req: Request<Record<st
  * POST /api/auth/login
  */
 router.post('/login', validate(loginSchema), async (req: Request<Record<string, never>, unknown, LoginRequest>, res: Response): Promise<void> => {
+  const logEmail = normalizeEmail(req.body?.email ?? '') || req.body?.email || 'unknown'
   try {
     const { email, password } = req.body
     const normEmail = normalizeEmail(email)
+    const attemptKey = normEmail
 
     if (!email || !password) {
-      await logAuth(email || 'unknown', 'fail', { code: 'BAD_REQUEST', reason: 'missing_fields' }, req)
+      await logAuth(logEmail, 'fail', { code: 'BAD_REQUEST', reason: 'missing_fields' }, req)
       res.status(400).json({ error: 'Email and password are required', code: 'BAD_REQUEST' })
       return
     }
 
-    const info = loginAttempts[email] || { count: 0, last: 0, lockedUntil: undefined }
+    const info = loginAttempts[attemptKey] || { count: 0, last: 0, lockedUntil: undefined }
     if (info.lockedUntil && info.lockedUntil > Date.now()) {
-      await logAuth(email, 'fail', { code: 'ACCOUNT_LOCKED', reason: 'rate_limit' }, req)
+      await logAuth(logEmail, 'fail', { code: 'ACCOUNT_LOCKED', reason: 'rate_limit' }, req)
       res.status(423).json({ error: 'Account temporarily locked', code: 'ACCOUNT_LOCKED' })
       return
     }
@@ -161,9 +164,9 @@ router.post('/login', validate(loginSchema), async (req: Request<Record<string, 
 
     if (error || !user) {
       const now = Date.now()
-      const attempts = loginAttempts[email] || { count: 0, last: 0 }
-      loginAttempts[email] = { ...attempts, count: attempts.count + 1, last: now }
-      await logAuth(email, 'fail', { code: 'USER_NOT_FOUND', reason: 'not_found' }, req)
+      const attempts = loginAttempts[attemptKey] || { count: 0, last: 0 }
+      loginAttempts[attemptKey] = { ...attempts, count: attempts.count + 1, last: now }
+      await logAuth(logEmail, 'fail', { code: 'USER_NOT_FOUND', reason: 'not_found' }, req)
       res.status(404).json({ error: 'User not found', code: 'USER_NOT_FOUND' })
       return
     }
@@ -172,16 +175,16 @@ router.post('/login', validate(loginSchema), async (req: Request<Record<string, 
     const isValidPassword = await bcrypt.compare(password, user.password_hash)
     if (!isValidPassword) {
       const now = Date.now()
-      const attempts = loginAttempts[email] || { count: 0, last: 0 }
+      const attempts = loginAttempts[attemptKey] || { count: 0, last: 0 }
       const withinWindow = attempts.last && (now - attempts.last) < 15 * 60 * 1000
       const newCount = withinWindow ? attempts.count + 1 : 1
       const lock = newCount >= 5 ? now + 15 * 60 * 1000 : undefined
-      loginAttempts[email] = { count: newCount, last: now, lockedUntil: lock }
+      loginAttempts[attemptKey] = { count: newCount, last: now, lockedUntil: lock }
       if (lock) {
-        await logAuth(email, 'fail', { code: 'ACCOUNT_LOCKED', reason: 'too_many_attempts' }, req)
+        await logAuth(logEmail, 'fail', { code: 'ACCOUNT_LOCKED', reason: 'too_many_attempts' }, req)
         res.status(423).json({ error: 'Account temporarily locked', code: 'ACCOUNT_LOCKED' })
       } else {
-        await logAuth(email, 'fail', { code: 'WRONG_PASSWORD', reason: 'bad_password' }, req)
+        await logAuth(logEmail, 'fail', { code: 'WRONG_PASSWORD', reason: 'bad_password' }, req)
         res.status(401).json({ error: 'Incorrect password', code: 'WRONG_PASSWORD' })
       }
       return
@@ -198,7 +201,7 @@ router.post('/login', validate(loginSchema), async (req: Request<Record<string, 
     // Set HttpOnly cookie
     res.cookie('token', token, authCookieOptions)
 
-    if (loginAttempts[email]) delete loginAttempts[email]
+    if (loginAttempts[attemptKey]) delete loginAttempts[attemptKey]
 
     const response: AuthResponse = {
       token,
@@ -213,11 +216,11 @@ router.post('/login', validate(loginSchema), async (req: Request<Record<string, 
       }
     }
 
-    await logAuth(normEmail, 'success', { code: 'LOGIN_OK' }, req)
+    await logAuth(logEmail, 'success', { code: 'LOGIN_OK' }, req)
     res.json(response)
   } catch (error) {
     console.error('Login error:', error)
-    await logAuth(req.body?.email || 'unknown', 'fail', { code: 'SERVER_ERROR', reason: 'exception' }, req)
+    await logAuth(logEmail, 'fail', { code: 'SERVER_ERROR', reason: 'exception' }, req)
     res.status(500).json({ error: 'Internal server error', code: 'SERVER_ERROR' })
   }
 })
@@ -267,27 +270,30 @@ router.get('/verify', async (req: Request, res: Response): Promise<void> => {
  * Update Profile
  * PATCH /api/auth/profile
  */
-router.patch('/profile', async (req: Request, res: Response): Promise<void> => {
+router.patch('/profile', authenticateToken, validate(profileUpdateSchema), async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const authHeader = req.headers.authorization
-    const token = authHeader && authHeader.split(' ')[1]
-    if (!token) {
-      res.status(401).json({ error: 'Access token required' })
-      return
+    const { preferences, name, avatar_url, theme } = req.body as {
+      preferences?: Record<string, unknown>
+      name?: string
+      avatar_url?: string
+      theme?: 'light' | 'dark'
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & { userId: string; email: string }
-    const { preferences, name, avatar_url } = req.body
+    const updates: Record<string, unknown> = {}
+    if (preferences !== undefined) updates.preferences = preferences
+    if (name !== undefined) updates.name = normalizeName(name)
+    if (avatar_url !== undefined) updates.avatar_url = avatar_url
+    if (theme !== undefined) updates.theme = theme
 
-    const updates: Record<string, any> = {}
-    if (preferences) updates.preferences = preferences
-    if (name) updates.name = name
-    if (avatar_url) updates.avatar_url = avatar_url
+    if (!Object.keys(updates).length) {
+      res.status(400).json({ error: 'No valid profile fields provided' })
+      return
+    }
 
     const { data: user, error } = await supabase
       .from('users')
       .update(updates)
-      .eq('id', decoded.userId)
+      .eq('id', req.user!.id)
       .select()
       .single()
 

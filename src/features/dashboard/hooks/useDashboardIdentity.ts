@@ -20,8 +20,9 @@ export function useDashboardIdentity() {
     try {
       const data = await getJSON<Identity>("/api/auth/verify")
       setUser(data || null)
-    } catch (e: any) {
-      setError(e?.message || "Não foi possível carregar perfil")
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Não foi possível carregar perfil"
+      setError(message)
       setUser(null)
     } finally {
       setLoading(false)

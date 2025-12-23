@@ -4,17 +4,13 @@ import Modal from '@/shared/ui/Modal';
 import { Loader } from '@/shared/ui/Loader';
 import { useTasks } from './hooks/useTasks';
 import { useAI } from '@/features/ai-assistant/hooks/useAI';
-import { useToast } from '@/shared/ui/GlassToast';
+import { useToast } from '@/shared/ui/useToast';
 import { cn } from '@/shared/lib/cn';
-import { NavLink } from 'react-router-dom';
-import { primaryNav, secondaryNav } from '@/app/layout/navItems';
 import type { Task } from '@/shared/types';
 
 type Filter = 'all' | 'active' | 'completed';
 
 const WEEK_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-const profileAvatar = "https://lh3.googleusercontent.com/aida-public/AB6AXuCVPqcPWDT3hPr01e2HDirC5oJIReGS_I9VQWtVcd9Jeg7-ZvWFgDQfCv6EutPiYTzuE-re3TH5gEjialXzk5Eb8SJ3m82eLKwBuKSLDpWKr4JkJ_yftg1ioQEeRmNNBPiKJhA7IAj11REAjyt_eN6G3ka3T_PoSQNNU9d7cQ6Af9A6u-pdRHLfzCaPzGvoxAzXj6ge63w7ZFJhPW4J6cxpsTQe-UV2JJuJ124QPZ8DgIYXHP4uJji-EBFIe1WQsTDEKAGbz-RlcuI";
-
 function getPriorityColor(priority?: Task['priority']) {
     if (priority === 'high') return 'bg-red-500/80';
     if (priority === 'medium') return 'bg-yellow-500/80';

@@ -3,7 +3,7 @@ import { aiApi } from "../ai.api"
 
 vi.mock("@/shared/api/http", () => {
   return {
-    apiFetch: vi.fn(async (_url: string, _init?: RequestInit) => {
+    apiFetch: vi.fn(async (_url: string) => {
       if (_url.includes("/ai/logs")) return [{ message: "ok", timestamp: Date.now() }]
       return { message: "response", content: "response", tags: ["a"], plan: ["x"], summary: "s", swot: { strengths: [] } }
     }),

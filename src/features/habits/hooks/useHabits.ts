@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { habitsApi } from '../api/habits.api';
-import { Habit, HabitLog } from '../types';
 
 export function useHabits() {
     const { user } = useAuth();

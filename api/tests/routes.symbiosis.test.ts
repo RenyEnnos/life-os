@@ -1,8 +1,9 @@
 /** @vitest-environment node */
 import request from 'supertest'
 import jwt from 'jsonwebtoken'
+import type { Application } from 'express'
 
-let app: any
+let app: Application
 
 const JWT_SECRET = 'test-secret'
 const authHeader = () => `Bearer ${jwt.sign({ userId: 'u1', email: 'user@example.com' }, JWT_SECRET)}`
@@ -29,8 +30,9 @@ describe('Symbiosis routes', () => {
       .get('/api/symbiosis')
       .set('Authorization', authHeader())
       .expect(200)
-    expect(Array.isArray(list.body)).toBe(true)
-    expect(list.body.find((l: any) => l.id === createdId)).toBeTruthy()
+    const listBody = list.body as Array<{ id?: string }>
+    expect(Array.isArray(listBody)).toBe(true)
+    expect(listBody.find((l) => l.id === createdId)).toBeTruthy()
 
     // delete
     await request(app)

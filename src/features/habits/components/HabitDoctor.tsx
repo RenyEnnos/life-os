@@ -8,10 +8,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface HabitDoctorProps {
     habits: Habit[];
-    logs: Record<string, unknown>[];
 }
 
-export function HabitDoctor({ habits, logs }: HabitDoctorProps) {
+export function HabitDoctor({ habits }: HabitDoctorProps) {
     const [analyzing, setAnalyzing] = useState(false);
     const [insight, setInsight] = useState<{ type: 'success' | 'warning' | 'info', message: string, detail: string } | null>(null);
 

@@ -9,7 +9,11 @@ vi.mock("@/shared/api/http", () => {
         if (url.includes("/achievements/full")) return [{ id: "a2", name: "Finisher", unlocked: false }]
         return [{ id: "a1", name: "Starter" }]
       }),
-      post: vi.fn(async (_url: string, body?: any) => ({ success: true, current_xp: (body?.amount ?? 0) + 100, level: 4 })),
+      post: vi.fn(async (_url: string, body?: Record<string, unknown>) => ({
+        success: true,
+        current_xp: (typeof body?.amount === 'number' ? body.amount : 0) + 100,
+        level: 4
+      })),
     },
   }
 })

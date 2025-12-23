@@ -20,7 +20,7 @@ export const awardXP = async (
     amount: number,
     category: AttributeType,
     source: string
-): Promise<{ success: boolean; newLevel?: number; error?: any }> => {
+): Promise<{ success: boolean; newLevel?: number; error?: unknown }> => {
     void userId; void category; void source;
     try {
         const res = await apiClient.post<{ success: boolean; current_xp: number; level: number }>('/api/rewards/xp', { amount });
@@ -32,6 +32,55 @@ export const awardXP = async (
 };
 // ... existing code ...
 
+const defaultAttributes: Record<AttributeType, number> = {
+    body: 0,
+    mind: 0,
+    spirit: 0,
+    output: 0,
+};
+
+const toAttributes = (value: unknown): Record<AttributeType, number> => {
+    if (!value || typeof value !== 'object') return { ...defaultAttributes };
+    const record = value as Record<string, unknown>;
+    return {
+        body: typeof record.body === 'number' ? record.body : 0,
+        mind: typeof record.mind === 'number' ? record.mind : 0,
+        spirit: typeof record.spirit === 'number' ? record.spirit : 0,
+        output: typeof record.output === 'number' ? record.output : 0,
+    };
+};
+
+const toCategory = (value: unknown): AttributeType => {
+    switch (value) {
+        case 'mind':
+        case 'spirit':
+        case 'output':
+        case 'body':
+            return value;
+        default:
+            return 'body';
+    }
+};
+
+const toXpHistory = (value: unknown): XPHistoryEntry[] => {
+    if (!Array.isArray(value)) return [];
+    return value.reduce<XPHistoryEntry[]>((acc, entry) => {
+        if (!entry || typeof entry !== 'object') return acc;
+        const record = entry as Record<string, unknown>;
+        const date = typeof record.date === 'string' ? record.date : '';
+        if (!date) return acc;
+        acc.push({
+            date,
+            amount: typeof record.amount === 'number' ? record.amount : Number(record.amount ?? 0),
+            category: toCategory(record.category),
+            source: typeof record.source === 'string' ? record.source : '',
+            previous_level: typeof record.previous_level === 'number' ? record.previous_level : 0,
+            new_level: typeof record.new_level === 'number' ? record.new_level : 0,
+        });
+        return acc;
+    }, []);
+};
+
 export const getUserXP = async (userId: string): Promise<UserXP | null> => {
     void userId;
     const data = await apiClient.get<{ current_xp: number; level: number; attributes?: Record<string, number>; xp_history?: XPHistoryEntry[]; created_at?: string; updated_at?: string }>('/api/rewards/score');
@@ -40,8 +89,8 @@ export const getUserXP = async (userId: string): Promise<UserXP | null> => {
         user_id: userId,
         total_xp: data.current_xp ?? 0,
         level: data.level ?? 1,
-        attributes: (data.attributes as any) ?? { body: 0, mind: 0, spirit: 0, output: 0 },
-        xp_history: (data.xp_history as any) ?? [],
+        attributes: toAttributes(data.attributes),
+        xp_history: toXpHistory(data.xp_history),
         created_at: data.created_at ?? new Date().toISOString(),
         updated_at: data.updated_at ?? new Date().toISOString(),
     };

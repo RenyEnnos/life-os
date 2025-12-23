@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { Trophy } from 'lucide-react';
 import { useUserXP } from '@/features/gamification/hooks/useUserXP'; // Use o novo hook
-import { calculateNextLevelXp } from '@/features/gamification/api/xpService';
 import { cn } from '@/shared/lib/cn';
 
 interface XPBarProps {

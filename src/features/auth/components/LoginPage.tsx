@@ -100,12 +100,15 @@ export default function LoginPage() {
 
             // Handle Validation Errors from Zod (via ApiError)
             if (err instanceof ApiError && err.status === 400 && err.details) {
+                const details = Array.isArray(err.details)
+                    ? (err.details as Array<{ path?: string; message: string }>)
+                    : null;
                 userFriendlyError = (
                     <div className="flex flex-col gap-1">
                         <span className="font-semibold">Atenção</span>
-                        {Array.isArray(err.details) ? (
+                        {details ? (
                             <ul className="list-disc pl-4 space-y-0.5">
-                                {err.details.map((d: any, i: number) => {
+                                {details.map((d, i: number) => {
                                     // Use path to provide context
                                     const field = d.path || 'Campo desconhecido';
                                     let msg = d.message;

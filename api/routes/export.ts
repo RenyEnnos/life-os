@@ -2,6 +2,7 @@ import { Router, type Response } from 'express'
 import { authenticateToken, AuthRequest } from '../middleware/auth'
 import { supabase } from '../lib/supabase'
 import { Parser } from 'json2csv'
+import { sanitizeCsvRows } from '../lib/csv'
 
 const router = Router()
 
@@ -28,7 +29,8 @@ router.get('/csv', authenticateToken, async (req: AuthRequest, res: Response) =>
   if (!allowed.includes(type)) return res.status(400).json({ error: 'invalid type' })
   const { data } = await supabase.from(type).select('*').eq('user_id', userId)
   const parser = new Parser()
-  const csv = parser.parse(data ?? [])
+  const rows = (data ?? []) as Record<string, unknown>[]
+  const csv = parser.parse(sanitizeCsvRows(rows))
   res.header('Content-Type', 'text/csv')
   res.attachment(`${type}.csv`)
   res.send(csv)

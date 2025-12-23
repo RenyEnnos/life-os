@@ -1,7 +1,7 @@
-import { useEffect, DependencyList } from 'react';
+import { useEffect } from 'react';
 import { animate, stagger } from 'framer-motion';
 
-export const useStaggerAnimation = (selector: string | Element[] | NodeListOf<Element>, deps: DependencyList = []) => {
+export const useStaggerAnimation = (selector: string | Element[] | NodeListOf<Element>) => {
     useEffect(() => {
         // Small delay to ensure DOM is ready
         const timeout = setTimeout(() => {
@@ -25,5 +25,5 @@ export const useStaggerAnimation = (selector: string | Element[] | NodeListOf<El
         return () => {
             clearTimeout(timeout);
         };
-    }, [selector, ...deps]);
+    }, [selector]);
 };

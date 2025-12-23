@@ -8,12 +8,13 @@ export interface BaseRepo<T> {
 }
 
 function memoryRepo<T>(): BaseRepo<T> {
-  const store: Record<string, Record<string, unknown>> = {}
+  type StoredItem = T & { deleted_at?: string | null }
+  const store: Record<string, Record<string, StoredItem>> = {}
   return {
     async list(userId) {
       const space = store[userId] || {}
       // Filter out soft-deleted items
-      return Object.values(space).filter((item: any) => !item.deleted_at) as T[]
+      return Object.values(space).filter((item) => !item.deleted_at) as T[]
     },
     async create(userId, payload) {
       const id = crypto.randomUUID()

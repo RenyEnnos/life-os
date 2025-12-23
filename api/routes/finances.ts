@@ -3,7 +3,6 @@ import { authenticateToken, AuthRequest } from '../middleware/auth'
 import { financeService } from '../services/financeService'
 import { supabase } from '../lib/supabase'
 import { getPagination } from '../lib/pagination'
-import { z } from 'zod'
 
 const router = Router()
 

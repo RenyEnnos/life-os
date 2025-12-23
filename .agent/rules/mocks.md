@@ -2,4 +2,5 @@
 trigger: always_on
 ---
 
-não usar mock prefira sempre implementar 
+Nao usar mocks ou simulacoes; implemente apenas funcionalidades reais.
+Se alguma tarefa exigir mock, pare e solicite instrucoes do usuario.

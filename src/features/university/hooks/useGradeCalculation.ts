@@ -1,5 +1,4 @@
-import { useMemo } from 'react';
-import { Assignment, Course } from '../types';
+import { Assignment } from '../types';
 
 export function useGradeCalculation(assignments: Assignment[]) {
 

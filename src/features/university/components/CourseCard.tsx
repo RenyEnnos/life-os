@@ -1,12 +1,11 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import { MagicCard } from '@/shared/ui/premium/MagicCard';
 import { BorderBeam } from '@/shared/ui/premium/BorderBeam';
 import { Course } from '../types';
-import { Book, Clock, GraduationCap, Trash2 } from 'lucide-react';
+import { Clock, GraduationCap, Trash2 } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
 import { AnimatedCircularProgressBar } from '@/shared/ui/premium/AnimatedCircularProgressBar';
-import { useTheme } from '@/shared/hooks/useTheme';
 
 interface CourseCardProps {
     course: Course;

@@ -1,5 +1,4 @@
 import { X } from 'lucide-react';
-import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { CreateHabitForm } from './CreateHabitForm';
 

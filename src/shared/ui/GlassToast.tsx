@@ -1,20 +1,13 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, AlertCircle, X } from 'lucide-react';
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-
-type ToastType = 'success' | 'error' | 'info';
+import { useState, ReactNode } from 'react';
+import { ToastContext, type ToastType } from './toastContext';
 
 interface Toast {
     id: string;
     message: string;
     type: ToastType;
 }
-
-interface ToastContextType {
-    showToast: (message: string, type?: ToastType) => void;
-}
-
-const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
     const [toasts, setToasts] = useState<Toast[]>([]);
@@ -42,12 +35,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         </ToastContext.Provider>
     );
 }
-
-export const useToast = () => {
-    const context = useContext(ToastContext);
-    if (!context) throw new Error('useToast must be used within a ToastProvider');
-    return context;
-};
 
 function GlassToast({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }) {
     const icons = {

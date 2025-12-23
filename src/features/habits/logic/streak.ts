@@ -37,13 +37,11 @@ export const calculateStreak = (logs: HabitLog[] | undefined, habitId: string): 
     }
 
     let streak = 0;
-    let currentDate = new Date(lastDate);
+    const currentDate = new Date(lastDate);
 
     for (const dateStr of distinctDates) {
         // We expect dateStr to match currentDate
         // If there's a gap, break
-        const d = new Date(dateStr);
-
         // Compare with expected current date in the sequence
         // Since we are iterating through *existing* logs, acts as a "contains" check
         // But we need to ensure they are consecutive.

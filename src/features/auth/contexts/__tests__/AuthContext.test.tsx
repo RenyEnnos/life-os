@@ -1,10 +1,12 @@
 import '@testing-library/jest-dom';
 import { render, screen, waitFor, act } from '@testing-library/react';
-import { AuthProvider, useAuth } from '../AuthContext';
+import { AuthProvider } from '../AuthProvider';
+import { useAuth } from '../AuthContext';
 import { authApi } from '../../api/auth.api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
+import type { User } from '@supabase/supabase-js';
 
 // Mock authApi
 vi.mock('../../api/auth.api', () => ({
@@ -46,6 +48,8 @@ const renderWithProviders = (ui: React.ReactNode) => {
     );
 };
 
+const mockedAuthApi = vi.mocked(authApi, true);
+
 describe('AuthContext', () => {
     beforeEach(() => {
         vi.clearAllMocks();
@@ -54,8 +58,8 @@ describe('AuthContext', () => {
     });
 
     it('verifies session on mount', async () => {
-        const mockUser = { id: '1', email: 'test@example.com' };
-        (authApi.verify as any).mockResolvedValue(mockUser);
+        const mockUser = { id: '1', email: 'test@example.com' } as unknown as User;
+        mockedAuthApi.verify.mockResolvedValue(mockUser);
 
         renderWithProviders(<TestComponent />);
 
@@ -66,15 +70,15 @@ describe('AuthContext', () => {
     });
 
     it('handles regular login flow', async () => {
-        (authApi.verify as any).mockRejectedValue(new Error('No session'));
+        mockedAuthApi.verify.mockRejectedValue(new Error('No session'));
         renderWithProviders(<TestComponent />);
 
         await waitFor(() => {
             expect(screen.getByTestId('user-email')).toHaveTextContent('No User');
         });
 
-        const mockUser = { id: '2', email: 'login@example.com' };
-        (authApi.login as any).mockResolvedValue({ user: mockUser });
+        const mockUser = { id: '2', email: 'login@example.com' } as unknown as User;
+        mockedAuthApi.login.mockResolvedValue({ user: mockUser });
 
         const loginButton = screen.getByText('Login');
         await act(async () => {

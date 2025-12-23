@@ -1,6 +1,8 @@
 import request from 'supertest'
+import type { Application } from 'express'
 import { describe, it, expect, beforeAll } from 'vitest'
-let app: any
+
+let app: Application
 
 describe('Auth Login errors', () => {
   beforeAll(async () => { process.env.NODE_ENV = 'test'; process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret'; app = (await import('../app')).default }, 30000)

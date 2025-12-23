@@ -1,6 +1,5 @@
 import { CloudRain, TrendingUp } from 'lucide-react';
 import { BentoCard } from '@/shared/ui/BentoCard';
-import { cn } from '@/shared/lib/cn';
 
 export const Zone3_Context = () => {
     return (

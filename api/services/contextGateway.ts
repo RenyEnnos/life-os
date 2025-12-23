@@ -49,7 +49,6 @@ export const ContextGateway = {
 
         try {
             // Meteosource API
-            const placeId = (lat && lon) ? { lat, lon } : 'sao-paulo';
             // If we had a paid plan with lat/lon:
             // const url = `https://www.meteosource.com/api/v1/free/point?lat=${lat}&lon=${lon}&sections=current&key=${process.env.METEOSOURCE_API_KEY}`;
 
@@ -98,10 +97,12 @@ export const ContextGateway = {
                 timeout: 5000
             });
 
-            const articles = res.data.articles.map((art: any) => ({
-                title: art.title,
-                source: art.source.name,
-                url: art.url
+            type NewsArticle = { title?: string; source?: { name?: string }; url?: string }
+            const payload = res.data as { articles?: NewsArticle[] }
+            const articles = (payload.articles ?? []).map((art) => ({
+                title: art.title ?? '',
+                source: art.source?.name ?? '',
+                url: art.url ?? ''
             }));
 
             cache.set(cacheKey, articles, 3600); // 1 hour cache

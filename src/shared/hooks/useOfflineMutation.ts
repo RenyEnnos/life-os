@@ -52,13 +52,12 @@ export function useOfflineMutation<TData = unknown, TError = unknown, TVariables
 
         try {
             if (originalMutationFn) {
-                // @ts-ignore - TS expects 2 arguments for some reason in this context
                 return await originalMutationFn(variables);
             }
             // If no mutationFn provided, we use the endpoint/method (default behavior)
             // But useMutation requires mutationFn usually.
             throw new Error('No mutationFn provided');
-        } catch (error) {
+        } catch {
             // Check if network error
             // If network error, add to queue
             addToQueue({

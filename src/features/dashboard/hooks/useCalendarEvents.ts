@@ -18,7 +18,7 @@ export function useCalendarEvents() {
     try {
       const data = await getJSON<{ url: string }>("/api/calendar/auth-url")
       setAuthUrl(data?.url || null)
-    } catch (e: any) {
+    } catch {
       // Silencioso; podemos mostrar CTA de conectar quando tentar carregar eventos
     }
   }, [])
@@ -29,8 +29,9 @@ export function useCalendarEvents() {
     try {
       const data = await getJSON<CalendarEvent[]>("/api/calendar/events")
       setEvents(data || [])
-    } catch (e: any) {
-      setError(e?.message || "Não foi possível carregar eventos do calendário")
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Não foi possível carregar eventos do calendário"
+      setError(message)
       setEvents([])
       if (!authUrl) {
         await loadAuthUrl()

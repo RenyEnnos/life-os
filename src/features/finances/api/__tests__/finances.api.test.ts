@@ -13,8 +13,8 @@ vi.mock("@/shared/api/http", () => {
           { id: "2", title: "Groceries", amount: 100, type: "expense", category: "Food", date: "2025-01-02" },
         ]
       }),
-      post: vi.fn(async (_url: string, body?: any) => ({ id: "3", ...body })),
-      put: vi.fn(async (_url: string, body?: any) => ({ id: "1", ...body })),
+      post: vi.fn(async (_url: string, body?: Record<string, unknown>) => ({ id: "3", ...(body ?? {}) })),
+      put: vi.fn(async (_url: string, body?: Record<string, unknown>) => ({ id: "1", ...(body ?? {}) })),
       delete: vi.fn(async () => ({})),
     },
   }

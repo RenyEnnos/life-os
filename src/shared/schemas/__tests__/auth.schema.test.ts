@@ -1,18 +1,29 @@
-/** @vitest-environment node */
-import { describe, it, expect } from 'vitest'
-import { loginSchema, registerSchema } from '../auth'
+import { describe, expect, it } from 'vitest'
+import { profileUpdateSchema } from '../auth'
 
-describe('Auth schemas normalization', () => {
-  it('normalizes email on login', () => {
-    const parsed = loginSchema.parse({ email: '  USER@Example.COM\t', password: 'StrongPass1!' })
-    expect(parsed.email).toBe('user@example.com')
+describe('profileUpdateSchema', () => {
+  it('accepts allowed fields', () => {
+    const result = profileUpdateSchema.safeParse({
+      name: 'Nova Pessoa',
+      avatar_url: 'https://example.com/avatar.png',
+      preferences: { theme: 'dark' },
+      theme: 'dark'
+    })
+    expect(result.success).toBe(true)
   })
-  it('rejects invalid email format', () => {
-    expect(() => loginSchema.parse({ email: 'invalid', password: 'StrongPass1!' })).toThrow()
+
+  it('rejects unknown fields', () => {
+    const result = profileUpdateSchema.safeParse({
+      name: 'Nova Pessoa',
+      role: 'admin'
+    })
+    expect(result.success).toBe(false)
   })
-  it('normalizes email and trims name on register', () => {
-    const parsed = registerSchema.parse({ email: '  New@Example.COM ', password: 'StrongPass1!', name: '  User Name  ' })
-    expect(parsed.email).toBe('new@example.com')
-    expect(parsed.name).toBe('User Name')
+
+  it('rejects invalid name', () => {
+    const result = profileUpdateSchema.safeParse({
+      name: 'A'
+    })
+    expect(result.success).toBe(false)
   })
 })

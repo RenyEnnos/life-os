@@ -19,6 +19,7 @@ export async function getAchievements(): Promise<Achievement[]> {
  * Fetches achievements with user's unlock status.
  */
 export async function getAchievementsWithStatus(userId: string): Promise<AchievementWithStatus[]> {
+    void userId;
     const data = await apiClient.get<AchievementWithStatus[]>('/api/rewards/achievements/full');
     return data || [];
 }
@@ -27,6 +28,7 @@ export async function getAchievementsWithStatus(userId: string): Promise<Achieve
  * Fetches user's unlocked achievements.
  */
 export async function getUserAchievements(userId: string): Promise<UserAchievement[]> {
+    void userId;
     const data = await apiClient.get<UserAchievement[]>('/api/rewards/achievements');
     return data as UserAchievement[] || [];
 }
@@ -35,30 +37,10 @@ export async function getUserAchievements(userId: string): Promise<UserAchieveme
  * Unlocks an achievement for a user.
  */
 export async function unlockAchievement(userId: string, achievementId: string): Promise<boolean> {
+    void userId;
+    void achievementId;
     console.warn('unlockAchievement is handled server-side; call backend endpoints instead.');
     return false;
-}
-
-interface UserStats {
-    tasksCompleted: number;
-    habitsLogged: number;
-    journalEntries: number;
-    level: number;
-    streak: number;
-}
-
-/**
- * Fetches user stats for achievement condition checking.
- */
-async function getUserStats(userId: string): Promise<UserStats> {
-    // Stats aggregation is now handled server-side. Return minimal defaults.
-    return {
-        tasksCompleted: 0,
-        habitsLogged: 0,
-        journalEntries: 0,
-        level: 1,
-        streak: 0
-    };
 }
 
 /**
@@ -66,6 +48,7 @@ async function getUserStats(userId: string): Promise<UserStats> {
  * Returns newly unlocked achievements.
  */
 export async function checkAndUnlockAchievements(userId: string): Promise<Achievement[]> {
+    void userId;
     console.warn('Achievement unlocking logic is handled server-side.');
     return [];
 }

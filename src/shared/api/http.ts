@@ -7,9 +7,9 @@ export interface FetchOptions extends RequestInit {
 
 export class ApiError extends Error {
   status: number;
-  details?: any;
+  details?: unknown;
 
-  constructor(message: string, status: number, details?: any) {
+  constructor(message: string, status: number, details?: unknown) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
@@ -22,7 +22,8 @@ export async function fetchJSON<T = unknown>(url: string, options: FetchOptions 
   const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? 15000)
 
   // Build request options properly to avoid overwrites
-  const { headers: optionHeaders, timeoutMs, ...restOptions } = options
+  const { headers: optionHeaders, timeoutMs: _timeoutMs, ...restOptions } = options
+  void _timeoutMs
   const requestOptions: RequestInit = {
     credentials: "include",
     headers: {
@@ -50,7 +51,7 @@ export async function fetchJSON<T = unknown>(url: string, options: FetchOptions 
       throw new ApiError(message, res.status)
     }
     return body as T
-  } catch (err: any) {
+  } catch (err: unknown) {
     // Log operacional errors (4xx) as warnings, not errors to avoid console noise
     if (err instanceof ApiError && err.status < 500) {
       console.warn(`[HTTP] Validation/Client error on ${url}:`, err.message);
@@ -61,10 +62,11 @@ export async function fetchJSON<T = unknown>(url: string, options: FetchOptions 
     if (err instanceof ApiError) {
       throw err;
     }
-    if (err?.name === "AbortError") {
+    const errObj = err as { name?: string; message?: string }
+    if (errObj?.name === "AbortError") {
       throw new Error("Tempo de requisição excedido")
     }
-    if (err?.message?.includes("Failed to fetch")) {
+    if (errObj?.message?.includes("Failed to fetch")) {
       throw new Error("Falha na conexão com o servidor. Verifique se o backend está rodando.")
     }
     throw err
@@ -114,7 +116,10 @@ export const apiFetch = fetchJSON
 export function resolveApiUrl(path: string): string {
   if (!path) return ""
   if (/^https?:\/\//i.test(path)) return path
-  const base = (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_API_BASE_URL) || ""
+  const metaEnv = typeof import.meta !== "undefined"
+    ? (import.meta as { env?: Record<string, string | undefined> }).env
+    : undefined
+  const base = metaEnv?.VITE_API_BASE_URL || ""
   const cleanedPath = path.replace(/^\/+/, "")
   if (base) {
     return `${String(base).replace(/\/+$/, "")}/${cleanedPath}`

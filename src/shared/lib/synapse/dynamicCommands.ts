@@ -11,10 +11,15 @@ import {
 import { SynapseCommand } from './types';
 
 // Tipagem do Briefing que vem da API
+type MarketEntry = { usd: number; change_24h: number }
+type MarketData = { bitcoin?: MarketEntry; ethereum?: MarketEntry }
+type WeatherData = { temp?: number; summary?: string; condition?: string | number; location?: string }
+type NewsItem = { title: string; source: string; url: string }
+
 export interface SynapseContext {
-    market: any;
-    weather: any;
-    news?: any[];
+    market?: MarketData;
+    weather?: WeatherData;
+    news?: NewsItem[];
 }
 
 function getWeatherIcon(condition: string | number) {
@@ -87,7 +92,7 @@ export const generateDynamicCommands = (context: SynapseContext | null): Synapse
 
     // 3. News
     if (context.news && context.news.length > 0) {
-        context.news.forEach((article: any, index: number) => {
+        context.news.forEach((article, index) => {
             commands.push({
                 id: `news-${index}`,
                 label: article.title.substring(0, 50) + (article.title.length > 50 ? '...' : ''),

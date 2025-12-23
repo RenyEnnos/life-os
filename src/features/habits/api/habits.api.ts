@@ -1,8 +1,14 @@
 import { apiClient } from '@/shared/api/http';
 import { Habit } from '../types';
 
+type HabitLogResponse = {
+    date?: string | null;
+    logged_date?: string | null;
+} & Record<string, unknown>;
+
 export const habitsApi = {
-    list: async (_userId?: string) => {
+    list: async (userId?: string) => {
+        void userId;
         const data = await apiClient.get<Habit[]>('/api/habits');
         return data;
     },
@@ -21,17 +27,19 @@ export const habitsApi = {
         await apiClient.delete(`/api/habits/${id}`);
     },
 
-    getLogs: async (_userId?: string, date?: string) => {
+    getLogs: async (userId?: string, date?: string) => {
+        void userId;
         const query = date ? `?date=${date}` : '';
-        const data = await apiClient.get<any[]>(`/api/habits/logs${query}`);
-        return (data || []).map(log => ({
+        const data = await apiClient.get<HabitLogResponse[]>(`/api/habits/logs${query}`);
+        return (data || []).map((log): HabitLogResponse & { date: string } => ({
             ...log,
             date: log.date ?? log.logged_date ?? ''
         }));
     },
 
     log: async (_userId: string, habitId: string, value: number, date: string) => {
-        const data = await apiClient.post<any>(`/api/habits/${habitId}/log`, { value, date });
+        void _userId;
+        const data = await apiClient.post<Record<string, unknown>>(`/api/habits/${habitId}/log`, { value, date });
         return data;
     }
 };
