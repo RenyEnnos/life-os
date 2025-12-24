@@ -60,6 +60,7 @@ export function HabitDoctor({ habits }: HabitDoctorProps) {
                     onClick={runDiagnosis}
                     disabled={analyzing}
                     className="h-8 w-8 p-0 rounded-full hover:bg-indigo-500/20"
+                    aria-label="Refresh habit diagnosis"
                 >
                     <RefreshCw size={14} className={analyzing ? "animate-spin" : ""} />
                 </Button>
