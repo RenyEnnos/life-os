@@ -170,7 +170,7 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                         }}
                         placeholder="Adicionar tag..."
                     />
-                    <Button type="button" variant="outline" onClick={addTag}>
+                    <Button type="button" variant="outline" onClick={addTag} aria-label="Add tag">
                         <X size={16} className="rotate-45" />
                     </Button>
                 </div>
@@ -182,7 +182,12 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                             className="gap-1 pr-1"
                         >
                             {tag}
-                            <button type="button" onClick={() => removeTag(tag)} className="hover:text-destructive">
+                            <button
+                                type="button"
+                                onClick={() => removeTag(tag)}
+                                className="hover:text-destructive focus-visible:outline-none focus-visible:text-destructive rounded-sm"
+                                aria-label={`Remove tag ${tag}`}
+                            >
                                 <X size={12} />
                             </button>
                         </Tag>
