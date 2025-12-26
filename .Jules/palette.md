@@ -9,3 +9,7 @@
 ## 2025-12-24 - Accessibility of Habit Toggles
 **Learning:** The habit toggle button was completely invisible to screen readers as it only contained an icon or an empty div.
 **Action:** Added dynamic `aria-label` to `HabitItem` toggle button to indicate state (complete/incomplete) and habit title.
+
+## 2025-12-27 - Task List Accessibility
+**Learning:** Task items were missing crucial accessibility context. Checkboxes lacked labels, priority dots relied on color, and delete buttons were generic.
+**Action:** Added dynamic `aria-label` to checkboxes ("Mark [Task] as complete"), `title`/`aria-label` to priority dots, and context to delete buttons ("Delete task: [Task]").

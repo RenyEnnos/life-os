@@ -178,8 +178,9 @@ export default function TasksPage() {
                         checked={!!task.completed}
                         onChange={() => handleToggle(task)}
                         disabled={updateTask.isPending}
+                        aria-label={`Mark "${task.title}" as ${task.completed ? 'incomplete' : 'complete'}`}
                     />
-                    <span className="material-symbols-outlined absolute pointer-events-none opacity-0 peer-checked:opacity-100 text-white text-[16px]">check</span>
+                    <span aria-hidden="true" className="material-symbols-outlined absolute pointer-events-none opacity-0 peer-checked:opacity-100 text-white text-[16px]">check</span>
                 </label>
 
                 <div className="flex flex-col flex-1 min-w-0">
@@ -191,7 +192,11 @@ export default function TasksPage() {
                         {task.title}
                     </span>
                     <div className="flex items-center gap-2 mt-0.5 text-xs text-zinc-500 flex-wrap">
-                        <span className={cn("w-1.5 h-1.5 rounded-full", getPriorityColor(task.priority))} />
+                        <span
+                            className={cn("w-1.5 h-1.5 rounded-full", getPriorityColor(task.priority))}
+                            title={`Priority: ${task.priority || 'none'}`}
+                            aria-label={`Priority: ${task.priority || 'none'}`}
+                        />
                         <span className="text-[10px] uppercase tracking-wider">{tag}</span>
                         <span className="text-zinc-700 text-[10px]">•</span>
                         <span className="text-zinc-600">{dueLabel}</span>
@@ -202,7 +207,7 @@ export default function TasksPage() {
                     type="button"
                     className={cn("opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity hover:text-white", deleteTask.isPending ? "text-zinc-500 cursor-not-allowed" : "text-zinc-600")}
                     onClick={() => setConfirmDelete(task.id)}
-                    aria-label="Delete task"
+                    aria-label={`Delete task: ${task.title}`}
                     disabled={deleteTask.isPending}
                 >
                     <span className="material-symbols-outlined text-[18px]">{deleteTask.isPending ? 'hourglass_top' : 'more_horiz'}</span>
@@ -247,6 +252,7 @@ export default function TasksPage() {
                                 onChange={(e) => setNewTaskTitle(e.target.value)}
                                 onKeyDown={(e) => { if (e.key === 'Enter') handleCreateTask(); }}
                                 placeholder="What needs to be done?"
+                                aria-label="Create new task"
                                 className="w-full bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-2xl py-5 pl-14 pr-24 text-lg font-light text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-white/10 focus:ring-0 focus:bg-zinc-900/60 transition-all shadow-lg hover:border-white/10"
                             />
                             <div className="absolute inset-y-2 right-2 flex items-center gap-2">
@@ -287,6 +293,7 @@ export default function TasksPage() {
                                             key={f}
                                             type="button"
                                             onClick={() => setFilter(f)}
+                                            aria-pressed={filter === f}
                                             className={cn(
                                                 "px-2 py-1 rounded border text-[10px] uppercase tracking-wider transition-colors",
                                                 filter === f
