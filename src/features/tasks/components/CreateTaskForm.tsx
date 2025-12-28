@@ -182,7 +182,12 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                             className="gap-1 pr-1"
                         >
                             {tag}
-                            <button type="button" onClick={() => removeTag(tag)} className="hover:text-destructive">
+                            <button
+                                type="button"
+                                onClick={() => removeTag(tag)}
+                                className="hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50 rounded-full"
+                                aria-label={`Remove tag ${tag}`}
+                            >
                                 <X size={12} />
                             </button>
                         </Tag>
