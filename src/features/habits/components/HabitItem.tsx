@@ -38,6 +38,7 @@ export function HabitItem({ habit, completed, onToggle }: HabitItemProps) {
                     completed ? "bg-primary text-background border-primary" : "border-muted-foreground text-muted-foreground hover:border-primary hover:text-primary"
                 )}
                 onClick={onToggle}
+                aria-label={completed ? `Mark habit ${habit.title} as incomplete` : `Mark habit ${habit.title} as complete`}
             >
                 {completed ? <Check size={24} strokeWidth={3} /> : <div className="w-4 h-4 rounded-full bg-current opacity-20" />}
             </Button>
