@@ -273,16 +273,18 @@ export default function DashboardPage() {
               </div>
               <div className="flex items-center gap-2">
                 <input
+                  aria-label="New task title"
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
                   placeholder="Adicionar tarefa..."
-                  className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                  className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                 />
                 <input
+                  aria-label="New task due date"
                   type="date"
                   value={newTaskDue}
                   onChange={(e) => setNewTaskDue(e.target.value)}
-                  className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                  className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                 />
                 <button
                   type="button"
@@ -349,9 +351,10 @@ export default function DashboardPage() {
             </div>
             <div className="mt-3 flex items-center gap-2">
               <select
+                aria-label="Log habit for today"
                 value={logHabitId}
                 onChange={(e) => setLogHabitId(e.target.value)}
-                className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
               >
                 <option value="">Registrar hábito de hoje...</option>
                 {habits.map((h) => <option key={h.id} value={h.id}>{resolveHabitTitle(h)}</option>)}
@@ -381,35 +384,39 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-4">
               <select
+                aria-label="Select task to link"
                 value={linkTaskId}
                 onChange={(e) => setLinkTaskId(e.target.value)}
-                className="col-span-2 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                className="col-span-2 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
               >
                 <option value="">Selecione tarefa</option>
                 {tasks.map((t) => <option key={t.id} value={t.id}>{t.title || 'Tarefa'}</option>)}
               </select>
               <select
+                aria-label="Select habit to link"
                 value={linkHabitId}
                 onChange={(e) => setLinkHabitId(e.target.value)}
-                className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
               >
                 <option value="">Selecione hábito</option>
                 {habits.map((h) => <option key={h.id} value={h.id}>{resolveHabitTitle(h)}</option>)}
               </select>
               <input
+                aria-label="Vital impact (-5 to 5)"
                 type="number"
                 min={-5}
                 max={5}
                 value={linkImpact}
                 onChange={(e) => setLinkImpact(Number(e.target.value))}
-                className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                 placeholder="Impacto"
               />
               <input
+                aria-label="Symbiosis notes (optional)"
                 value={linkNotes}
                 onChange={(e) => setLinkNotes(e.target.value)}
                 placeholder="Notas (opcional)"
-                className="md:col-span-3 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                className="md:col-span-3 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
               />
               <button
                 type="button"
@@ -461,32 +468,36 @@ export default function DashboardPage() {
             </div>
             <div className="flex gap-2 mb-2">
               <select
+                aria-label="Transaction type"
                 value={financeType}
                 onChange={(e) => setFinanceType(e.target.value as 'income' | 'expense')}
-                className="w-28 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                className="w-28 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
               >
                 <option value="expense">Despesa</option>
                 <option value="income">Receita</option>
               </select>
               <input
+                aria-label="Transaction amount"
                 value={financeAmount}
                 onChange={(e) => setFinanceAmount(e.target.value)}
                 placeholder="Valor"
                 type="number"
-                className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
               />
             </div>
             <input
+              aria-label="Transaction description"
               value={financeDesc}
               onChange={(e) => setFinanceDesc(e.target.value)}
               placeholder="Descrição"
-              className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none mb-2"
+              className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none mb-2 focus-visible:ring-1 focus-visible:ring-primary"
             />
             <input
+              aria-label="Transaction category"
               value={financeCategory}
               onChange={(e) => setFinanceCategory(e.target.value)}
               placeholder="Categoria"
-              className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none mb-3"
+              className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none mb-3 focus-visible:ring-1 focus-visible:ring-primary"
             />
             <button
               type="button"
@@ -508,17 +519,19 @@ export default function DashboardPage() {
               <NotebookPen className="text-sky-300" size={18} />
             </div>
             <input
+              aria-label="Journal entry title"
               value={journalTitle}
               onChange={(e) => setJournalTitle(e.target.value)}
               placeholder="Título"
-              className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none mb-2"
+              className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none mb-2 focus-visible:ring-1 focus-visible:ring-primary"
             />
             <textarea
+              aria-label="Journal entry content"
               value={journalContent}
               onChange={(e) => setJournalContent(e.target.value)}
               placeholder="O que aconteceu?"
               rows={3}
-              className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none mb-3 resize-none"
+              className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none mb-3 resize-none focus-visible:ring-1 focus-visible:ring-primary"
             />
             <button
               type="button"
