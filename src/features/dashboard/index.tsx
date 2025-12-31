@@ -448,6 +448,7 @@ export default function DashboardPage() {
                       type="button"
                       onClick={() => deleteLink.mutate(link.id)}
                       className="text-zinc-400 hover:text-red-400 transition"
+                      aria-label={`Delete link: ${task?.title || 'task'}`}
                     >
                       <Trash2 size={16} />
                     </button>
