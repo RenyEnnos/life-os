@@ -215,9 +215,9 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                                                className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all focus-visible:ring-2 focus-visible:ring-red-400 rounded"
                                                 onClick={() => onDeleteTransaction(t.id)}
-                                                aria-label="Excluir transação"
+                                                aria-label={`Delete transaction: ${t.description}`}
                                             >
                                                 <Trash2 size={16} />
                                             </Button>
