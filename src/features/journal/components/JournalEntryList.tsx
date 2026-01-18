@@ -35,10 +35,10 @@ export function JournalEntryList({ entries, onEdit, onDelete }: JournalEntryList
                             </p>
                         </div>
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-                            <Button variant="ghost" size="icon" onClick={() => onEdit(entry)} aria-label="Editar entrada">
+                            <Button variant="ghost" size="icon" onClick={() => onEdit(entry)} aria-label={`Edit entry: ${entry.title || 'Untitled'}`}>
                                 <Edit2 size={16} />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={() => onDelete(entry.id)} className="text-destructive hover:bg-destructive/10" aria-label="Excluir entrada">
+                            <Button variant="ghost" size="icon" onClick={() => onDelete(entry.id)} className="text-destructive hover:bg-destructive/10" aria-label={`Delete entry: ${entry.title || 'Untitled'}`}>
                                 <Trash2 size={16} />
                             </Button>
                         </div>
