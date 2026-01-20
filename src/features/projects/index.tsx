@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, Target, Clock, Search, Bell, BarChart3 } from 'lucide-react';
+import { useState, KeyboardEvent } from 'react';
+import { Plus, Target, Clock, Search, Bell, BarChart3, Trash2 } from 'lucide-react';
 import { useProjects } from '@/features/projects/hooks/useProjects';
 import { useAI } from '@/features/ai-assistant/hooks/useAI';
 import { clsx } from 'clsx';
@@ -43,6 +43,13 @@ export default function ProjectsPage() {
         e.stopPropagation();
         if (confirm('Tem certeza que deseja excluir este projeto?')) {
             deleteProject.mutate(id);
+        }
+    };
+
+    const handleCardKeyDown = (e: KeyboardEvent<HTMLDivElement>, id: string) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setSelectedProject(id);
         }
     };
 
@@ -98,10 +105,16 @@ export default function ProjectsPage() {
                         <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></span>
                         <span className="text-xs text-zinc-400">System Healthy</span>
                     </div>
-                    <button className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
+                    <button
+                        className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+                        aria-label="Search projects"
+                    >
                         <Search size={20} />
                     </button>
-                    <button className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
+                    <button
+                        className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+                        aria-label="Notifications"
+                    >
                         <Bell size={20} />
                     </button>
                 </div>
@@ -183,8 +196,12 @@ export default function ProjectsPage() {
                                 return (
                                     <div
                                         key={project.id}
+                                        role="button"
+                                        tabIndex={0}
                                         onClick={() => setSelectedProject(project.id)}
-                                        className="group relative flex flex-col h-64 rounded-2xl border border-white/10 bg-zinc-900/40 backdrop-blur-xl overflow-hidden cursor-pointer hover:-translate-y-4 hover:border-white/30 hover:shadow-2xl transition-all duration-500"
+                                        onKeyDown={(e) => handleCardKeyDown(e, project.id)}
+                                        aria-label={`View details for ${project.title}`}
+                                        className="group relative flex flex-col h-64 rounded-2xl border border-white/10 bg-zinc-900/40 backdrop-blur-xl overflow-hidden cursor-pointer hover:-translate-y-4 hover:border-white/30 hover:shadow-2xl transition-all duration-500 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                                     >
                                         <div className="project-cover h-1/2 w-full relative overflow-hidden bg-gradient-to-br from-zinc-800 to-zinc-900 transition-all duration-500">
                                             <div className={clsx("absolute w-40 h-40 blur-[60px] rounded-full", gradient, idx % 2 === 0 ? "top-[-20%] right-[-20%]" : "top-[-10%] left-[-10%]")}></div>
@@ -194,13 +211,13 @@ export default function ProjectsPage() {
                                                     {project.status.replace('_', ' ')}
                                                 </span>
                                             </div>
-                                            {/* Delete Action (Hidden by default, show on hover) */}
+                                            {/* Delete Action (Hidden by default, show on hover/focus) */}
                                             <button
                                                 onClick={(e) => handleDelete(e, project.id)}
-                                                className="absolute top-4 right-4 p-1.5 rounded-full bg-black/20 hover:bg-red-500/20 text-white/50 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
-                                                title="Delete Project"
+                                                className="absolute top-4 right-4 p-1.5 rounded-full bg-black/20 hover:bg-red-500/20 text-white/50 hover:text-red-400 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all"
+                                                aria-label={`Delete project: ${project.title}`}
                                             >
-                                                <Target size={14} />
+                                                <Trash2 size={14} />
                                             </button>
                                         </div>
 
@@ -245,7 +262,7 @@ export default function ProjectsPage() {
                             {/* New Initiative Button */}
                             <button
                                 onClick={() => setIsModalOpen(true)}
-                                className="h-64 rounded-2xl border border-dashed border-zinc-800 bg-transparent flex flex-col items-center justify-center gap-3 text-zinc-600 transition-all duration-300 hover:border-zinc-600 hover:text-zinc-400 hover:bg-zinc-900/50 group"
+                                className="h-64 rounded-2xl border border-dashed border-zinc-800 bg-transparent flex flex-col items-center justify-center gap-3 text-zinc-600 transition-all duration-300 hover:border-zinc-600 hover:text-zinc-400 hover:bg-zinc-900/50 group focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                             >
                                 <div className="w-12 h-12 rounded-full border border-zinc-800 flex items-center justify-center group-hover:border-zinc-600 group-hover:bg-zinc-800/50 transition-all">
                                     <Plus size={24} />
@@ -270,7 +287,7 @@ export default function ProjectsPage() {
                                 <BarChart3 className="text-primary" />
                                 Analysis: {projects?.find(p => p.id === selectedProject)?.title}
                             </h3>
-                            <button onClick={() => setSelectedProject(null)} className="text-zinc-400 hover:text-white">✕</button>
+                            <button onClick={() => setSelectedProject(null)} className="text-zinc-400 hover:text-white" aria-label="Close">✕</button>
                         </div>
                         <SwotAnalysis swot={swotData[selectedProject]} />
                     </div>
