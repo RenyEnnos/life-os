@@ -98,10 +98,16 @@ export default function ProjectsPage() {
                         <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></span>
                         <span className="text-xs text-zinc-400">System Healthy</span>
                     </div>
-                    <button className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
+                    <button
+                        aria-label="Search projects"
+                        className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+                    >
                         <Search size={20} />
                     </button>
-                    <button className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
+                    <button
+                        aria-label="Notifications"
+                        className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+                    >
                         <Bell size={20} />
                     </button>
                 </div>
@@ -183,8 +189,7 @@ export default function ProjectsPage() {
                                 return (
                                     <div
                                         key={project.id}
-                                        onClick={() => setSelectedProject(project.id)}
-                                        className="group relative flex flex-col h-64 rounded-2xl border border-white/10 bg-zinc-900/40 backdrop-blur-xl overflow-hidden cursor-pointer hover:-translate-y-4 hover:border-white/30 hover:shadow-2xl transition-all duration-500"
+                                        className="group relative flex flex-col h-64 rounded-2xl border border-white/10 bg-zinc-900/40 backdrop-blur-xl overflow-hidden hover:-translate-y-4 hover:border-white/30 hover:shadow-2xl transition-all duration-500"
                                     >
                                         <div className="project-cover h-1/2 w-full relative overflow-hidden bg-gradient-to-br from-zinc-800 to-zinc-900 transition-all duration-500">
                                             <div className={clsx("absolute w-40 h-40 blur-[60px] rounded-full", gradient, idx % 2 === 0 ? "top-[-20%] right-[-20%]" : "top-[-10%] left-[-10%]")}></div>
@@ -197,17 +202,23 @@ export default function ProjectsPage() {
                                             {/* Delete Action (Hidden by default, show on hover) */}
                                             <button
                                                 onClick={(e) => handleDelete(e, project.id)}
-                                                className="absolute top-4 right-4 p-1.5 rounded-full bg-black/20 hover:bg-red-500/20 text-white/50 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                                                aria-label="Delete Project"
+                                                className="absolute top-4 right-4 z-10 p-1.5 rounded-full bg-black/20 hover:bg-red-500/20 text-white/50 hover:text-red-400 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all"
                                                 title="Delete Project"
                                             >
                                                 <Target size={14} />
                                             </button>
                                         </div>
 
-                                        <div className="h-1/2 p-5 flex flex-col justify-between relative bg-zinc-900/10">
+                                        <div className="h-1/2 p-5 flex flex-col justify-between bg-zinc-900/10">
                                             <div>
                                                 <h3 className="text-lg font-medium text-zinc-100 tracking-tight mb-1 group-hover:text-primary transition-colors truncate">
-                                                    {project.title}
+                                                    <button
+                                                        onClick={() => setSelectedProject(project.id)}
+                                                        className="text-left focus:outline-none focus:underline hover:underline before:absolute before:inset-0 before:z-[1] before:cursor-pointer"
+                                                    >
+                                                        {project.title}
+                                                    </button>
                                                 </h3>
                                                 <div className="flex items-center gap-1.5 text-xs text-zinc-500">
                                                     <Clock size={14} />
@@ -219,7 +230,7 @@ export default function ProjectsPage() {
                                                     {/* SWOT Trigger */}
                                                     <button
                                                         onClick={(e) => handleGenerateSwot(e, project)}
-                                                        className="ml-auto hover:text-primary transition-colors flex items-center gap-1"
+                                                        className="ml-auto hover:text-primary transition-colors flex items-center gap-1 relative z-10"
                                                     >
                                                         <BarChart3 size={12} /> SWOT
                                                     </button>
@@ -270,7 +281,11 @@ export default function ProjectsPage() {
                                 <BarChart3 className="text-primary" />
                                 Analysis: {projects?.find(p => p.id === selectedProject)?.title}
                             </h3>
-                            <button onClick={() => setSelectedProject(null)} className="text-zinc-400 hover:text-white">✕</button>
+                            <button
+                                onClick={() => setSelectedProject(null)}
+                                aria-label="Close analysis"
+                                className="text-zinc-400 hover:text-white"
+                            >✕</button>
                         </div>
                         <SwotAnalysis swot={swotData[selectedProject]} />
                     </div>
