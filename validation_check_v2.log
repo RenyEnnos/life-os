@@ -1,0 +1,115 @@
+
+> life-os@0.1.0 check
+> tsc --noEmit
+
+api/repositories/factory.ts(23,7): error TS2322: Type '{ id: `${string}-${string}-${string}-${string}-${string}`; user_id: string; } & Partial<T> & { created_at: string; }' is not assignable to type 'StoredItem'.
+  Type '{ id: `${string}-${string}-${string}-${string}-${string}`; user_id: string; } & Partial<T> & { created_at: string; }' is not assignable to type 'T'.
+    'T' could be instantiated with an arbitrary type which could be unrelated to '{ id: `${string}-${string}-${string}-${string}-${string}`; user_id: string; } & Partial<T> & { created_at: string; }'.
+api/routes/auth.ts(250,21): error TS2352: Conversion of type 'Jwt & JwtPayload & void' to type 'JwtPayload & { userId: string; email: string; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'Jwt & JwtPayload & void' is missing the following properties from type '{ userId: string; email: string; }': userId, email
+api/routes/auth.ts(250,39): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'Secret | PublicKeyInput | Buffer<ArrayBufferLike> | JsonWebKeyInput | GetPublicKeyOrSecret'.
+      Type 'undefined' is not assignable to type 'Secret | PublicKeyInput | Buffer<ArrayBufferLike> | JsonWebKeyInput | GetPublicKeyOrSecret'.
+src/features/calendar/index.tsx(43,32): error TS2339: Property 'location' does not exist on type 'CalendarEvent'.
+src/features/calendar/index.tsx(44,28): error TS2339: Property 'conferenceData' does not exist on type 'CalendarEvent'.
+src/features/dashboard/components/StatusCard.tsx(40,24): error TS2352: Conversion of type 'Record<string, unknown> | undefined' to type 'XPAttributes | null' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'Record<string, unknown>' is missing the following properties from type 'XPAttributes': body, mind, spirit, output
+src/features/dashboard/hooks/useDashboardData.ts(69,5): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(options: DefinedInitialDataOptions<HabitLog[], Error, HabitLog[], readonly unknown[]>, queryClient?: QueryClient | undefined): DefinedUseQueryResult<...>', gave the following error.
+    Type '() => Promise<({ date?: string | null; logged_date?: string | null; } & Record<string, unknown> & { date: string; })[]>' is not assignable to type 'QueryFunction<HabitLog[], readonly unknown[]>'.
+      Type 'Promise<({ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; })[]>' is not assignable to type 'HabitLog[] | Promise<HabitLog[]>'.
+        Type 'Promise<({ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; })[]>' is not assignable to type 'Promise<HabitLog[]>'.
+          Type '({ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; })[]' is not assignable to type 'HabitLog[]'.
+            Property 'habit_id' is missing in type '{ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }' but required in type 'HabitLog'.
+  Overload 2 of 3, '(options: UndefinedInitialDataOptions<HabitLog[], Error, HabitLog[], readonly unknown[]>, queryClient?: QueryClient | undefined): UseQueryResult<...>', gave the following error.
+    Type '() => Promise<({ date?: string | null; logged_date?: string | null; } & Record<string, unknown> & { date: string; })[]>' is not assignable to type 'unique symbol | QueryFunction<HabitLog[], readonly unknown[], never> | undefined'.
+      Type '() => Promise<({ date?: string | null; logged_date?: string | null; } & Record<string, unknown> & { date: string; })[]>' is not assignable to type 'QueryFunction<HabitLog[], readonly unknown[], never>'.
+        Type 'Promise<({ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; })[]>' is not assignable to type 'HabitLog[] | Promise<HabitLog[]>'.
+          Type 'Promise<({ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; })[]>' is not assignable to type 'Promise<HabitLog[]>'.
+            Type '({ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; })[]' is not assignable to type 'HabitLog[]'.
+              Property 'habit_id' is missing in type '{ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }' but required in type 'HabitLog'.
+  Overload 3 of 3, '(options: UseQueryOptions<HabitLog[], Error, HabitLog[], readonly unknown[]>, queryClient?: QueryClient | undefined): UseQueryResult<HabitLog[], Error>', gave the following error.
+    Type '() => Promise<({ date?: string | null; logged_date?: string | null; } & Record<string, unknown> & { date: string; })[]>' is not assignable to type 'unique symbol | QueryFunction<HabitLog[], readonly unknown[], never> | undefined'.
+      Type '() => Promise<({ date?: string | null; logged_date?: string | null; } & Record<string, unknown> & { date: string; })[]>' is not assignable to type 'QueryFunction<HabitLog[], readonly unknown[], never>'.
+        Type 'Promise<({ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; })[]>' is not assignable to type 'HabitLog[] | Promise<HabitLog[]>'.
+          Type 'Promise<({ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; })[]>' is not assignable to type 'Promise<HabitLog[]>'.
+            Type '({ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; })[]' is not assignable to type 'HabitLog[]'.
+              Property 'habit_id' is missing in type '{ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }' but required in type 'HabitLog'.
+src/features/dashboard/hooks/useDashboardData.ts(90,35): error TS2339: Property 'filter' does not exist on type 'NonNullable<NoInfer<TQueryFnData>>'.
+src/features/dashboard/hooks/useDashboardData.ts(98,35): error TS2339: Property 'filter' does not exist on type 'NonNullable<NoInfer<TQueryFnData>>'.
+src/features/gamification/api/xpService.ts(93,9): error TS2322: Type 'XPHistoryEntry[]' is not assignable to type 'Json'.
+  Type 'XPHistoryEntry[]' is not assignable to type 'Json[]'.
+    Type 'XPHistoryEntry' is not assignable to type 'Json'.
+      Type 'XPHistoryEntry' is not assignable to type '{ [key: string]: Json | undefined; }'.
+        Index signature for type 'string' is missing in type 'XPHistoryEntry'.
+src/features/habits/components/HabitCard.tsx(57,25): error TS2322: Type '{ max: number; min: number; value: number; gaugePrimaryColor: string; gaugeSecondaryColor: string; className: string; }' is not assignable to type 'IntrinsicAttributes & AnimatedCircularProgressBarProps'.
+  Property 'min' does not exist on type 'IntrinsicAttributes & AnimatedCircularProgressBarProps'.
+src/features/habits/hooks/__tests__/useHabits.test.tsx(38,51): error TS2345: Argument of type 'HabitLog[]' is not assignable to parameter of type '({ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; })[]'.
+  Type 'HabitLog' is not assignable to type '{ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }'.
+    Type 'HabitLog' is not assignable to type 'Record<string, unknown>'.
+      Index signature for type 'string' is missing in type 'HabitLog'.
+src/features/habits/index.tsx(24,44): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(predicate: (value: { date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }, index: number, array: ({ date?: string | null | undefined; logged_date?: string | ... 1 more ... | undefined; } & Record<...> & { ...; })[]) => value is { ...; } & ... 1 more ... & { ...; }, thisArg?: any): ({ ...; } & ... 1 more ... & { ...; })[] | undefined', gave the following error.
+    Argument of type '(l: HabitLog) => boolean' is not assignable to parameter of type '(value: { date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }, index: number, array: ({ date?: string | null | undefined; logged_date?: string | ... 1 more ... | undefined; } & Record<...> & { ...; })[]) => value is { ...; } & ... 1 more ... & { ...'.
+      Types of parameters 'l' and 'value' are incompatible.
+        Type '{ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }' is missing the following properties from type 'HabitLog': id, habit_id, user_id, value
+  Overload 2 of 2, '(predicate: (value: { date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }, index: number, array: ({ date?: string | null | undefined; logged_date?: string | ... 1 more ... | undefined; } & Record<...> & { ...; })[]) => unknown, thisArg?: any): ({ ...; } & ... 1 more ... & { ...; })[] | undefined', gave the following error.
+    Argument of type '(l: HabitLog) => boolean' is not assignable to parameter of type '(value: { date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }, index: number, array: ({ date?: string | null | undefined; logged_date?: string | ... 1 more ... | undefined; } & Record<...> & { ...; })[]) => unknown'.
+      Types of parameters 'l' and 'value' are incompatible.
+        Type '{ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }' is missing the following properties from type 'HabitLog': id, habit_id, user_id, value
+src/features/habits/index.tsx(32,40): error TS2345: Argument of type '(log: HabitLog) => boolean' is not assignable to parameter of type '(value: { date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }, index: number, array: ({ date?: string | null | undefined; logged_date?: string | ... 1 more ... | undefined; } & Record<...> & { ...; })[]) => unknown'.
+  Types of parameters 'log' and 'value' are incompatible.
+    Type '{ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }' is missing the following properties from type 'HabitLog': id, habit_id, user_id, value
+src/features/habits/index.tsx(34,51): error TS2345: Argument of type '({ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; })[] | undefined' is not assignable to parameter of type 'HabitLog[] | undefined'.
+  Type '({ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; })[]' is not assignable to type 'HabitLog[]'.
+    Type '{ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }' is missing the following properties from type 'HabitLog': id, habit_id, user_id, value
+src/features/habits/index.tsx(119,60): error TS2345: Argument of type '(log: HabitLog) => boolean' is not assignable to parameter of type '(value: { date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }, index: number, array: ({ date?: string | null | undefined; logged_date?: string | ... 1 more ... | undefined; } & Record<...> & { ...; })[]) => unknown'.
+  Types of parameters 'log' and 'value' are incompatible.
+    Type '{ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }' is missing the following properties from type 'HabitLog': id, habit_id, user_id, value
+src/features/habits/index.tsx(120,60): error TS2345: Argument of type '({ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; })[] | undefined' is not assignable to parameter of type 'HabitLog[] | undefined'.
+  Type '({ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; })[]' is not assignable to type 'HabitLog[]'.
+    Type '{ date?: string | null | undefined; logged_date?: string | null | undefined; } & Record<string, unknown> & { date: string; }' is missing the following properties from type 'HabitLog': id, habit_id, user_id, value
+src/features/projects/index.tsx(34,29): error TS2345: Argument of type '(prev: Record<string, SwotResult>) => { [x: string]: { strengths: string[]; weaknesses: string[]; opportunities: string[]; threats: string[]; } | SwotResult | undefined; }' is not assignable to parameter of type 'SetStateAction<Record<string, SwotResult>>'.
+  Type '(prev: Record<string, SwotResult>) => { [x: string]: { strengths: string[]; weaknesses: string[]; opportunities: string[]; threats: string[]; } | SwotResult | undefined; }' is not assignable to type '(prevState: Record<string, SwotResult>) => Record<string, SwotResult>'.
+    Type '{ [x: string]: { strengths: string[]; weaknesses: string[]; opportunities: string[]; threats: string[]; } | SwotResult | undefined; }' is not assignable to type 'Record<string, SwotResult>'.
+      'string' index signatures are incompatible.
+        Type '{ strengths: string[]; weaknesses: string[]; opportunities: string[]; threats: string[]; } | SwotResult | undefined' is not assignable to type 'SwotResult'.
+          Type 'undefined' is not assignable to type 'SwotResult'.
+src/features/rewards/index.tsx(90,33): error TS2322: Type '{ max: number; min: number; value: number; gaugePrimaryColor: string; gaugeSecondaryColor: string; className: string; }' is not assignable to type 'IntrinsicAttributes & AnimatedCircularProgressBarProps'.
+  Property 'min' does not exist on type 'IntrinsicAttributes & AnimatedCircularProgressBarProps'.
+src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx(10,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx(17,5): error TS2304: Cannot find name 'beforeEach'.
+src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx(21,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx(25,9): error TS2304: Cannot find name 'expect'.
+src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx(26,9): error TS2304: Cannot find name 'expect'.
+src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx(27,9): error TS2304: Cannot find name 'expect'.
+src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx(30,9): error TS2304: Cannot find name 'expect'.
+src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx(33,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx(37,9): error TS2304: Cannot find name 'expect'.
+src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx(40,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx(45,9): error TS2304: Cannot find name 'expect'.
+src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx(48,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx(53,9): error TS2304: Cannot find name 'expect'.
+src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx(56,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx(60,9): error TS2304: Cannot find name 'expect'.
+src/features/university/components/CourseCard.tsx(98,33): error TS2322: Type '{ max: number; min: number; value: number; gaugePrimaryColor: string; gaugeSecondaryColor: string; }' is not assignable to type 'IntrinsicAttributes & AnimatedCircularProgressBarProps'.
+  Property 'min' does not exist on type 'IntrinsicAttributes & AnimatedCircularProgressBarProps'.
+src/shared/hooks/useOfflineMutation.ts(55,30): error TS2554: Expected 2 arguments, but got 1.
+src/shared/lib/synapse/dynamicCommands.ts(51,34): error TS2345: Argument of type 'string | number | undefined' is not assignable to parameter of type 'string | number'.
+  Type 'undefined' is not assignable to type 'string | number'.
+src/shared/types/database.ts(411,14): error TS2536: Type '"Tables"' cannot be used to index type 'Database[PublicTableNameOrOptions["schema"]]'.
+src/shared/types/database.ts(412,9): error TS2536: Type '"Views"' cannot be used to index type 'Database[PublicTableNameOrOptions["schema"]]'.
+src/shared/types/database.ts(415,8): error TS2536: Type '"Tables"' cannot be used to index type 'Database[PublicTableNameOrOptions["schema"]]'.
+src/shared/types/database.ts(416,9): error TS2536: Type '"Views"' cannot be used to index type 'Database[PublicTableNameOrOptions["schema"]]'.
+src/shared/types/database.ts(436,13): error TS2536: Type '"Tables"' cannot be used to index type 'Database[PublicTableNameOrOptions["schema"]]'.
+src/shared/types/database.ts(439,7): error TS2536: Type '"Tables"' cannot be used to index type 'Database[PublicTableNameOrOptions["schema"]]'.
+src/shared/types/database.ts(457,13): error TS2536: Type '"Tables"' cannot be used to index type 'Database[PublicTableNameOrOptions["schema"]]'.
+src/shared/types/database.ts(460,7): error TS2536: Type '"Tables"' cannot be used to index type 'Database[PublicTableNameOrOptions["schema"]]'.
+src/shared/types/database.ts(478,13): error TS2536: Type '"Enums"' cannot be used to index type 'Database[PublicEnumNameOrOptions["schema"]]'.
+src/shared/types/database.ts(481,7): error TS2536: Type '"Enums"' cannot be used to index type 'Database[PublicEnumNameOrOptions["schema"]]'.
+src/shared/types/database.ts(493,13): error TS2536: Type '"CompositeTypes"' cannot be used to index type 'Database[PublicCompositeTypeNameOrOptions["schema"]]'.
+src/shared/types/database.ts(496,7): error TS2536: Type '"CompositeTypes"' cannot be used to index type 'Database[PublicCompositeTypeNameOrOptions["schema"]]'.
+src/shared/ui/synapse/Synapse.tsx(82,60): error TS2339: Property 'crypto' does not exist on type '{ bitcoin?: { usd?: number | undefined; usd_24h_change?: number | undefined; change_24h?: number | undefined; } | undefined; }'.
+src/shared/ui/synapse/Synapse.tsx(99,52): error TS2322: Type 'string | number | undefined' is not assignable to type 'string | undefined'.
+  Type 'number' is not assignable to type 'string'.

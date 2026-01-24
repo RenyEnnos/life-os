@@ -52,7 +52,7 @@ export function useOfflineMutation<TData = unknown, TError = unknown, TVariables
 
         try {
             if (originalMutationFn) {
-                return await originalMutationFn(variables);
+                return await (originalMutationFn as any)(variables);
             }
             // If no mutationFn provided, we use the endpoint/method (default behavior)
             // But useMutation requires mutationFn usually.

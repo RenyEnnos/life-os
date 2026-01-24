@@ -54,7 +54,6 @@ export const HabitCard = memo(({
                 <div className="relative h-16 w-16 shrink-0">
                     <AnimatedCircularProgressBar
                         max={100}
-                        min={0}
                         value={isCompleted ? 100 : 0}
                         gaugePrimaryColor="rgb(34 197 94)" // green-500
                         gaugeSecondaryColor="rgba(255, 255, 255, 0.1)"

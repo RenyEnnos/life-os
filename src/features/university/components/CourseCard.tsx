@@ -95,7 +95,7 @@ export function CourseCard({ course, onClick, onDelete }: CourseCardProps) {
                         <div className="h-12 w-12">
                             <AnimatedCircularProgressBar
                                 max={100}
-                                min={0}
+
                                 value={progress}
                                 gaugePrimaryColor={course.color || '#3b82f6'}
                                 gaugeSecondaryColor="rgba(255,255,255,0.1)"

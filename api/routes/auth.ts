@@ -247,7 +247,7 @@ router.get('/verify', async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & { userId: string; email: string }
+    const decoded = jwt.verify(token, JWT_SECRET as string) as unknown as JwtPayload & { userId: string; email: string }
 
     const { data: user, error } = await supabase
       .from('users')

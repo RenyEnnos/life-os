@@ -19,9 +19,9 @@ function memoryRepo<T>(): BaseRepo<T> {
     async create(userId, payload) {
       const id = crypto.randomUUID()
       store[userId] = store[userId] || {}
-      const item = { id, user_id: userId, ...payload, created_at: new Date().toISOString() }
+      const item = { id, user_id: userId, ...payload, created_at: new Date().toISOString() } as unknown as StoredItem
       store[userId][id] = item
-      return item as T
+      return item as unknown as T
     },
     async update(userId, id, payload) {
       if (!store[userId] || !store[userId][id]) return null

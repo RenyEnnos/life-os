@@ -87,7 +87,7 @@ export default function RewardsPage() {
                         <div className="relative w-32 h-32 flex items-center justify-center">
                             <AnimatedCircularProgressBar
                                 max={100}
-                                min={0}
+
                                 value={progress}
                                 gaugePrimaryColor="#22c55e"
                                 gaugeSecondaryColor="#27272a"

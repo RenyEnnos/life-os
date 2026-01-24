@@ -4,6 +4,8 @@ import { getJSON, postJSON } from "@/shared/api/http"
 type CalendarEvent = {
   id: string
   summary?: string
+  location?: string
+  conferenceData?: unknown
   start?: { dateTime?: string; date?: string }
   end?: { dateTime?: string; date?: string }
 }

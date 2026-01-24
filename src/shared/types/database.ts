@@ -77,6 +77,67 @@ export type Database = {
                 }
                 Relationships: []
             }
+            finance_categories: {
+                Row: {
+                    id: string
+                    user_id: string
+                    name: string
+                    type: 'income' | 'expense'
+                    icon: string | null
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    user_id: string
+                    name: string
+                    type: 'income' | 'expense'
+                    icon?: string | null
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    user_id?: string
+                    name?: string
+                    type?: 'income' | 'expense'
+                    icon?: string | null
+                    created_at?: string
+                }
+                Relationships: []
+            },
+            budgets: {
+                Row: {
+                    id: string
+                    user_id: string
+                    category_id: string | null
+                    amount_limit: number
+                    period: 'monthly' | 'weekly' | 'yearly'
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    user_id: string
+                    category_id?: string | null
+                    amount_limit: number
+                    period?: 'monthly' | 'weekly' | 'yearly'
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    user_id?: string
+                    category_id?: string | null
+                    amount_limit?: number
+                    period?: 'monthly' | 'weekly' | 'yearly'
+                    created_at?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "budgets_category_id_fkey"
+                        columns: ["category_id"]
+                        referencedRelation: "finance_categories"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            },
             habits: {
                 Row: {
                     created_at: string
@@ -85,6 +146,9 @@ export type Database = {
                     name: string
                     schedule: Json
                     user_id: string
+                    attribute: 'BODY' | 'MIND' | 'SPIRIT' | 'OUTPUT'
+                    streak_current: number
+                    streak_longest: number
                 }
                 Insert: {
                     created_at?: string
@@ -93,6 +157,9 @@ export type Database = {
                     name: string
                     schedule?: Json
                     user_id: string
+                    attribute?: 'BODY' | 'MIND' | 'SPIRIT' | 'OUTPUT'
+                    streak_current?: number
+                    streak_longest?: number
                 }
                 Update: {
                     created_at?: string
@@ -101,6 +168,9 @@ export type Database = {
                     name?: string
                     schedule?: Json
                     user_id?: string
+                    attribute?: 'BODY' | 'MIND' | 'SPIRIT' | 'OUTPUT'
+                    streak_current?: number
+                    streak_longest?: number
                 }
                 Relationships: []
             }
@@ -278,10 +348,11 @@ export type Database = {
                     tags: string[] | null
                     type: string
                     user_id: string
+                    category_id: string | null
                 }
                 Insert: {
                     amount: number
-                    category: string
+                    category?: string
                     created_at?: string
                     date: string
                     description?: string | null
@@ -289,6 +360,7 @@ export type Database = {
                     tags?: string[] | null
                     type: string
                     user_id: string
+                    category_id?: string | null
                 }
                 Update: {
                     amount?: number
@@ -301,7 +373,14 @@ export type Database = {
                     type?: string
                     user_id?: string
                 }
-                Relationships: []
+                relationships: [
+                    {
+                        foreignKeyName: "transactions_category_id_fkey"
+                        columns: ["category_id"]
+                        referencedRelation: "finance_categories"
+                        referencedColumns: ["id"]
+                    }
+                ]
             },
             user_achievements: {
                 Row: {
@@ -406,12 +485,12 @@ type PublicSchema = Database[Extract<keyof Database, "public">]
 export type Tables<
     PublicTableNameOrOptions extends
     | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: keyof Database },
-    TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    | { schema: Exclude<keyof Database, "__InternalSupabase"> },
+    TableName extends PublicTableNameOrOptions extends { schema: Exclude<keyof Database, "__InternalSupabase"> }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
+> = PublicTableNameOrOptions extends { schema: Exclude<keyof Database, "__InternalSupabase"> }
     ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
             Row: infer R
@@ -431,11 +510,11 @@ export type Tables<
 export type TablesInsert<
     PublicTableNameOrOptions extends
     | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-    TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    | { schema: Exclude<keyof Database, "__InternalSupabase"> },
+    TableName extends PublicTableNameOrOptions extends { schema: Exclude<keyof Database, "__InternalSupabase"> }
     ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
+> = PublicTableNameOrOptions extends { schema: Exclude<keyof Database, "__InternalSupabase"> }
     ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
         Insert: infer I
     }
@@ -452,11 +531,11 @@ export type TablesInsert<
 export type TablesUpdate<
     PublicTableNameOrOptions extends
     | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-    TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    | { schema: Exclude<keyof Database, "__InternalSupabase"> },
+    TableName extends PublicTableNameOrOptions extends { schema: Exclude<keyof Database, "__InternalSupabase"> }
     ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
+> = PublicTableNameOrOptions extends { schema: Exclude<keyof Database, "__InternalSupabase"> }
     ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
         Update: infer U
     }
@@ -473,11 +552,11 @@ export type TablesUpdate<
 export type Enums<
     PublicEnumNameOrOptions extends
     | keyof PublicSchema["Enums"]
-    | { schema: keyof Database },
-    EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
+    | { schema: Exclude<keyof Database, "__InternalSupabase"> },
+    EnumName extends PublicEnumNameOrOptions extends { schema: Exclude<keyof Database, "__InternalSupabase"> }
     ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
+> = PublicEnumNameOrOptions extends { schema: Exclude<keyof Database, "__InternalSupabase"> }
     ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
     : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
@@ -486,13 +565,13 @@ export type Enums<
 export type CompositeTypes<
     PublicCompositeTypeNameOrOptions extends
     | keyof PublicSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: Exclude<keyof Database, "__InternalSupabase"> },
     CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-        schema: keyof Database
+        schema: Exclude<keyof Database, "__InternalSupabase">
     }
     ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+> = PublicCompositeTypeNameOrOptions extends { schema: Exclude<keyof Database, "__InternalSupabase"> }
     ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
     : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]

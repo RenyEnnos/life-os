@@ -8,6 +8,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import * as Sentry from "@sentry/node";
 import authRoutes from './routes/auth'
+import dashboardRoutes from './routes/dashboard'
 
 if (process.env.NODE_ENV === 'production') {
   Sentry.init({
@@ -31,6 +32,7 @@ import resonanceRoutes from './routes/resonance'
 import calendarRoutes from './routes/calendar'
 import symbiosisRoutes from './routes/symbiosis'
 import synapseRoutes from './routes/synapse'
+import budgetRoutes from './routes/budgets'
 
 // for esm mode
 
@@ -120,6 +122,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
  * API Routes
  */
 app.use('/api/auth', authRoutes)
+app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/habits', habitsRoutes)
 app.use('/api/tasks', tasksRoutes)
 app.use('/api/finances', financesRoutes)
@@ -140,6 +143,7 @@ import contextRoutes from './routes/context'
 app.use('/api/context', contextRoutes)
 import mediaRoutes from './routes/media'
 app.use('/api/media', mediaRoutes)
+app.use('/api/budgets', budgetRoutes)
 
 
 
@@ -176,5 +180,9 @@ app.use((req: Request, res: Response) => {
     error: 'API not found',
   })
 })
+
+// Initialize Active Intelligence
+import { activeSymbiosis } from './services/activeSymbiosis'
+activeSymbiosis.init()
 
 export default app

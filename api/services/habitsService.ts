@@ -3,6 +3,8 @@ import { Habit } from '../../shared/types'
 import { logDbOp } from '../lib/dbLogger'
 import { rewardsService } from './rewardsService'
 
+import { eventBus, Events } from '../lib/events'
+
 export const habitsService = {
   async list(userId: string, query: unknown) {
     void query
@@ -112,8 +114,11 @@ export const habitsService = {
       result = data
     }
 
-    // Award Rewards
+    // Award Rewards & Emit Events
     if (result && value > 0) {
+      // Symbiosis Trigger
+      eventBus.emit(Events.HABIT_COMPLETED, { userId, habitId, value, date })
+
       try {
         await rewardsService.addXp(userId, 10) // 10 XP per habit
 

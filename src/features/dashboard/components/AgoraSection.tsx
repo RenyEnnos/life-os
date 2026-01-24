@@ -3,7 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useDashboardData } from '@/features/dashboard/hooks/useDashboardData';
 import { cn } from '@/shared/lib/cn';
-import type { Task, HealthMetric, VitalLoadSummary } from '@/shared/types';
+import type { Task, VitalLoadSummary } from '@/shared/types';
 import { aiApi } from '@/features/ai-assistant/api/ai.api';
 import type { SynapseSuggestion } from '@/features/ai-assistant/types';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
@@ -50,8 +50,7 @@ const formatDue = (task: Task) => {
     }
 };
 
-const pickMetric = (metrics: HealthMetric[] = [], metricType: string) =>
-    metrics.find((m) => m.metric_type === metricType);
+
 
 function getDayPart(now = new Date()): DayPart {
     const hour = now.getHours();
@@ -63,7 +62,7 @@ function getDayPart(now = new Date()): DayPart {
 export function AgoraSection() {
     const { user } = useAuth();
     const prefersReducedMotion = useReducedMotion();
-    const { agenda, health, habitConsistency, vitalLoad, isLoading } = useDashboardData();
+    const { agenda, habitConsistency, vitalLoad, isLoading } = useDashboardData();
     const dayPart = getDayPart();
     const { data: synapseData, isLoading: suggestionsLoading } = useQuery({
         queryKey: ['synapse-suggestions'],
@@ -76,11 +75,8 @@ export function AgoraSection() {
 
     const ctas = useMemo(() => {
         const suggestions = synapseData?.suggestions || [];
-        if (suggestions.length > 0) {
-            return mapSuggestionsToCTAs(suggestions);
-        }
-        return buildCTAs(dayPart, agenda || [], health || [], vitalLoad);
-    }, [agenda, dayPart, health, synapseData?.suggestions, vitalLoad]);
+        return mapSuggestionsToCTAs(suggestions);
+    }, [synapseData?.suggestions]);
 
     const loading = isLoading || suggestionsLoading;
 
@@ -120,7 +116,7 @@ export function AgoraSection() {
                     )}
                     {!loading && ctas.length === 0 && (
                         <div className="col-span-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-6 text-zinc-300">
-                            Nada a mostrar agora. Conecte uma tarefa no Fluxo ou um hábito em Health para ativar o Agora.
+                            O Synapse está analisando seu contexto... ou talvez você esteja livre por agora.
                         </div>
                     )}
                     {!loading && ctas.slice(0, 3).map((cta, idx) => (
@@ -184,84 +180,7 @@ export function AgoraSection() {
     );
 }
 
-function buildCTAs(dayPart: DayPart, agenda: Task[], health: HealthMetric[], vitalLoad: VitalLoadSummary): AgoraCTA[] {
-    const list: AgoraCTA[] = [];
-    const hydration = pickMetric(health, 'hydration');
-    const readiness = pickMetric(health, 'readiness');
-    const topTask = agenda[0];
-    const secondTask = agenda[1];
-
-    if (dayPart === 'morning' && topTask) {
-        list.push({
-            id: `focus-${topTask.id}`,
-            title: topTask.title,
-            description: `Foco curto agora. ${formatDue(topTask) ? `Agenda: ${formatDue(topTask)}` : 'Sem horário fixo'}`,
-            actionLabel: 'Foco',
-            accent: 'from-sky-500/20 via-cyan-500/10 to-transparent'
-        });
-    }
-
-    if (dayPart === 'morning' && hydration) {
-        list.push({
-            id: 'hydrate',
-            title: 'Hidratar e ativar',
-            description: `Hidratação atual: ${hydration.value ?? 0}. Complete o ritual de manhã.`,
-            actionLabel: 'Health',
-            accent: 'from-emerald-500/15 via-emerald-500/5 to-transparent'
-        });
-    }
-
-    if (dayPart === 'afternoon' && (topTask || secondTask)) {
-        const task = topTask || secondTask;
-        list.push({
-            id: `execute-${task.id}`,
-            title: task.title,
-            description: `Execução guiada. ${formatDue(task) ? `Prazo hoje ${formatDue(task)}` : 'Sem prazo imediato'}`,
-            actionLabel: 'Execução',
-            accent: 'from-emerald-500/20 via-teal-500/10 to-transparent'
-        });
-    }
-
-    if (dayPart === 'afternoon') {
-        list.push({
-            id: 'micro-break',
-            title: 'Micro-pausa + respiração',
-            description: '2 minutos de pausa líquida para evitar queda de ritmo.',
-            actionLabel: 'Recuperar',
-            accent: 'from-blue-500/10 via-cyan-500/5 to-transparent'
-        });
-    }
-
-    if (dayPart === 'night') {
-        list.push({
-            id: 'reflect',
-            title: 'Refletir e fechar loops',
-            description: 'Escreva 3 linhas do dia no Journal e marque o que fica para amanhã.',
-            actionLabel: 'Reflexão',
-            accent: 'from-purple-500/20 via-indigo-500/10 to-transparent'
-        });
-        list.push({
-            id: 'wind-down',
-            title: readiness ? 'Sanctuary: restauração' : 'Desacelerar',
-            description: readiness ? `Readiness em ${readiness.value}. Use Sanctuary com binaural Relax.` : 'Ative Sanctuary por 10 minutos.',
-            actionLabel: 'Sanctuary',
-            accent: 'from-indigo-500/15 via-slate-500/10 to-transparent'
-        });
-    }
-
-    // Vital load guardrail
-    if (vitalLoad.state === 'overloaded') {
-        list.unshift({
-            id: 'recovery-priority',
-            title: 'Carga alta — priorize recuperação',
-            description: vitalLoad.label,
-            actionLabel: 'Ajustar',
-            accent: 'from-amber-500/20 via-orange-500/10 to-transparent'
-        });
-    }
-
-    return list.slice(0, 3);
-}
+// buildCTAs removed to enforce backend reliance
 
 function VitalBadge({ vitalLoad }: { vitalLoad: VitalLoadSummary }) {
     const color = vitalLoad.state === 'overloaded'

@@ -2,6 +2,7 @@ import { apiClient } from '@/shared/api/http';
 import { Habit } from '../types';
 
 type HabitLogResponse = {
+    habit_id?: string;
     date?: string | null;
     logged_date?: string | null;
 } & Record<string, unknown>;

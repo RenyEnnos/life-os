@@ -1,24 +1,29 @@
-export interface Transaction {
+export type TransactionType = 'income' | 'expense';
+
+export interface FinanceCategory {
     id: string;
     user_id: string;
-    amount: number;
-    description: string;
-    category: string; // db: category or tag
-    type: 'income' | 'expense';
-    date: string;
-    created_at?: string;
-    updated_at?: string;
-
-    // UI specific
-    tag?: string; // mapping to category
-    tagColor?: 'blue' | 'green' | 'red' | 'purple' | 'orange';
+    name: string;
+    type: TransactionType;
+    icon?: string;
 }
 
 export interface Budget {
     id: string;
     user_id: string;
-    category: string;
-    limit_amount: number;
-    spent_amount: number;
-    period: 'monthly' | 'weekly';
+    category_id?: string;
+    amount_limit: number;
+    period: 'monthly' | 'weekly' | 'yearly';
+}
+
+export interface Transaction {
+    id: string;
+    description: string;
+    amount: number;
+    type: TransactionType;
+    category: string; // Legacy string for display fallback
+    category_id?: string; // New relational link
+    date: string;
+    transaction_date?: string; // Legacy DB field mapping
+    tags?: string[];
 }

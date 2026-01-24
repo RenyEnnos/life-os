@@ -48,7 +48,7 @@ export const generateDynamicCommands = (context: SynapseContext | null): Synapse
             id: 'weather-status',
             label: `${temp}°C em ${context.weather.location || 'Local'}`,
             description: cond ? `${cond}` : 'Atualização meteorológica',
-            icon: getWeatherIcon(context.weather.condition),
+            icon: getWeatherIcon(context.weather.condition || ''),
             group: 'nexus', // Using 'nexus' group as 'Contexto' wasn't in original types, or we can map it.
             // Original types had: actions, missions, rituals, resources, memory, nexus.
             // Let's use 'nexus' as it fits 'Intelligence'.

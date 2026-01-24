@@ -79,7 +79,7 @@ export const Synapse = () => {
                 }
                 const weather = payload.data?.weather || {};
                 const marketRaw = payload.data?.market || {};
-                const btc = marketRaw.bitcoin || marketRaw.crypto?.bitcoin || {};
+                const btc = marketRaw.bitcoin || {};
                 const price = typeof btc.usd === 'number' ? btc.usd : undefined;
                 const change = typeof btc.usd_24h_change === 'number'
                     ? btc.usd_24h_change
@@ -96,7 +96,7 @@ export const Synapse = () => {
                 })();
 
                 setContext({
-                    weather: { temp: weather.temp, condition: weather.summary || weather.condition },
+                    weather: { temp: weather.temp, condition: String(weather.summary || weather.condition || '') },
                     market: { price, change },
                     focus: { score: focusScore }
                 });

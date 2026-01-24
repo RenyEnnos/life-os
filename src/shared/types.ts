@@ -150,8 +150,9 @@ export interface LifeScore {
     user_id: string;
     level: number;
     current_xp: number;
+    next_level_xp: number;
     life_score: number;
-    attributes?: Record<string, unknown>;
+    attributes: Record<string, number>;
     updated_at: string;
 }
 

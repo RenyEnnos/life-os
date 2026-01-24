@@ -37,7 +37,7 @@ export function StatusCard({ className }: { className?: string }) {
     const progress = Math.min(100, Math.max(0, (xpGainedInLevel / levelSize) * 100));
 
     // Get archetype for theming
-    const attributes = userXP.attributes as XPAttributes | null;
+    const attributes = userXP.attributes as unknown as XPAttributes | null;
     const archetype = getArchetype(attributes);
 
     return (
