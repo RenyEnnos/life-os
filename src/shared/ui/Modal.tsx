@@ -10,9 +10,9 @@ type ModalProps = {
   title?: string
   children: React.ReactNode
   ariaDescriptionId?: string
+  className?: string
 }
 
-// Spring Physics (Gold Standard) para todas as entradas/saídas
 const springTransition = {
   type: "spring" as const,
   damping: 20,
@@ -20,7 +20,7 @@ const springTransition = {
   mass: 0.8
 };
 
-export function Modal({ open, onClose, title, children }: ModalProps) {
+export function Modal({ open, onClose, title, children, className }: ModalProps) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     if (open) document.addEventListener('keydown', onKey)
@@ -52,7 +52,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={springTransition}
-            className={cn('relative w-full max-w-md bg-surface border border-white/10 rounded-3xl shadow-2xl overflow-hidden')}
+            className={cn('relative w-full max-w-md bg-surface border border-white/10 rounded-3xl shadow-2xl overflow-hidden', className)}
           >
             <button
               onClick={onClose}

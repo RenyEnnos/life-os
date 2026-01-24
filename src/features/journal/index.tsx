@@ -1,5 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useJournal } from '@/features/journal/hooks/useJournal';
+import { JournalEditor } from '@/features/journal/components/JournalEditor';
+import { Modal } from '@/shared/ui/Modal';
 import type { JournalEntry } from '@/shared/types';
 import { cn } from '@/shared/lib/cn';
 
@@ -32,10 +34,12 @@ function mapEntriesToCards(entries: JournalEntry[], label: MemoryCard['type']): 
     }));
 }
 
- 
+
 
 export default function JournalPage() {
-    const { entries } = useJournal();
+    const { entries, createEntry, updateEntry } = useJournal();
+    const [isEditorOpen, setIsEditorOpen] = useState(false);
+    const [selectedEntry, setSelectedEntry] = useState<JournalEntry | undefined>(undefined);
 
     const today = new Date();
     const todayKey = today.toDateString();
@@ -55,12 +59,79 @@ export default function JournalPage() {
         };
     }, [entries, todayKey, yesterdayKey]);
 
+    const sidebarData = useMemo(() => {
+        if (!entries?.length) return { clusters: [], recent: [] };
+
+        // Calculate Clusters (Tag Frequency)
+        const tagCounts = new Map<string, number>();
+        entries.forEach(entry => {
+            entry.tags?.forEach(tag => {
+                tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+            });
+        });
+
+        const clusters = Array.from(tagCounts.entries())
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(([label, count], index) => ({
+                label,
+                count,
+                color: ['bg-blue-500/50', 'bg-emerald-500/50', 'bg-purple-500/50', 'bg-amber-500/50', 'bg-pink-500/50'][index % 5]
+            }));
+
+        // Recent Activity (Latest 3 Entries)
+        // Assuming entries are not guaranteed to be sorted, let's sort them by date desc
+        const sortedEntries = [...entries].sort((a, b) => new Date(b.created_at || b.entry_date).getTime() - new Date(a.created_at || a.entry_date).getTime());
+
+        const recent = sortedEntries.slice(0, 3).map(entry => {
+            const date = new Date(entry.created_at || entry.entry_date);
+            const now = new Date();
+            const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+            const timeStr = diffInHours < 24 ? `${diffInHours}h ago` : `${Math.floor(diffInHours / 24)}d ago`;
+
+            return {
+                text: `New entry: "${entry.title || 'Untitled'}"`,
+                time: timeStr
+            };
+        });
+
+        return { clusters, recent };
+    }, [entries]);
+
+    const handleSaveEntry = async (data: Partial<JournalEntry>) => {
+        try {
+            if (selectedEntry && selectedEntry.id) {
+                await updateEntry.mutateAsync({ id: selectedEntry.id, updates: data });
+            } else {
+                await createEntry.mutateAsync(data);
+            }
+            setIsEditorOpen(false);
+            setSelectedEntry(undefined);
+        } catch (error) {
+            console.error("Failed to save entry", error);
+        }
+    };
+
+    const handleNewEntry = () => {
+        setSelectedEntry(undefined);
+        setIsEditorOpen(true);
+    };
+
+    const handleCardClick = (card: MemoryCard) => {
+        const entry = entries?.find(e => e.id === card.id);
+        if (entry) {
+            setSelectedEntry(entry);
+            setIsEditorOpen(true);
+        }
+    };
+
     const renderCard = (card: MemoryCard) => {
         const style = typeStyle[card.type];
         const hasMedia = !!card.media;
         return (
             <article
                 key={card.id}
+                onClick={() => handleCardClick(card)}
                 className={cn(
                     "group flex flex-col gap-3 p-6 rounded-2xl bg-zinc-900/20 border border-white/5 hover:border-white/20 hover:bg-zinc-900/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] cursor-pointer",
                     hasMedia && "md:flex-row"
@@ -110,9 +181,11 @@ export default function JournalPage() {
                                     <div className="relative flex items-center h-14 w-full bg-zinc-900/60 backdrop-blur-2xl rounded-2xl border border-white/10 ring-1 ring-primary/50 shadow-[0_0_40px_rgba(48,140,232,0.15)] transition-all">
                                         <span className="material-symbols-outlined text-primary/80 ml-4 mr-3 animate-pulse">spark</span>
                                         <input
-                                            className="w-full bg-transparent border-none text-zinc-200 placeholder-zinc-500 focus:ring-0 text-lg font-light h-full rounded-2xl"
+                                            className="w-full bg-transparent border-none text-zinc-200 placeholder-zinc-500 focus:ring-0 text-lg font-light h-full rounded-2xl cursor-pointer"
                                             placeholder="Ask your second brain or type a thought..."
                                             type="text"
+                                            onClick={handleNewEntry}
+                                            readOnly
                                         />
                                         <div className="hidden sm:flex items-center gap-2 mr-4 text-xs text-zinc-600 border border-white/5 rounded-lg px-2 py-1 bg-white/5">
                                             <span className="material-symbols-outlined text-[14px]">keyboard_command_key</span>
@@ -171,7 +244,9 @@ export default function JournalPage() {
                                                 <span className="material-symbols-outlined text-zinc-600 text-sm">hub</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                {[{ label: 'Productivity', color: 'bg-blue-500/50', count: 42 }, { label: 'Design Systems', color: 'bg-emerald-500/50', count: 18 }, { label: 'Philosophy', color: 'bg-purple-500/50', count: 12 }, { label: 'AI Research', color: 'bg-amber-500/50', count: 8 }].map((item) => (
+                                                {sidebarData.clusters.length === 0 ? (
+                                                    <p className="text-xs text-zinc-600 italic">No clusters yet.</p>
+                                                ) : sidebarData.clusters.map((item) => (
                                                     <button
                                                         key={item.label}
                                                         className="flex items-center justify-between p-2 rounded-lg text-sm text-zinc-500 hover:text-white hover:bg-white/5 transition-all group w-full text-left"
@@ -193,11 +268,8 @@ export default function JournalPage() {
                                                 <h3 className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Recent Activity</h3>
                                             </div>
                                             <div className="relative pl-4 border-l border-white/5 space-y-4">
-                                                {[
-                                                    { text: 'Added "Rust Guide" to #dev', time: '2h ago' },
-                                                    { text: 'Created new cluster Minimalism', time: '5h ago' },
-                                                ].map((item) => (
-                                                    <div className="relative" key={item.text}>
+                                                {sidebarData.recent.map((item, idx) => (
+                                                    <div className="relative" key={idx}>
                                                         <div className="absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full bg-zinc-800 border border-zinc-600"></div>
                                                         <p className="text-xs text-zinc-400">{item.text}</p>
                                                         <span className="text-[10px] text-zinc-600">{item.time}</span>
@@ -206,9 +278,12 @@ export default function JournalPage() {
                                             </div>
                                         </div>
                                     </div>
-                                    <button className="w-full mt-4 p-3 rounded-xl border border-dashed border-white/10 text-zinc-500 text-xs uppercase tracking-wide hover:border-white/20 hover:text-white hover:bg-white/5 transition-all flex items-center justify-center gap-2 group">
+                                    <button
+                                        onClick={handleNewEntry}
+                                        className="w-full mt-4 p-3 rounded-xl border border-dashed border-white/10 text-zinc-500 text-xs uppercase tracking-wide hover:border-white/20 hover:text-white hover:bg-white/5 transition-all flex items-center justify-center gap-2 group"
+                                    >
                                         <span className="material-symbols-outlined text-[16px] group-hover:rotate-90 transition-transform">add</span>
-                                        Connect Source
+                                        Nova Entrada
                                     </button>
                                 </aside>
                             </div>
@@ -216,6 +291,19 @@ export default function JournalPage() {
                     </div>
                 </main>
             </div>
+
+            <Modal
+                open={isEditorOpen}
+                onClose={() => setIsEditorOpen(false)}
+                title={selectedEntry ? "Editar Entrada" : "Nova Entrada"}
+                className="max-w-4xl h-[85vh]"
+            >
+                <JournalEditor
+                    entry={selectedEntry}
+                    onSave={handleSaveEntry}
+                    onCancel={() => setIsEditorOpen(false)}
+                />
+            </Modal>
         </div>
     );
 }

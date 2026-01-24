@@ -1,15 +1,14 @@
-import { useState, useEffect } from 'react';
-import { Save, X, Zap, Plus, Sparkles, BrainCircuit } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Save, X, Sparkles, BrainCircuit, Calendar, Hash, ArrowLeft } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { useAI } from '@/features/ai-assistant/hooks/useAI';
-import { Tag } from '@/shared/ui/Tag';
 import type { JournalEntry, JournalInsight } from '@/shared/types';
-import { motion } from 'framer-motion';
-import { ShineBorder } from '@/shared/ui/premium/ShineBorder';
+import { motion, AnimatePresence } from 'framer-motion';
 import { journalApi } from '../api/journal.api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { InsightCard } from './InsightCard';
+import { cn } from '@/shared/lib/cn';
 
 interface JournalEditorProps {
     entry?: JournalEntry;
@@ -23,6 +22,14 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [tags, setTags] = useState<string[]>([]);
     const [newTag, setNewTag] = useState('');
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+        }
+    }, [content]);
 
     // Neural Resonance State
     const [activeInsight, setActiveInsight] = useState<JournalInsight | null>(null);
@@ -34,14 +41,6 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
     const { mutate: analyzeEntry, isPending: isAnalyzing } = useMutation({
         mutationFn: async () => {
             if (!entry?.id) return;
-            // Optimistic update wrapper or direct call
-            // We need to pass the current content, but analyzeEntry takes the Entry object.
-            // Let's adhere to the API signature. We might need to save first or pass ephemeral data?
-            // The API in previous step took `entry: JournalEntry`.
-            // If the user modified content, we should probably save first or pass updated fields?
-            // "entry" prop might be stale.
-            // Let's assume we analyze the *current* state. We construct a temporary entry object.
-
             const tempEntry = { ...entry, title, content, user_id: entry.user_id } as JournalEntry;
             return journalApi.analyzeEntry(tempEntry);
         },
@@ -78,8 +77,9 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
     };
 
     const addTag = () => {
-        if (newTag && !tags.includes(newTag)) {
-            setTags([...tags, newTag]);
+        const normalizedTag = newTag.trim().toLowerCase();
+        if (normalizedTag && !tags.includes(normalizedTag)) {
+            setTags([...tags, normalizedTag]);
             setNewTag('');
         }
     };
@@ -104,129 +104,145 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ type: "spring", duration: 0.5 }}
+            className="flex flex-col h-full bg-background-dark/50 backdrop-blur-md"
         >
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="flex justify-between items-center gap-4 glass-panel p-4 rounded-xl">
-                    <input
-                        type="text"
-                        className="flex-1 bg-transparent text-3xl font-bold font-mono text-white placeholder:text-white/20 focus:outline-none glow-text"
-                        placeholder="Título da Entrada..."
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                    />
-                    <input
-                        type="date"
-                        className="bg-white/5 border border-white/10 rounded px-3 py-2 text-sm font-mono text-gray-300 focus:border-primary focus:outline-none"
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                    />
+            {/* Header / Meta Bar */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+                <div className="flex items-center gap-4 text-zinc-400">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="p-2 hover:bg-white/5 rounded-full transition-colors"
+                    >
+                        <ArrowLeft size={18} />
+                    </button>
+                    <div className="h-4 w-px bg-white/10" />
+                    <div className="flex items-center gap-2 text-xs font-mono bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
+                        <Calendar size={12} />
+                        <input
+                            type="date"
+                            className="bg-transparent border-none p-0 text-zinc-300 focus:outline-none focus:ring-0 w-24"
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
+                        />
+                    </div>
                 </div>
 
-                <ShineBorder
-                    className="w-full glass-panel !bg-transparent p-0 overflow-hidden"
-                    color={["#A07CFE", "#FE8FB5", "#FFBE7B"]}
-                >
-                    <textarea
-                        className="w-full h-96 bg-transparent p-6 text-gray-200 placeholder:text-gray-600 resize-none focus:outline-none font-mono text-lg leading-relaxed"
-                        placeholder="Escreva seus pensamentos..."
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        required
-                    />
-                </ShineBorder>
-
-                <div className="glass-panel p-4 rounded-xl space-y-4">
-                    <div className="flex justify-between items-end">
-                        <label className="text-sm font-mono text-gray-400">Tags</label>
+                <div className="flex items-center gap-2">
+                    {entry?.id && (
                         <Button
                             type="button"
                             variant="ghost"
                             size="sm"
-                            className="h-6 text-xs gap-1 text-primary hover:text-primary/80"
-                            onClick={handleGenerateTags}
-                            disabled={isGeneratingTags || !content}
-                        >
-                            <Zap size={12} className={isGeneratingTags ? "animate-pulse" : ""} />
-                            {isGeneratingTags ? 'GERANDO...' : 'SUGERIR TAGS'}
-                        </Button>
-                    </div>
-                    <div className="flex gap-2">
-                        <input
-                            type="text"
-                            className="flex-1 bg-transparent border-b border-white/10 p-2 text-gray-200 focus:border-primary focus:outline-none font-mono text-sm"
-                            value={newTag}
-                            onChange={(e) => setNewTag(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    addTag();
-                                }
-                            }}
-                            placeholder="Adicionar tag..."
-                        />
-                        <Button type="button" variant="outline" onClick={addTag} size="sm">
-                            <Plus size={16} />
-                        </Button>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                        {tags.map(tag => (
-                            <Tag
-                                key={tag}
-                                variant="default"
-                                className="gap-1 pr-1 bg-primary/20 text-primary border-primary/20"
-                            >
-                                {tag}
-                                <button type="button" onClick={() => removeTag(tag)} className="hover:text-destructive transition-colors">
-                                    <X size={12} />
-                                </button>
-                            </Tag>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="flex justify-end gap-3">
-                    <Button type="button" variant="ghost" onClick={onCancel} className="text-gray-400 hover:text-white">
-                        CANCELAR
-                    </Button>
-
-                    {entry && entry.id && (
-                        <Button
-                            type="button"
-                            variant="outline"
                             onClick={handleAnalyze}
                             disabled={isAnalyzing || !content}
-                            className="bg-black/20 border-primary/20 text-primary hover:bg-primary/10 hover:border-primary/50 transition-all gap-2"
+                            className="h-8 text-xs gap-1.5 border-primary/20 text-primary hover:text-primary hover:bg-primary/10"
                         >
                             {isAnalyzing ? (
-                                <>
-                                    <BrainCircuit size={18} className="animate-pulse" />
-                                    ANALISANDO...
-                                </>
+                                <BrainCircuit size={14} className="animate-pulse" />
                             ) : (
-                                <>
-                                    <Sparkles size={18} />
-                                    RESSONÂNCIA NEURAL
-                                </>
+                                <Sparkles size={14} />
                             )}
+                            {isAnalyzing ? 'Analyzing...' : 'Resonance'}
                         </Button>
                     )}
-
-                    <Button type="submit" className="gap-2 shadow-lg shadow-primary/20">
-                        <Save size={18} />
-                        SALVAR
+                    <Button
+                        onClick={handleSubmit}
+                        className="h-8 text-xs gap-1.5 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
+                    >
+                        <Save size={14} />
+                        Save Entry
                     </Button>
                 </div>
-            </form>
+            </div>
 
-            {/* Neural Resonance Insight Card */}
-            {(activeInsight || (entry?.insights && entry.insights.length > 0)) && (
-                <InsightCard
-                    content={activeInsight?.content || (entry?.insights && entry.insights[0]?.content)!}
-                />
-            )}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+                <div className="max-w-3xl mx-auto py-12 px-8 flex flex-col gap-8">
+
+                    {/* Title Input */}
+                    <input
+                        type="text"
+                        className="w-full bg-transparent border-none text-4xl font-display font-medium text-white placeholder-zinc-700 focus:outline-none focus:ring-0 p-0 leading-tight"
+                        placeholder="Untitled Entry"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        autoFocus
+                    />
+
+                    {/* Tags Area */}
+                    <div className="flex flex-wrap items-center gap-2">
+                        <AnimatePresence>
+                            {tags.map(tag => (
+                                <motion.span
+                                    key={tag}
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                    className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900 border border-white/10 text-xs font-medium text-zinc-400 group"
+                                >
+                                    <Hash size={10} className="text-zinc-600" />
+                                    {tag}
+                                    <button
+                                        onClick={() => removeTag(tag)}
+                                        className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-400"
+                                    >
+                                        <X size={10} />
+                                    </button>
+                                </motion.span>
+                            ))}
+                        </AnimatePresence>
+
+                        <div className="relative flex items-center">
+                            <input
+                                type="text"
+                                className="bg-transparent border-none text-sm text-zinc-500 placeholder-zinc-700 focus:outline-none focus:ring-0 w-32 py-1"
+                                placeholder="+ Add tag..."
+                                value={newTag}
+                                onChange={(e) => setNewTag(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        addTag();
+                                    }
+                                }}
+                            />
+                            {content.length > 20 && !isGeneratingTags && (
+                                <button
+                                    type="button"
+                                    onClick={handleGenerateTags}
+                                    className="ml-2 text-[10px] uppercase tracking-wider text-primary/60 hover:text-primary transition-colors flex items-center gap-1"
+                                >
+                                    <Sparkles size={10} />
+                                    AI Suggest
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Main Content */}
+                    <textarea
+                        ref={textareaRef}
+                        className="w-full min-h-[40vh] bg-transparent border-none resize-none text-lg text-zinc-300 font-mono leading-loose placeholder-zinc-800 focus:outline-none focus:ring-0 p-0 overflow-hidden"
+                        placeholder="Start writing..."
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        required
+                    />
+
+                    {/* Neural Resonance Insight Card */}
+                    {(activeInsight || (entry?.insights && entry.insights.length > 0)) && (
+                        <div className="pt-8 border-t border-white/5">
+                            <InsightCard
+                                content={activeInsight?.content || (entry?.insights && entry.insights[0]?.content)!}
+                            />
+                        </div>
+                    )}
+                </div>
+            </div>
         </motion.div>
     );
 }
