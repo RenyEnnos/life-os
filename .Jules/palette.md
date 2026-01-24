@@ -13,3 +13,7 @@
 ## 2025-12-27 - Task List Accessibility
 **Learning:** Task items were missing crucial accessibility context. Checkboxes lacked labels, priority dots relied on color, and delete buttons were generic.
 **Action:** Added dynamic `aria-label` to checkboxes ("Mark [Task] as complete"), `title`/`aria-label` to priority dots, and context to delete buttons ("Delete task: [Task]").
+
+## 2025-12-28 - Card "Stretched Link" Pattern
+**Learning:** Making an entire card clickable while preserving nested interactive elements requires the "stretched link" pattern (title as button with `after:inset-0`). Crucially, nested actions must have `z-20` (without `relative` if absolute) and intermediate containers must NOT be `relative` to allow the link to stretch to the main card container.
+**Action:** Use `after:absolute after:inset-0` on the main action, `z-20` on nested actions, and ensure container hierarchy allows stretching.

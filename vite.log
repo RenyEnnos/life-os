@@ -3,282 +3,13 @@
 > vite
 
 
-  VITE v6.4.1  ready in 295 ms
+  VITE v6.4.1  ready in 327 ms
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: http://192.168.0.2:5173/
 Sending Request to the Target: GET /api/habits
 Sending Request to the Target: GET /api/habits/logs
-Sending Request to the Target: GET /api/finances/transactions
-Sending Request to the Target: GET /api/ai/logs
-Sending Request to the Target: GET /api/realtime/stream
-proxy error AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 3001
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 3001
-    }
-  ]
-}
-4:38:24 AM [vite] http proxy error: /api/habits
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-proxy error AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 3001
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 3001
-    }
-  ]
-}
-4:38:24 AM [vite] http proxy error: /api/habits/logs
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-proxy error AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 3001
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 3001
-    }
-  ]
-}
-4:38:24 AM [vite] http proxy error: /api/finances/transactions
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-proxy error AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 3001
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 3001
-    }
-  ]
-}
-4:38:24 AM [vite] http proxy error: /api/ai/logs
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-proxy error AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 3001
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 3001
-    }
-  ]
-}
-4:38:24 AM [vite] http proxy error: /api/realtime/stream
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-Sending Request to the Target: GET /api/habits
-proxy error AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 3001
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 3001
-    }
-  ]
-}
-4:38:25 AM [vite] http proxy error: /api/habits
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-Sending Request to the Target: GET /api/habits/logs
-Sending Request to the Target: GET /api/finances/transactions
-Sending Request to the Target: GET /api/ai/logs
-proxy error AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 3001
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 3001
-    }
-  ]
-}
-4:38:25 AM [vite] http proxy error: /api/habits/logs
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-proxy error AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 3001
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 3001
-    }
-  ]
-}
-4:38:25 AM [vite] http proxy error: /api/finances/transactions
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-proxy error AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 3001
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 3001
-    }
-  ]
-}
-4:38:25 AM [vite] http proxy error: /api/ai/logs
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-Sending Request to the Target: GET /api/habits
-Sending Request to the Target: GET /api/habits/logs
+Sending Request to the Target: GET /api/tasks
 Sending Request to the Target: GET /api/finances/transactions
 proxy error AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
@@ -305,7 +36,7 @@ proxy error AggregateError [ECONNREFUSED]:
     }
   ]
 }
-4:39:40 AM [vite] http proxy error: /api/habits
+4:45:42 AM [vite] http proxy error: /api/habits
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
@@ -334,7 +65,7 @@ proxy error AggregateError [ECONNREFUSED]:
     }
   ]
 }
-4:39:40 AM [vite] http proxy error: /api/habits/logs
+4:45:42 AM [vite] http proxy error: /api/habits/logs
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
@@ -363,7 +94,36 @@ proxy error AggregateError [ECONNREFUSED]:
     }
   ]
 }
-4:39:40 AM [vite] http proxy error: /api/finances/transactions
+4:45:42 AM [vite] http proxy error: /api/tasks
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:45:42 AM [vite] http proxy error: /api/finances/transactions
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
@@ -394,7 +154,7 @@ proxy error AggregateError [ECONNREFUSED]:
     }
   ]
 }
-4:39:40 AM [vite] http proxy error: /api/ai/logs
+4:45:42 AM [vite] http proxy error: /api/ai/logs
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
@@ -423,132 +183,13 @@ proxy error AggregateError [ECONNREFUSED]:
     }
   ]
 }
-4:39:40 AM [vite] http proxy error: /api/realtime/stream
+4:45:42 AM [vite] http proxy error: /api/realtime/stream
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
 Sending Request to the Target: GET /api/habits
 Sending Request to the Target: GET /api/habits/logs
-Sending Request to the Target: GET /api/finances/transactions
-proxy error AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 3001
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 3001
-    }
-  ]
-}
-4:39:41 AM [vite] http proxy error: /api/habits
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-proxy error AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 3001
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 3001
-    }
-  ]
-}
-4:39:41 AM [vite] http proxy error: /api/habits/logs
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-proxy error AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 3001
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 3001
-    }
-  ]
-}
-4:39:41 AM [vite] http proxy error: /api/finances/transactions
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-Sending Request to the Target: GET /api/ai/logs
-proxy error AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 3001
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:3001
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -111,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 3001
-    }
-  ]
-}
-4:39:41 AM [vite] http proxy error: /api/ai/logs
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-Sending Request to the Target: GET /api/habits
-Sending Request to the Target: GET /api/habits/logs
+Sending Request to the Target: GET /api/tasks
 Sending Request to the Target: GET /api/finances/transactions
 Sending Request to the Target: GET /api/ai/logs
 proxy error AggregateError [ECONNREFUSED]:
@@ -576,7 +217,7 @@ proxy error AggregateError [ECONNREFUSED]:
     }
   ]
 }
-4:41:01 AM [vite] http proxy error: /api/habits
+4:45:43 AM [vite] http proxy error: /api/habits
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
@@ -605,7 +246,7 @@ proxy error AggregateError [ECONNREFUSED]:
     }
   ]
 }
-4:41:01 AM [vite] http proxy error: /api/habits/logs
+4:45:43 AM [vite] http proxy error: /api/habits/logs
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
@@ -634,7 +275,7 @@ proxy error AggregateError [ECONNREFUSED]:
     }
   ]
 }
-4:41:01 AM [vite] http proxy error: /api/finances/transactions
+4:45:43 AM [vite] http proxy error: /api/tasks
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
@@ -663,10 +304,160 @@ proxy error AggregateError [ECONNREFUSED]:
     }
   ]
 }
-4:41:01 AM [vite] http proxy error: /api/ai/logs
+4:45:43 AM [vite] http proxy error: /api/finances/transactions
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:45:43 AM [vite] http proxy error: /api/ai/logs
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+Sending Request to the Target: GET /api/habits
+Sending Request to the Target: GET /api/habits/logs
+Sending Request to the Target: GET /api/tasks
+Sending Request to the Target: GET /api/finances/transactions
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:46:09 AM [vite] http proxy error: /api/habits
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:46:09 AM [vite] http proxy error: /api/habits/logs
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:46:09 AM [vite] http proxy error: /api/tasks
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:46:09 AM [vite] http proxy error: /api/finances/transactions
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+Sending Request to the Target: GET /api/ai/logs
 Sending Request to the Target: GET /api/realtime/stream
 proxy error AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
@@ -693,13 +484,10 @@ proxy error AggregateError [ECONNREFUSED]:
     }
   ]
 }
-4:41:01 AM [vite] http proxy error: /api/realtime/stream
+4:46:09 AM [vite] http proxy error: /api/ai/logs
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
-Sending Request to the Target: GET /api/habits
-Sending Request to the Target: GET /api/habits/logs
-Sending Request to the Target: GET /api/finances/transactions
 proxy error AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7) {
@@ -725,10 +513,72 @@ proxy error AggregateError [ECONNREFUSED]:
     }
   ]
 }
-4:41:02 AM [vite] http proxy error: /api/habits
+4:46:09 AM [vite] http proxy error: /api/realtime/stream
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
+Sending Request to the Target: GET /api/habits
+Sending Request to the Target: GET /api/habits/logs
+Sending Request to the Target: GET /api/tasks
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:46:10 AM [vite] http proxy error: /api/habits
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:46:10 AM [vite] http proxy error: /api/habits/logs
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+Sending Request to the Target: GET /api/finances/transactions
 Sending Request to the Target: GET /api/ai/logs
 proxy error AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
@@ -755,7 +605,7 @@ proxy error AggregateError [ECONNREFUSED]:
     }
   ]
 }
-4:41:02 AM [vite] http proxy error: /api/habits/logs
+4:46:10 AM [vite] http proxy error: /api/tasks
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
@@ -784,7 +634,7 @@ proxy error AggregateError [ECONNREFUSED]:
     }
   ]
 }
-4:41:02 AM [vite] http proxy error: /api/finances/transactions
+4:46:10 AM [vite] http proxy error: /api/finances/transactions
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
@@ -813,7 +663,338 @@ proxy error AggregateError [ECONNREFUSED]:
     }
   ]
 }
-4:41:02 AM [vite] http proxy error: /api/ai/logs
+4:46:10 AM [vite] http proxy error: /api/ai/logs
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+4:48:04 AM [vite] (client) hmr update /src/features/projects/index.tsx, /src/index.css
+Sending Request to the Target: GET /api/habits
+Sending Request to the Target: GET /api/habits/logs
+Sending Request to the Target: GET /api/tasks
+Sending Request to the Target: GET /api/finances/transactions
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:48:16 AM [vite] http proxy error: /api/habits
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:48:16 AM [vite] http proxy error: /api/habits/logs
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:48:16 AM [vite] http proxy error: /api/tasks
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:48:16 AM [vite] http proxy error: /api/finances/transactions
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+Sending Request to the Target: GET /api/ai/logs
+Sending Request to the Target: GET /api/realtime/stream
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:48:16 AM [vite] http proxy error: /api/ai/logs
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:48:16 AM [vite] http proxy error: /api/realtime/stream
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+Sending Request to the Target: GET /api/habits
+Sending Request to the Target: GET /api/habits/logs
+Sending Request to the Target: GET /api/tasks
+Sending Request to the Target: GET /api/finances/transactions
+Sending Request to the Target: GET /api/ai/logs
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:48:17 AM [vite] http proxy error: /api/habits
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:48:17 AM [vite] http proxy error: /api/habits/logs
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:48:17 AM [vite] http proxy error: /api/tasks
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:48:17 AM [vite] http proxy error: /api/finances/transactions
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+proxy error AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3001
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3001
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3001
+    }
+  ]
+}
+4:48:17 AM [vite] http proxy error: /api/ai/logs
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
