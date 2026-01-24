@@ -1,105 +1,104 @@
-import { useState, useEffect } from 'react';
-import { Course, Assignment } from '../types';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { universityApi } from '../api/university.api'
+import { Course, Assignment } from '../types'
 
-const STORAGE_KEY_COURSES = 'life-os-courses';
-const STORAGE_KEY_ASSIGNMENTS = 'life-os-assignments';
-
-const MOCK_COURSES: Course[] = [
-    {
-        id: '1',
-        user_id: 'user-1',
-        name: 'Anatomia Humana',
-        professor: 'Dr. Estranho',
-        schedule: 'Seg/Qua 10:00',
-        color: '#ef4444',
-        semester: '2025-1',
-        grade: 8.5
-    },
-    {
-        id: '2',
-        user_id: 'user-1',
-        name: 'Bioquímica',
-        professor: 'Dr. Banner',
-        schedule: 'Ter/Qui 14:00',
-        color: '#10b981',
-        semester: '2025-1',
-        grade: 7.2
-    },
-];
-
-const MOCK_ASSIGNMENTS: Assignment[] = [
-    { id: '1', course_id: '1', title: 'Quiz de Crânio', type: 'exam', due_date: '2025-03-20', status: 'todo', weight: 0.2, completed: false },
-    { id: '2', course_id: '2', title: 'Ensaio de Dobramento', type: 'homework', due_date: '2025-03-15', status: 'submitted', weight: 0.1, completed: true },
-];
+const QUERY_KEYS = {
+    courses: ['university', 'courses'] as const,
+    assignments: ['university', 'assignments'] as const,
+}
 
 export function useUniversity() {
-    const [courses, setCourses] = useState<Course[]>([]);
-    const [assignments, setAssignments] = useState<Assignment[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const queryClient = useQueryClient()
 
-    // Load from LocalStorage on mount
-    useEffect(() => {
-        const loadData = () => {
-            const storedCourses = localStorage.getItem(STORAGE_KEY_COURSES);
-            const storedAssignments = localStorage.getItem(STORAGE_KEY_ASSIGNMENTS);
+    // ==================== COURSES ====================
 
-            if (storedCourses) {
-                setCourses(JSON.parse(storedCourses));
-            } else {
-                setCourses(MOCK_COURSES);
-                localStorage.setItem(STORAGE_KEY_COURSES, JSON.stringify(MOCK_COURSES));
-            }
+    const coursesQuery = useQuery({
+        queryKey: QUERY_KEYS.courses,
+        queryFn: universityApi.listCourses,
+    })
 
-            if (storedAssignments) {
-                setAssignments(JSON.parse(storedAssignments));
-            } else {
-                setAssignments(MOCK_ASSIGNMENTS);
-                localStorage.setItem(STORAGE_KEY_ASSIGNMENTS, JSON.stringify(MOCK_ASSIGNMENTS));
-            }
-            setIsLoading(false);
-        };
+    const createCourseMutation = useMutation({
+        mutationFn: (data: Omit<Course, 'id' | 'user_id'>) => universityApi.createCourse(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.courses })
+        },
+    })
 
-        loadData();
-    }, []);
+    const updateCourseMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: Partial<Course> }) => universityApi.updateCourse(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.courses })
+        },
+    })
 
-    const addCourse = (newCourse: Omit<Course, 'id' | 'user_id'>) => {
-        const course: Course = {
-            ...newCourse,
-            id: Math.random().toString(36).substr(2, 9),
-            user_id: 'local-user', // Consistent with local storage approach
-        };
-        const updatedCourses = [...courses, course];
-        setCourses(updatedCourses);
-        localStorage.setItem(STORAGE_KEY_COURSES, JSON.stringify(updatedCourses));
-    };
+    const deleteCourseMutation = useMutation({
+        mutationFn: (id: string) => universityApi.deleteCourse(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.courses })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.assignments })
+        },
+    })
 
-    const removeCourse = (id: string) => {
-        const updatedCourses = courses.filter(c => c.id !== id);
-        setCourses(updatedCourses);
-        localStorage.setItem(STORAGE_KEY_COURSES, JSON.stringify(updatedCourses));
+    // ==================== ASSIGNMENTS ====================
 
-        // Also remove assignments for this course
-        const updatedAssignments = assignments.filter(a => a.course_id !== id);
-        setAssignments(updatedAssignments);
-        localStorage.setItem(STORAGE_KEY_ASSIGNMENTS, JSON.stringify(updatedAssignments));
-    };
+    const assignmentsQuery = useQuery({
+        queryKey: QUERY_KEYS.assignments,
+        queryFn: () => universityApi.listAssignments(),
+    })
 
-    const addAssignment = (newAssignment: Omit<Assignment, 'id'>) => {
-        const assignment: Assignment = {
-            ...newAssignment,
-            id: Math.random().toString(36).substr(2, 9),
-        };
-        const updatedAssignments = [...assignments, assignment];
-        setAssignments(updatedAssignments);
-        localStorage.setItem(STORAGE_KEY_ASSIGNMENTS, JSON.stringify(updatedAssignments));
-    };
+    const createAssignmentMutation = useMutation({
+        mutationFn: (data: Omit<Assignment, 'id'>) => universityApi.createAssignment(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.assignments })
+        },
+    })
+
+    const updateAssignmentMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: Partial<Assignment> }) => universityApi.updateAssignment(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.assignments })
+        },
+    })
+
+    const toggleAssignmentMutation = useMutation({
+        mutationFn: (id: string) => universityApi.toggleAssignment(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.assignments })
+        },
+    })
+
+    const deleteAssignmentMutation = useMutation({
+        mutationFn: (id: string) => universityApi.deleteAssignment(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.assignments })
+        },
+    })
 
     return {
-        courses,
-        assignments,
-        isLoading,
-        addCourse,
-        removeCourse,
-        addAssignment
-    };
+        // Courses
+        courses: coursesQuery.data ?? [],
+        coursesLoading: coursesQuery.isLoading,
+        coursesError: coursesQuery.error,
+        addCourse: createCourseMutation.mutate,
+        updateCourse: (id: string, data: Partial<Course>) => updateCourseMutation.mutate({ id, data }),
+        removeCourse: deleteCourseMutation.mutate,
+
+        // Assignments
+        assignments: assignmentsQuery.data ?? [],
+        assignmentsLoading: assignmentsQuery.isLoading,
+        assignmentsError: assignmentsQuery.error,
+        addAssignment: createAssignmentMutation.mutate,
+        updateAssignment: (id: string, data: Partial<Assignment>) => updateAssignmentMutation.mutate({ id, data }),
+        toggleAssignment: toggleAssignmentMutation.mutate,
+        removeAssignment: deleteAssignmentMutation.mutate,
+
+        // Loading state
+        isLoading: coursesQuery.isLoading || assignmentsQuery.isLoading,
+
+        // Refetch
+        refetch: () => {
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.courses })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.assignments })
+        },
+    }
 }

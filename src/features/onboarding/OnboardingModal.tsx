@@ -88,6 +88,12 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                                     INICIAR CONFIGURAÇÃO <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                                 </span>
                             </ShimmerButton>
+                            <button
+                                onClick={handleComplete}
+                                className="text-sm text-muted-foreground hover:text-foreground transition-colors underline decoration-dashed underline-offset-4"
+                            >
+                                Pular e ir direto para o app
+                            </button>
                         </div>
                     )}
 

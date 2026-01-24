@@ -20,10 +20,10 @@ class FinanceServiceImpl {
       .from('transactions')
       .select('*, finance_categories(name, icon)')
       .eq('user_id', userId)
-      .order('date', { ascending: false })
+      .order('transaction_date', { ascending: false })
 
-    if (query.startDate) q = q.gte('date', query.startDate)
-    if (query.endDate) q = q.lte('date', query.endDate)
+    if (query.startDate) q = q.gte('transaction_date', query.startDate)
+    if (query.endDate) q = q.lte('transaction_date', query.endDate)
     if (query.from !== undefined && query.to !== undefined) q = q.range(query.from, query.to)
 
     const { data, error } = await q

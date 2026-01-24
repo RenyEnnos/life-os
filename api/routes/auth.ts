@@ -8,6 +8,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken'
 import { supabase } from '../lib/supabase'
 import { LoginRequest, RegisterRequest, AuthResponse } from '../../shared/types'
 import { normalizeEmail, normalizeName } from '@/shared/lib/normalize'
+import { financeCategoryService } from '../services/financeCategoryService'
 
 import { authenticateToken, type AuthRequest } from '../middleware/auth'
 import { validate } from '../middleware/validate'
@@ -120,6 +121,11 @@ router.post('/register', validate(registerSchema), async (req: Request<Record<st
         updated_at: user.updated_at
       }
     }
+
+    // Create default finance categories for new user (async, non-blocking)
+    financeCategoryService.createDefaultCategories(user.id).catch(err => {
+      console.error('[Register] Failed to create default categories:', err)
+    })
 
     await logAuth(logEmail, 'success', { code: 'REGISTER_OK' }, req)
     res.status(201).json(response)

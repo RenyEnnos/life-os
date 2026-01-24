@@ -15,12 +15,12 @@ router.get('/transactions', authenticateToken, async (req: AuthRequest, res: Res
   const { from, to } = getPagination(req.query)
   const { startDate, endDate, type, category, tag } = req.query as Record<string, string>
   let q = supabase.from('transactions').select('*').eq('user_id', userId)
-  if (startDate) q = q.gte('date', startDate)
-  if (endDate) q = q.lte('date', endDate)
+  if (startDate) q = q.gte('transaction_date', startDate)
+  if (endDate) q = q.lte('transaction_date', endDate)
   if (type) q = q.eq('type', type)
   if (category) q = q.eq('category', category)
   if (tag) q = q.contains('tags', [tag])
-  q = q.order('date', { ascending: false }).range(from, to)
+  q = q.order('transaction_date', { ascending: false }).range(from, to)
   const { data, error } = await q
   if (error) return res.status(400).json({ error: error.message })
   res.json(data ?? [])
@@ -45,7 +45,7 @@ router.post('/transactions', authenticateToken, validate(createTransactionSchema
 router.put('/transactions/:id', authenticateToken, validate(updateTransactionSchema), async (req: AuthRequest, res: Response) => {
   const payload = { ...req.body }
   if (!payload.date && payload.transaction_date) payload.date = payload.transaction_date
-   if (!payload.date) { return res.status(400).json({ error: 'date is required' }) }
+  if (!payload.date) { return res.status(400).json({ error: 'date is required' }) }
   const data = await financeService.update(req.user!.id, req.params.id, payload || {})
   if (!data) return res.status(404).json({ error: 'Transaction not found' })
   res.json(data)

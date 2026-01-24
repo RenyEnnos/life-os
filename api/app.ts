@@ -144,9 +144,10 @@ app.use('/api/context', contextRoutes)
 import mediaRoutes from './routes/media'
 app.use('/api/media', mediaRoutes)
 app.use('/api/budgets', budgetRoutes)
-
-
-
+import financeCategoriesRoutes from './routes/financeCategories'
+app.use('/api/finance-categories', financeCategoriesRoutes)
+import universityRoutes from './routes/university'
+app.use('/api/university', universityRoutes)
 /**
  * error handler middleware
  */

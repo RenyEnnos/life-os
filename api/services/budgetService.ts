@@ -40,8 +40,8 @@ export const budgetService = {
             .select('amount, category_id')
             .eq('user_id', userId)
             .eq('type', 'expense')
-            .gte('date', startOfMonth)
-            .lte('date', endOfMonth)
+            .gte('transaction_date', startOfMonth)
+            .lte('transaction_date', endOfMonth)
             .not('category_id', 'is', null)
 
         const spendingMap = (expenses || []).reduce((acc, txn) => {
