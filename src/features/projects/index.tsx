@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Target, Clock, Search, Bell, BarChart3 } from 'lucide-react';
+import { Plus, Trash2, Clock, Search, Bell, BarChart3 } from 'lucide-react';
 import { useProjects } from '@/features/projects/hooks/useProjects';
 import { useAI } from '@/features/ai-assistant/hooks/useAI';
 import { clsx } from 'clsx';
@@ -98,10 +98,16 @@ export default function ProjectsPage() {
                         <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></span>
                         <span className="text-xs text-zinc-400">System Healthy</span>
                     </div>
-                    <button className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
+                    <button
+                        className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+                        aria-label="Search projects"
+                    >
                         <Search size={20} />
                     </button>
-                    <button className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
+                    <button
+                        className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+                        aria-label="View notifications"
+                    >
                         <Bell size={20} />
                     </button>
                 </div>
@@ -194,13 +200,14 @@ export default function ProjectsPage() {
                                                     {project.status.replace('_', ' ')}
                                                 </span>
                                             </div>
-                                            {/* Delete Action (Hidden by default, show on hover) */}
+                                            {/* Delete Action (Hidden by default, show on hover/focus) */}
                                             <button
                                                 onClick={(e) => handleDelete(e, project.id)}
-                                                className="absolute top-4 right-4 p-1.5 rounded-full bg-black/20 hover:bg-red-500/20 text-white/50 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                                                className="absolute top-4 right-4 p-1.5 rounded-full bg-black/20 hover:bg-red-500/20 text-white/50 hover:text-red-400 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all"
                                                 title="Delete Project"
+                                                aria-label={`Delete project ${project.title}`}
                                             >
-                                                <Target size={14} />
+                                                <Trash2 size={14} />
                                             </button>
                                         </div>
 
@@ -220,6 +227,7 @@ export default function ProjectsPage() {
                                                     <button
                                                         onClick={(e) => handleGenerateSwot(e, project)}
                                                         className="ml-auto hover:text-primary transition-colors flex items-center gap-1"
+                                                        aria-label={`Generate SWOT analysis for ${project.title}`}
                                                     >
                                                         <BarChart3 size={12} /> SWOT
                                                     </button>
