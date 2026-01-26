@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { addDays, format, isBefore, isSameDay, startOfWeek } from 'date-fns';
+import { Inbox, List, Ghost } from 'lucide-react';
 import Modal from '@/shared/ui/Modal';
 import { Loader } from '@/shared/ui/Loader';
 import { useTasks } from './hooks/useTasks';
@@ -312,8 +313,28 @@ export default function TasksPage() {
                     <div className="flex flex-col divide-y divide-white/10 overflow-y-auto pr-2 custom-scrollbar z-10 h-full max-h-[600px]">
                         {filteredTasks.map(renderTask)}
                         {!filteredTasks.length && (
-                            <div className="text-sm text-zinc-500 py-6 text-center">
-                                Nenhuma tarefa encontrada para este filtro.
+                            <div className="flex flex-col items-center justify-center py-12 text-zinc-500 animate-in fade-in zoom-in duration-300">
+                                {filter === 'active' && (
+                                    <>
+                                        <Ghost className="w-12 h-12 mb-3 opacity-20 text-zinc-400" />
+                                        <p className="text-sm font-medium">Tudo em dia!</p>
+                                        <p className="text-xs text-zinc-600 mt-1">Nenhuma tarefa ativa. Hora de relaxar?</p>
+                                    </>
+                                )}
+                                {filter === 'completed' && (
+                                    <>
+                                        <List className="w-12 h-12 mb-3 opacity-20 text-zinc-400" />
+                                        <p className="text-sm font-medium">Nenhuma tarefa concluída.</p>
+                                        <p className="text-xs text-zinc-600 mt-1">Conclua algumas tarefas para vê-las aqui.</p>
+                                    </>
+                                )}
+                                {filter === 'all' && (
+                                    <>
+                                        <Inbox className="w-12 h-12 mb-3 opacity-20 text-zinc-400" />
+                                        <p className="text-sm font-medium">Sua caixa de entrada está vazia.</p>
+                                        <p className="text-xs text-zinc-600 mt-1">Pronto para começar? Adicione uma nova tarefa.</p>
+                                    </>
+                                )}
                             </div>
                         )}
                     </div>
