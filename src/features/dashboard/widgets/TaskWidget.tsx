@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { CheckCircle2, Circle, Plus, Play, Calendar } from 'lucide-react';
+import { CheckCircle2, Plus, Play, Calendar } from 'lucide-react';
 import { WidgetShell } from './WidgetShell';
 import { useDashboardData } from '@/features/dashboard/hooks/useDashboardData';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { tasksApi } from '@/features/tasks/api/tasks.api';
 import { cn } from '@/shared/lib/cn';
-import { Task } from '@/shared/types';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 
 import { useFocusStore } from '@/features/focus/stores/useFocusStore';
@@ -55,6 +54,7 @@ export function TaskWidget() {
                 <button
                     onClick={() => setIsAdding(!isAdding)}
                     className="p-2 hover:bg-white/10 rounded-full transition-colors text-zinc-400 hover:text-white"
+                    aria-label={isAdding ? "Cancel adding task" : "Add new task"}
                 >
                     <Plus size={18} className={cn("transition-transform", isAdding && "rotate-45")} />
                 </button>
@@ -70,11 +70,13 @@ export function TaskWidget() {
                             placeholder="Nova tarefa..."
                             className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary/50 outline-none"
                             autoFocus
+                            aria-label="New task title"
                         />
                         <button
                             disabled={!newTaskTitle || createTask.isPending}
                             onClick={() => createTask.mutate()}
                             className="bg-primary/20 text-primary hover:bg-primary/30 p-2 rounded-lg transition-colors"
+                            aria-label="Create task"
                         >
                             <Plus size={18} />
                         </button>
@@ -97,9 +99,10 @@ export function TaskWidget() {
                                 <button
                                     onClick={() => toggleTask.mutate({ id: task.id, completed: !task.completed })}
                                     className={cn(
-                                        "flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center transition-colors",
+                                        "flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-primary",
                                         task.completed ? "bg-primary border-primary text-black" : "border-zinc-600 hover:border-zinc-400"
                                     )}
+                                    aria-label={task.completed ? "Mark as incomplete" : "Mark as complete"}
                                 >
                                     {task.completed && <CheckCircle2 size={14} />}
                                 </button>
@@ -113,8 +116,8 @@ export function TaskWidget() {
 
                             {!task.completed && (
                                 <button
-                                    className="opacity-0 group-hover:opacity-100 p-2 rounded-full bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-all"
-                                    title="Iniciar Foco"
+                                    className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 p-2 rounded-full bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500"
+                                    aria-label="Start Focus"
                                     onClick={() => startFocus(task)}
                                 >
                                     <Play size={14} fill="currentColor" />
