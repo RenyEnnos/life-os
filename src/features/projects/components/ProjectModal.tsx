@@ -72,8 +72,9 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white"
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white"
                         onClick={(e) => { e.preventDefault(); handleShuffle(); }}
+                        aria-label="Shuffle cover image"
                     >
                         <RefreshCw size={14} />
                     </Button>
@@ -88,17 +89,20 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
                             className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono"
                             value={title}
                             onChange={e => setTitle(e.target.value)}
+                            aria-label="Project Title"
                         />
                         <textarea
                             placeholder="Descrição e Objetivos"
                             className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono h-24 resize-none"
                             value={description}
                             onChange={e => setDescription(e.target.value)}
+                            aria-label="Project Description"
                         />
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
-                                <label className="text-xs font-mono text-muted-foreground">Status</label>
+                                <label htmlFor="project-status" className="text-xs font-mono text-muted-foreground">Status</label>
                                 <select
+                                    id="project-status"
                                     className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono text-sm"
                                     value={status}
                                     onChange={e => setStatus(e.target.value as Project['status'])}
@@ -109,8 +113,9 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
                                 </select>
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs font-mono text-muted-foreground">Prioridade</label>
+                                <label htmlFor="project-priority" className="text-xs font-mono text-muted-foreground">Prioridade</label>
                                 <select
+                                    id="project-priority"
                                     className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono text-sm"
                                     value={priority}
                                     onChange={e => setPriority(e.target.value as Project['priority'])}
@@ -122,8 +127,9 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-xs font-mono text-muted-foreground">Prazo (Opcional)</label>
+                            <label htmlFor="project-deadline" className="text-xs font-mono text-muted-foreground">Prazo (Opcional)</label>
                             <input
+                                id="project-deadline"
                                 type="date"
                                 className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono"
                                 value={deadline}
