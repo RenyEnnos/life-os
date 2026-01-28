@@ -134,13 +134,10 @@ export default function LoginPage() {
                     </div>
                 );
                 logStatus = 'VALIDATION_FAILED';
-            } else if (msg.includes('USER_NOT_FOUND') || msg.includes('Invalid login credentials')) {
+            } else if (msg.includes('USER_NOT_FOUND') || msg.includes('Invalid login credentials') || msg.includes('User not found')) {
                 // Embora 'Usuário não encontrado' possa permitir enumeração, o requisito solicitou explicitamente
-                // distinguir entre usuário não encontrado e senha incorreta se possível, 
-                // mas APIs modernas geralmente retornam "Invalid login credentials" para ambos por segurança.
-                // Vamos tentar inferir ou usar a mensagem genérica segura na UI, mas logar detalhado se a API permitir.
-                // Se a API retornar erro específico:
-                if (msg.includes('User not found')) {
+                // distinguir entre usuário não encontrado e senha incorreta se possível.
+                if (msg.includes('User not found') || msg.includes('USER_NOT_FOUND')) {
                     userFriendlyError = (
                         <div className="flex flex-col gap-1">
                             <span className="font-semibold">Conta não encontrada</span>
@@ -157,7 +154,7 @@ export default function LoginPage() {
                     );
                     logStatus = 'INVALID_CREDENTIALS';
                 }
-            } else if (msg.includes('WRONG_PASSWORD')) {
+            } else if (msg.includes('WRONG_PASSWORD') || msg.includes('Incorrect password')) {
                 userFriendlyError = (
                     <div className="flex flex-col gap-1">
                         <span className="font-semibold">Senha incorreta</span>

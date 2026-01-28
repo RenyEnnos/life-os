@@ -4,164 +4,143 @@
         "React 18",
         "Vite",
         "Tailwind CSS",
-        "Framer Motion",
-        "Supabase",
-        "PostgreSQL",
-        "Groq AI",
-        "TanStack React Query",
         "Zustand",
-        "React Router v7",
-        "Lucide React",
-        "Recharts"
+        "Tanstack React Query",
+        "Supabase",
+        "Express.js",
+        "PostgreSQL",
+        "Framer Motion",
+        "Playwright",
+        "Vitest"
     ],
     "features": [
         {
             "name": "Authentication",
-            "description": "User login, signup, session management with Supabase Auth",
+            "description": "User authentication and session management with Supabase Auth including login, registration, and password recovery",
             "files": [
                 "src/features/auth/components/LoginForm.tsx",
-                "src/features/auth/components/SignupForm.tsx",
+                "src/features/auth/components/RegisterForm.tsx",
                 "src/features/auth/hooks/useAuth.ts",
-                "src/features/auth/api/auth.api.ts",
-                "src/features/auth/types.ts"
+                "src/features/auth/services/authService.ts",
+                "api/auth/login.ts",
+                "api/auth/register.ts"
             ]
         },
         {
             "name": "Dashboard",
-            "description": "Main dashboard with 3-zone layout (Now/Today/Context), widgets for habits, tasks, finances, and quick capture",
+            "description": "Main dashboard with overview widgets, quick actions, and navigation to all features",
             "files": [
-                "src/features/dashboard/components/Dashboard.tsx",
-                "src/features/dashboard/components/Zone1_Now.tsx",
-                "src/features/dashboard/components/Zone2_Today.tsx",
-                "src/features/dashboard/components/Zone3_Context.tsx",
+                "src/features/dashboard/components/DashboardPage.tsx",
+                "src/features/dashboard/components/QuickActionsWidget.tsx",
                 "src/features/dashboard/components/WelcomeWidget.tsx",
-                "src/features/dashboard/components/HabitsTodayWidget.tsx",
-                "src/features/dashboard/components/FinanceMiniWidget.tsx",
-                "src/features/dashboard/hooks/useDashboardData.ts"
+                "src/features/dashboard/components/StatsWidget.tsx"
             ]
         },
         {
             "name": "Habits",
-            "description": "Daily habit tracking with heatmap visualization, streaks, analytics, and AI-powered insights",
+            "description": "Habit tracking system with daily check-ins, streak management, and progress visualization",
             "files": [
-                "src/features/habits/components/HabitHeatmap.tsx",
-                "src/features/habits/components/HabitItem.tsx",
-                "src/features/habits/components/HabitList.tsx",
-                "src/features/habits/components/HabitForm.tsx",
-                "src/features/habits/hooks/useHabitLog.ts",
-                "src/features/habits/hooks/useHabitStats.ts",
-                "src/features/habits/api/habits.api.ts",
-                "src/features/habits/types.ts"
+                "src/features/habits/components/HabitCard.tsx",
+                "src/features/habits/components/HabitTracker.tsx",
+                "src/features/habits/hooks/useHabits.ts",
+                "src/features/habits/services/habitService.ts",
+                "api/habits/index.ts"
             ]
         },
         {
             "name": "Tasks",
-            "description": "Task management with Kanban board, drag-and-drop, Quick Capture with AI parsing",
+            "description": "Task management with priorities, due dates, categories, and completion tracking",
             "files": [
-                "src/features/tasks/components/TaskKanban.tsx",
-                "src/features/tasks/components/TaskItem.tsx",
-                "src/features/tasks/components/TaskForm.tsx",
-                "src/features/tasks/components/QuickCaptureInput.tsx",
-                "src/features/tasks/hooks/useTaskCRUD.ts",
-                "src/features/tasks/hooks/useTaskFilters.ts",
-                "src/features/tasks/api/tasks.api.ts",
-                "src/features/tasks/types.ts"
-            ]
-        },
-        {
-            "name": "Finances",
-            "description": "Financial tracking with transaction table, charts, AI-powered category suggestions",
-            "files": [
-                "src/features/finances/components/TransactionTable.tsx",
-                "src/features/finances/components/TransactionForm.tsx",
-                "src/features/finances/components/FinanceCharts.tsx",
-                "src/features/finances/components/FinanceSummary.tsx",
-                "src/features/finances/hooks/useTransactionCRUD.ts",
-                "src/features/finances/hooks/useFinanceAnalytics.ts",
-                "src/features/finances/api/finances.api.ts",
-                "src/features/finances/types.ts"
-            ]
-        },
-        {
-            "name": "University",
-            "description": "Academic tracking with courses, assignments, grade calculator, What-If simulator",
-            "files": [
-                "src/features/university/components/CourseCard.tsx",
-                "src/features/university/components/AssignmentKanban.tsx",
-                "src/features/university/components/GradeCalculator.tsx",
-                "src/features/university/hooks/useCourseCRUD.ts",
-                "src/features/university/hooks/useAssignmentCRUD.ts",
-                "src/features/university/api/university.api.ts",
-                "src/features/university/types.ts"
-            ]
-        },
-        {
-            "name": "AI Assistant",
-            "description": "Chat interface for AI-powered insights, task creation, and data analysis using Groq",
-            "files": [
-                "src/features/ai-assistant/components/AIChat.tsx",
-                "src/features/ai-assistant/components/ChatMessage.tsx",
-                "src/features/ai-assistant/components/ChatInput.tsx",
-                "src/features/ai-assistant/components/AIChatFAB.tsx",
-                "src/features/ai-assistant/hooks/useAIChat.ts",
-                "src/features/ai-assistant/api/ai.api.ts",
-                "src/features/ai-assistant/types.ts"
+                "src/features/tasks/components/TaskList.tsx",
+                "src/features/tasks/components/TaskCard.tsx",
+                "src/features/tasks/hooks/useTasks.ts",
+                "src/features/tasks/services/taskService.ts",
+                "api/tasks/index.ts"
             ]
         },
         {
             "name": "Journal",
-            "description": "Daily journaling with mood tracking and reflection",
+            "description": "Daily journaling with mood tracking, entries, and reflection prompts",
             "files": [
                 "src/features/journal/components/JournalEditor.tsx",
                 "src/features/journal/components/JournalList.tsx",
                 "src/features/journal/hooks/useJournal.ts",
-                "src/features/journal/api/journal.api.ts",
-                "src/features/journal/types.ts"
+                "src/features/journal/services/journalService.ts"
+            ]
+        },
+        {
+            "name": "Focus",
+            "description": "Focus mode with Pomodoro timer, session tracking, and distraction blocking",
+            "files": [
+                "src/features/focus/components/FocusTimer.tsx",
+                "src/features/focus/hooks/useFocus.ts"
             ]
         },
         {
             "name": "Gamification",
-            "description": "Points, levels, streaks, and badges system for motivation",
+            "description": "XP system, levels, achievements, and rewards for completing habits and tasks",
             "files": [
-                "src/features/gamification/components/PointsDisplay.tsx",
-                "src/features/gamification/components/LevelProgress.tsx",
-                "src/features/gamification/components/BadgeList.tsx",
+                "src/features/gamification/components/XPBar.tsx",
+                "src/features/gamification/components/AchievementBadge.tsx",
                 "src/features/gamification/hooks/useGamification.ts",
-                "src/features/gamification/api/gamification.api.ts",
-                "src/features/gamification/types.ts"
+                "src/features/gamification/services/gamificationService.ts"
             ]
         },
         {
-            "name": "Focus Mode",
-            "description": "Focus timer and distraction-free mode",
+            "name": "Calendar",
+            "description": "Calendar view for scheduled tasks, habits, and events",
             "files": [
-                "src/features/focus/components/FocusTimer.tsx",
-                "src/features/focus/hooks/useFocusStore.ts"
+                "src/features/calendar/components/CalendarView.tsx",
+                "src/features/calendar/hooks/useCalendar.ts"
             ]
         },
         {
-            "name": "Shared UI Components",
-            "description": "Design system with reusable UI components",
+            "name": "Finances",
+            "description": "Financial tracking with income, expenses, budgets, and reports",
             "files": [
-                "src/shared/ui/Button.tsx",
-                "src/shared/ui/Input.tsx",
-                "src/shared/ui/Card.tsx",
-                "src/shared/ui/Modal.tsx",
-                "src/shared/ui/Toast.tsx",
-                "src/shared/ui/Spinner.tsx",
-                "src/shared/ui/Badge.tsx",
-                "src/shared/ui/Skeleton.tsx"
+                "src/features/finances/components/FinanceDashboard.tsx",
+                "src/features/finances/components/TransactionList.tsx",
+                "src/features/finances/hooks/useFinances.ts"
             ]
         },
         {
-            "name": "Layout",
-            "description": "Main application layout with sidebar, topbar, and shell",
+            "name": "University",
+            "description": "Academic management with courses, grades, assignments, and schedule",
             "files": [
-                "src/app/layout/Shell.tsx",
-                "src/app/layout/Sidebar.tsx",
-                "src/app/layout/Topbar.tsx",
-                "src/app/App.tsx",
-                "src/app/providers.tsx"
+                "src/features/university/components/UniversityDashboard.tsx",
+                "src/features/university/hooks/useUniversity.ts",
+                "src/features/university/services/universityService.ts"
+            ]
+        },
+        {
+            "name": "AI Assistant",
+            "description": "AI-powered assistant for productivity suggestions and insights",
+            "files": [
+                "src/features/ai-assistant/components/AIChat.tsx",
+                "src/features/ai-assistant/hooks/useAI.ts",
+                "src/features/ai-assistant/services/aiService.ts"
+            ]
+        },
+        {
+            "name": "Health",
+            "description": "Health tracking including sleep, hydration, exercise, and wellness metrics",
+            "files": [
+                "src/features/health/components/HealthDashboard.tsx",
+                "src/features/health/hooks/useHealth.ts"
+            ]
+        },
+        {
+            "name": "Settings",
+            "description": "User preferences, theme configuration, and account settings",
+            "files": [
+                "src/features/settings/components/SettingsPage.tsx"
+            ]
+        },
+        {
+            "name": "Onboarding",
+            "description": "New user onboarding flow with guided setup",
+            "files": [
+                "src/features/onboarding/components/OnboardingFlow.tsx"
             ]
         }
     ]

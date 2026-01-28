@@ -1,8 +1,8 @@
 [
   {
     "id": "TC001",
-    "title": "Successful user login with valid credentials",
-    "description": "Verify that a user can login successfully using valid email and password credentials and that a session is maintained.",
+    "title": "User login success with valid credentials",
+    "description": "Verify that a user can successfully log in using a valid email and password combination and the session is persisted.",
     "category": "functional",
     "priority": "High",
     "steps": [
@@ -16,18 +16,22 @@
       },
       {
         "type": "action",
-        "description": "Click on the login button"
+        "description": "Click the login button"
       },
       {
         "type": "assertion",
-        "description": "Verify successful login and user is redirected to the dashboard with session persistence"
+        "description": "Verify the user is logged in and redirected to the dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Refresh the page and confirm session is persisted"
       }
     ]
   },
   {
     "id": "TC002",
-    "title": "Fail login with invalid credentials",
-    "description": "Ensure login fails with invalid email or password and appropriate error message is displayed without session creation.",
+    "title": "User login fails with invalid credentials",
+    "description": "Ensure the system prevents login with incorrect email or password and displays an appropriate error message.",
     "category": "error handling",
     "priority": "High",
     "steps": [
@@ -37,73 +41,85 @@
       },
       {
         "type": "action",
-        "description": "Enter invalid email or wrong password"
+        "description": "Enter invalid email or password"
       },
       {
         "type": "action",
-        "description": "Click on the login button"
+        "description": "Click the login button"
       },
       {
         "type": "assertion",
-        "description": "Verify login failure and error message is shown, no session created"
+        "description": "Verify login is rejected and error message is shown"
       }
     ]
   },
   {
     "id": "TC003",
-    "title": "Dashboard renders 3-zone layout with dynamic widgets",
-    "description": "Verify the dashboard layout displays three distinct zones - Now, Today and Context - with their respective dynamic widgets populated with relevant data.",
+    "title": "Dashboard renders all three zones correctly",
+    "description": "Validate that the dashboard loads Now, Today, and Context zones with dynamic widgets displaying current data and interactions.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Login successfully and navigate to dashboard"
+        "description": "Login and navigate to the dashboard"
       },
       {
         "type": "assertion",
-        "description": "Check that Zone 1 (Now) is displayed with current critical information widgets"
+        "description": "Check that Now zone is visible with relevant widgets"
       },
       {
         "type": "assertion",
-        "description": "Check that Zone 2 (Today) shows daily tasks and habits widgets"
+        "description": "Check that Today zone is visible with tasks and habits"
       },
       {
         "type": "assertion",
-        "description": "Confirm Zone 3 (Context) displays finance and academic contextual widgets"
+        "description": "Check that Context zone is visible with user context info"
+      },
+      {
+        "type": "action",
+        "description": "Interact with widgets such as habit completions and task updates"
       },
       {
         "type": "assertion",
-        "description": "Verify all widgets have up-to-date and relevant dynamic data"
+        "description": "Verify UI updates reflect interactions"
       }
     ]
   },
   {
     "id": "TC004",
-    "title": "Create, edit, and delete a habit with real-time UI updates",
-    "description": "Test habit CRUD operations including creating a new habit, editing its details, and deleting it with optimistic updates and visual feedback.",
+    "title": "Create, edit, complete, and delete habit with real-time UI updates",
+    "description": "Test the full lifecycle of a habit including creation, editing fields, marking as complete with optimistic UI, and deleting a habit.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to habits management section"
+        "description": "Navigate to habit management section"
       },
       {
         "type": "action",
-        "description": "Create a new habit with valid name and settings"
+        "description": "Create a new habit with valid fields"
       },
       {
         "type": "assertion",
-        "description": "Verify the new habit appears immediately in the habit list and heatmap"
+        "description": "Verify the new habit appears instantly in the habit list and dashboard widgets"
       },
       {
         "type": "action",
-        "description": "Edit the created habit to change frequency or name"
+        "description": "Edit the habit's name and parameters"
       },
       {
         "type": "assertion",
-        "description": "Confirm updated habit details reflect immediately with no reload"
+        "description": "Verify habit updates appear in UI immediately"
+      },
+      {
+        "type": "action",
+        "description": "Mark the habit as completed for the current day"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm completion is reflected with visual feedback and updated streak counts"
       },
       {
         "type": "action",
@@ -111,69 +127,65 @@
       },
       {
         "type": "assertion",
-        "description": "Verify habit is removed instantly from the list and heatmap"
+        "description": "Verify the habit is removed from all displays immediately"
       }
     ]
   },
   {
     "id": "TC005",
-    "title": "Mark habit completion with streak counters and heatmap update",
-    "description": "Verify marking a habit as complete updates streak counters correctly and the heatmap visualization refreshes to reflect new data.",
+    "title": "View habit heatmap and analytics",
+    "description": "Ensure habit heatmaps and streak analytics display accurately according to logged habit data.",
     "category": "functional",
-    "priority": "High",
+    "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Open habit list and select a habit"
-      },
-      {
-        "type": "action",
-        "description": "Mark the habit as completed for the day"
+        "description": "Navigate to habit analytics page"
       },
       {
         "type": "assertion",
-        "description": "Streak counter increments correctly"
+        "description": "Confirm heatmap visualization displays correct frequency and dates"
       },
       {
         "type": "assertion",
-        "description": "Heatmap shows updated completion for current day"
+        "description": "Verify streak counters match logged habit completions"
       }
     ]
   },
   {
     "id": "TC006",
-    "title": "Task creation, editing, and deletion in Kanban board",
-    "description": "Ensure tasks can be created, edited, dragged across columns, and deleted successfully in the Kanban board interface with UI updates.",
+    "title": "Create, update, delete and reorder tasks with Kanban drag-and-drop",
+    "description": "Validate task lifecycle on the Kanban board including creation, editing, status updates via drag-and-drop, and deletion.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the tasks Kanban board"
+        "description": "Open task management Kanban board"
       },
       {
         "type": "action",
-        "description": "Create a new task with title and description"
+        "description": "Create a new task with name, description, and status"
       },
       {
         "type": "assertion",
-        "description": "New task appears in the ‘To Do’ column immediately"
+        "description": "Check new task appears in correct status column"
       },
       {
         "type": "action",
-        "description": "Drag and drop the task to the 'In Progress' column"
+        "description": "Edit task details"
       },
       {
         "type": "assertion",
-        "description": "Task status is updated and reflected in UI"
+        "description": "Verify updated task fields display immediately"
       },
       {
         "type": "action",
-        "description": "Edit task details such as title, priority and due date"
+        "description": "Drag and drop task to a different status column"
       },
       {
         "type": "assertion",
-        "description": "Task details update in real-time with no page refresh"
+        "description": "Confirm task status is updated and UI reflects new ordering"
       },
       {
         "type": "action",
@@ -181,244 +193,226 @@
       },
       {
         "type": "assertion",
-        "description": "Task is removed immediately from the board"
+        "description": "Verify task is removed from Kanban board"
       }
     ]
   },
   {
     "id": "TC007",
-    "title": "AI-assisted Quick Capture creates task from natural language input",
-    "description": "Validate that entering natural language into Quick Capture input parses and creates a task with appropriate fields filled.",
+    "title": "Quick Capture task creation with AI parsing",
+    "description": "Test the Quick Capture input for creating tasks using natural language and AI parsing to generate tasks.",
     "category": "functional",
     "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Open Quick Capture input in dashboard"
+        "description": "Access Quick Capture input in dashboard"
       },
       {
         "type": "action",
-        "description": "Enter natural language task description (e.g., 'Submit report tomorrow at 5 PM')"
+        "description": "Enter a natural language string describing a task"
       },
       {
         "type": "action",
-        "description": "Submit the Quick Capture input"
+        "description": "Submit Quick Capture input"
       },
       {
         "type": "assertion",
-        "description": "Task is created with correct title, due date, and other extracted properties"
+        "description": "Verify AI parsing creates a task with correct details and places it in the Kanban board"
       }
     ]
   },
   {
     "id": "TC008",
-    "title": "Financial transaction input with AI-powered category suggestion",
-    "description": "Verify adding a new financial transaction supports AI suggesting appropriate categories and allows user to accept or override them.",
+    "title": "Add financial transaction with AI category suggestion and accurate summaries",
+    "description": "Validate financial transaction entry supports AI category suggestions and updates transaction table and financial summaries correctly.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the financial management section"
+        "description": "Navigate to financial management section"
       },
       {
         "type": "action",
-        "description": "Open the transaction addition form"
-      },
-      {
-        "type": "action",
-        "description": "Enter transaction details such as amount, merchant, and date"
+        "description": "Add a new transaction with amount, date, and description"
       },
       {
         "type": "assertion",
-        "description": "AI suggests a category based on merchant or description"
+        "description": "Verify AI suggests appropriate category for the transaction"
       },
       {
         "type": "action",
-        "description": "Accept or select a different category as needed"
-      },
-      {
-        "type": "action",
-        "description": "Submit the transaction"
+        "description": "Accept AI category suggestion and save transaction"
       },
       {
         "type": "assertion",
-        "description": "Transaction appears in the transaction table with correct data and category"
+        "description": "Confirm transaction appears in the transaction table immediately"
+      },
+      {
+        "type": "assertion",
+        "description": "Check financial charts and summaries reflect the new transaction accurately"
       }
     ]
   },
   {
     "id": "TC009",
-    "title": "Financial charts and summary update after transaction changes",
-    "description": "Ensure that financial charts and summary widgets update correctly after adding, editing, or deleting transactions.",
+    "title": "View and manage university courses, assignments, and grades",
+    "description": "Test adding, updating, and deleting courses and assignments; verify correct grade calculations and What-If simulator accuracy.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Modify transactions by creating, editing, or deleting entries"
+        "description": "Navigate to university module"
+      },
+      {
+        "type": "action",
+        "description": "Add a new course with required details"
       },
       {
         "type": "assertion",
-        "description": "Financial charts correctly reflect updated transaction data"
+        "description": "Confirm course appears in course list and dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Add assignments to the course with due dates and weights"
       },
       {
         "type": "assertion",
-        "description": "Summary widgets recalculate totals and averages accurately"
+        "description": "Verify assignments display correctly on assignment tracker Kanban board"
+      },
+      {
+        "type": "action",
+        "description": "Enter grades for assignments"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm grade calculator updates course grade accurately"
+      },
+      {
+        "type": "action",
+        "description": "Use What-If simulator to change hypothetical grades"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify simulator outputs correctly predict course grade outcomes"
+      },
+      {
+        "type": "action",
+        "description": "Edit and delete courses and assignments"
+      },
+      {
+        "type": "assertion",
+        "description": "Check UI updates reflect changes immediately"
       }
     ]
   },
   {
     "id": "TC010",
-    "title": "University course creation, assignment tracking, and grade calculation",
-    "description": "Verify creation of courses, adding assignments, tracking their status, inputting grades and accurate overall grade calculation.",
+    "title": "AI Assistant responds accurately and offers task creation suggestions",
+    "description": "Test AI chat interface interaction including posing questions, receiving accurate answers, and AI suggesting task creation with user confirmation.",
     "category": "functional",
-    "priority": "High",
+    "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to university academic module"
+        "description": "Open AI Assistant chat via floating action button"
       },
       {
         "type": "action",
-        "description": "Create a new course with title and semester"
-      },
-      {
-        "type": "action",
-        "description": "Add assignments with deadlines and grading weights"
-      },
-      {
-        "type": "action",
-        "description": "Update assignment completion status"
-      },
-      {
-        "type": "action",
-        "description": "Enter obtained grades for assignments"
+        "description": "Send a query related to user data insights or task creation"
       },
       {
         "type": "assertion",
-        "description": "Overall course grade recalculates correctly based on inputs"
+        "description": "Verify AI responds accurately and contextually to the query"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm AI suggests task creation when applicable"
+      },
+      {
+        "type": "action",
+        "description": "Accept AI's suggested task creation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the suggested task is created and appears in task management"
       }
     ]
   },
   {
     "id": "TC011",
-    "title": "What-If grade scenario simulator calculates predicted GPA",
-    "description": "Test that the What-If simulator predicts GPA correctly by allowing user to input hypothetical grades and weights.",
+    "title": "Create, edit, and display journal entries with mood tracking",
+    "description": "Validate journaling functionality including creation and editing of entries, saving mood states, and correct display of entries.",
     "category": "functional",
     "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Access What-If scenario simulator in university module"
+        "description": "Navigate to journaling section"
       },
       {
         "type": "action",
-        "description": "Input hypothetical grades and assignment weights"
+        "description": "Create a new journal entry with text and select mood"
       },
       {
         "type": "assertion",
-        "description": "Simulator outputs correct predicted GPA based on inputs"
+        "description": "Verify entry is saved and displayed in journal list"
+      },
+      {
+        "type": "action",
+        "description": "Edit the journal entry text and mood"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm updates are saved and reflected correctly"
       }
     ]
   },
   {
     "id": "TC012",
-    "title": "AI Assistant responds accurately and suggests actionable insights",
-    "description": "Validate AI chat interface provides accurate, relevant answers and suggests automated actions for tasks and analytics upon user queries.",
+    "title": "Gamification points, levels, streaks, and badges update correctly",
+    "description": "Ensure gamification system updates user points, levels, streaks, and awards badges appropriately based on user actions.",
     "category": "functional",
-    "priority": "High",
+    "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Click floating action button to open AI Assistant chat"
+        "description": "Perform actions that earn points such as completing tasks and habits"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify points and streak counters update in real-time"
+      },
+      {
+        "type": "assertion",
+        "description": "Check level progress bar increments correctly"
       },
       {
         "type": "action",
-        "description": "Type a query requesting insights or task creation"
+        "description": "Achieve criteria for earning badges"
       },
       {
         "type": "assertion",
-        "description": "AI provides correct and contextually relevant response"
-      },
-      {
-        "type": "assertion",
-        "description": "AI suggests actions user can confirm to automate task or data analysis"
+        "description": "Confirm badges are awarded and displayed"
       }
     ]
   },
   {
     "id": "TC013",
-    "title": "Create, edit and display daily journal entries with mood tracking",
-    "description": "Ensure journaling functionality supports adding daily entries with mood selection, editing past entries, and correct display with timestamps.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to the journaling section"
-      },
-      {
-        "type": "action",
-        "description": "Create a new daily journal entry with textual content and mood selection"
-      },
-      {
-        "type": "assertion",
-        "description": "Entry saves and appears correctly in journal list with selected mood"
-      },
-      {
-        "type": "action",
-        "description": "Edit an existing journal entry"
-      },
-      {
-        "type": "assertion",
-        "description": "Edited content updates and preserves original timestamps appropriately"
-      }
-    ]
-  },
-  {
-    "id": "TC014",
-    "title": "Gamification points, levels and badges update upon user activities",
-    "description": "Verify that points are awarded, levels progress, and badges unlock appropriately as the user performs tracked activities.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Perform various activities like completing habits, tasks, or journaling"
-      },
-      {
-        "type": "assertion",
-        "description": "Points tally increases accordingly"
-      },
-      {
-        "type": "assertion",
-        "description": "User level progresses when thresholds are met"
-      },
-      {
-        "type": "assertion",
-        "description": "Badges unlock and display correctly in badge list UI"
-      }
-    ]
-  },
-  {
-    "id": "TC015",
     "title": "Focus Mode timer starts, pauses, and resets correctly",
-    "description": "Test the Focus Mode timer functionality to ensure starting, pausing, and resetting works and UI reflects timer state properly.",
+    "description": "Test the Focus Mode functionality including starting the timer, pausing it, and resetting to ensure distraction-free environment.",
     "category": "functional",
     "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to Focus Mode section"
-      },
-      {
-        "type": "action",
-        "description": "Start the focus timer"
+        "description": "Activate Focus Mode to start timer"
       },
       {
         "type": "assertion",
-        "description": "Timer counts down correctly"
+        "description": "Verify countdown timer starts accurately"
       },
       {
         "type": "action",
@@ -426,7 +420,7 @@
       },
       {
         "type": "assertion",
-        "description": "Timer pauses and retains current elapsed time"
+        "description": "Confirm timer pauses and retains remaining time"
       },
       {
         "type": "action",
@@ -434,115 +428,155 @@
       },
       {
         "type": "assertion",
-        "description": "Timer resets to initial value"
+        "description": "Verify timer resets to initial duration"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Responsive UI adjusts correctly on mobile, tablet, and desktop",
+    "description": "Verify that the UI layout and components adapt correctly to different screen sizes and device breakpoints per design specifications.",
+    "category": "ui",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open the application on desktop screen size"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that all dashboard zones and widgets are fully visible and arranged properly"
+      },
+      {
+        "type": "action",
+        "description": "Resize viewport to tablet dimensions"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify layout adjusts with accessible navigation and readable content"
+      },
+      {
+        "type": "action",
+        "description": "Resize viewport to mobile screen size"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm UI components stack or adapt for usability and no content overflows"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Accessibility compliance with WCAG 2.1 Level AA",
+    "description": "Test application pages and components for compliance with WCAG 2.1 AA guidelines including keyboard navigation, color contrast, and screen reader support.",
+    "category": "ui",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate through the app using only keyboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm that focus states are visible and logical across all interactive elements"
+      },
+      {
+        "type": "action",
+        "description": "Use a screen reader to explore main sections including dashboard, habits, tasks, and finances"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all content is read out properly with semantic markup"
+      },
+      {
+        "type": "action",
+        "description": "Check all text and UI elements meet color contrast standards"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm contrast ratios meet WCAG 2.1 Level AA thresholds"
       }
     ]
   },
   {
     "id": "TC016",
-    "title": "Responsive UI adapts layout correctly across device breakpoints",
-    "description": "Verify that the UI layout and components adjust seamlessly to mobile, tablet, and desktop screen sizes without loss of functionality or accessibility.",
-    "category": "ui",
-    "priority": "High",
+    "title": "Performance - UI responsiveness under typical user actions",
+    "description": "Measure and verify UI responsiveness when updating habits, tasks, financial data, and AI chat interactions meet performance targets.",
+    "category": "functional",
+    "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Render the application in mobile viewport"
+        "description": "Perform rapid habit completion and creation actions"
       },
       {
         "type": "assertion",
-        "description": "Verify the dashboard and modules reflow to a mobile-optimized layout"
+        "description": "Confirm UI updates occur within acceptable latency (<200ms)"
       },
       {
         "type": "action",
-        "description": "Resize to tablet viewport"
+        "description": "Drag and drop multiple tasks on Kanban board consecutively"
       },
       {
         "type": "assertion",
-        "description": "Verify responsive rules correctly display components intermediate between mobile and desktop"
+        "description": "Validate smooth UI animation and no freezing"
       },
       {
         "type": "action",
-        "description": "Expand to desktop viewport"
+        "description": "Input multiple financial transactions rapidly with AI suggestions"
       },
       {
         "type": "assertion",
-        "description": "Full 3-zone dashboard layout and sidebars appear as specified"
+        "description": "Verify transaction table and summaries refresh promptly"
+      },
+      {
+        "type": "action",
+        "description": "Send queries to AI Assistant chat"
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure AI responses are returned with minimal delay per performance criteria"
       }
     ]
   },
   {
     "id": "TC017",
-    "title": "Accessibility compliance with WCAG 2.1 Level AA standards",
-    "description": "Check that all UI components are accessible including keyboard navigation, screen reader labels, color contrast and focus indicators.",
-    "category": "ui",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate through the application using only the keyboard"
-      },
-      {
-        "type": "assertion",
-        "description": "All interactive elements are reachable and operable"
-      },
-      {
-        "type": "assertion",
-        "description": "UI text and controls meet color contrast requirements"
-      },
-      {
-        "type": "assertion",
-        "description": "Screen reader reads meaningful labels and statuses correctly"
-      },
-      {
-        "type": "assertion",
-        "description": "Focus indicators are present and visible on all interactive elements"
-      }
-    ]
-  },
-  {
-    "id": "TC018",
-    "title": "Error handling on network failure during data operations",
-    "description": "Simulate network failure during any CRUD operation and verify appropriate error handling, user notifications, and data consistency.",
+    "title": "Error handling when API requests fail for critical features",
+    "description": "Test application behavior and user feedback when API requests fail during habit, task, finance, and university module operations.",
     "category": "error handling",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Perform a create or update operation with network disconnected or simulated failure"
+        "description": "Simulate API failure on creating a habit"
       },
       {
         "type": "assertion",
-        "description": "User is notified with a clear error message"
-      },
-      {
-        "type": "assertion",
-        "description": "UI rolls back to previous stable state without stale or partial data"
-      }
-    ]
-  },
-  {
-    "id": "TC019",
-    "title": "Session persistence across browser reloads and expiration handling",
-    "description": "Verify that a logged-in session persists after page reloads and expires properly requiring re-authentication after timeout.",
-    "category": "functional",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Login successfully and reload the browser page"
-      },
-      {
-        "type": "assertion",
-        "description": "User remains logged in and dashboard loads with session data"
+        "description": "Verify user is shown a descriptive error message and optimistic UI is reverted"
       },
       {
         "type": "action",
-        "description": "Simulate session expiration by clearing tokens or time expiry"
+        "description": "Simulate API failure on task drag-and-drop update"
       },
       {
         "type": "assertion",
-        "description": "User is logged out or prompted to re-authenticate"
+        "description": "Confirm error notification appears and task position resets correctly"
+      },
+      {
+        "type": "action",
+        "description": "Simulate API failure when adding a financial transaction"
+      },
+      {
+        "type": "assertion",
+        "description": "Check proper error feedback is displayed and transaction is not added"
+      },
+      {
+        "type": "action",
+        "description": "Simulate API failure during grade input in university module"
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure user receives clear error and data remains consistent"
       }
     ]
   }
