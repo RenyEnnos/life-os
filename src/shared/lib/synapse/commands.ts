@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { SynapseCommand } from './types';
 import { useSanctuaryStore } from '../../stores/sanctuaryStore';
+import { useUIStore } from '../../stores/uiStore';
 
 /**
  * Static command definitions organized by Life OS nomenclature groups.
@@ -39,7 +40,7 @@ export const getStaticCommands = (navigate: NavigateFunction): SynapseCommand[] 
         icon: Plus,
         group: 'actions',
         shortcut: ['N', 'A'],
-        action: () => { /* TODO: Open new action modal */ },
+        action: () => { useUIStore.getState().openModal('action'); },
         keywords: ['task', 'todo', 'add', 'create'],
     },
 
@@ -60,7 +61,7 @@ export const getStaticCommands = (navigate: NavigateFunction): SynapseCommand[] 
         description: 'Create a new mission',
         icon: Plus,
         group: 'missions',
-        action: () => { /* TODO: Open new mission modal */ },
+        action: () => { useUIStore.getState().openModal('mission'); },
         keywords: ['project', 'goal', 'add', 'create'],
     },
 
@@ -81,7 +82,7 @@ export const getStaticCommands = (navigate: NavigateFunction): SynapseCommand[] 
         description: 'Create a new ritual',
         icon: Plus,
         group: 'rituals',
-        action: () => { /* TODO: Open new ritual modal */ },
+        action: () => { useUIStore.getState().openModal('ritual'); },
         keywords: ['habit', 'routine', 'add', 'create'],
     },
 
@@ -123,7 +124,7 @@ export const getStaticCommands = (navigate: NavigateFunction): SynapseCommand[] 
         description: 'Create a new journal entry',
         icon: Plus,
         group: 'memory',
-        action: () => { /* TODO: Open new journal modal */ },
+        action: () => { useUIStore.getState().openModal('journal'); },
         keywords: ['journal', 'note', 'add', 'create'],
     },
 
@@ -145,7 +146,7 @@ export const getStaticCommands = (navigate: NavigateFunction): SynapseCommand[] 
         icon: Search,
         group: 'nexus',
         shortcut: ['/', '/'],
-        action: () => { /* TODO: Open global search */ },
+        action: () => { useUIStore.getState().openModal('search'); },
         keywords: ['search', 'find', 'query'],
     },
     {

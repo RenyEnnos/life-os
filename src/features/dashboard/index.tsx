@@ -11,6 +11,7 @@ import { HabitWidget } from '@/features/dashboard/widgets/HabitWidget'
 import { JournalWidget } from '@/features/dashboard/widgets/JournalWidget'
 import { TaskWidget } from '@/features/dashboard/widgets/TaskWidget'
 import { XpHero } from '@/features/dashboard/components/gamification/XpHero'
+import { Zone1_Now } from '@/features/dashboard/components/Zone1_Now'
 import { AttributeRadar } from '@/features/dashboard/components/gamification/AttributeRadar'
 import { LevelUpToast } from '@/features/dashboard/components/gamification/LevelUpToast'
 import { WidgetShell } from '@/features/dashboard/widgets/WidgetShell'
@@ -85,7 +86,8 @@ export default function DashboardPage() {
           <div className="lg:col-span-2">
             <XpHero lifeScore={lifeScore} isLoading={isLoading} />
             {/* Synapse (Search/Suggestion) below Hero */}
-            <div className="mt-6">
+            <div className="mt-6 space-y-6">
+              <Zone1_Now />
               <AgoraSection />
             </div>
           </div>

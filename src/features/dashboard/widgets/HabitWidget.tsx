@@ -77,7 +77,12 @@ export function HabitWidget() {
                                     <span className="text-[10px] text-zinc-600 uppercase tracking-wider">{habit.attribute || 'Geral'}</span>
                                 </div>
                             </div>
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full bg-primary/20 text-primary">
+                            <div className={cn(
+                                "transition-all duration-300 p-1.5 rounded-full",
+                                habit.completed
+                                    ? "opacity-100 bg-primary text-black"
+                                    : "opacity-0 group-hover:opacity-100 bg-primary/20 text-primary"
+                            )}>
                                 <Check size={14} />
                             </div>
                         </button>

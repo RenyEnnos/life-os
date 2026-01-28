@@ -11,6 +11,7 @@ type ModalProps = {
   children: React.ReactNode
   ariaDescriptionId?: string
   className?: string
+  contentClassName?: string
 }
 
 const springTransition = {
@@ -20,21 +21,20 @@ const springTransition = {
   mass: 0.8
 };
 
-export function Modal({ open, onClose, title, children, className }: ModalProps) {
+export function Modal({ open, onClose, title, children, className, contentClassName }: ModalProps) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     if (open) document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [open, onClose])
 
-  // Uso de Portal para garantir z-index correto sobre o AppLayout
   if (typeof document === 'undefined') return null;
 
   return createPortal(
     <AnimatePresence mode="wait">
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop com Blur progressivo */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4">
+          {/* Backdrop with progressive blur */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
@@ -44,7 +44,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
             className="absolute inset-0 bg-black/60 backdrop-blur-md"
           />
 
-          {/* Container do Modal */}
+          {/* Modal Container */}
           <motion.div
             role="dialog"
             aria-modal="true"
@@ -66,7 +66,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
                 <h2 className="text-lg font-medium text-zinc-100 font-sans">{title}</h2>
               </div>
             )}
-            <div className="p-6 text-zinc-300">{children}</div>
+            <div className={cn("p-6 text-zinc-300", contentClassName)}>{children}</div>
           </motion.div>
         </div>
       )}

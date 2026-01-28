@@ -16,6 +16,7 @@ export function FinanceWidget() {
     const [isAdding, setIsAdding] = useState(false);
     const [amount, setAmount] = useState('');
     const [desc, setDesc] = useState('');
+    const [category, setCategory] = useState('General');
     const [type, setType] = useState<'income' | 'expense'>('expense');
 
     const createTransaction = useMutation({
@@ -23,7 +24,7 @@ export function FinanceWidget() {
             type,
             amount: Number(amount),
             description: desc,
-            category: 'General', // TODO: Add category selector from DB
+            category: category,
             transaction_date: new Date().toISOString()
         }),
         onSettled: () => {
@@ -71,6 +72,18 @@ export function FinanceWidget() {
                             Receita
                         </button>
                     </div>
+                    <select
+                        value={category}
+                        onChange={e => setCategory(e.target.value)}
+                        className="bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-white/20 outline-none w-full appearance-none"
+                    >
+                        <option value="General">Geral</option>
+                        <option value="Food">Alimentação</option>
+                        <option value="Transport">Transporte</option>
+                        <option value="Health">Saúde</option>
+                        <option value="Entertainment">Lazer</option>
+                        <option value="Utilities">Contas</option>
+                    </select>
                     <input
                         type="number"
                         placeholder="Valor"
@@ -86,9 +99,10 @@ export function FinanceWidget() {
                         className="bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-white/20 outline-none"
                     />
                     <button
+                        align="center"
                         disabled={!amount || !desc || createTransaction.isPending}
                         onClick={() => createTransaction.mutate()}
-                        className="mt-2 bg-white text-black font-medium py-2 rounded-lg text-sm hover:bg-zinc-200 disabled:opacity-50 transition-colors"
+                        className="mt-2 bg-white text-black font-medium py-2 rounded-lg text-sm hover:bg-zinc-200 disabled:opacity-50 transition-colors w-full"
                     >
                         {createTransaction.isPending ? 'Salvando...' : 'Confirmar'}
                     </button>

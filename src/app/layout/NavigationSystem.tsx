@@ -26,21 +26,19 @@ export function NavigationSystem({ isSanctuaryActive = false }: NavigationSystem
     }
 
     return (
-        <motion.div
-            {...slideProps}
-            className="fixed left-1/2 -translate-x-1/2 z-40 md:hidden w-max max-w-[95vw]"
-            style={{
-                ...(slideProps.style || {}),
-                bottom: 'calc(2rem + env(safe-area-inset-bottom))'
-            }}
-        >
-            <Dock className="bg-black/40 border-white/5 shadow-2xl backdrop-blur-xl px-4 py-3 gap-3">
-                {mobileNav.map((item) => (
-                    <DockIcon key={item.path} href={item.path}>
-                        <item.icon className="size-6 text-zinc-300" />
-                    </DockIcon>
-                ))}
-            </Dock>
-        </motion.div>
+        <div className="fixed inset-x-0 z-40 md:hidden flex justify-center pointer-events-none" style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}>
+            <motion.div
+                {...slideProps}
+                className="w-auto max-w-[92vw] pointer-events-auto"
+            >
+                <Dock className="bg-black/40 border-white/5 shadow-2xl backdrop-blur-xl px-4 py-3 gap-3 overflow-x-auto hide-scrollbar max-w-full justify-center">
+                    {mobileNav.map((item) => (
+                        <DockIcon key={item.path} href={item.path}>
+                            <item.icon className="size-6 text-zinc-300" />
+                        </DockIcon>
+                    ))}
+                </Dock>
+            </motion.div>
+        </div>
     );
 }
