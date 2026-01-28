@@ -48,44 +48,35 @@ async def run_test():
         # -> Navigate to http://localhost:5173
         await page.goto("http://localhost:5173", wait_until="commit", timeout=10000)
         
-        # -> Navigate directly to the login page (http://localhost:5173/login) to load the login form so invalid-credentials test can be executed.
+        # -> Wait briefly for the page to finish loading. If no navigation elements appear, navigate directly to http://localhost:5173/login.
         await page.goto("http://localhost:5173/login", wait_until="commit", timeout=10000)
         
-        # -> Try to recover the login page by waiting briefly then navigating to the hash-based login URL (http://localhost:5173/#/login). If that fails, try other variants or report issue.
-        await page.goto("http://localhost:5173/#/login", wait_until="commit", timeout=10000)
-        
-        # -> Wait briefly then attempt loading the login page using the alternate host URL (http://127.0.0.1:5173/login) to locate the login form and interactive fields.
-        await page.goto("http://127.0.0.1:5173/login", wait_until="commit", timeout=10000)
-        
-        # -> Load the hash-based login route at http://127.0.0.1:5173/#/login to locate the login form.
-        await page.goto("http://127.0.0.1:5173/#/login", wait_until="commit", timeout=10000)
-        
-        # -> Enter invalid email and password into the login form, then click the ENTRAR button to attempt login (next page state will be checked for error message).
+        # -> Enter an invalid email and password into the form and click the ENTRAR (submit) button to trigger login validation.
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[1]/div/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('wrong.user@example.com')
+        await page.wait_for_timeout(3000); await elem.fill('invalid@example.com')
         
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[2]/div[2]/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('incorrectPassword123')
+        await page.wait_for_timeout(3000); await elem.fill('wrongpassword')
         
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[3]/button').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Fill the email and password fields again with invalid credentials and click the ENTRAR button to produce and capture the Portuguese error message.
+        # -> Submit invalid credentials again and inspect page for an error message (look for alerts, toast messages, or body text keywords).
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[1]/div/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('wrong.user@example.com')
+        await page.wait_for_timeout(3000); await elem.fill('invalid@example.com')
         
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[2]/div[2]/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('incorrectPassword123')
+        await page.wait_for_timeout(3000); await elem.fill('wrongpassword')
         
         frame = context.pages[-1]
         # Click element
@@ -94,12 +85,10 @@ async def run_test():
         
         # --> Assertions to verify final state
         frame = context.pages[-1]
-        ```
         try:
-            await expect(frame.locator('text=E-mail ou senha inválidos').first).to_be_visible(timeout=3000)
+            await expect(frame.locator('text=Invalid email or password').first).to_be_visible(timeout=3000)
         except AssertionError:
-            raise AssertionError("Test case failed: The test verified that the system rejects login with incorrect email/password and displays the Portuguese error message 'E-mail ou senha inválidos', but that error message did not appear")
-        ```
+            raise AssertionError("Test case failed: The test attempted to verify that submitting invalid credentials prevents login and displays the error message 'Invalid email or password', but that error message did not appear.")
         await asyncio.sleep(5)
 
     finally:

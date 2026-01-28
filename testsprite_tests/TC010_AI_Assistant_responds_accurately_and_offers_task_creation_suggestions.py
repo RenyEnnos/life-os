@@ -48,86 +48,44 @@ async def run_test():
         # -> Navigate to http://localhost:5173
         await page.goto("http://localhost:5173", wait_until="commit", timeout=10000)
         
-        # -> Fill the login form with test credentials and submit to access the app (email -> [89], password -> [102], click submit [108]).
+        # -> Log in using test credentials so the app loads the authenticated UI (then locate the chat/floating action button). Immediately submit the login form.
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[1]/div/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('test@life-os.app')
+        await page.wait_for_timeout(3000); await elem.fill('example@gmail.com')
         
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[2]/div[2]/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('TestPass123!')
+        await page.wait_for_timeout(3000); await elem.fill('password123')
         
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[3]/button').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Fill email [226] with example@gmail.com, fill password [239] with password123, then click submit button [245] to log in.
+        # -> Refill the login form (email and password) and click the ENTRAR submit button to retry authentication. After submitting, wait for the authenticated UI to load and locate the floating chat/assistant button.
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[1]/div/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('test@life-os.app')
+        await page.wait_for_timeout(3000); await elem.fill('example@gmail.com')
         
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[2]/div[2]/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('TestPass123!')
+        await page.wait_for_timeout(3000); await elem.fill('password123')
         
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[3]/button').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Fill the login form (email into input [322], password into input [323]) and click the submit button [326] to sign in, then wait for the dashboard to load.
+        # --> Assertions to verify final state
         frame = context.pages[-1]
-        # Input text
-        elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[1]/div/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('test@life-os.app')
-        
-        frame = context.pages[-1]
-        # Input text
-        elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[2]/div[2]/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('TestPass123!')
-        
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[3]/button').nth(0)
-        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
-        # -> Clear and re-enter email and password via shadow inputs [603] and [604], click submit [607], wait 3 seconds, then re-scan page for the assistant FAB or dashboard load.
-        frame = context.pages[-1]
-        # Input text
-        elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[1]/div/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('test@life-os.app')
-        
-        frame = context.pages[-1]
-        # Input text
-        elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[2]/div[2]/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('TestPass123!')
-        
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[3]/button').nth(0)
-        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
-        # -> Fill the email and password into the visible inputs (indexes 770 and 771) and click the submit button (index 774), then wait and re-scan for the floating assistant FAB or dashboard load.
-        frame = context.pages[-1]
-        # Input text
-        elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[1]/div/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('test@life-os.app')
-        
-        frame = context.pages[-1]
-        # Input text
-        elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[2]/div[2]/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('TestPass123!')
-        
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=html/body/div/div[2]/div[2]/div/div[2]/form/div[3]/button').nth(0)
-        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
+        try:
+            await expect(frame.locator('text=Task successfully created').first).to_be_visible(timeout=3000)
+        except AssertionError:
+            raise AssertionError("Test case failed: Expected the AI-suggested task to be created and visible in task management ('Task successfully created'), but the confirmation or task entry did not appear — either the AI did not suggest the task, the acceptance was not processed, or the task UI failed to display.")
         await asyncio.sleep(5)
 
     finally:
