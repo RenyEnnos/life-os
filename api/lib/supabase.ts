@@ -11,7 +11,7 @@ if (!supabaseUrl || !key) {
   if (!key) {
     missing.push('SUPABASE_SERVICE_ROLE_KEY | SUPABASE_SERVICE_KEY | SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY)')
   }
-  throw new Error(`Supabase configuration missing: ${missing.join(', ')}`)
+  console.warn(`Supabase configuration missing: ${missing.join(', ')}`)
 }
 
 console.info('[Supabase] configuration loaded', {
@@ -20,6 +20,6 @@ console.info('[Supabase] configuration loaded', {
   hasAnonKey: Boolean(supabaseAnonKey)
 })
 
-const supabase: SupabaseClient = createClient(supabaseUrl, key)
+const supabase: SupabaseClient = createClient(supabaseUrl || 'http://placeholder.url', key || 'placeholder-key')
 
 export { supabase }

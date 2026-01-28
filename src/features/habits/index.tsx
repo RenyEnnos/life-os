@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { useHabits } from '@/features/habits/hooks/useHabits';
-import type { HabitLog } from '@/features/habits/types';
 import { calculateStreak } from './logic/streak';
 import { cn } from '@/shared/lib/cn';
 import { CreateHabitDialog } from './components/CreateHabitDialog';
