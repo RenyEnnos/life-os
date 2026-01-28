@@ -8,7 +8,6 @@ import { journalApi } from '../api/journal.api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { InsightCard } from './InsightCard';
-import { cn } from '@/shared/lib/cn';
 
 interface JournalEditorProps {
     entry?: JournalEntry;
@@ -116,7 +115,8 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="p-2 hover:bg-white/5 rounded-full transition-colors"
+                        aria-label="Go back"
+                        className="p-2 hover:bg-white/5 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                     >
                         <ArrowLeft size={18} />
                     </button>
@@ -125,6 +125,7 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                         <Calendar size={12} />
                         <input
                             type="date"
+                            aria-label="Entry date"
                             className="bg-transparent border-none p-0 text-zinc-300 focus:outline-none focus:ring-0 w-24"
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
@@ -166,6 +167,7 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                     {/* Title Input */}
                     <input
                         type="text"
+                        aria-label="Journal Title"
                         className="w-full bg-transparent border-none text-4xl font-display font-medium text-white placeholder-zinc-700 focus:outline-none focus:ring-0 p-0 leading-tight"
                         placeholder="Untitled Entry"
                         value={title}
@@ -188,7 +190,8 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                                     {tag}
                                     <button
                                         onClick={() => removeTag(tag)}
-                                        className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-400"
+                                        aria-label={`Remove tag: ${tag}`}
+                                        className="ml-1 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50 rounded-sm"
                                     >
                                         <X size={10} />
                                     </button>
@@ -199,6 +202,7 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                         <div className="relative flex items-center">
                             <input
                                 type="text"
+                                aria-label="Add new tag"
                                 className="bg-transparent border-none text-sm text-zinc-500 placeholder-zinc-700 focus:outline-none focus:ring-0 w-32 py-1"
                                 placeholder="+ Add tag..."
                                 value={newTag}
@@ -226,6 +230,7 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                     {/* Main Content */}
                     <textarea
                         ref={textareaRef}
+                        aria-label="Journal Content"
                         className="w-full min-h-[40vh] bg-transparent border-none resize-none text-lg text-zinc-300 font-mono leading-loose placeholder-zinc-800 focus:outline-none focus:ring-0 p-0 overflow-hidden"
                         placeholder="Start writing..."
                         value={content}

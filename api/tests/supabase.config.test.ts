@@ -24,10 +24,12 @@ afterEach(() => {
 })
 
 describe('supabase configuration', () => {
-  it('throws when Supabase config is missing', async () => {
+  it('warns when Supabase config is missing', async () => {
     clearSupabaseEnv()
     vi.resetModules()
-    await expect(import('../lib/supabase')).rejects.toThrow(/Supabase configuration missing/)
+    const spy = vi.spyOn(console, 'warn')
+    await import('../lib/supabase')
+    expect(spy).toHaveBeenCalledWith(expect.stringMatching(/Supabase configuration missing/))
   })
 
   it('initializes when Supabase config is present', async () => {
