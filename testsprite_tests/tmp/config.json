@@ -1,0 +1,15 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:5173",
+  "executionArgs": {
+    "projectName": "life-os",
+    "projectPath": "c:\\Users\\pedro\\Documents\\life-os",
+    "testIds": [],
+    "additionalInstruction": "Execute all 19 test cases from the frontend test plan",
+    "envs": {
+      "API_KEY": "sk-user-EuTtrqrsm__Etjp6PSPTkjHxHeFlOyygYKUxrpc0857PM7TyJUOMLGtmyX4y-O1nbYx7GtkAb831PTjlYbwfbUsR2H3KXiYem4d53YzsXWJKJYcC3D7PfeQ2X984QatmC9o"
+    }
+  }
+}

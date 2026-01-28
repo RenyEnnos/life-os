@@ -26,6 +26,6 @@
       - button "ENTRAR" [ref=e33] [cursor=pointer]: ENTRAR
     - generic [ref=e34]:
       - text: Não tem conta?
-      - link "Registrar" [ref=e35] [cursor=pointer]:
+      - link "Registrar" [ref=e35]:
         - /url: /register
 ```
