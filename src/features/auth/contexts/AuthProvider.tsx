@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const loginMutation = useMutation({
-    mutationFn: authApi.login,
+    mutationFn: (creds: LoginRequest) => authApi.login(creds),
     onSuccess: (data) => {
       if (data?.user) {
         queryClient.setQueryData(['auth_user'], data.user);
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const registerMutation = useMutation({
-    mutationFn: authApi.register,
+    mutationFn: (creds: RegisterRequest) => authApi.register(creds),
     onSuccess: (data) => {
       if (data?.user) {
         queryClient.setQueryData(['auth_user'], data.user);
