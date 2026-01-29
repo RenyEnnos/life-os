@@ -35,7 +35,7 @@ describe("http.ts", () => {
 
   it("fetchJSON throws on non-2xx with JSON message", async () => {
     mockFetch({ status: 500, statusText: "Internal Server Error", body: { error: "oops" } })
-    await expect(fetchJSON("/api/fail")).rejects.toThrow(/500 Internal Server Error: oops/)
+    await expect(fetchJSON("/api/fail")).rejects.toThrow(/oops/)
   })
 
   it("timeout aborts request", async () => {

@@ -99,7 +99,6 @@ export function FinanceWidget() {
                         className="bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-white/20 outline-none"
                     />
                     <button
-                        align="center"
                         disabled={!amount || !desc || createTransaction.isPending}
                         onClick={() => createTransaction.mutate()}
                         className="mt-2 bg-white text-black font-medium py-2 rounded-lg text-sm hover:bg-zinc-200 disabled:opacity-50 transition-colors w-full"
