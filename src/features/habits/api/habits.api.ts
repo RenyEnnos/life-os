@@ -1,5 +1,5 @@
 import { apiClient } from '@/shared/api/http';
-import { Habit } from '../types';
+import { Habit, HabitLog } from '../types';
 
 type HabitLogResponse = {
     habit_id?: string;
@@ -35,7 +35,7 @@ export const habitsApi = {
         return (data || []).map((log): HabitLogResponse & { date: string } => ({
             ...log,
             date: log.date ?? log.logged_date ?? ''
-        }));
+        })) as unknown as HabitLog[];
     },
 
     log: async (_userId: string, habitId: string, value: number, date: string) => {
