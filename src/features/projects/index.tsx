@@ -31,7 +31,7 @@ export default function ProjectsPage() {
                 context: `Project: ${project.title}\nDescription: ${project.description}\nStatus: ${project.status}`
             });
             if (result.swot) {
-                setSwotData(prev => ({ ...prev, [project.id]: result.swot }));
+                setSwotData(prev => ({ ...prev, [project.id]: result.swot as SwotResult }));
                 setSelectedProject(project.id); // Open/expand card to show SWOT if we had that UI
             }
         } catch (error) {
