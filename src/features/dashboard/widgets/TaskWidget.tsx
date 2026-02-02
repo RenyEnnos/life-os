@@ -115,7 +115,7 @@ export function TaskWidget() {
                                 <button
                                     className="opacity-0 group-hover:opacity-100 p-2 rounded-full bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-all"
                                     title="Iniciar Foco"
-                                    onClick={() => startFocus(task)}
+                                    onClick={() => startFocus(task.title, task)}
                                 >
                                     <Play size={14} fill="currentColor" />
                                 </button>
