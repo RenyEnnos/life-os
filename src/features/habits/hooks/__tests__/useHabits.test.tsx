@@ -35,7 +35,8 @@ describe('useHabits', () => {
         const habitsData = [{ id: '1', name: 'Drink Water' }] as unknown as Habit[];
         const mockedHabitsApi = vi.mocked(habitsApi, true);
         mockedHabitsApi.list.mockResolvedValue(habitsData);
-        mockedHabitsApi.getLogs.mockResolvedValue([] as HabitLog[]);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        mockedHabitsApi.getLogs.mockResolvedValue([] as any);
 
         const { result } = renderHook(() => useHabits(), { wrapper });
 

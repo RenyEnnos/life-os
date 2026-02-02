@@ -23,6 +23,6 @@ interface UIStore {
 export const useUIStore = create<UIStore>((set) => ({
     activeModal: null,
     modalData: null,
-    openModal: (type, data = null) => set({ activeModal: type, modalData: data }),
+    openModal: (type, data) => set({ activeModal: type, modalData: data ?? null }),
     closeModal: () => set({ activeModal: null, modalData: null }),
 }));

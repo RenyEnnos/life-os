@@ -90,7 +90,8 @@ export const getUserXP = async (userId: string): Promise<UserXP | null> => {
         total_xp: data.current_xp ?? 0,
         level: data.level ?? 1,
         attributes: toAttributes(data.attributes),
-        xp_history: toXpHistory(data.xp_history),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        xp_history: toXpHistory(data.xp_history) as any,
         created_at: data.created_at ?? new Date().toISOString(),
         updated_at: data.updated_at ?? new Date().toISOString(),
     };
