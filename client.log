@@ -425,3 +425,8 @@
 5:04:05 AM [vite] (client) page reload coverage/app/src/features/rewards/hooks/useRewards.ts.html
 5:04:05 AM [vite] (client) page reload coverage/app/src/features/rewards/api/index.html
 5:04:05 AM [vite] (client) page reload coverage/app/src/features/rewards/api/rewards.api.ts.html
+5:11:40 AM [vite] (client) page reload .agent/skills/algorithmic-art/templates/viewer.html
+5:11:43 AM [vite] changed tsconfig file detected: /app/.agent/skills/loki-mode/examples/todo-app-generated/backend/tsconfig.json - Clearing cache and forcing full-reload to ensure TypeScript is compiled with updated config values.
+5:11:43 AM [vite] changed tsconfig file detected: /app/.agent/skills/loki-mode/examples/todo-app-generated/frontend/tsconfig.json - Clearing cache and forcing full-reload to ensure TypeScript is compiled with updated config values.
+5:11:43 AM [vite] (client) page reload .agent/skills/loki-mode/autonomy/.loki/dashboard/index.html
+5:11:43 AM [vite] (client) page reload .agent/skills/loki-mode/examples/todo-app-generated/frontend/index.html
