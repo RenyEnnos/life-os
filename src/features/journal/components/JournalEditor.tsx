@@ -8,7 +8,6 @@ import { journalApi } from '../api/journal.api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { InsightCard } from './InsightCard';
-import { cn } from '@/shared/lib/cn';
 
 interface JournalEditorProps {
     entry?: JournalEntry;
@@ -116,7 +115,8 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="p-2 hover:bg-white/5 rounded-full transition-colors"
+                        className="p-2 hover:bg-white/5 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+                        aria-label="Go back"
                     >
                         <ArrowLeft size={18} />
                     </button>
@@ -128,6 +128,7 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                             className="bg-transparent border-none p-0 text-zinc-300 focus:outline-none focus:ring-0 w-24"
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
+                            aria-label="Entry date"
                         />
                     </div>
                 </div>
@@ -171,6 +172,7 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         autoFocus
+                        aria-label="Entry title"
                     />
 
                     {/* Tags Area */}
@@ -188,7 +190,8 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                                     {tag}
                                     <button
                                         onClick={() => removeTag(tag)}
-                                        className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-400"
+                                        className="ml-1 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity hover:text-red-400 focus-visible:ring-2 focus-visible:ring-red-400/50 rounded-full focus-visible:outline-none"
+                                        aria-label={`Remove tag ${tag}`}
                                     >
                                         <X size={10} />
                                     </button>
@@ -209,12 +212,13 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                                         addTag();
                                     }
                                 }}
+                                aria-label="Add new tag"
                             />
                             {content.length > 20 && !isGeneratingTags && (
                                 <button
                                     type="button"
                                     onClick={handleGenerateTags}
-                                    className="ml-2 text-[10px] uppercase tracking-wider text-primary/60 hover:text-primary transition-colors flex items-center gap-1"
+                                    className="ml-2 text-[10px] uppercase tracking-wider text-primary/60 hover:text-primary transition-colors flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm"
                                 >
                                     <Sparkles size={10} />
                                     AI Suggest
