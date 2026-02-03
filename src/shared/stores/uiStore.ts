@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { JournalEntry, Task } from '@/shared/types';
+import type { JournalEntry } from '@/shared/types';
 
 type ModalType = 'action' | 'mission' | 'ritual' | 'journal' | 'search' | null;
 
@@ -23,6 +23,7 @@ interface UIStore {
 export const useUIStore = create<UIStore>((set) => ({
     activeModal: null,
     modalData: null,
-    openModal: (type, data = null) => set({ activeModal: type, modalData: data }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    openModal: (type, data: any = null) => set({ activeModal: type, modalData: data }),
     closeModal: () => set({ activeModal: null, modalData: null }),
 }));

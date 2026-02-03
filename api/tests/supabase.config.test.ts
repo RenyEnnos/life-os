@@ -24,8 +24,18 @@ afterEach(() => {
 })
 
 describe('supabase configuration', () => {
-  it('throws when Supabase config is missing', async () => {
+  it('warns (and does not throw) when Supabase config is missing in test env', async () => {
     clearSupabaseEnv()
+    vi.resetModules()
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    await expect(import('../lib/supabase')).resolves.toBeDefined()
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Running in TEST mode. Missing keys ignored'))
+    consoleSpy.mockRestore()
+  })
+
+  it('throws when Supabase config is missing in non-test env', async () => {
+    clearSupabaseEnv()
+    process.env.NODE_ENV = 'production'
     vi.resetModules()
     await expect(import('../lib/supabase')).rejects.toThrow(/Supabase configuration missing/)
   })

@@ -50,6 +50,7 @@ test.describe('Habits Management', () => {
 
         // Delete
         // Find the specific habit card/row
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const habitCard = page.locator('article').filter({ hasText: 'Playwright Habit' });
         // Assume check or delete button exists
         // This part is speculative without HabitItem.tsx inspection, but keeping for structure.

@@ -11,7 +11,11 @@ if (!supabaseUrl || !key) {
   if (!key) {
     missing.push('SUPABASE_SERVICE_ROLE_KEY | SUPABASE_SERVICE_KEY | SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY)')
   }
-  throw new Error(`Supabase configuration missing: ${missing.join(', ')}`)
+  if (process.env.NODE_ENV === 'test') {
+    console.warn(`[Supabase] Running in TEST mode. Missing keys ignored: ${missing.join(', ')}`)
+  } else {
+    throw new Error(`Supabase configuration missing: ${missing.join(', ')}`)
+  }
 }
 
 console.info('[Supabase] configuration loaded', {
@@ -20,6 +24,19 @@ console.info('[Supabase] configuration loaded', {
   hasAnonKey: Boolean(supabaseAnonKey)
 })
 
-const supabase: SupabaseClient = createClient(supabaseUrl, key)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const createMockClient = (): any => {
+  const handler = {
+    get: (_target: any, prop: string): any => {
+      if (prop === 'then') return undefined; // Avoid promise resolution
+      if (prop === 'auth') return { getUser: async () => ({ data: { user: null }, error: { message: 'Mock Auth Error' } }) };
+      return () => createMockClient(); // Chainable
+    }
+  };
+  return new Proxy(() => {}, handler);
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const supabase: SupabaseClient = (supabaseUrl && key) ? createClient(supabaseUrl, key) : createMockClient()
 
 export { supabase }

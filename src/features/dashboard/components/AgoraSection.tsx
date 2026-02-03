@@ -3,7 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useDashboardData } from '@/features/dashboard/hooks/useDashboardData';
 import { cn } from '@/shared/lib/cn';
-import type { Task, VitalLoadSummary } from '@/shared/types';
+import type { VitalLoadSummary } from '@/shared/types';
 import { aiApi } from '@/features/ai-assistant/api/ai.api';
 import type { SynapseSuggestion } from '@/features/ai-assistant/types';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
@@ -38,20 +38,6 @@ const dayPartCopy: Record<DayPart, { title: string; subtitle: string; gradient: 
     }
 };
 
-const formatDue = (task: Task) => {
-    const legacyDue = (task as { due?: string | null }).due;
-    const raw = task.due_date || legacyDue;
-    if (!raw) return null;
-    try {
-        const date = new Date(raw);
-        return new Intl.DateTimeFormat('default', { hour: '2-digit', minute: '2-digit' }).format(date);
-    } catch {
-        return null;
-    }
-};
-
-
-
 function getDayPart(now = new Date()): DayPart {
     const hour = now.getHours();
     if (hour >= 5 && hour < 12) return 'morning';
@@ -62,7 +48,7 @@ function getDayPart(now = new Date()): DayPart {
 export function AgoraSection() {
     const { user } = useAuth();
     const prefersReducedMotion = useReducedMotion();
-    const { agenda, habitConsistency, vitalLoad, isLoading } = useDashboardData();
+    const { habitConsistency, vitalLoad, isLoading } = useDashboardData();
     const dayPart = getDayPart();
     const { data: synapseData, isLoading: suggestionsLoading } = useQuery({
         queryKey: ['synapse-suggestions'],

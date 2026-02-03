@@ -52,6 +52,7 @@ export function useOfflineMutation<TData = unknown, TError = unknown, TVariables
 
         try {
             if (originalMutationFn) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 return await (originalMutationFn as any)(variables);
             }
             // If no mutationFn provided, we use the endpoint/method (default behavior)

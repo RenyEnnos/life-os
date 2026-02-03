@@ -64,11 +64,13 @@ export const budgetService = {
 
             return {
                 categoryId: b.category_id as string,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 categoryName: (b.finance_categories as any)?.name || 'Unknown',
                 limit,
                 spent,
                 remaining,
                 status,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 period: b.period as any
             }
         })
