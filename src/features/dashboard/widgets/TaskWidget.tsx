@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { CheckCircle2, Circle, Plus, Play, Calendar } from 'lucide-react';
+import { CheckCircle2, Plus, Play, Calendar } from 'lucide-react';
 import { WidgetShell } from './WidgetShell';
 import { useDashboardData } from '@/features/dashboard/hooks/useDashboardData';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { tasksApi } from '@/features/tasks/api/tasks.api';
 import { cn } from '@/shared/lib/cn';
-import { Task } from '@/shared/types';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 
 import { useFocusStore } from '@/features/focus/stores/useFocusStore';
@@ -115,7 +114,7 @@ export function TaskWidget() {
                                 <button
                                     className="opacity-0 group-hover:opacity-100 p-2 rounded-full bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-all"
                                     title="Iniciar Foco"
-                                    onClick={() => startFocus(task)}
+                                    onClick={() => startFocus(task.title, task)}
                                 >
                                     <Play size={14} fill="currentColor" />
                                 </button>

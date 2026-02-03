@@ -3,7 +3,6 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, type Transition } from 'framer-motion';
 import { NavigationSystem } from './NavigationSystem';
 import { OnboardingModal } from '@/features/onboarding/OnboardingModal';
-import { GlobalModalOrchestrator } from '@/shared/components/GlobalModalOrchestrator';
 import { useRealtime } from '@/shared/hooks/useRealtime';
 import { SanctuaryOverlay } from '@/shared/ui/sanctuary/SanctuaryOverlay';
 import { useSanctuaryStore } from '@/shared/stores/sanctuaryStore';

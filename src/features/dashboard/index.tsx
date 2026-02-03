@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { apiFetch } from '@/shared/api/http'
 import { useDashboardIdentity } from '@/features/dashboard/hooks/useDashboardIdentity'
-import { useDashboardStats } from '@/features/dashboard/hooks/useDashboardStats'
 import { useDashboardData } from '@/features/dashboard/hooks/useDashboardData'
 
 // Components
