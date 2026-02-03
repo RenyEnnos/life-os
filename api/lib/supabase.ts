@@ -25,6 +25,18 @@ console.info('[Supabase] configuration loaded', {
 })
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const supabase: SupabaseClient = (supabaseUrl && key) ? createClient(supabaseUrl, key) : {} as any
+const createMockClient = (): any => {
+  const handler = {
+    get: (_target: any, prop: string): any => {
+      if (prop === 'then') return undefined; // Avoid promise resolution
+      if (prop === 'auth') return { getUser: async () => ({ data: { user: null }, error: { message: 'Mock Auth Error' } }) };
+      return () => createMockClient(); // Chainable
+    }
+  };
+  return new Proxy(() => {}, handler);
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const supabase: SupabaseClient = (supabaseUrl && key) ? createClient(supabaseUrl, key) : createMockClient()
 
 export { supabase }
