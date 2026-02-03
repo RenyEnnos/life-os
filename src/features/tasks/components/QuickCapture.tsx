@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Sparkles, ArrowRight, Loader } from 'lucide-react';
-// import { aiApi } from '@/features/ai-assistant/api/ai.api'; // TODO: Implement parseTask in api
+import { aiApi } from '@/features/ai-assistant/api/ai.api';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
 import { useToast } from '@/shared/ui/useToast';
+import type { Task } from '@/shared/types';
 
 export function QuickCapture() {
     const [input, setInput] = useState('');
@@ -17,12 +18,15 @@ export function QuickCapture() {
 
         setIsThinking(true);
         try {
-            // Direct creation for now
-            // Future: const parsed = await aiApi.parseTask(input);
-            
-            const taskData = {
-                title: input,
-                due_date: new Date().toISOString()
+            const parsed = await aiApi.parseTask(input);
+            const taskData: Partial<Task> = {
+                title: parsed.title || input,
+                description: parsed.description,
+                due_date: parsed.due_date || new Date().toISOString(),
+                priority: parsed.priority || 'medium',
+                tags: parsed.tags || [],
+                energy_level: parsed.energy_level,
+                time_block: parsed.time_block
             };
 
             await createTask.mutateAsync(taskData);

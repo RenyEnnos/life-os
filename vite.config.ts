@@ -54,13 +54,59 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
+          // Core React ecosystem
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'framer': ['framer-motion'],
-          'supabase': ['@supabase/supabase-js'],
-          'query': ['@tanstack/react-query'],
-        }
+          
+          // Animation libraries
+          'animation': ['framer-motion'],
+          
+          // Data management
+          'data': ['@tanstack/react-query', '@tanstack/react-query-persist-client', 'zustand'],
+          
+          // Backend services
+          'backend': ['@supabase/supabase-js', 'groq-sdk'],
+          
+          // UI component libraries
+          'ui-libs': ['lucide-react', 'recharts', 'date-fns'],
+          
+          // Form handling and validation
+          'forms': ['zod'],
+          
+          // Internationalization
+          'i18n': ['react-i18next', 'i18next', 'i18next-browser-languagedetector'],
+          
+          // Charts and visualization
+          'charts': ['recharts'],
+          
+          // Utilities
+          'utils': ['axios', 'clsx', 'tailwind-merge', 'class-variance-authority'],
+        },
+        // Optimize chunk size
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name?.split('.') || [];
+          const ext = info[info.length - 1];
+          if (/\.(png|jpe?g|gif|svg|webp|ico)$/i.test(assetInfo.name || '')) {
+            return 'assets/images/[name]-[hash][extname]';
+          }
+          if (/\.css$/i.test(assetInfo.name || '')) {
+            return 'assets/css/[name]-[hash][extname]';
+          }
+          return 'assets/[name]-[hash][extname]';
+        },
       }
-    }
+    },
+    // Enable source maps for debugging
+    sourcemap: true,
+    // Optimize build size
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
   },
   server: {
     host: true,
@@ -82,6 +128,18 @@ export default defineConfig({
         },
       }
     }
-  }
+  },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'framer-motion',
+      '@tanstack/react-query',
+      'zustand',
+      'lucide-react',
+      'react-i18next',
+    ],
+  },
 })
-

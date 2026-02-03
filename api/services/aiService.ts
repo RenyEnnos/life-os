@@ -20,6 +20,16 @@ const DailySummarySchema = z.object({
   summary: z.array(z.string())
 })
 
+const TaskParseSchema = z.object({
+  title: z.string(),
+  description: z.string().optional(),
+  due_date: z.string().optional(),
+  priority: z.enum(['low', 'medium', 'high']).optional(),
+  tags: z.array(z.string()).optional(),
+  energy_level: z.enum(['high', 'low', 'any']).optional(),
+  time_block: z.enum(['morning', 'afternoon', 'evening', 'any']).optional()
+})
+
 export const aiService = {
   async checkLimit(userId: string, feature: string, force = false): Promise<boolean> {
     const today = new Date().toISOString().split('T')[0]
@@ -252,5 +262,47 @@ export const aiService = {
 
     if (error) throw error
     return data
+  },
+
+  async parseTask(userId: string, naturalInput: string, opts?: { force?: boolean }) {
+    if (!naturalInput) throw new Error('natural input required')
+    const allowed = await this.checkLimit(userId, 'parseTask', !!opts?.force)
+    if (!allowed) throw new Error('Daily AI limit reached for this feature.')
+
+    const systemPrompt = `You are a productivity assistant. Parse a natural language task description into a structured task object. Extract title, description, due date (ISO format), priority (low/medium/high), tags, energy level (high/low/any), and time block (morning/afternoon/evening/any). Return a JSON object.`
+    const cached = await getCached(userId, 'parseTask', { naturalInput })
+    if (cached) { await this.logUsage(userId, 'parseTask', true); return cached }
+
+    let response;
+    try {
+      response = await aiManager.execute('speed', {
+        systemPrompt,
+        userPrompt: naturalInput,
+        jsonMode: true
+      });
+    } catch (e) { console.error(e); }
+
+    if (!response || !response.text) {
+      await this.logUsage(userId, 'parseTask', true)
+      return { title: naturalInput }
+    }
+
+    try {
+      const parsed = JSON.parse(response.text)
+      const result = TaskParseSchema.safeParse(parsed)
+
+      if (!result.success) {
+        await this.logUsage(userId, 'parseTask', false, { errorMessage: 'Schema validation failed', tokens: response.tokens, ms: response.ms })
+        return { title: naturalInput }
+      }
+
+      const task = result.data
+      await setCache(userId, 'parseTask', { naturalInput }, task)
+      await this.logUsage(userId, 'parseTask', true, { tokens: response.tokens, ms: response.ms })
+      return task
+    } catch {
+      await this.logUsage(userId, 'parseTask', false, { errorMessage: 'JSON/Schema error', tokens: response?.tokens, ms: response?.ms })
+      return { title: naturalInput }
+    }
   }
 }

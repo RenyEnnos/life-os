@@ -9,40 +9,31 @@ export function useRewards() {
 
     const { data: rewards, isLoading: loadingRewards } = useQuery<Reward[]>({
         queryKey: ['rewards', user?.id],
-        queryFn: async () => [], // Mocking empty rewards list safely
+        queryFn: () => rewardsApi.getAll(),
         enabled: !!user,
     });
 
     const { data: achievements, isLoading: loadingAchievements } = useQuery<Achievement[]>({
         queryKey: ['achievements', user?.id],
-        queryFn: async () => rewardsApi.getUnlockedAchievements(),
+        queryFn: () => rewardsApi.getUnlockedAchievements(),
         enabled: !!user,
     });
 
     const { data: lifeScore, isLoading: loadingScore } = useQuery<LifeScore>({
         queryKey: ['life-score', user?.id],
-        queryFn: async () => rewardsApi.getUserScore(),
+        queryFn: () => rewardsApi.getUserScore(),
         enabled: !!user,
     });
 
-    // MOCKED/DISABLED for Security Constraints
     const createReward = useMutation({
-        mutationFn: async (data: Partial<Reward>) => {
-            void data;
-            console.warn('Creating rewards is disabled for security');
-            return null;
-        },
+        mutationFn: (data: Partial<Reward>) => rewardsApi.create(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['rewards'] });
         },
     });
 
     const deleteReward = useMutation({
-        mutationFn: async (id: string) => {
-            void id;
-            console.warn('Deleting rewards is disabled for security');
-            return null;
-        },
+        mutationFn: (id: string) => rewardsApi.delete(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['rewards'] });
         },

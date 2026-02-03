@@ -1,582 +1,1020 @@
 [
   {
     "id": "TC001",
-    "title": "User login success with valid credentials",
-    "description": "Verify that a user can successfully log in using a valid email and password combination and the session is persisted.",
+    "title": "Email/password signup creates account and seeds initial data",
+    "description": "Verify user can sign up with email and password, receives success response, is authenticated, and onboarding seed (if applicable) is not created until onboarding completes.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the login page"
+        "description": "Navigate to Register page"
       },
       {
         "type": "action",
-        "description": "Enter valid email and password"
+        "description": "Enter valid new email, strong password, and required profile fields"
       },
       {
         "type": "action",
-        "description": "Click the login button"
+        "description": "Submit registration form"
       },
       {
         "type": "assertion",
-        "description": "Verify the user is logged in and redirected to the dashboard"
+        "description": "API returns success and a user id; client receives auth session/token"
       },
       {
         "type": "assertion",
-        "description": "Refresh the page and confirm session is persisted"
+        "description": "User is redirected to onboarding flow (if first-time), and protected dashboard routes are accessible for this session"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to access dashboard without completing onboarding (if workflow requires onboarding first)"
+      },
+      {
+        "type": "assertion",
+        "description": "If onboarding is mandatory, app shows onboarding flow and does not show seeded dashboard content until onboarding completes"
       }
     ]
   },
   {
     "id": "TC002",
-    "title": "User login fails with invalid credentials",
-    "description": "Ensure the system prevents login with incorrect email or password and displays an appropriate error message.",
-    "category": "error handling",
+    "title": "Login success and session persistence after refresh",
+    "description": "Verify successful login using email/password, session persists across page refresh, and protected resources accessible after refresh.",
+    "category": "security",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the login page"
+        "description": "Navigate to Login page"
       },
       {
         "type": "action",
-        "description": "Enter invalid email or password"
-      },
-      {
-        "type": "action",
-        "description": "Click the login button"
+        "description": "Enter valid existing email and password and submit"
       },
       {
         "type": "assertion",
-        "description": "Verify login is rejected and error message is shown"
+        "description": "API returns auth session; client stores session according to spec (cookie/local storage)"
+      },
+      {
+        "type": "action",
+        "description": "Reload the browser/tab"
+      },
+      {
+        "type": "assertion",
+        "description": "User remains authenticated; dashboard and API requests succeed without re-login"
       }
     ]
   },
   {
     "id": "TC003",
-    "title": "Dashboard renders all three zones correctly",
-    "description": "Validate that the dashboard loads Now, Today, and Context zones with dynamic widgets displaying current data and interactions.",
+    "title": "Password recovery workflow sends reset and allows new password",
+    "description": "Verify password recovery flow initiates reset email (token-based), token validates, allows choosing new password, and login with new password succeeds.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Login and navigate to the dashboard"
+        "description": "Navigate to Password Recovery page and submit existing user's email"
       },
       {
         "type": "assertion",
-        "description": "Check that Now zone is visible with relevant widgets"
-      },
-      {
-        "type": "assertion",
-        "description": "Check that Today zone is visible with tasks and habits"
-      },
-      {
-        "type": "assertion",
-        "description": "Check that Context zone is visible with user context info"
+        "description": "Server returns success; email delivery event is recorded (mocked email service) with reset token/link"
       },
       {
         "type": "action",
-        "description": "Interact with widgets such as habit completions and task updates"
+        "description": "Open reset link (token) in browser, enter new valid password, and submit"
       },
       {
         "type": "assertion",
-        "description": "Verify UI updates reflect interactions"
+        "description": "API accepts token, updates password, invalidates token, and responds success"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to login with new password"
+      },
+      {
+        "type": "assertion",
+        "description": "Login succeeds using the new password; old password fails"
       }
     ]
   },
   {
     "id": "TC004",
-    "title": "Create, edit, complete, and delete habit with real-time UI updates",
-    "description": "Test the full lifecycle of a habit including creation, editing fields, marking as complete with optimistic UI, and deleting a habit.",
-    "category": "functional",
+    "title": "Protected routes block unauthenticated access",
+    "description": "Verify unauthenticated users cannot access protected API endpoints or UI routes and are redirected to login.",
+    "category": "security",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to habit management section"
-      },
-      {
-        "type": "action",
-        "description": "Create a new habit with valid fields"
+        "description": "Open dashboard route in new browser session with no auth token"
       },
       {
         "type": "assertion",
-        "description": "Verify the new habit appears instantly in the habit list and dashboard widgets"
+        "description": "UI redirects to login page and/or shows a message"
       },
       {
         "type": "action",
-        "description": "Edit the habit's name and parameters"
+        "description": "Call protected API endpoints (habits, tasks) without auth token"
       },
       {
         "type": "assertion",
-        "description": "Verify habit updates appear in UI immediately"
-      },
-      {
-        "type": "action",
-        "description": "Mark the habit as completed for the current day"
-      },
-      {
-        "type": "assertion",
-        "description": "Confirm completion is reflected with visual feedback and updated streak counts"
-      },
-      {
-        "type": "action",
-        "description": "Delete the habit"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the habit is removed from all displays immediately"
+        "description": "Server returns 401/403 for protected endpoints"
       }
     ]
   },
   {
     "id": "TC005",
-    "title": "View habit heatmap and analytics",
-    "description": "Ensure habit heatmaps and streak analytics display accurately according to logged habit data.",
+    "title": "Complete 5-step onboarding seeds initial habits/projects/preferences",
+    "description": "Verify completing the onboarding wizard stores user preferences, creates initial habits/projects, and redirects to Dashboard with seeded data.",
     "category": "functional",
-    "priority": "Medium",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to habit analytics page"
+        "description": "Login as new user and proceed through the 5-step onboarding flow, providing valid inputs on each step"
+      },
+      {
+        "type": "action",
+        "description": "Submit final step of onboarding"
       },
       {
         "type": "assertion",
-        "description": "Confirm heatmap visualization displays correct frequency and dates"
+        "description": "API stores onboarding preferences and seeds initial habits/projects in DB"
       },
       {
         "type": "assertion",
-        "description": "Verify streak counters match logged habit completions"
+        "description": "User is redirected to Dashboard and sees seeded habits and projects in respective widgets"
       }
     ]
   },
   {
     "id": "TC006",
-    "title": "Create, update, delete and reorder tasks with Kanban drag-and-drop",
-    "description": "Validate task lifecycle on the Kanban board including creation, editing, status updates via drag-and-drop, and deletion.",
+    "title": "Cancel onboarding midway returns to appropriate screen",
+    "description": "Verify cancelling onboarding from any step either returns user to Dashboard (if allowed) or exits to sign-in for unauthenticated users per spec.",
     "category": "functional",
-    "priority": "High",
+    "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Open task management Kanban board"
-      },
-      {
-        "type": "action",
-        "description": "Create a new task with name, description, and status"
+        "description": "Start onboarding flow, fill first two steps, then click Cancel"
       },
       {
         "type": "assertion",
-        "description": "Check new task appears in correct status column"
+        "description": "If spec allows canceling, user is redirected to Dashboard without seeding incomplete data"
       },
       {
         "type": "action",
-        "description": "Edit task details"
+        "description": "Verify backend has not created partial habits/projects from incomplete onboarding"
       },
       {
         "type": "assertion",
-        "description": "Verify updated task fields display immediately"
-      },
-      {
-        "type": "action",
-        "description": "Drag and drop task to a different status column"
-      },
-      {
-        "type": "assertion",
-        "description": "Confirm task status is updated and UI reflects new ordering"
-      },
-      {
-        "type": "action",
-        "description": "Delete the task"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify task is removed from Kanban board"
+        "description": "If cancellation for unauthenticated users should sign out, the app returns to login"
       }
     ]
   },
   {
     "id": "TC007",
-    "title": "Quick Capture task creation with AI parsing",
-    "description": "Test the Quick Capture input for creating tasks using natural language and AI parsing to generate tasks.",
-    "category": "functional",
-    "priority": "Medium",
+    "title": "Dashboard loads Now / Today / Context zones with widgets and meets performance",
+    "description": "Verify Dashboard renders three zones, widgets populate with correct data, and load times meet performance targets.",
+    "category": "performance",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Access Quick Capture input in dashboard"
-      },
-      {
-        "type": "action",
-        "description": "Enter a natural language string describing a task"
-      },
-      {
-        "type": "action",
-        "description": "Submit Quick Capture input"
+        "description": "Login as user with typical dataset and navigate to Dashboard"
       },
       {
         "type": "assertion",
-        "description": "Verify AI parsing creates a task with correct details and places it in the Kanban board"
+        "description": "Now, Today, and Context zones are present, and primary widgets (habits, tasks, finance summaries) render"
+      },
+      {
+        "type": "assertion",
+        "description": "Measured load time for initial dashboard data is within target (e.g., <200ms for main queries, UI <50ms interactive)"
       }
     ]
   },
   {
     "id": "TC008",
-    "title": "Add financial transaction with AI category suggestion and accurate summaries",
-    "description": "Validate financial transaction entry supports AI category suggestions and updates transaction table and financial summaries correctly.",
-    "category": "functional",
+    "title": "Quick Capture parses natural language, shows preview, and creates item",
+    "description": "Verify Quick Capture opens from Dashboard, sends text input to Quick Capture AI endpoint, displays parsed preview (type, title, metadata), and creates task/habit/journal entry upon user confirmation.",
+    "category": "integration",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to financial management section"
+        "description": "Open Quick Capture from Dashboard FAB and enter natural language like 'Tomorrow 9am: Prepare slides for CS class #project:Thesis priority high'"
       },
       {
         "type": "action",
-        "description": "Add a new transaction with amount, date, and description"
+        "description": "Submit to parse endpoint"
       },
       {
         "type": "assertion",
-        "description": "Verify AI suggests appropriate category for the transaction"
+        "description": "AI Quick Capture endpoint returns structured output with type (task), title, due date, project tag and priority"
       },
       {
         "type": "action",
-        "description": "Accept AI category suggestion and save transaction"
+        "description": "Confirm creation from preview"
       },
       {
         "type": "assertion",
-        "description": "Confirm transaction appears in the transaction table immediately"
-      },
-      {
-        "type": "assertion",
-        "description": "Check financial charts and summaries reflect the new transaction accurately"
+        "description": "New task is created in UI and persisted in backend with matching fields"
       }
     ]
   },
   {
     "id": "TC009",
-    "title": "View and manage university courses, assignments, and grades",
-    "description": "Test adding, updating, and deleting courses and assignments; verify correct grade calculations and What-If simulator accuracy.",
+    "title": "Create habit via UI and verify backend persistence",
+    "description": "Verify creating a new habit stores it in DB, appears in lists and dashboard, and default properties are correct.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to university module"
+        "description": "Navigate to Habits page and open Create Habit modal/form"
       },
       {
         "type": "action",
-        "description": "Add a new course with required details"
+        "description": "Fill valid habit name, schedule (daily), start date, and optional tags then submit"
       },
       {
         "type": "assertion",
-        "description": "Confirm course appears in course list and dashboard"
-      },
-      {
-        "type": "action",
-        "description": "Add assignments to the course with due dates and weights"
+        "description": "UI shows new habit in list and dashboard widget"
       },
       {
         "type": "assertion",
-        "description": "Verify assignments display correctly on assignment tracker Kanban board"
-      },
-      {
-        "type": "action",
-        "description": "Enter grades for assignments"
-      },
-      {
-        "type": "assertion",
-        "description": "Confirm grade calculator updates course grade accurately"
-      },
-      {
-        "type": "action",
-        "description": "Use What-If simulator to change hypothetical grades"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify simulator outputs correctly predict course grade outcomes"
-      },
-      {
-        "type": "action",
-        "description": "Edit and delete courses and assignments"
-      },
-      {
-        "type": "assertion",
-        "description": "Check UI updates reflect changes immediately"
+        "description": "Backend habit record exists with matching properties"
       }
     ]
   },
   {
     "id": "TC010",
-    "title": "AI Assistant responds accurately and offers task creation suggestions",
-    "description": "Test AI chat interface interaction including posing questions, receiving accurate answers, and AI suggesting task creation with user confirmation.",
+    "title": "Edit and delete habit updates UI and backend correctly",
+    "description": "Verify editing habit fields updates both UI and backend, and deleting habit removes it and associated logs per spec.",
     "category": "functional",
-    "priority": "Medium",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Open AI Assistant chat via floating action button"
+        "description": "Select an existing habit and open edit dialog, change name and schedule"
       },
       {
         "type": "action",
-        "description": "Send a query related to user data insights or task creation"
+        "description": "Submit changes"
       },
       {
         "type": "assertion",
-        "description": "Verify AI responds accurately and contextually to the query"
-      },
-      {
-        "type": "assertion",
-        "description": "Confirm AI suggests task creation when applicable"
+        "description": "UI reflects updated name/schedule and backend record updated"
       },
       {
         "type": "action",
-        "description": "Accept AI's suggested task creation"
+        "description": "Delete the same habit and confirm deletion"
       },
       {
         "type": "assertion",
-        "description": "Verify the suggested task is created and appears in task management"
+        "description": "Habit no longer appears in UI and is removed from database; linked habit_logs are removed or archived per spec"
       }
     ]
   },
   {
     "id": "TC011",
-    "title": "Create, edit, and display journal entries with mood tracking",
-    "description": "Validate journaling functionality including creation and editing of entries, saving mood states, and correct display of entries.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to journaling section"
-      },
-      {
-        "type": "action",
-        "description": "Create a new journal entry with text and select mood"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify entry is saved and displayed in journal list"
-      },
-      {
-        "type": "action",
-        "description": "Edit the journal entry text and mood"
-      },
-      {
-        "type": "assertion",
-        "description": "Confirm updates are saved and reflected correctly"
-      }
-    ]
-  },
-  {
-    "id": "TC012",
-    "title": "Gamification points, levels, streaks, and badges update correctly",
-    "description": "Ensure gamification system updates user points, levels, streaks, and awards badges appropriately based on user actions.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Perform actions that earn points such as completing tasks and habits"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify points and streak counters update in real-time"
-      },
-      {
-        "type": "assertion",
-        "description": "Check level progress bar increments correctly"
-      },
-      {
-        "type": "action",
-        "description": "Achieve criteria for earning badges"
-      },
-      {
-        "type": "assertion",
-        "description": "Confirm badges are awarded and displayed"
-      }
-    ]
-  },
-  {
-    "id": "TC013",
-    "title": "Focus Mode timer starts, pauses, and resets correctly",
-    "description": "Test the Focus Mode functionality including starting the timer, pausing it, and resetting to ensure distraction-free environment.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Activate Focus Mode to start timer"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify countdown timer starts accurately"
-      },
-      {
-        "type": "action",
-        "description": "Pause the timer"
-      },
-      {
-        "type": "assertion",
-        "description": "Confirm timer pauses and retains remaining time"
-      },
-      {
-        "type": "action",
-        "description": "Reset the timer"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify timer resets to initial duration"
-      }
-    ]
-  },
-  {
-    "id": "TC014",
-    "title": "Responsive UI adjusts correctly on mobile, tablet, and desktop",
-    "description": "Verify that the UI layout and components adapt correctly to different screen sizes and device breakpoints per design specifications.",
-    "category": "ui",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Open the application on desktop screen size"
-      },
-      {
-        "type": "assertion",
-        "description": "Check that all dashboard zones and widgets are fully visible and arranged properly"
-      },
-      {
-        "type": "action",
-        "description": "Resize viewport to tablet dimensions"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify layout adjusts with accessible navigation and readable content"
-      },
-      {
-        "type": "action",
-        "description": "Resize viewport to mobile screen size"
-      },
-      {
-        "type": "assertion",
-        "description": "Confirm UI components stack or adapt for usability and no content overflows"
-      }
-    ]
-  },
-  {
-    "id": "TC015",
-    "title": "Accessibility compliance with WCAG 2.1 Level AA",
-    "description": "Test application pages and components for compliance with WCAG 2.1 AA guidelines including keyboard navigation, color contrast, and screen reader support.",
-    "category": "ui",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate through the app using only keyboard navigation"
-      },
-      {
-        "type": "assertion",
-        "description": "Confirm that focus states are visible and logical across all interactive elements"
-      },
-      {
-        "type": "action",
-        "description": "Use a screen reader to explore main sections including dashboard, habits, tasks, and finances"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify all content is read out properly with semantic markup"
-      },
-      {
-        "type": "action",
-        "description": "Check all text and UI elements meet color contrast standards"
-      },
-      {
-        "type": "assertion",
-        "description": "Confirm contrast ratios meet WCAG 2.1 Level AA thresholds"
-      }
-    ]
-  },
-  {
-    "id": "TC016",
-    "title": "Performance - UI responsiveness under typical user actions",
-    "description": "Measure and verify UI responsiveness when updating habits, tasks, financial data, and AI chat interactions meet performance targets.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Perform rapid habit completion and creation actions"
-      },
-      {
-        "type": "assertion",
-        "description": "Confirm UI updates occur within acceptable latency (<200ms)"
-      },
-      {
-        "type": "action",
-        "description": "Drag and drop multiple tasks on Kanban board consecutively"
-      },
-      {
-        "type": "assertion",
-        "description": "Validate smooth UI animation and no freezing"
-      },
-      {
-        "type": "action",
-        "description": "Input multiple financial transactions rapidly with AI suggestions"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify transaction table and summaries refresh promptly"
-      },
-      {
-        "type": "action",
-        "description": "Send queries to AI Assistant chat"
-      },
-      {
-        "type": "assertion",
-        "description": "Ensure AI responses are returned with minimal delay per performance criteria"
-      }
-    ]
-  },
-  {
-    "id": "TC017",
-    "title": "Error handling when API requests fail for critical features",
-    "description": "Test application behavior and user feedback when API requests fail during habit, task, finance, and university module operations.",
+    "title": "Mark habit complete uses optimistic update and rolls back on failure",
+    "description": "Verify marking a habit complete updates UI immediately (optimistic), sends backend request, persists on success, and rolls back with error notification if server fails.",
     "category": "error handling",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Simulate API failure on creating a habit"
+        "description": "On Habit widget, click completion checkbox for today's habit"
       },
       {
         "type": "assertion",
-        "description": "Verify user is shown a descriptive error message and optimistic UI is reverted"
+        "description": "UI immediately shows completed state and streak/heatmap updates optimistically"
       },
       {
         "type": "action",
-        "description": "Simulate API failure on task drag-and-drop update"
+        "description": "Simulate successful backend response"
       },
       {
         "type": "assertion",
-        "description": "Confirm error notification appears and task position resets correctly"
+        "description": "State persists and habit_log is created in backend"
       },
       {
         "type": "action",
-        "description": "Simulate API failure when adding a financial transaction"
+        "description": "Repeat action but simulate server 500 for backend save"
       },
       {
         "type": "assertion",
-        "description": "Check proper error feedback is displayed and transaction is not added"
+        "description": "UI rolls back to previous state, shows error toast with retry option, and backend has no new habit_log"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Streak and heatmap analytics reflect habit logs correctly",
+    "description": "Verify streak calculations and heatmap aggregates match the habit_logs data, including edge cases around missed days and multiple completions in a day.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Seed backend with a series of habit_log entries representing various patterns: continuous days, missed days, and duplicate logs in same day"
       },
       {
         "type": "action",
-        "description": "Simulate API failure during grade input in university module"
+        "description": "Open Habit analytics/heatmap for that habit"
       },
       {
         "type": "assertion",
-        "description": "Ensure user receives clear error and data remains consistent"
+        "description": "Displayed streak value matches computed longest/active streak from logs and heatmap shows correct activity counts per day"
+      },
+      {
+        "type": "assertion",
+        "description": "Edge case: duplicate logs on same day are deduplicated if spec requires, and streak calculations account for single-day completion only"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Task CRUD operations persist and reflect in UI",
+    "description": "Verify tasks can be created, read, updated, and deleted with fields like priority, due date, and project grouping correctly saved.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open Task create modal, enter title, description, priority, due date and project, then submit"
+      },
+      {
+        "type": "assertion",
+        "description": "New task appears in task list and project grouping; backend contains task record with fields"
+      },
+      {
+        "type": "action",
+        "description": "Edit task to change priority and due date"
+      },
+      {
+        "type": "assertion",
+        "description": "UI and backend reflect updated values"
+      },
+      {
+        "type": "action",
+        "description": "Delete task"
+      },
+      {
+        "type": "assertion",
+        "description": "Task is removed from UI and backend"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Kanban drag-and-drop updates task status and persists",
+    "description": "Verify dragging a task between columns updates its status in UI and backend, including boundary checks for invalid drops.",
+    "category": "integration",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open Project Kanban board with tasks in 'Todo' column"
+      },
+      {
+        "type": "action",
+        "description": "Drag a task from 'Todo' to 'In Progress' and drop"
+      },
+      {
+        "type": "assertion",
+        "description": "UI shows task in 'In Progress' and server task.status updated accordingly"
+      },
+      {
+        "type": "action",
+        "description": "Attempt invalid drop (e.g., drop into a disabled column or outside board)"
+      },
+      {
+        "type": "assertion",
+        "description": "UI prevents invalid drop; task remains in original column and no backend change occurs"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Quick Capture AI parsing handles ambiguous task phrases and provides edit preview",
+    "description": "Verify Quick Capture parsing of ambiguous natural language returns structured candidate results with confidence, and user can edit fields before creating.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open Quick Capture and enter ambiguous phrase like 'Read chapter 5 next week for Biology class priority medium'"
+      },
+      {
+        "type": "action",
+        "description": "Submit to AI parse endpoint"
+      },
+      {
+        "type": "assertion",
+        "description": "Parse result includes suggested type (task), suggested due date range, project/class suggestion, and confidence metadata"
+      },
+      {
+        "type": "action",
+        "description": "Manually edit the previewed due date and title, then confirm create"
+      },
+      {
+        "type": "assertion",
+        "description": "Created task reflects manual edits and persists to backend"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Journal create/edit/list with mood metadata persisted",
+    "description": "Verify user can create daily journal entries with mood tag, edit entries, and list/view history with correct metadata.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open Journal Editor, create entry with title, content, and mood selection (e.g., 'happy') and save"
+      },
+      {
+        "type": "assertion",
+        "description": "Entry appears in Journal list with date and mood badge; backend entry includes mood metadata"
+      },
+      {
+        "type": "action",
+        "description": "Open the created entry, edit content and change mood, then save"
+      },
+      {
+        "type": "assertion",
+        "description": "Updated content and mood display in UI and are persisted"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Focus Timer start/stop links session to task and awards XP on completion",
+    "description": "Verify Focus Mode timer can be started/stopped, optionally linked to a task, session completion records session, awards XP and updates streaks.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open Focus Timer component, select an existing task to link, start timer"
+      },
+      {
+        "type": "assertion",
+        "description": "Timer counts down; UI shows linked task context"
+      },
+      {
+        "type": "action",
+        "description": "Simulate completing a session and stopping timer"
+      },
+      {
+        "type": "assertion",
+        "description": "Focus session is recorded in backend, user receives XP increment, and linked task shows updated session association"
+      },
+      {
+        "type": "action",
+        "description": "Start timer with 'reduced-motion' accessibility preference enabled"
+      },
+      {
+        "type": "assertion",
+        "description": "Timer respects reduced-motion preference (minimal animations)"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Calendar event CRUD, timezone handling, and month/week navigation",
+    "description": "Verify user can create, edit, delete events, navigate month/week, and events render correctly across timezones.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open Calendar month view and create an event with start/end datetime in user's timezone"
+      },
+      {
+        "type": "assertion",
+        "description": "Event displays on correct day/time in month view and backend stores timezone-aware datetime"
+      },
+      {
+        "type": "action",
+        "description": "Switch to week view and navigate to event's week"
+      },
+      {
+        "type": "assertion",
+        "description": "Event displays in correct slot; editing start time updates backend and UI"
+      },
+      {
+        "type": "action",
+        "description": "Change user timezone preference and refresh calendar"
+      },
+      {
+        "type": "assertion",
+        "description": "Event times adjust to new timezone correctly (per spec: normalized or shown converted) and persisted values remain consistent"
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Google Calendar integration syncs events bi-directionally (mocked)",
+    "description": "Verify Google Calendar integration sync pushes created events to Google and imports remote events; handle token refresh and partial failures.",
+    "category": "integration",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Enable Google Calendar integration (mock OAuth grant) for test account"
+      },
+      {
+        "type": "action",
+        "description": "Create event in Life OS calendar and trigger sync"
+      },
+      {
+        "type": "assertion",
+        "description": "Mock Google API receives event creation call and mock Google calendar shows event"
+      },
+      {
+        "type": "action",
+        "description": "Create event in mocked Google calendar and trigger import sync in Life OS"
+      },
+      {
+        "type": "assertion",
+        "description": "Imported event appears in Life OS calendar with correct fields; conflicts handled per spec (e.g., last-write or prompt)"
+      },
+      {
+        "type": "action",
+        "description": "Simulate expired Google token and trigger sync"
+      },
+      {
+        "type": "assertion",
+        "description": "Integration attempts token refresh; if refresh fails, user is notified and resync does not corrupt local events"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "AI Assistant chat suggests actions and confirmed actions execute",
+    "description": "Verify AI chat assistant returns suggestions (e.g., create task/habit), presents UI to confirm suggested action, and on confirmation action is created and persisted.",
+    "category": "integration",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open AI Assistant FAB and send prompt like 'Summarize my priorities and create tasks for top 3 items'"
+      },
+      {
+        "type": "assertion",
+        "description": "AI responds with summary and suggested actionable items with UI affordances to accept each suggestion"
+      },
+      {
+        "type": "action",
+        "description": "Confirm one suggested action to create a task"
+      },
+      {
+        "type": "assertion",
+        "description": "Task is created with fields derived from suggestion and persisted in backend; chat shows confirmation and history in session"
+      }
+    ]
+  },
+  {
+    "id": "TC021",
+    "title": "Quick Capture AI parsing endpoint handles malformed or ambiguous input gracefully",
+    "description": "Verify the Quick Capture parsing endpoint returns helpful fallback or error responses for malformed input and UI allows user-driven correction.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open Quick Capture and submit gibberish or malformed text"
+      },
+      {
+        "type": "assertion",
+        "description": "AI parse endpoint returns an error or low-confidence response with suggested clarification prompts"
+      },
+      {
+        "type": "action",
+        "description": "UI presents editable preview and suggested clarifying questions; user corrects fields manually and creates item"
+      },
+      {
+        "type": "assertion",
+        "description": "Created item persists correctly despite initial low-confidence parse"
+      }
+    ]
+  },
+  {
+    "id": "TC022",
+    "title": "Gamification XP, levels and badge awarding reflect user actions",
+    "description": "Verify XP increments for defined actions (habit complete, focus session, task complete), level thresholds trigger UI changes, and badge awards display and persist.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Note initial XP, complete a habit, finish a Focus session, and mark a task as done"
+      },
+      {
+        "type": "assertion",
+        "description": "XP increases by expected amounts per action and backend gamification records update"
+      },
+      {
+        "type": "action",
+        "description": "Trigger XP to cross a level threshold"
+      },
+      {
+        "type": "assertion",
+        "description": "Level-up UI displays, any associated rewards/badges awarded and persisted in user profile"
+      }
+    ]
+  },
+  {
+    "id": "TC023",
+    "title": "Add financial transaction and accept AI-assisted categorization",
+    "description": "Verify creating a transaction triggers AI categorization suggestions, user can accept/override, and finance summary/card updates accordingly.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open Finances dashboard and create a new transaction (merchant, amount, date)"
+      },
+      {
+        "type": "action",
+        "description": "Allow transaction to be processed by AI categorization service (mocked) which returns a suggested category"
+      },
+      {
+        "type": "assertion",
+        "description": "UI shows suggestion; user accepts suggestion"
+      },
+      {
+        "type": "assertion",
+        "description": "Transaction saved with accepted category; summary cards/charts update to reflect categorized amount"
+      },
+      {
+        "type": "action",
+        "description": "Create another transaction and manually override AI suggestion to a different category"
+      },
+      {
+        "type": "assertion",
+        "description": "Backend stores overridden category and AI suggestion is recorded as history (if spec requires)"
+      }
+    ]
+  },
+  {
+    "id": "TC024",
+    "title": "University course and assignment CRUD plus grade calculator What-If simulator",
+    "description": "Verify courses and assignments can be managed, grade calculations compute correctly, and What-If simulator projects final grades when adjusting future scores.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Create a course with grading components (assignments, weights) and add several assignment records with earned scores"
+      },
+      {
+        "type": "assertion",
+        "description": "Overall grade is calculated correctly using the weighting formula and matches expected math"
+      },
+      {
+        "type": "action",
+        "description": "Open What-If simulator and propose hypothetical scores for remaining assignments"
+      },
+      {
+        "type": "assertion",
+        "description": "Simulator projects expected final grade accurately; UI shows required future scores to hit target grade"
+      },
+      {
+        "type": "action",
+        "description": "Edit an assignment score and delete an assignment"
+      },
+      {
+        "type": "assertion",
+        "description": "Calculations update accordingly in UI and backend"
+      }
+    ]
+  },
+  {
+    "id": "TC025",
+    "title": "Profile settings update (theme, avatar) persists across sessions",
+    "description": "Verify user can update profile fields and preferences (theme light/dark), avatar, and preference persists after refresh and new sessions.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open Settings/Profile page and change theme preference to dark and update display name"
+      },
+      {
+        "type": "action",
+        "description": "Upload or choose an avatar from allowed sources and save settings"
+      },
+      {
+        "type": "assertion",
+        "description": "UI immediately reflects theme and profile changes"
+      },
+      {
+        "type": "action",
+        "description": "Refresh page and log out then log back in"
+      },
+      {
+        "type": "assertion",
+        "description": "Theme preference and profile updates persist and are applied across sessions"
+      }
+    ]
+  },
+  {
+    "id": "TC026",
+    "title": "Accessibility: keyboard navigation, ARIA labels and reduced-motion compliance",
+    "description": "Verify key UI components have ARIA attributes, full keyboard navigability, color contrast meets WCAG 2.1 AA, and reduced-motion preference affects animations.",
+    "category": "accessibility",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Using keyboard only, navigate to primary interactive elements: Nav, Dashboard widgets, Habit checkbox, Quick Capture FAB, Kanban board and Modals"
+      },
+      {
+        "type": "assertion",
+        "description": "All interactive elements are reachable via keyboard with visible focus state and operable controls"
+      },
+      {
+        "type": "action",
+        "description": "Inspect Button, Modal and Toast components for ARIA roles and labels"
+      },
+      {
+        "type": "assertion",
+        "description": "ARIA attributes are present and reasonable (role, aria-label, aria-modal) per component guidelines"
+      },
+      {
+        "type": "action",
+        "description": "Enable reduced-motion user preference and trigger animations (open modal, drag/drop, timer)"
+      },
+      {
+        "type": "assertion",
+        "description": "Animations are minimized or disabled according to reduced-motion settings"
+      },
+      {
+        "type": "action",
+        "description": "Run contrast checks on primary UI text/background combinations"
+      },
+      {
+        "type": "assertion",
+        "description": "Color contrast ratios meet WCAG 2.1 AA thresholds"
+      }
+    ]
+  },
+  {
+    "id": "TC027",
+    "title": "Backend habits API endpoints handle CRUD with auth enforcement",
+    "description": "Verify API endpoints for habits enforce authentication, validate payloads with Zod-like rules, and return appropriate errors for invalid requests.",
+    "category": "integration",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Call GET /habits without auth token"
+      },
+      {
+        "type": "assertion",
+        "description": "Server returns 401"
+      },
+      {
+        "type": "action",
+        "description": "Call POST /habits with malformed payload (missing required fields)"
+      },
+      {
+        "type": "assertion",
+        "description": "Server returns 400 with validation error details"
+      },
+      {
+        "type": "action",
+        "description": "Call POST /habits with valid payload and auth token"
+      },
+      {
+        "type": "assertion",
+        "description": "Server returns 201 with created habit object and persisted record in DB"
+      },
+      {
+        "type": "action",
+        "description": "Call DELETE /habits/:id with valid auth"
+      },
+      {
+        "type": "assertion",
+        "description": "Server returns 200 and habit no longer present in DB"
+      }
+    ]
+  },
+  {
+    "id": "TC028",
+    "title": "Task endpoint handles concurrent updates and resolves race conditions",
+    "description": "Verify server and client handle concurrent edits or drag-drop updates to a task (e.g., status change and priority change simultaneously) using optimistic UI and conflict resolution.",
+    "category": "integration",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate two clients fetching the same task, client A changes status via drag-drop while client B changes priority and submits shortly after"
+      },
+      {
+        "type": "assertion",
+        "description": "Server update ordering is deterministic; both clients get final consistent state (either last-write-wins or server merge per spec)"
+      },
+      {
+        "type": "action",
+        "description": "Client A used optimistic update; server responds with revision that conflicts with client A cached state"
+      },
+      {
+        "type": "assertion",
+        "description": "Client A reconciles local state with server response and UI shows consistent values, offering conflict notice if required"
+      }
+    ]
+  },
+  {
+    "id": "TC029",
+    "title": "UI shows error toast and retry option on server save failure (optimistic rollback)",
+    "description": "Verify when a save operation fails (e.g., update habit/task), UI rolls back optimistic change, shows dismissible error toast with retry, and retry attempts re-send the request.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Perform an action that uses optimistic update (e.g., mark habit complete or edit task) and simulate server returning 500"
+      },
+      {
+        "type": "assertion",
+        "description": "UI rolls back to prior state and an error toast appears with a retry button"
+      },
+      {
+        "type": "action",
+        "description": "Click Retry on error toast and simulate server success"
+      },
+      {
+        "type": "assertion",
+        "description": "Operation succeeds, state persists to backend, and error toast is dismissed"
+      }
+    ]
+  },
+  {
+    "id": "TC030",
+    "title": "Performance baseline: AI responses, data queries and Lighthouse target",
+    "description": "Verify AI assistant and Quick Capture responses meet SLA (<2s baseline in mocked environment), primary data queries return <200ms, and Lighthouse score targets are approached in CI environment.",
+    "category": "performance",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger Quick Capture parse and AI Assistant response in controlled test environment and measure response times"
+      },
+      {
+        "type": "assertion",
+        "description": "AI responses return within SLA (<2s) when backend mocks are within spec"
+      },
+      {
+        "type": "action",
+        "description": "Execute representative backend queries for dashboard, habits, and tasks and measure query times"
+      },
+      {
+        "type": "assertion",
+        "description": "Database/API queries return within target (<200ms) for typical dataset"
+      },
+      {
+        "type": "action",
+        "description": "Run Lighthouse CI on a production-like build"
+      },
+      {
+        "type": "assertion",
+        "description": "Performance score meets target (e.g., >90) or documentation lists acceptable deviations"
+      }
+    ]
+  },
+  {
+    "id": "TC031",
+    "title": "Large dataset handling for habits and tasks (stress test)",
+    "description": "Verify UI and backend handle large numbers of items (e.g., 10k tasks/habits) with pagination or virtualization, and analytics compute without blocking main thread.",
+    "category": "performance",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Seed backend with large dataset: thousands of habit_logs and tasks"
+      },
+      {
+        "type": "action",
+        "description": "Open Habit list, Task board, and Analytics pages"
+      },
+      {
+        "type": "assertion",
+        "description": "UI remains responsive (no main-thread freeze); lists use virtualization or pagination and initial render times are within acceptable limits"
+      },
+      {
+        "type": "assertion",
+        "description": "Aggregated analytics finish within acceptable time and charts render correctly without excessive memory usage"
+      }
+    ]
+  },
+  {
+    "id": "TC032",
+    "title": "Session expiry and logout invalidates tokens and blocks API access",
+    "description": "Verify that when a session expires or user logs out, tokens are invalidated, protected endpoints return 401, and UI redirects to login.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login and note auth token; then simulate token expiry on server side"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to perform a protected action (create habit or task)"
+      },
+      {
+        "type": "assertion",
+        "description": "API returns 401; client detects expiry and redirects to login or prompts re-authentication"
+      },
+      {
+        "type": "action",
+        "description": "Login again, then use Logout control"
+      },
+      {
+        "type": "assertion",
+        "description": "Client clears stored session; protected routes are blocked and API returns 401 for calls using old token"
+      }
+    ]
+  },
+  {
+    "id": "TC033",
+    "title": "Offline scenario: optimistic actions synchronize on reconnection",
+    "description": "Verify app handles offline mode: user can mark habit complete (optimistic), the UI queues requests, and on reconnect queued actions are sent and persisted; conflicts handled appropriately.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate network offline (browser offline mode), mark a habit complete"
+      },
+      {
+        "type": "assertion",
+        "description": "UI shows optimistic completion and indicates pending sync"
+      },
+      {
+        "type": "action",
+        "description": "Bring network back online"
+      },
+      {
+        "type": "assertion",
+        "description": "Queued request is sent to backend, server persists habit_log, pending indicator clears, and any conflict resolution occurs per spec"
+      }
+    ]
+  },
+  {
+    "id": "TC034",
+    "title": "Toast/notification components display and dismiss reliably across flows",
+    "description": "Verify system toasts appear on success/error/actions, can be dismissed, and do not obscure critical UI elements; toasts queued or rate-limited per design.",
+    "category": "ui",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger multiple actions that produce toasts in quick succession (create habit, create task, error on save)"
+      },
+      {
+        "type": "assertion",
+        "description": "Toasts appear with consistent styling, do not overlap critical controls, and each contains correct text"
+      },
+      {
+        "type": "action",
+        "description": "Dismiss a toast manually and trigger automatic expiration for another"
+      },
+      {
+        "type": "assertion",
+        "description": "Dismissed toast disappears immediately; automatically expiring toast disappears after timeout; no memory leaks or stuck overlays remain"
+      }
+    ]
+  },
+  {
+    "id": "TC035",
+    "title": "Design system components responsive behaviour across breakpoints",
+    "description": "Verify shared components (Button, Card, Modal, Toast) render correctly at multiple viewport sizes, adhere to design tokens, and maintain accessibility attributes.",
+    "category": "ui",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Render shared components at desktop, tablet, and mobile viewport sizes"
+      },
+      {
+        "type": "assertion",
+        "description": "Buttons have expected hit area, cards reflow content as per token rules, modals center and cover background, and toasts position adaptively"
+      },
+      {
+        "type": "action",
+        "description": "Inspect components for correct usage of design tokens (spacing, colors, typography) and ARIA attributes"
+      },
+      {
+        "type": "assertion",
+        "description": "Components use design tokens and include necessary accessibility attributes"
       }
     ]
   }

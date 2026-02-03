@@ -1,38 +1,97 @@
-# Node/Vite
+# ===========================
+# Dependencies
+# ===========================
 node_modules/
-dist/
-.cache/
+.pnpm-store/
 
-# Env & local config
+# ===========================
+# Build outputs
+# ===========================
+dist/
+build/
+.cache/
+.turbo/
+storybook-static/
+
+# ===========================
+# Environment & Secrets
+# ===========================
 .env
+.env.local
+.env.*.local
 *.env.local
 supabase/.env
 supabase/.env.local
 
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# OS/IDE
+# ===========================
+# IDE & OS
+# ===========================
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Test coverage
+# ===========================
+# Test outputs
+# ===========================
 coverage/
+test-results/
+playwright-report/
+screenshots/
+testsprite_tests/
+*.log
 
-# Build outputs
-build/
-.turbo/
+# ===========================
+# Debug & Temporary files
+# ===========================
+*.txt
+debug_*.txt
+check_*.txt
+validation*.log
+output.txt
+vite.log
+testsprite_error.log
 
-# Trae IDE local artifacts (keep documents)
+# ===========================
+# Reports (generated)
+# ===========================
+reports/
+*.report.html
+*.report.json
+
+# ===========================
+# Vercel & Deploy
+# ===========================
+.vercel/
+
+# ===========================
+# IDE AI Tools (optional - decide per project)
+# ===========================
 .trae/tmp/
 .trae/cache/
 .trae/sessions/
+.Jules/
+.agent/preview.log
+.agent/preview.pid
+# .agent/                      # ← UNCOMMENT to ignore entire .agent folder
 
+# ===========================
+# Storybook
+# ===========================
 *storybook.log
-storybook-static
+storybook-static/
+
+# ===========================
+# Mock data
+# ===========================
 api/.mock-data/
+
+# ===========================
+# Lock files (choose one)
+# ===========================
+# Uncomment ONE of these based on your package manager:
+# package-lock.json           # If using pnpm
+pnpm-lock.yaml                # If using npm
+.agent/

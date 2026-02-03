@@ -81,7 +81,7 @@ export function AgoraSection() {
     const loading = isLoading || suggestionsLoading;
 
     return (
-        <section className="relative mb-10 overflow-hidden rounded-3xl border border-white/10 bg-black">
+        <section data-testid="agora-section" className="relative mb-10 overflow-hidden rounded-3xl border border-white/10 bg-black">
             <div className={cn(
                 'absolute inset-0 pointer-events-none',
                 'bg-gradient-to-br from-white/5 via-white/0 to-white/0'

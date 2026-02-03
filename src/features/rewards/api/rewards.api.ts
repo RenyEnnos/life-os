@@ -1,5 +1,5 @@
 import { apiClient } from '@/shared/api/http';
-import type { LifeScore, Achievement } from '@/shared/types';
+import type { LifeScore, Achievement, Reward } from '@/shared/types';
 
 export const rewardsApi = {
     getUserScore: async (): Promise<LifeScore> => {
@@ -20,5 +20,19 @@ export const rewardsApi = {
     addXp: async (amount: number) => {
         const data = await apiClient.post<{ success: boolean; current_xp: number; level: number }>('/api/rewards/xp', { amount });
         return data;
+    },
+
+    getAll: async (): Promise<Reward[]> => {
+        const data = await apiClient.get<Reward[]>('/api/rewards');
+        return data || [];
+    },
+
+    create: async (reward: Partial<Reward>): Promise<Reward> => {
+        const data = await apiClient.post<Reward>('/api/rewards', reward);
+        return data;
+    },
+
+    delete: async (id: string): Promise<void> => {
+        await apiClient.delete<void>(`/api/rewards/${id}`);
     },
 };

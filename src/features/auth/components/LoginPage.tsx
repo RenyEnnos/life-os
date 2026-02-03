@@ -275,6 +275,7 @@ export default function LoginPage() {
                             <motion.div
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
+                                data-testid="login-error-message"
                                 className="bg-destructive/10 text-destructive text-sm p-4 rounded-lg mb-4 font-mono border border-destructive/20 flex items-start gap-3"
                             >
                                 <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
@@ -340,6 +341,7 @@ export default function LoginPage() {
                                             id="email"
                                             type="email"
                                             required
+                                            data-testid="login-email-input"
                                             className="w-full rounded-md pl-10 pr-3 py-3 text-white font-mono bg-white/5 border border-white/10 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 placeholder:text-zinc-500"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
@@ -364,6 +366,7 @@ export default function LoginPage() {
                                             id="password"
                                             type={showPassword ? "text" : "password"}
                                             required
+                                            data-testid="login-password-input"
                                             className="w-full rounded-md pl-10 pr-10 py-3 text-white font-mono bg-white/5 border border-white/10 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 placeholder:text-zinc-500"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
@@ -382,6 +385,7 @@ export default function LoginPage() {
                                 <motion.div variants={itemVariants} className="pt-2">
                                     <MagneticButton
                                         type="submit"
+                                        data-testid="login-submit-button"
                                         className="w-full h-12 text-lg font-bold tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/40 bg-primary text-black rounded-md"
                                         disabled={isSubmitting}
                                     >

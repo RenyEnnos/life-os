@@ -96,4 +96,21 @@ router.get('/logs', authenticateToken, async (req: AuthRequest, res: Response) =
   }
 })
 
+router.post('/parse-task', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const schema = z.object({
+      input: z.string().min(1)
+    })
+    const parsed = schema.safeParse(req.body || {})
+    if (!parsed.success) return res.status(400).json({ error: 'input required' })
+    const { input } = parsed.data
+    const force = req.query.force === 'true'
+    const task = await aiService.parseTask(req.user!.id, input, { force })
+    res.json(task)
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Unknown error'
+    res.status(400).json({ error: msg })
+  }
+})
+
 export default router

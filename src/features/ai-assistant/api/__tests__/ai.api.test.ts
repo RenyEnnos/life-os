@@ -5,6 +5,7 @@ vi.mock("@/shared/api/http", () => {
   return {
     apiFetch: vi.fn(async (_url: string) => {
       if (_url.includes("/ai/logs")) return [{ message: "ok", timestamp: Date.now() }]
+      if (_url.includes("/ai/parse-task")) return { title: "Test task", priority: "high", tags: ["work"] }
       return { message: "response", content: "response", tags: ["a"], plan: ["x"], summary: "s", swot: { strengths: [] } }
     }),
   }
@@ -34,5 +35,10 @@ describe("ai.api", () => {
   it("getLogs returns logs", async () => {
     const logs = await aiApi.getLogs()
     expect(Array.isArray(logs)).toBe(true)
+  })
+  it("parseTask returns parsed task", async () => {
+    const res = await aiApi.parseTask("Email John tomorrow at 2pm")
+    expect(res.title).toBeDefined()
+    expect(res.priority).toBe("high")
   })
 })

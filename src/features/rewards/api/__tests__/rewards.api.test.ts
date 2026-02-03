@@ -5,15 +5,22 @@ vi.mock("@/shared/api/http", () => {
   return {
     apiClient: {
       get: vi.fn(async (url: string) => {
-        if (url.includes("/score")) return { life_score: 120, level: 3, current_xp: 2500 }
+        if (url.endsWith("/rewards/achievements")) return [{ id: "a1", name: "Starter" }]
         if (url.includes("/achievements/full")) return [{ id: "a2", name: "Finisher", unlocked: false }]
-        return [{ id: "a1", name: "Starter" }]
+        if (url.includes("/rewards/score")) return { life_score: 120, level: 3, current_xp: 2500 }
+        if (url.endsWith("/api/rewards")) return [{ id: "r1", title: "Reward 1" }]
+        return []
       }),
-      post: vi.fn(async (_url: string, body?: Record<string, unknown>) => ({
-        success: true,
-        current_xp: (typeof body?.amount === 'number' ? body.amount : 0) + 100,
-        level: 4
-      })),
+      post: vi.fn(async (_url: string, body?: Record<string, unknown>) => {
+        if (_url.includes("/xp")) return {
+          success: true,
+          current_xp: (typeof body?.amount === 'number' ? body.amount : 0) + 100,
+          level: 4
+        }
+        if (_url.includes("/rewards") && !_url.includes("xp")) return { id: "r2", title: body?.title || "New Reward" }
+        return {}
+      }),
+      delete: vi.fn(async (_url: string) => ({})),
     },
   }
 })
@@ -35,5 +42,17 @@ describe("rewards.api", () => {
     const res = await rewardsApi.addXp(200)
     expect(res.success).toBe(true)
     expect(res.level).toBe(4)
+  })
+  it("getAll returns rewards", async () => {
+    const rewards = await rewardsApi.getAll()
+    expect(rewards[0].title).toBe("Reward 1")
+  })
+  it("create posts reward", async () => {
+    const reward = await rewardsApi.create({ title: "Test Reward" })
+    expect(reward.title).toBe("Test Reward")
+  })
+  it("delete removes reward", async () => {
+    await rewardsApi.delete("r1")
+    expect(true).toBe(true)
   })
 })

@@ -54,5 +54,12 @@ export const aiApi = {
             method: 'POST',
             body: JSON.stringify(payload)
         });
+    },
+
+    parseTask: async (input: string) => {
+        return apiFetch<Partial<import('@/shared/types').Task>>('/api/ai/parse-task', {
+            method: 'POST',
+            body: JSON.stringify({ input })
+        });
     }
 };

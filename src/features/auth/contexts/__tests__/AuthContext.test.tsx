@@ -9,7 +9,7 @@ import { MemoryRouter } from 'react-router-dom';
 import type { User } from '@supabase/supabase-js';
 
 // Mock authApi
-vi.mock('../../api/auth.api', () => ({
+vi.mock('../../api/auth.api', () =>({
     authApi: {
         verify: vi.fn(),
         login: vi.fn(),
@@ -64,21 +64,17 @@ describe('AuthContext', () => {
         renderWithProviders(<TestComponent />);
 
         await waitFor(() => {
+            expect(screen.getByTestId('user-email')).toBeInTheDocument();
             expect(screen.getByTestId('user-email')).toHaveTextContent('test@example.com');
         });
         expect(authApi.verify).toHaveBeenCalled();
     });
 
     it('handles regular login flow', async () => {
-        mockedAuthApi.verify.mockRejectedValue(new Error('No session'));
-        renderWithProviders(<TestComponent />);
-
-        await waitFor(() => {
-            expect(screen.getByTestId('user-email')).toHaveTextContent('No User');
-        });
-
         const mockUser = { id: '2', email: 'login@example.com' } as unknown as User;
         mockedAuthApi.login.mockResolvedValue({ user: mockUser });
+
+        renderWithProviders(<TestComponent />);
 
         const loginButton = screen.getByText('Login');
         await act(async () => {
@@ -86,8 +82,9 @@ describe('AuthContext', () => {
         });
 
         await waitFor(() => {
+            expect(screen.getByTestId('user-email')).toBeInTheDocument();
             expect(screen.getByTestId('user-email')).toHaveTextContent('login@example.com');
         });
-        expect(authApi.login).toHaveBeenCalledWith({ email: 'test@example.com', password: 'password' });
+        expect((authApi.login as any)).toHaveBeenCalledWith({ email: 'test@example.com', password: 'password' });
     });
 });

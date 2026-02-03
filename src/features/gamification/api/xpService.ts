@@ -21,9 +21,8 @@ export const awardXP = async (
     category: AttributeType,
     source: string
 ): Promise<{ success: boolean; newLevel?: number; error?: unknown }> => {
-    void userId; void category; void source;
     try {
-        const res = await apiClient.post<{ success: boolean; current_xp: number; level: number }>('/api/rewards/xp', { amount });
+        const res = await apiClient.post<{ success: boolean; current_xp: number; level: number }>('/api/rewards/xp', { amount, category, source });
         return { success: res.success, newLevel: res.level };
     } catch (error) {
         console.error('Error awarding XP:', error);
@@ -90,7 +89,7 @@ export const getUserXP = async (userId: string): Promise<UserXP | null> => {
         total_xp: data.current_xp ?? 0,
         level: data.level ?? 1,
         attributes: toAttributes(data.attributes),
-        xp_history: toXpHistory(data.xp_history),
+        xp_history: toXpHistory(data.xp_history) as unknown as any,
         created_at: data.created_at ?? new Date().toISOString(),
         updated_at: data.updated_at ?? new Date().toISOString(),
     };

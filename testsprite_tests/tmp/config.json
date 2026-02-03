@@ -6,14 +6,12 @@
   "executionArgs": {
     "projectName": "life-os",
     "projectPath": "c:\\Users\\pedro\\Documents\\life-os",
-    "testIds": [
-      "TC002",
-      "TC010"
-    ],
-    "additionalInstruction": "Final verification run for TC002 and TC010. Should pass now.",
+    "testIds": [],
+    "additionalInstruction": "",
     "envs": {
       "API_KEY": "sk-user-EuTtrqrsm__Etjp6PSPTkjHxHeFlOyygYKUxrpc0857PM7TyJUOMLGtmyX4y-O1nbYx7GtkAb831PTjlYbwfbUsR2H3KXiYem4d53YzsXWJKJYcC3D7PfeQ2X984QatmC9o"
     }
   },
-  "proxy": "http://9a444001-9a93-45a9-8824-63149d7ce599:b9KpunyWC3j4Uk9gmCIp8g5AM5w6Mm1X@tun.testsprite.com:8080"
+  "serverPort": 56042,
+  "proxy": "http://ddcfd46b-2bbb-423f-b236-3759b3ac817b:dHeievlj4TzkVy8xXLoi4Ff9kW4L6MWN@tun.testsprite.com:8080"
 }

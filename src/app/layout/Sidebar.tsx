@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/shared/lib/cn';
 import { primaryNav, secondaryNav } from './navItems';
-
+import { LanguageSelector } from '@/shared/components/LanguageSelector';
 
 export const Sidebar = ({ className }: { className?: string }) => {
     return (
@@ -60,6 +60,8 @@ export const Sidebar = ({ className }: { className?: string }) => {
                         )}
                     </NavLink>
                 ))}
+
+                <LanguageSelector className="hidden xl:block" />
 
                 <NavLink
                     to="/profile"

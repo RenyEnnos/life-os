@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/shared/api/http'
 import { useDashboardIdentity } from '@/features/dashboard/hooks/useDashboardIdentity'
 import { useDashboardStats } from '@/features/dashboard/hooks/useDashboardStats'
@@ -22,6 +23,7 @@ import { CloudRain, ScanFace } from 'lucide-react'
 type WeatherData = { temp?: number; summary?: string; location?: string }
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const { user, loading: idLoading } = useDashboardIdentity()
   const { lifeScore, isLoading } = useDashboardData()
   const [weather, setWeather] = useState<WeatherData | null>(null)
@@ -62,9 +64,9 @@ export default function DashboardPage() {
         {/* Header */}
         <header className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-8">
           <div>
-            <h2 className="text-zinc-500 text-sm font-medium tracking-widest uppercase mb-1">Nexus</h2>
-            <h1 className="text-3xl lg:text-4xl font-light text-white tracking-tight">Agora Dinâmico</h1>
-            <p className="text-sm text-zinc-500 mt-1">Painel de Controle Unificado v2.0</p>
+            <h2 className="text-zinc-500 text-sm font-medium tracking-widest uppercase mb-1">{t('dashboard.nexus')}</h2>
+            <h1 className="text-3xl lg:text-4xl font-light text-white tracking-tight">{t('dashboard.title')}</h1>
+            <p className="text-sm text-zinc-500 mt-1">{t('dashboard.subtitle')}</p>
           </div>
           <div className="flex items-center gap-4">
             {/* Weather Pill */}
@@ -76,7 +78,7 @@ export default function DashboardPage() {
             )}
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-zinc-300 text-sm backdrop-blur-md">
               <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
-              {idLoading ? 'Carregando...' : (user?.name || 'Usuário')}
+              {idLoading ? t('common.loading') : (user?.name || t('dashboard.user'))}
             </div>
           </div>
         </header>
@@ -93,8 +95,8 @@ export default function DashboardPage() {
           </div>
           <div className="h-full min-h-[300px]">
             <WidgetShell
-              title="Atributos"
-              subtitle="Radar de Evolução"
+              title={t('dashboard.gamification.attributes')}
+              subtitle={t('dashboard.gamification.attributeRadar')}
               icon={<ScanFace size={18} className="text-purple-400" />}
               className="h-full"
             >
