@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
 
 export default function PrivacyPage() {
     return (
@@ -132,7 +133,7 @@ export default function PrivacyPage() {
                                         Voltar ao Life OS
                                     </Link>
                                 </div>
-                            </div>
+                            </section>
                         </div>
                     </div>
                 </div>

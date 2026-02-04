@@ -118,5 +118,9 @@ describe('TaskWidget', () => {
 
         // Check for focus-visible class
         expect(focusButton).toHaveClass('focus-visible:opacity-100');
+
+        // Click to verify startFocus call arguments
+        fireEvent.click(focusButton);
+        expect(mockStartFocus).toHaveBeenCalledWith('Test Task 1', expect.objectContaining({ title: 'Test Task 1' }));
     });
 });
