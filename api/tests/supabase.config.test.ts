@@ -24,8 +24,16 @@ afterEach(() => {
 })
 
 describe('supabase configuration', () => {
-  it('throws when Supabase config is missing', async () => {
+  it('does not throw when Supabase config is missing in test mode', async () => {
     clearSupabaseEnv()
+    process.env.NODE_ENV = 'test'
+    vi.resetModules()
+    await expect(import('../lib/supabase')).resolves.toBeDefined()
+  })
+
+  it('throws when Supabase config is missing and not in test mode', async () => {
+    clearSupabaseEnv()
+    process.env.NODE_ENV = 'production'
     vi.resetModules()
     await expect(import('../lib/supabase')).rejects.toThrow(/Supabase configuration missing/)
   })

@@ -6,12 +6,18 @@ const originalFetch = global.fetch;
 // @ts-ignore - Sem tipagem no parâmetro para evitar conflitos com Vitest
 function mockFetch(response: any) {
     global.fetch = vi.fn(async (_url: string, init?: RequestInit) => {
+        const headers = new Headers(response.headers || {});
+        // Mock specific header if needed for tests
+        if (typeof response.body !== 'string' && !headers.has('content-type')) {
+            headers.set('content-type', 'application/json');
+        }
+
         return {
             ok: response.status >= 200 && response.status < 300,
             status: response.status,
             statusText: response.statusText || "OK",
-            headers: response.headers,
-            json: async () => (typeof response.body === "string" ? response.body : JSON.stringify(response.body)),
+            headers,
+            json: async () => response.body,
             text: async () => (typeof response.body === "string" ? response.body : JSON.stringify(response.body)),
         } as Response
     })

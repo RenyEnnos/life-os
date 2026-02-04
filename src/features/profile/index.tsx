@@ -61,11 +61,18 @@ export default function ProfilePage() {
                             <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
                                 <div className="relative cursor-pointer group" onClick={() => setIsEditingAvatar(!isEditingAvatar)}>
                                     <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-zinc-900 border-2 border-white/10 relative overflow-hidden shadow-[0_0_0_2px_rgba(5,5,5,1),0_0_0_4px_rgba(48,140,232,0.3),0_0_0_30px_rgba(48,140,232,0.2)]">
-                                        <img
-                                            alt="User Avatar"
-                                            className="w-full h-full object-cover"
-                                            src={user?.avatar_url || userProfile?.avatar_url || "https://via.placeholder.com/150"}
-                                        />
+                                        {/* @ts-ignore - user type definition missing avatar_url but it might exist at runtime or on userProfile */}
+                                        {(user as any)?.avatar_url || userProfile?.avatar_url ? (
+                                            <img
+                                                alt="User Avatar"
+                                                className="w-full h-full object-cover"
+                                                src={(user as any)?.avatar_url || userProfile?.avatar_url}
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-primary/20 flex items-center justify-center text-2xl font-bold text-primary">
+                                                {user?.name?.[0] || user?.email?.[0] || 'U'}
+                                            </div>
+                                        )}
                                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                             <Camera className="text-white text-3xl" size={32} />
                                         </div>
