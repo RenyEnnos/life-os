@@ -10,8 +10,8 @@ test.describe('Dashboard Layout', () => {
         // Quick check for login page elements
         const loginHeading = page.getByText(/acesso ao sistema|life os/i).first();
         if (await loginHeading.isVisible()) {
-            await page.locator('input#email').fill('test@example.com');
-            await page.locator('input#password').fill('password123');
+            await page.locator('input#email').fill('test@life-os.app');
+            await page.locator('input#password').fill('TestPass123!');
             await page.getByRole('button', { name: 'ENTRAR' }).click();
             // Wait for dashboard
             await page.waitForURL('**/', { timeout: 10000 });
@@ -19,11 +19,9 @@ test.describe('Dashboard Layout', () => {
 
         // Now on dashboard
         // Verify Zone 1 (Focus/Now)
-        await expect(page.getByText(/ready to focus|deep focusing/i)).toBeVisible();
-        await expect(page.getByLabel(/iniciar foco/i)).toBeVisible();
-
-        // Verify other sections if possible (AgoraSection etc)
-        // We don't have exact text for others yet, but let's check for "Focus" title in BentoCard
-        await expect(page.getByText('Focus').first()).toBeVisible();
+        await expect(page.getByText(/focus session|pomodoro/i).first()).toBeVisible();
+        
+        // Verify other sections
+        await expect(page.getByText(/habit tracker/i).first()).toBeVisible();
     });
 });

@@ -5,7 +5,7 @@ const originalFetch = global.fetch;
 
 // @ts-ignore - Sem tipagem no parâmetro para evitar conflitos com Vitest
 function mockFetch(response: any) {
-    global.fetch = vi.fn(async (_url: string, init?: RequestInit) => {
+    global.fetch = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
         return {
             ok: response.status >= 200 && response.status < 300,
             status: response.status,

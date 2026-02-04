@@ -17,6 +17,10 @@ const FinancesPage = lazy(() => import('@/features/finances'));
 const ProjectsPage = lazy(() => import('@/features/projects'));
 const UniversityPage = lazy(() => import('@/features/university'));
 
+const AiAssistantPage = lazy(() => import('@/features/ai-assistant'));
+const FocusPage = lazy(() => import('@/features/focus'));
+const GamificationPage = lazy(() => import('@/features/gamification'));
+
 const SettingsPage = lazy(() => import('@/features/settings'));
 const DesignSystemPreview = lazy(() => import('@/features/design-system/Preview'));
 const ProfilePage = lazy(() => import('@/features/profile'));
@@ -65,6 +69,9 @@ export function AppRoutes() {
                     <Route path="/health" element={<HealthPage />} />
                     <Route path="/finances" element={<FinancesPage />} />
                     <Route path="/projects" element={<ProjectsPage />} />
+                    <Route path="/ai-assistant" element={<AiAssistantPage />} />
+                    <Route path="/focus" element={<FocusPage />} />
+                    <Route path="/gamification" element={<GamificationPage />} />
 
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/design" element={<DesignSystemPreview />} />

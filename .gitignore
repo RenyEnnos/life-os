@@ -100,4 +100,3 @@ api/.mock-data/
 # Uncomment ONE of these based on your package manager:
 # package-lock.json           # If using pnpm
 pnpm-lock.yaml                # If using npm
-.agent/

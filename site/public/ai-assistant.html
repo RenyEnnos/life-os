@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LifeOS AI Assistant Chat Refined</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#308ce8",
+                        "oled": "#050505",
+                        "glass-base": "rgba(24, 24, 27, 0.4)",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "base": "12px",
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --primary: #308ce8;
+            --glass-bg: rgba(24, 24, 27, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --primary-glass: rgba(48, 140, 232, 0.25);
+        }
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+        }
+        .glass-primary {
+            background: var(--primary-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(48, 140, 232, 0.4);
+        }
+        .nav-item-active {
+            color: var(--primary);
+            background: rgba(48, 140, 232, 0.1);
+        }
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-oled font-display text-white antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<aside class="w-64 h-full glass-panel flex flex-col p-6 rounded-none border-y-0 border-l-0">
+<div class="flex items-center gap-3 mb-12 px-2">
+<div class="bg-primary/20 p-2 rounded-[12px]">
+<div class="size-6 text-primary">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z" fill="currentColor"></path>
+</svg>
+</div>
+</div>
+<div>
+<h1 class="text-base font-bold tracking-tight">LifeOS</h1>
+</div>
+</div>
+<nav class="flex flex-col gap-1.5 flex-grow">
+<a class="flex items-center gap-3 px-4 py-3 rounded-[12px] text-white/50 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-[12px] nav-item-active transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">smart_toy</span>
+<span class="text-sm font-bold">AI Assistant</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-[12px] text-white/50 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">calendar_today</span>
+<span class="text-sm font-medium">Calendar</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-[12px] text-white/50 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">check_circle</span>
+<span class="text-sm font-medium">Tasks</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-[12px] text-white/50 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">ecg_heart</span>
+<span class="text-sm font-medium">Health</span>
+</a>
+<div class="mt-auto flex flex-col gap-1.5 pt-6 border-t border-white/5">
+<a class="flex items-center gap-3 px-4 py-3 rounded-[12px] text-white/50 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-[12px] text-red-400/70 hover:bg-red-400/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">logout</span>
+<span class="text-sm font-medium">Logout</span>
+</a>
+</div>
+</nav>
+</aside>
+<main class="flex-1 flex flex-col h-full bg-oled">
+<header class="h-20 flex items-center justify-between px-10 border-b border-white/5">
+<div class="flex items-center gap-4">
+<h2 class="text-lg font-semibold text-white">AI Assistant</h2>
+<div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+<div class="size-1.5 bg-emerald-500 rounded-full"></div>
+<span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Online</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-sm font-medium">Alex Rivera</p>
+</div>
+<div class="size-9 rounded-full bg-center bg-cover border border-white/10" data-alt="Portrait of the user Alex Rivera" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCYYUvkY7TOGMJcrVcRTpRrjnlTEJaTOxZwmVmWzjcVXKdPE7ynZPVpoiHExV7makC1hgviAzEj6yEzKt08lr2E5MyyMD_FMr85rMyLslgIdsGwwrQpGG5HMET-cxAIu9ChCoDT3i3N_HnettjaZI3xxcFPqQNUnzVzB-KsTJsuT3nmW6VRZpeCo61rvBrxUNvwOxPm6zKf4V4w4vLxTJW_0qcf6a4Nlfh-42F6HdjML-7D7AbwlM_pnuV4PGI-aZjvaYKZScT_ffs');"></div>
+</div>
+</div>
+</header>
+<section class="flex-1 overflow-y-auto p-10 space-y-6 max-w-4xl mx-auto w-full">
+<div class="flex flex-col items-start max-w-[80%]">
+<div class="glass-panel px-5 py-4 rounded-[12px] rounded-tl-none">
+<p class="text-[15px] leading-relaxed text-white/90">How can I help you optimize your life today?</p>
+</div>
+<span class="mt-2 ml-1 text-[10px] font-bold text-white/20 uppercase tracking-wider">System</span>
+</div>
+<div class="flex flex-col items-end max-w-[80%] ml-auto">
+<div class="glass-primary px-5 py-4 rounded-[12px] rounded-tr-none">
+<p class="text-[15px] leading-relaxed text-white">Show me my focus stats.</p>
+</div>
+<span class="mt-2 mr-1 text-[10px] font-bold text-primary uppercase tracking-wider">You</span>
+</div>
+</section>
+<footer class="p-8">
+<div class="max-w-3xl mx-auto">
+<div class="flex items-center gap-3 px-2 py-2 glass-panel rounded-full border-white/10">
+<button class="ml-4 flex items-center justify-center text-white/30 hover:text-white transition-colors">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-white placeholder:text-white/20 py-2 text-[15px]" placeholder="Message LifeOS AI..." type="text"/>
+<button class="bg-primary size-10 rounded-full flex items-center justify-center text-white shadow-[0_0_20px_rgba(48,140,232,0.4)] hover:brightness-110 transition-all">
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+</div>
+<p class="text-center text-[10px] text-white/20 mt-4 uppercase tracking-[0.2em]">Personal Assistant Mode â¢ Secure Session</p>
+</div>
+</footer>
+</main>
+</div>
+
+</body></html>

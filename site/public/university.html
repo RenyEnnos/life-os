@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LifeOS University Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f97415",
+                        "background-light": "#f8f7f5",
+                        "background-dark": "#050505",
+                        "glass": "rgba(24, 24, 27, 0.4)",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1.5rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-white min-h-screen">
+<div class="flex h-screen overflow-hidden">
+<!-- Left Sidebar Navigation -->
+<aside class="w-64 glass-panel m-4 rounded-xl flex flex-col justify-between p-6">
+<div class="flex flex-col gap-8">
+<div class="flex items-center gap-3">
+<div class="bg-primary size-10 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-white">school</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-white text-base font-bold leading-none">LifeOS</h1>
+<p class="text-zinc-500 text-xs mt-1">University Edition</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<div class="flex items-center gap-3 px-4 py-3 rounded-full bg-primary/20 text-primary">
+<span class="material-symbols-outlined fill-1">dashboard</span>
+<p class="text-sm font-medium">Dashboard</p>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 text-zinc-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">book_4</span>
+<p class="text-sm font-medium">Courses</p>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 text-zinc-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">assignment</span>
+<p class="text-sm font-medium">Assignments</p>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 text-zinc-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">monitoring</span>
+<p class="text-sm font-medium">Grades</p>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 text-zinc-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">calendar_today</span>
+<p class="text-sm font-medium">Schedule</p>
+</div>
+</nav>
+</div>
+<button class="flex items-center justify-center gap-2 rounded-full h-12 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-bold transition-all">
+<span class="material-symbols-outlined text-sm">logout</span>
+<span>Log Out</span>
+</button>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
+<!-- Top Header -->
+<header class="flex items-center justify-between">
+<div>
+<h2 class="text-zinc-400 text-sm font-medium uppercase tracking-widest">University Dashboard</h2>
+<h1 class="text-white text-3xl font-bold mt-1">Fall Semester 2025</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">search</span>
+<input class="bg-glass border-none rounded-full pl-10 pr-4 py-2 text-sm text-white focus:ring-1 focus:ring-primary w-64" placeholder="Search courses..." type="text"/>
+</div>
+<div class="size-10 rounded-full bg-cover bg-center border border-zinc-700" data-alt="Student profile avatar headshot" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCK2d7BhbfvFdPqBw1tPzdxnW849O5hivv_BH6y-XYojdQCq6Zus8SIW8hRZaHa0C62s2fQRCdmwP8RQxB-HDT-qpgjjoXYLf7QG8SKtRZTHSSiPjgY7mzzfMzePgqwvTZlyHp3TcmQMjKLaZ2S0qgof4m1LrI5JlZLUQTMsyodNaHpeGra6MHFWSi0tWieGGScJkcX45q6e0UxRwt1cbQGehOJpHwVvHyD-hOqDX0BglqXnUgoho-U55vWPmx-YaG9H4NN5McLLEo')"></div>
+</div>
+</header>
+<!-- Course Grid Section -->
+<section>
+<div class="flex items-center justify-between mb-4 px-2">
+<h3 class="text-xl font-bold text-white">Course Grid</h3>
+<button class="text-primary text-sm font-medium hover:underline">View All</button>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<!-- Course Card 1 -->
+<div class="glass-panel p-5 rounded-lg flex gap-5">
+<div class="size-24 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center" data-alt="Abstract blue geometric pattern for algorithms">
+<span class="material-symbols-outlined text-4xl text-white/50">data_object</span>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<h4 class="text-lg font-bold text-white">Advanced Algorithms</h4>
+<p class="text-primary font-semibold text-sm">Grade: A-</p>
+</div>
+<div class="flex items-center gap-2 text-zinc-400 text-xs">
+<span class="material-symbols-outlined text-sm">event</span>
+<span>Next: Exam Oct 30</span>
+</div>
+</div>
+</div>
+<!-- Course Card 2 -->
+<div class="glass-panel p-5 rounded-lg flex gap-5">
+<div class="size-24 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center" data-alt="Abstract green geometric pattern for system design">
+<span class="material-symbols-outlined text-4xl text-white/50">account_tree</span>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<h4 class="text-lg font-bold text-white">System Design</h4>
+<p class="text-primary font-semibold text-sm">Grade: B+</p>
+</div>
+<div class="flex items-center gap-2 text-zinc-400 text-xs">
+<span class="material-symbols-outlined text-sm">event</span>
+<span>Next: Project Due Nov 2</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Assignments & Schedule Section -->
+<div class="grid grid-cols-3 gap-6">
+<!-- Assignments List -->
+<section class="col-span-2 space-y-4">
+<div class="flex items-center justify-between px-2">
+<h3 class="text-xl font-bold text-white">Assignments</h3>
+<span class="text-zinc-500 text-xs">Pending (12)</span>
+</div>
+<div class="glass-panel rounded-lg overflow-hidden">
+<!-- Assignment 1 -->
+<div class="flex items-center justify-between p-4 border-b border-white/5">
+<div class="flex items-center gap-4">
+<div class="w-1 h-10 bg-primary rounded-full"></div>
+<div>
+<h5 class="text-white font-medium">Read Chapter 4: Graph Theory</h5>
+<p class="text-zinc-500 text-xs">Advanced Algorithms â¢ <span class="text-primary/80 font-medium">High Priority</span></p>
+</div>
+</div>
+<button class="px-4 py-2 bg-primary/10 text-primary text-xs font-bold rounded-full">Study Now</button>
+</div>
+<!-- Assignment 2 -->
+<div class="flex items-center justify-between p-4">
+<div class="flex items-center gap-4">
+<div class="w-1 h-10 bg-zinc-700 rounded-full"></div>
+<div>
+<h5 class="text-white font-medium">Submit P-Set 3</h5>
+<p class="text-zinc-500 text-xs">Discrete Mathematics â¢ <span class="text-red-400/80">Due Tomorrow</span></p>
+</div>
+</div>
+<button class="px-4 py-2 bg-zinc-800 text-zinc-400 text-xs font-bold rounded-full">Mark Done</button>
+</div>
+</div>
+<!-- Weekly Schedule (Horizontal Scroll or Compact) -->
+<div class="mt-8">
+<h3 class="text-xl font-bold text-white mb-4 px-2">Lecture Schedule</h3>
+<div class="flex gap-3 overflow-x-auto pb-4 custom-scrollbar">
+<div class="glass-panel p-4 min-w-[140px] rounded-lg border-t-4 border-primary">
+<p class="text-zinc-500 text-xs font-bold uppercase">Mon</p>
+<p class="text-white text-sm font-bold mt-2">CS 401</p>
+<p class="text-zinc-400 text-[10px]">10:00 AM - 11:30 AM</p>
+</div>
+<div class="glass-panel p-4 min-w-[140px] rounded-lg opacity-60">
+<p class="text-zinc-500 text-xs font-bold uppercase">Tue</p>
+<p class="text-white text-sm font-bold mt-2">MATH 302</p>
+<p class="text-zinc-400 text-[10px]">02:00 PM - 03:30 PM</p>
+</div>
+<div class="glass-panel p-4 min-w-[140px] rounded-lg border-t-4 border-primary">
+<p class="text-zinc-500 text-xs font-bold uppercase">Wed</p>
+<p class="text-white text-sm font-bold mt-2">CS 401</p>
+<p class="text-zinc-400 text-[10px]">10:00 AM - 11:30 AM</p>
+</div>
+<div class="glass-panel p-4 min-w-[140px] rounded-lg">
+<p class="text-zinc-500 text-xs font-bold uppercase">Thu</p>
+<p class="text-white text-sm font-bold mt-2">ENG 201</p>
+<p class="text-zinc-400 text-[10px]">09:00 AM - 10:30 AM</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Analytics Panel -->
+<section class="space-y-6">
+<div class="glass-panel p-6 rounded-lg text-center flex flex-col items-center justify-center min-h-[220px]">
+<p class="text-zinc-400 text-sm font-medium">Current GPA</p>
+<h2 class="text-6xl font-bold text-white mt-2">3.8</h2>
+<div class="flex items-center gap-1 text-emerald-400 text-xs mt-2">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span>+0.2 from last term</span>
+</div>
+</div>
+<div class="glass-panel p-6 rounded-lg">
+<div class="flex items-center justify-between mb-6">
+<h4 class="text-sm font-bold text-white">Grade Analytics</h4>
+<span class="material-symbols-outlined text-zinc-500 text-sm">more_horiz</span>
+</div>
+<!-- Simple CSS Chart Placeholder -->
+<div class="h-32 flex items-end justify-between gap-2 px-2">
+<div class="w-full bg-primary/20 rounded-t-lg relative group" style="height: 60%;">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-zinc-800 text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">3.2</div>
+</div>
+<div class="w-full bg-primary/40 rounded-t-lg relative group" style="height: 75%;">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-zinc-800 text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">3.5</div>
+</div>
+<div class="w-full bg-primary/60 rounded-t-lg relative group" style="height: 85%;">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-zinc-800 text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">3.6</div>
+</div>
+<div class="w-full bg-primary rounded-t-lg relative group" style="height: 95%;">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-zinc-800 text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">3.8</div>
+</div>
+</div>
+<div class="flex justify-between mt-4 text-[10px] text-zinc-500 font-bold uppercase">
+<span>Fall 23</span>
+<span>Spr 24</span>
+<span>Fall 24</span>
+<span>Spr 25</span>
+</div>
+</div>
+<!-- Upcoming Events Card -->
+<div class="glass-panel p-4 rounded-lg bg-primary/5">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">notifications_active</span>
+</div>
+<div>
+<p class="text-xs font-bold text-white">Advising Meeting</p>
+<p class="text-zinc-500 text-[10px]">Tomorrow, 2:00 PM</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+</body></html>

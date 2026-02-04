@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LifeOS RPG Gamification Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#a855f7",
+                        "background-light": "#f7f5f8",
+                        "background-dark": "#050505",
+                        "glass": "rgba(31, 24, 46, 0.6)",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(31, 24, 46, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(168, 85, 247, 0.1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #050505;
+        }
+    </style>
+</head>
+<body class="font-display text-white selection:bg-primary/30">
+<div class="flex h-screen w-full overflow-hidden bg-background-dark">
+<!-- Sidebar Navigation -->
+<aside class="w-64 glass-panel m-4 rounded-xl flex flex-col justify-between p-6">
+<div class="flex flex-col gap-8">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-gradient-to-tr from-primary to-purple-400 flex items-center justify-center">
+<span class="material-symbols-outlined text-white">bolt</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight">LifeOS</h2>
+</div>
+<nav class="flex flex-col gap-2">
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary/20 text-primary border border-primary/20">
+<span class="material-symbols-outlined">dashboard</span>
+<p class="text-sm font-semibold leading-normal">Dashboard</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">swords</span>
+<p class="text-white/70 text-sm font-medium leading-normal">Quest Board</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">inventory_2</span>
+<p class="text-white/70 text-sm font-medium leading-normal">Inventory</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">account_tree</span>
+<p class="text-white/70 text-sm font-medium leading-normal">Skill Tree</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">storefront</span>
+<p class="text-white/70 text-sm font-medium leading-normal">Shop</p>
+</div>
+</nav>
+</div>
+<button class="w-full flex items-center justify-center gap-2 rounded-xl bg-primary py-3 px-4 text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>New Quest</span>
+</button>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+<div class="max-w-6xl mx-auto flex flex-col gap-6">
+<!-- Top Row: Avatar Card & Stats -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- ProfileHeader -->
+<div class="lg:col-span-5 glass-panel rounded-xl p-8 flex flex-col items-center justify-center gap-6">
+<div class="relative">
+<div class="absolute -inset-1 bg-gradient-to-tr from-primary to-purple-500 rounded-full blur opacity-40"></div>
+<div class="relative bg-center bg-no-repeat aspect-square bg-cover rounded-full h-32 w-32 border-4 border-[#050505]" data-alt="Modern stylized portrait of a strategist avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuChEnTpgMz68EcXASUGiFrkYK-AfD1FCu8LMCDpimSE6gIWH-Tr7QCeOS29_WXYwu6HD4OB6K2Pid39lefP5GLH_Ka7g_GdHdG-X1ns0lMOADz_RNqGycheXBZunS5jb4Xae8A6ym2UbXT4A2e9IhhOs5JwqYfmuM2IpUyFoYmnMC4lkkCwkwi5Pv_RRNHoHGIodMPZsKXNvnYIF6aNY-_ynnEUqPPIKFUF74EHNCExhqqWHDjPNBzLpLhXmEAN8sbD6K-6fuL-K1M");'>
+</div>
+</div>
+<div class="text-center">
+<h1 class="text-2xl font-bold text-white tracking-tight">LifeOS Strategist</h1>
+<p class="text-primary font-semibold text-lg">Level 42</p>
+<p class="text-white/50 text-sm font-medium mt-1">Class: Strategist</p>
+</div>
+<div class="w-full flex flex-col gap-2">
+<div class="flex justify-between items-end">
+<p class="text-xs font-bold text-white/40 uppercase tracking-widest">Experience</p>
+<p class="text-sm font-bold text-white">8,450 / 10,000 XP</p>
+</div>
+<div class="h-3 w-full bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full shadow-[0_0_12px_rgba(168,85,247,0.5)]" style="width: 84.5%;"></div>
+</div>
+</div>
+</div>
+<!-- Stats Radar -->
+<div class="lg:col-span-7 glass-panel rounded-xl p-8">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="text-white text-lg font-bold">Stats Radar</h3>
+<div class="flex gap-2 items-center mt-1">
+<p class="text-3xl font-bold tracking-tight">62 <span class="text-sm text-white/40 font-normal">AVG</span></p>
+<span class="bg-[#0bda73]/20 text-[#0bda73] text-[10px] font-bold px-2 py-0.5 rounded-full">+5%</span>
+</div>
+</div>
+<button class="p-2 hover:bg-white/5 rounded-lg text-white/40 transition-colors">
+<span class="material-symbols-outlined">info</span>
+</button>
+</div>
+<div class="grid grid-cols-5 gap-4 items-end h-40 mt-4">
+<div class="flex flex-col items-center gap-3 group">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all group-hover:bg-primary/30" style="height: 85%;"></div>
+<p class="text-[11px] font-bold text-white/40 uppercase">Int</p>
+</div>
+<div class="flex flex-col items-center gap-3 group">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all group-hover:bg-primary/30" style="height: 40%;"></div>
+<p class="text-[11px] font-bold text-white/40 uppercase">Str</p>
+</div>
+<div class="flex flex-col items-center gap-3 group">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all group-hover:bg-primary/30" style="height: 60%;"></div>
+<p class="text-[11px] font-bold text-white/40 uppercase">Cha</p>
+</div>
+<div class="flex flex-col items-center gap-3 group">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all group-hover:bg-primary/30" style="height: 55%;"></div>
+<p class="text-[11px] font-bold text-white/40 uppercase">Agi</p>
+</div>
+<div class="flex flex-col items-center gap-3 group">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all group-hover:bg-primary/30" style="height: 70%;"></div>
+<p class="text-[11px] font-bold text-white/40 uppercase">Sta</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Middle Row: Quest Board (Kanban) -->
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-center px-2">
+<h2 class="text-xl font-bold tracking-tight">Quest Board</h2>
+<button class="text-primary text-sm font-semibold hover:underline">View All Quests</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Main Quests -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-2 px-2">
+<span class="material-symbols-outlined text-primary text-[20px]">stars</span>
+<h3 class="text-sm font-bold uppercase tracking-widest text-white/60">Main Quests</h3>
+</div>
+<div class="flex flex-col gap-3">
+<div class="glass-panel p-4 rounded-xl border-l-4 border-primary hover:translate-x-1 transition-transform cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<p class="font-bold text-white">Finish Master's Thesis</p>
+<span class="text-[10px] font-bold bg-primary/20 text-primary px-2 py-0.5 rounded uppercase">Epic</span>
+</div>
+<p class="text-xs text-white/50 mb-3">Reach the final submission stage and get supervisor approval.</p>
+<div class="flex justify-between items-center">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full border-2 border-background-dark bg-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px]">school</span>
+</div>
+</div>
+<p class="text-xs font-bold text-primary">+2,500 XP</p>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-xl border-l-4 border-primary/40 opacity-70 hover:opacity-100 transition-opacity cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<p class="font-bold text-white">Career Pivot Design</p>
+<span class="text-[10px] font-bold bg-white/10 text-white/60 px-2 py-0.5 rounded uppercase">Rare</span>
+</div>
+<p class="text-xs text-white/50 mb-3">Map out 3 potential career paths for the next decade.</p>
+<p class="text-xs font-bold text-primary">+1,200 XP</p>
+</div>
+</div>
+</div>
+<!-- Side Quests -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-2 px-2">
+<span class="material-symbols-outlined text-white/40 text-[20px]">explore</span>
+<h3 class="text-sm font-bold uppercase tracking-widest text-white/60">Side Quests</h3>
+</div>
+<div class="flex flex-col gap-3">
+<div class="glass-panel p-4 rounded-xl border-l-4 border-white/20 hover:translate-x-1 transition-transform cursor-pointer">
+<div class="flex justify-between items-center">
+<div class="flex flex-col gap-1">
+<p class="font-bold text-white">Morning Walk</p>
+<p class="text-xs text-white/50">Walk the dog for 30 mins</p>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]">monetization_on</span>
+<p class="text-xs font-bold">50</p>
+</div>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-xl border-l-4 border-white/20 hover:translate-x-1 transition-transform cursor-pointer">
+<div class="flex justify-between items-center">
+<div class="flex flex-col gap-1">
+<p class="font-bold text-white">Inbox Zero</p>
+<p class="text-xs text-white/50">Clear all pending emails</p>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]">monetization_on</span>
+<p class="text-xs font-bold">30</p>
+</div>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-xl border-l-4 border-[#0bda73]/40 bg-[#0bda73]/5 cursor-default">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#0bda73]">check_circle</span>
+<p class="font-bold text-white/40 line-through">Gym Session</p>
+</div>
+<p class="text-xs font-bold text-[#0bda73]">Completed</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Row: Achievements & Shop -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+<!-- Achievements -->
+<div class="lg:col-span-2 glass-panel rounded-xl p-6">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-[#eab308]">military_tech</span>
+<h3 class="text-lg font-bold">Recent Achievements</h3>
+</div>
+<div class="flex flex-wrap gap-6">
+<div class="flex flex-col items-center gap-3 group cursor-help">
+<div class="w-16 h-16 rounded-full bg-gradient-to-tr from-[#eab308] to-yellow-200 p-0.5 shadow-lg shadow-[#eab308]/20 group-hover:scale-110 transition-transform">
+<div class="w-full h-full rounded-full bg-background-dark flex items-center justify-center">
+<span class="material-symbols-outlined text-[#eab308] text-3xl">light_mode</span>
+</div>
+</div>
+<div class="text-center">
+<p class="text-sm font-bold">Early Bird</p>
+<p class="text-[10px] text-white/40 font-medium uppercase">30 Day Streak</p>
+</div>
+</div>
+<div class="flex flex-col items-center gap-3 group cursor-help">
+<div class="w-16 h-16 rounded-full bg-gradient-to-tr from-[#eab308] to-yellow-200 p-0.5 shadow-lg shadow-[#eab308]/20 group-hover:scale-110 transition-transform">
+<div class="w-full h-full rounded-full bg-background-dark flex items-center justify-center">
+<span class="material-symbols-outlined text-[#eab308] text-3xl">terminal</span>
+</div>
+</div>
+<div class="text-center">
+<p class="text-sm font-bold">Code Warrior</p>
+<p class="text-[10px] text-white/40 font-medium uppercase">500 Commits</p>
+</div>
+</div>
+<div class="flex flex-col items-center gap-3 group opacity-40 grayscale">
+<div class="w-16 h-16 rounded-full border-2 border-dashed border-white/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-white/20 text-3xl">lock</span>
+</div>
+<div class="text-center">
+<p class="text-sm font-bold text-white/40">???</p>
+<p class="text-[10px] text-white/20 font-medium uppercase">Locked</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Shop Widget -->
+<div class="glass-panel rounded-xl p-6">
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">shopping_bag</span>
+<h3 class="text-lg font-bold">Reward Shop</h3>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
+<span class="material-symbols-outlined text-primary text-[16px]">monetization_on</span>
+<span class="text-sm font-bold text-primary">1,240</span>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 hover:border-primary/50 transition-colors group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-red-500">fastfood</span>
+</div>
+<div>
+<p class="text-sm font-bold">Cheat Meal</p>
+<p class="text-[10px] text-white/40">One-time use</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xs font-bold group-hover:text-primary transition-colors">500 LC</p>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 hover:border-primary/50 transition-colors group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-blue-500">videogame_asset</span>
+</div>
+<div>
+<p class="text-sm font-bold">Gaming Hour</p>
+<p class="text-[10px] text-white/40">Unrestricted play</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xs font-bold group-hover:text-primary transition-colors">250 LC</p>
+</div>
+</div>
+<button class="text-center py-2 text-xs font-bold text-white/40 hover:text-white transition-colors">
+                                Browse all rewards
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

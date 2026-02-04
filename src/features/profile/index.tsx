@@ -64,7 +64,7 @@ export default function ProfilePage() {
                                         <img
                                             alt="User Avatar"
                                             className="w-full h-full object-cover"
-                                            src={user?.avatar_url || userProfile?.avatar_url || "https://via.placeholder.com/150"}
+                                            src={(user as any)?.user_metadata?.avatar_url || (userProfile as any)?.avatar_url || "https://via.placeholder.com/150"}
                                         />
                                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                             <Camera className="text-white text-3xl" size={32} />

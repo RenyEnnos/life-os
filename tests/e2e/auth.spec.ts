@@ -10,21 +10,14 @@ test.describe('Authentication', () => {
         await expect(page.getByText(/acesso ao sistema|life os/i).first()).toBeVisible();
 
         // Fill in credentials using IDs found in source
-        await page.locator('input#email').fill('test@example.com');
-        await page.locator('input#password').fill('password123');
+        await page.locator('input#email').fill('test@life-os.app');
+        await page.locator('input#password').fill('TestPass123!');
 
         // Submit
         await page.getByRole('button', { name: 'ENTRAR' }).click();
 
-        // Check for "ACESSANDO..." state or navigation
-        // Since we don't have a backend, we expect either a navigation or an error message (User not found)
-        // Both confirm the interaction worked.
-        // If we land on '/', we expect to see the dashboard.
-        // If we stay, we expect an error message.
-
-        // For this e2e test without seed, we might expect "Credenciais incorretas" or similar
-        // But let's assert that the button becomes disabled or shows loading
-        await expect(page.getByText('ACESSANDO...')).toBeVisible();
+        // Expect successful navigation to Dashboard
+        await expect(page).toHaveURL(/\/$/);
     });
 
     test('TC002: Should show error with invalid credentials', async ({ page }) => {

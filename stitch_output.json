@@ -1,0 +1,75 @@
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [
+      {
+        "text": "{\"projectId\":\"9663428408853230729\",\"sessionId\":\"570127798368100645\",\"outputComponents\":[{\"design\":{\"screens\":[{\"screenshot\":{\"name\":\"projects/9663428408853230729/files/0233cffdc5bb4070ac9e605ca1e9e00b\",\"downloadUrl\":\"https://lh3.googleusercontent.com/aida/AOfcidXYNYbzyIXWULQeI7pVSCzkUdw0s6fmRfdXHOJteBerTutdXnqUuP0saRtjP8oCCW1FXW_URliVauO6J6eaqjHAPwkG90sh-GF8VFMpdfYBu1JzL5hK92K8shEHtIzDftVVdZwIzlgLpi1cXAbnxYMhT38bEybpWuzYZEDPmHmBtmwej5HpCUQTSRCMbBnrfZRgbbKAYHKs14bwfIEI9Z9HD9olILrXCbCuIcKLsHr02kBcyV3C4uWK2U4\"},\"htmlCode\":{\"name\":\"projects/9663428408853230729/files/ba4c0d90466149cc81df8450c57790c2\",\"downloadUrl\":\"https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sX2ZlZDBhOTE1YmMzMTRhZGVhYTA5NDc5NWI0NTczYWYyEgsSBxCmwofB1xIYAZIBIwoKcHJvamVjdF9pZBIVQhM5NjYzNDI4NDA4ODUzMjMwNzI5&filename=&opi=96797242\"},\"id\":\"1614c221e86c4992ab846946e3ded17b\",\"generatedBy\":\"figaro_agent\",\"width\":\"2560\",\"height\":\"2048\",\"title\":\"LifeOS University Dashboard\",\"prompt\":\"Title: LifeOS University Dashboard\\nContext: LifeOS desktop student and university management dashboard with a dark glass-morphism aesthetic.\\nDescription of the screen: A desktop University Dashboard for LifeOS. Background is OLED Black (#050505). Left sidebar is glass navigation. Main header shows 'University' and 'Fall Semester 2025'. Top section features a 'Course Grid' with glass cards for 'Advanced Algorithms' (Grade: A-, Next: Exam Oct 30) and 'System Design' (Grade: B+, Next: Project Due Nov 2). Middle section is an 'Assignments' list with 'Read Chapter 4' (Algo) marked with a Study Orange (#f97316) high-priority flag, and 'Submit P-Set 3' (Math) due tomorrow. Bottom section shows a small weekly lecture schedule. A right panel displays 'Grade Analytics' with a GPA Trend line chart and a large 'Current GPA: 3.8' display. Typography is Inter, corners are Rounded 24px. Glass surfaces use rgba(24, 24, 27, 0.4).\\nPlatform: web\\nForm factor: desktop\",\"name\":\"projects/9663428408853230729/screens/1614c221e86c4992ab846946e3ded17b\",\"theme\":{\"colorMode\":\"DARK\",\"font\":\"INTER\",\"roundness\":\"ROUND_FULL\",\"customColor\":\"#f97415\",\"saturation\":2},\"deviceType\":\"DESKTOP\",\"screenType\":\"DESIGN\",\"screenMetadata\":{\"agentType\":\"PRO_AGENT\",\"status\":\"COMPLETE\"}}],\"theme\":{\"colorMode\":\"DARK\",\"font\":\"INTER\",\"roundness\":\"ROUND_FULL\",\"customColor\":\"#f97415\",\"saturation\":2},\"deviceType\":\"DESKTOP\",\"title\":\"LifeOS University Dashboard\"}},{\"text\":\"The University Dashboard for LifeOS has been generated:\\n\\n- **LifeOS University Dashboard**: A comprehensive academic hub that tracks course performance, upcoming assignments, and GPA trends. It uses Study Orange highlights for high-priority academic tasks and elegant glass-morphic cards to organize semester-long course data against the signature OLED black background.\\n\\nWould you like to design a detailed \\\"Course View\\\" showing all syllabus items and notes, or perhaps an \\\"Exam Prep\\\" mode that integrates with the Focus Timer?\"},{\"suggestion\":\"Design a detailed \\\"Course View\\\" with syllabus and notes\"},{\"suggestion\":\"Create an \\\"Exam Prep\\\" study mode interface\"},{\"suggestion\":\"Design a \\\"GPA Calculator\\\" and academic planning tool\"}]}",
+        "type": "text"
+      }
+    ],
+    "structuredContent": {
+      "outputComponents": [
+        {
+          "design": {
+            "deviceType": "DESKTOP",
+            "screens": [
+              {
+                "deviceType": "DESKTOP",
+                "generatedBy": "figaro_agent",
+                "height": "2048",
+                "htmlCode": {
+                  "downloadUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sX2ZlZDBhOTE1YmMzMTRhZGVhYTA5NDc5NWI0NTczYWYyEgsSBxCmwofB1xIYAZIBIwoKcHJvamVjdF9pZBIVQhM5NjYzNDI4NDA4ODUzMjMwNzI5&filename=&opi=96797242",
+                  "name": "projects/9663428408853230729/files/ba4c0d90466149cc81df8450c57790c2"
+                },
+                "id": "1614c221e86c4992ab846946e3ded17b",
+                "name": "projects/9663428408853230729/screens/1614c221e86c4992ab846946e3ded17b",
+                "prompt": "Title: LifeOS University Dashboard\nContext: LifeOS desktop student and university management dashboard with a dark glass-morphism aesthetic.\nDescription of the screen: A desktop University Dashboard for LifeOS. Background is OLED Black (#050505). Left sidebar is glass navigation. Main header shows 'University' and 'Fall Semester 2025'. Top section features a 'Course Grid' with glass cards for 'Advanced Algorithms' (Grade: A-, Next: Exam Oct 30) and 'System Design' (Grade: B+, Next: Project Due Nov 2). Middle section is an 'Assignments' list with 'Read Chapter 4' (Algo) marked with a Study Orange (#f97316) high-priority flag, and 'Submit P-Set 3' (Math) due tomorrow. Bottom section shows a small weekly lecture schedule. A right panel displays 'Grade Analytics' with a GPA Trend line chart and a large 'Current GPA: 3.8' display. Typography is Inter, corners are Rounded 24px. Glass surfaces use rgba(24, 24, 27, 0.4).\nPlatform: web\nForm factor: desktop",
+                "screenMetadata": {
+                  "agentType": "PRO_AGENT",
+                  "status": "COMPLETE"
+                },
+                "screenType": "DESIGN",
+                "screenshot": {
+                  "downloadUrl": "https://lh3.googleusercontent.com/aida/AOfcidXYNYbzyIXWULQeI7pVSCzkUdw0s6fmRfdXHOJteBerTutdXnqUuP0saRtjP8oCCW1FXW_URliVauO6J6eaqjHAPwkG90sh-GF8VFMpdfYBu1JzL5hK92K8shEHtIzDftVVdZwIzlgLpi1cXAbnxYMhT38bEybpWuzYZEDPmHmBtmwej5HpCUQTSRCMbBnrfZRgbbKAYHKs14bwfIEI9Z9HD9olILrXCbCuIcKLsHr02kBcyV3C4uWK2U4",
+                  "name": "projects/9663428408853230729/files/0233cffdc5bb4070ac9e605ca1e9e00b"
+                },
+                "theme": {
+                  "colorMode": "DARK",
+                  "customColor": "#f97415",
+                  "font": "INTER",
+                  "roundness": "ROUND_FULL",
+                  "saturation": 2
+                },
+                "title": "LifeOS University Dashboard",
+                "width": "2560"
+              }
+            ],
+            "theme": {
+              "colorMode": "DARK",
+              "customColor": "#f97415",
+              "font": "INTER",
+              "roundness": "ROUND_FULL",
+              "saturation": 2
+            },
+            "title": "LifeOS University Dashboard"
+          }
+        },
+        {
+          "text": "The University Dashboard for LifeOS has been generated:\n\n- **LifeOS University Dashboard**: A comprehensive academic hub that tracks course performance, upcoming assignments, and GPA trends. It uses Study Orange highlights for high-priority academic tasks and elegant glass-morphic cards to organize semester-long course data against the signature OLED black background.\n\nWould you like to design a detailed \"Course View\" showing all syllabus items and notes, or perhaps an \"Exam Prep\" mode that integrates with the Focus Timer?"
+        },
+        {
+          "suggestion": "Design a detailed \"Course View\" with syllabus and notes"
+        },
+        {
+          "suggestion": "Create an \"Exam Prep\" study mode interface"
+        },
+        {
+          "suggestion": "Design a \"GPA Calculator\" and academic planning tool"
+        }
+      ],
+      "projectId": "9663428408853230729",
+      "sessionId": "570127798368100645"
+    }
+  }
+}

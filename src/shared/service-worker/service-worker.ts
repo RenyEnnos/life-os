@@ -138,7 +138,7 @@ self.addEventListener('push', (event) => {
     requireInteraction: data.requireInteraction || false,
     data: data.data || {},
     actions: data.actions || [],
-  };
+  } as any;
 
   event.waitUntil(
     self.registration.showNotification(data.title || 'Life OS', options)
@@ -197,7 +197,7 @@ self.addEventListener('message', (event) => {
 /**
  * Periodic background sync (if supported)
  */
-self.addEventListener('periodicsync', (event) => {
+self.addEventListener('periodicsync', (event: any) => {
   if (event.tag === 'update-data') {
     event.waitUntil(syncData());
   }

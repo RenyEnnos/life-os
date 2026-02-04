@@ -16,14 +16,15 @@ export default {
     },
     extend: {
       colors: {
-        "oled": "#050505",
-        "glass": "rgba(24, 24, 27, 0.3)",
-        "primary": "#308ce8",
-        "background-light": "#f6f7f8",
-        "background-dark": "#050505", // OLED Black
-        "glass-surface": "rgba(24, 24, 27, 0.4)", // zinc-900/40
+        "oled": "#050505", // Absolute OLED Black
+        "glass": "rgba(24, 24, 27, 0.4)", // Standard Glass
+        "glass-surface": "rgba(24, 24, 27, 0.4)",
         "glass-border": "rgba(255, 255, 255, 0.05)",
-        "glass-highlight": "rgba(255, 255, 255, 0.1)",
+        "primary": "#308ce8", // Electric Blue
+        "success": "#10b981",
+        "warning": "#ef4444",
+        "background-light": "#f6f7f8",
+        "background-dark": "#050505",
         "accent-glow": "rgba(48, 140, 232, 0.15)",
 
         // Keeping existing semantic colors mapping for compatibility

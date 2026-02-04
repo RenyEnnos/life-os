@@ -155,7 +155,7 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
                                 <Legend
                                     layout="horizontal"
                                     verticalAlign="bottom"
-                                    align="center"
+                                    
                                     wrapperStyle={{ fontSize: '10px', color: '#a1a1aa', paddingTop: '0px' }}
                                     iconType="circle"
                                 />

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LifeOS Deep Work Focus Mode</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#308ce8",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#050505",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .circular-progress {
+            background: radial-gradient(closest-side, #050505 88%, transparent 89% 100%),
+                        conic-gradient(#308ce8 100%, #111921 0);
+        }
+        .glow-effect {
+            box-shadow: 0 0 40px rgba(48, 140, 232, 0.15);
+        }
+        .glass-pill {
+            background: rgba(24, 24, 27, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        body {
+            background-color: #050505;
+        }
+    </style>
+</head>
+<body class="font-display text-white overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- Collapsed Sidebar -->
+<aside class="w-16 flex flex-col items-center py-8 border-r border-white/5 bg-background-dark">
+<div class="mb-10">
+<div class="size-8 rounded-full bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-lg">bolt</span>
+</div>
+</div>
+<nav class="flex flex-col gap-8 flex-1">
+<button class="text-white/40 hover:text-white transition-colors">
+<span class="material-symbols-outlined">dashboard</span>
+</button>
+<button class="text-white hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">timer</span>
+</button>
+<button class="text-white/40 hover:text-white transition-colors">
+<span class="material-symbols-outlined">check_circle</span>
+</button>
+<button class="text-white/40 hover:text-white transition-colors">
+<span class="material-symbols-outlined">calendar_today</span>
+</button>
+</nav>
+<button class="text-white/40 hover:text-white transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col items-center justify-center relative">
+<!-- Center Stage: Timer -->
+<div class="flex flex-col items-center gap-12">
+<div class="relative flex items-center justify-center">
+<!-- Circular Progress Ring -->
+<div class="circular-progress size-[420px] rounded-full flex items-center justify-center glow-effect">
+<div class="text-center">
+<span class="text-[110px] font-light tracking-tighter leading-none">25:00</span>
+</div>
+</div>
+<!-- Subtle ambient particle effect container -->
+<div class="absolute inset-0 rounded-full border border-primary/10 animate-pulse"></div>
+</div>
+<div class="text-center">
+<h2 class="text-3xl font-light text-white tracking-wide">Drafting Project Proposal</h2>
+<p class="text-white/30 text-sm mt-3 tracking-widest uppercase">Deep Work Session</p>
+</div>
+</div>
+<!-- Bottom Controls Container -->
+<div class="absolute bottom-12 flex flex-col items-center gap-6">
+<!-- Main Controls Pill -->
+<div class="glass-pill rounded-full px-2 py-2 flex items-center gap-1">
+<button class="flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white hover:bg-primary/90 transition-all">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">pause</span>
+<span class="text-sm font-bold uppercase tracking-wider">Pause</span>
+</button>
+<button class="flex items-center justify-center size-12 rounded-full text-white/60 hover:text-white hover:bg-white/5 transition-all">
+<span class="material-symbols-outlined">stop</span>
+</button>
+<div class="w-px h-6 bg-white/10 mx-1"></div>
+<button class="flex items-center justify-center px-5 h-12 rounded-full text-white/60 hover:text-white hover:bg-white/5 transition-all">
+<span class="text-sm font-medium">+5m</span>
+</button>
+</div>
+<!-- Ambient Toggle -->
+<div class="glass-pill rounded-full px-4 py-2 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-lg">water_drop</span>
+<span class="text-xs font-medium text-white/70">Rainy Mood</span>
+<div class="w-8 h-4 bg-primary/30 rounded-full relative flex items-center px-0.5">
+<div class="size-3 bg-primary rounded-full ml-auto"></div>
+</div>
+</div>
+</div>
+<!-- Stats Badge -->
+<div class="absolute bottom-12 right-12 text-right">
+<p class="text-white/40 text-sm font-light tracking-tight">
+                    Today: <span class="text-white font-medium">4h 15m</span> deep work
+                </p>
+</div>
+<!-- Top Header (Minimal) -->
+<div class="absolute top-12 left-12 flex items-center gap-4">
+<div class="size-2 rounded-full bg-primary animate-pulse"></div>
+<span class="text-xs uppercase tracking-[0.2em] text-white/50 font-medium">Focus Active</span>
+</div>
+</main>
+</div>
+</body></html>

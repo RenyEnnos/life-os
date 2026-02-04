@@ -3,7 +3,7 @@
  * Tracks Core Web Vitals and custom performance metrics
  */
 
-import { onCLS, onFID, onFCP, onLCP, onTTFB, onINP, Metric } from 'web-vitals';
+import { onCLS, onFCP, onLCP, onTTFB, onINP, Metric } from 'web-vitals';
 
 // Web Vitals thresholds based on Google's recommendations
 const THRESHOLDS = {
@@ -79,12 +79,11 @@ function sendToAnalytics(metric: Metric) {
 export function initializeWebVitals() {
   // Core Web Vitals
   onCLS(sendToAnalytics);
-  onFID(sendToAnalytics);
   onFCP(sendToAnalytics);
   onLCP(sendToAnalytics);
   onTTFB(sendToAnalytics);
   
-  // INP is the new metric replacing FID (experimental)
+  // INP is the new metric replacing FID
   if ('onINP' in window) {
     onINP(sendToAnalytics);
   }
@@ -192,7 +191,7 @@ export function reportPerformanceMetrics() {
           'DNS Lookup': navigation.domainLookupEnd - navigation.domainLookupStart,
           'TCP Connection': navigation.connectEnd - navigation.connectStart,
           'Server Response': navigation.responseEnd - navigation.requestStart,
-          'DOM Processing': navigation.domComplete - navigation.domLoading,
+          'DOM Processing': navigation.domComplete - navigation.domInteractive,
           'Total Load Time': navigation.loadEventEnd - navigation.startTime,
         };
         
