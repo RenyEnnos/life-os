@@ -1,3 +1,5 @@
+import { getAuthToken } from './authToken';
+
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
 export interface FetchOptions extends RequestInit {
@@ -24,10 +26,13 @@ export async function fetchJSON<T = unknown>(url: string, options: FetchOptions 
   // Build request options properly to avoid overwrites
   const { headers: optionHeaders, timeoutMs: _timeoutMs, ...restOptions } = options
   void _timeoutMs
+  const token = getAuthToken();
+
   const requestOptions: RequestInit = {
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(optionHeaders || {}),
     },
     signal: controller.signal,
@@ -76,23 +81,28 @@ export async function fetchJSON<T = unknown>(url: string, options: FetchOptions 
 }
 
 export function getJSON<T = unknown>(url: string, headers?: Record<string, string>) {
-  return fetchJSON<T>(url, { method: "GET", headers })
+  const resolvedUrl = resolveApiUrl(url);
+  return fetchJSON<T>(resolvedUrl, { method: "GET", headers })
 }
 
 export function postJSON<T = unknown>(url: string, data?: unknown, headers?: Record<string, string>) {
-  return fetchJSON<T>(url, { method: "POST", body: data ? JSON.stringify(data) : undefined, headers })
+  const resolvedUrl = resolveApiUrl(url);
+  return fetchJSON<T>(resolvedUrl, { method: "POST", body: data ? JSON.stringify(data) : undefined, headers })
 }
 
 export function patchJSON<T = unknown>(url: string, data?: unknown, headers?: Record<string, string>) {
-  return fetchJSON<T>(url, { method: "PATCH", body: data ? JSON.stringify(data) : undefined, headers })
+  const resolvedUrl = resolveApiUrl(url);
+  return fetchJSON<T>(resolvedUrl, { method: "PATCH", body: data ? JSON.stringify(data) : undefined, headers })
 }
 
 export function putJSON<T = unknown>(url: string, data?: unknown, headers?: Record<string, string>) {
-  return fetchJSON<T>(url, { method: "PUT", body: data ? JSON.stringify(data) : undefined, headers })
+  const resolvedUrl = resolveApiUrl(url);
+  return fetchJSON<T>(resolvedUrl, { method: "PUT", body: data ? JSON.stringify(data) : undefined, headers })
 }
 
 export function delJSON<T = unknown>(url: string, headers?: Record<string, string>) {
-  return fetchJSON<T>(url, { method: "DELETE", headers })
+  const resolvedUrl = resolveApiUrl(url);
+  return fetchJSON<T>(resolvedUrl, { method: "DELETE", headers })
 }
 
 export type ApiClient = {
