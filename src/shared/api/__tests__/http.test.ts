@@ -5,7 +5,7 @@ const originalFetch = global.fetch;
 
 // @ts-ignore - Sem tipagem no parâmetro para evitar conflitos com Vitest
 function mockFetch(response: any) {
-    global.fetch = vi.fn(async (_url: string, init?: RequestInit) => {
+    global.fetch = vi.fn(async (_url: any, init?: any) => {
         const headers = new Headers(response.headers || {});
         // Mock specific header if needed for tests
         if (typeof response.body !== 'string' && !headers.has('content-type')) {

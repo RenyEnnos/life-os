@@ -28,7 +28,10 @@ describe('supabase configuration', () => {
     clearSupabaseEnv()
     process.env.NODE_ENV = 'test'
     vi.resetModules()
-    await expect(import('../lib/supabase')).resolves.toBeDefined()
+    const module = await import('../lib/supabase')
+    expect(module.supabase).toBeDefined()
+    // Verify it's the mock client
+    expect(typeof module.supabase.from).toBe('function')
   })
 
   it('throws when Supabase config is missing and not in test mode', async () => {
@@ -43,6 +46,7 @@ describe('supabase configuration', () => {
     process.env.SUPABASE_URL = 'https://example.supabase.co'
     process.env.SUPABASE_ANON_KEY = 'anon-key'
     vi.resetModules()
-    await expect(import('../lib/supabase')).resolves.toBeDefined()
+    const module = await import('../lib/supabase')
+    expect(module.supabase).toBeDefined()
   })
 })

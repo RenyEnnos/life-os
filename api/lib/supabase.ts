@@ -27,6 +27,40 @@ if (!isTest) {
   })
 }
 
-const supabase: SupabaseClient = createClient(finalUrl, finalKey)
+let supabase: SupabaseClient
+
+if (isTest) {
+  // Create a mock client for testing to avoid 401s and network requests
+  const mockFrom = () => ({
+    select: () => ({
+      eq: () => ({
+        single: async () => ({
+          data: { id: 'u1', email: 'test@example.com', name: 'Test User' },
+          error: null
+        }),
+        // Add other chainable methods as needed for tests
+        order: () => ({ data: [], error: null }),
+        limit: () => ({ data: [], error: null }),
+      }),
+      order: () => ({ data: [], error: null }),
+    }),
+    insert: async () => ({ data: [{ id: '1', title: 'Test' }], error: null }),
+    update: async () => ({ data: [], error: null }),
+    delete: async () => ({ data: [], error: null }),
+  })
+
+  supabase = {
+    from: mockFrom,
+    auth: {
+      admin: {
+        getUser: async () => ({ data: { user: { id: 'u1' } }, error: null }),
+        deleteUser: async () => ({ data: {}, error: null }),
+      },
+      getUser: async () => ({ data: { user: { id: 'u1' } }, error: null }),
+    },
+  } as unknown as SupabaseClient
+} else {
+  supabase = createClient(finalUrl, finalKey)
+}
 
 export { supabase }

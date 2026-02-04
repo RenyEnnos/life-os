@@ -35,7 +35,7 @@ describe('useHabits', () => {
         const habitsData = [{ id: '1', name: 'Drink Water' }] as unknown as Habit[];
         const mockedHabitsApi = vi.mocked(habitsApi, true);
         mockedHabitsApi.list.mockResolvedValue(habitsData);
-        mockedHabitsApi.getLogs.mockResolvedValue([] as HabitLog[]);
+        mockedHabitsApi.getLogs.mockResolvedValue([] as any);
 
         const { result } = renderHook(() => useHabits(), { wrapper });
 
