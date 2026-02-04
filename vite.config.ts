@@ -56,28 +56,28 @@ export default defineConfig({
         manualChunks: {
           // Core React ecosystem
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          
+
           // Animation libraries
           'animation': ['framer-motion'],
-          
+
           // Data management
           'data': ['@tanstack/react-query', '@tanstack/react-query-persist-client', 'zustand'],
-          
+
           // Backend services
           'backend': ['@supabase/supabase-js', 'groq-sdk'],
-          
+
           // UI component libraries
           'ui-libs': ['lucide-react', 'recharts', 'date-fns'],
-          
+
           // Form handling and validation
           'forms': ['zod'],
-          
+
           // Internationalization
           'i18n': ['react-i18next', 'i18next', 'i18next-browser-languagedetector'],
-          
+
           // Charts and visualization
           'charts': ['recharts'],
-          
+
           // Utilities
           'utils': ['axios', 'clsx', 'tailwind-merge', 'class-variance-authority'],
         },
@@ -110,6 +110,7 @@ export default defineConfig({
   },
   server: {
     host: true,
+    allowedHosts: true,
     proxy: {
       '/api': {
         target: 'http://localhost:3001',

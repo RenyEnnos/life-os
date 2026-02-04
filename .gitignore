@@ -84,6 +84,12 @@ reports/
 storybook-static/
 
 # ===========================
+# Binaries & Executables
+# ===========================
+*.exe
+ngrok.exe
+
+# ===========================
 # Mock data
 # ===========================
 api/.mock-data/
