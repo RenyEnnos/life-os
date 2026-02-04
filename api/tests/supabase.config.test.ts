@@ -24,8 +24,19 @@ afterEach(() => {
 })
 
 describe('supabase configuration', () => {
-  it('throws when Supabase config is missing', async () => {
+  it('does not throw when Supabase config is missing in test mode', async () => {
     clearSupabaseEnv()
+    process.env.NODE_ENV = 'test'
+    vi.resetModules()
+    const module = await import('../lib/supabase')
+    expect(module.supabase).toBeDefined()
+    // Verify it's the mock client
+    expect(typeof module.supabase.from).toBe('function')
+  })
+
+  it('throws when Supabase config is missing and not in test mode', async () => {
+    clearSupabaseEnv()
+    process.env.NODE_ENV = 'production'
     vi.resetModules()
     await expect(import('../lib/supabase')).rejects.toThrow(/Supabase configuration missing/)
   })
@@ -35,6 +46,7 @@ describe('supabase configuration', () => {
     process.env.SUPABASE_URL = 'https://example.supabase.co'
     process.env.SUPABASE_ANON_KEY = 'anon-key'
     vi.resetModules()
-    await expect(import('../lib/supabase')).resolves.toBeDefined()
+    const module = await import('../lib/supabase')
+    expect(module.supabase).toBeDefined()
   })
 })

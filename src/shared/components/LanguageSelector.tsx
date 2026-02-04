@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Globe, Check, ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import { cn } from '@/shared/lib/utils';
+import { cn } from '@/shared/lib/cn';
 
 const languages = [
   { code: 'pt-BR', label: 'Português (Brasil)', flag: '🇧🇷' },
@@ -10,7 +10,7 @@ const languages = [
 ];
 
 export function LanguageSelector({ className }: { className?: string }) {
-  const { i18n, t } = useTranslation();
+  const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const currentLang = i18n.language;

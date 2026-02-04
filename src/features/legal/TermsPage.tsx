@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
 
 export default function TermsPage() {
     return (
@@ -124,7 +125,7 @@ export default function TermsPage() {
                                         Voltar ao Life OS
                                     </Link>
                                 </div>
-                            </div>
+                            </section>
                         </div>
                     </div>
                 </div>
