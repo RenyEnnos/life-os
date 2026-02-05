@@ -105,10 +105,10 @@ export const IndexPage = () => {
 </div>
 </div>
 <div className="flex gap-4">
-<button className="size-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+<button className="size-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30" aria-label="Start focus session">
 <span className="material-symbols-outlined text-white fill-1">play_arrow</span>
 </button>
-<button className="size-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all">
+<button className="size-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all" aria-label="Reset timer">
 <span className="material-symbols-outlined text-white">refresh</span>
 </button>
 </div>
@@ -267,12 +267,12 @@ export const IndexPage = () => {
 <div className="bg-orange-400 h-full w-1/2 rounded-full"></div>
 </div>
 </div>
-<div className="flex items-center justify-center border border-dashed border-white/10 rounded-lg hover:border-white/30 transition-all cursor-pointer">
+<button className="w-full h-full flex items-center justify-center border border-dashed border-white/10 rounded-lg hover:border-white/30 transition-all cursor-pointer" type="button" aria-label="Create new project">
 <div className="flex flex-col items-center gap-2 text-white/30">
 <span className="material-symbols-outlined">add</span>
 <span className="text-xs font-bold uppercase tracking-widest">New Project</span>
 </div>
-</div>
+</button>
 </div>
 </div>
 </div>
