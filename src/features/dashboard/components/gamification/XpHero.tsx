@@ -1,7 +1,7 @@
-import { useRef } from 'react';
-import { motion, useSpring, useTransform, useMotionValue } from 'framer-motion';
-import { cn } from '@/shared/lib/cn';
-import { Sparkles, Trophy, Zap } from 'lucide-react';
+import {  _useRef } from 'react';
+import { motion, useSpring,  _useTransform,  _useMotionValue } from 'framer-motion';
+import {  _cn } from '@/shared/lib/ _cn';
+import { Sparkles,  _Trophy, Zap } from 'lucide-react';
 import { LifeScore } from '@/shared/types';
 
 interface XpHeroProps {

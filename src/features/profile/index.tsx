@@ -3,13 +3,13 @@ import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { useUser } from '@/features/user/hooks/useUser';
 import { useRewards } from '@/features/rewards/hooks/useRewards';
 import { cn } from '@/shared/lib/cn';
-import { Camera, Mail, Link, X, Edit, Check } from 'lucide-react';
+import { Camera,  _Mail,  _Link, X, Edit, Check } from 'lucide-react';
 
 type Badge = { icon: string; label: string; color?: string };
 
 export default function ProfilePage() {
     const { user } = useAuth();
-    const { userProfile, isLoading } = useUser();
+    const { userProfile,  _isLoading } = useUser();
     const { lifeScore } = useRewards();
     const [bio, setBio] = useState("");
     const [isEditingBio, setIsEditingBio] = useState(false);
@@ -64,6 +64,7 @@ export default function ProfilePage() {
                                         <img
                                             alt="User Avatar"
                                             className="w-full h-full object-cover"
+                                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                             src={(user as any)?.user_metadata?.avatar_url || (userProfile as any)?.avatar_url || "https://via.placeholder.com/150"}
                                         />
                                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">

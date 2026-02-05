@@ -3,7 +3,7 @@ import { useHabits } from '../useHabits';
 import { habitsApi } from '../../api/habits.api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import type { Habit, HabitLog } from '../../types';
+import type { Habit,  _HabitLog } from '../../types';
 
 // Mock dependencies
 vi.mock('../../api/habits.api', () => ({

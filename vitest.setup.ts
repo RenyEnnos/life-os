@@ -5,3 +5,7 @@ import '@testing-library/jest-dom/vitest'
 // beforeAll(() => server.listen())
 // afterEach(() => server.resetHandlers())
 // afterAll(() => server.close())
+
+// Set JWT_SECRET for all tests to ensure auth works
+process.env.JWT_SECRET = 'test-secret';
+process.env.NODE_ENV = 'test';

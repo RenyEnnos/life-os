@@ -13,7 +13,7 @@ export const rewardsService = {
 
     if (!data) {
       // Initialize if not exists
-      const { data: newData, error: createError } = await supabase
+      const { data: _newData, error: createError } = await supabase
         .from('user_xp')
         .insert([{ user_id: userId }])
         .select()

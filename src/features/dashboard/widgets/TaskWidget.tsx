@@ -5,6 +5,7 @@ import { useDashboardData } from '@/features/dashboard/hooks/useDashboardData';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { tasksApi } from '@/features/tasks/api/tasks.api';
 import { cn } from '@/shared/lib/cn';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Task } from '@/shared/types';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 

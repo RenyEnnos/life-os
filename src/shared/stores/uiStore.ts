@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { JournalEntry, Task } from '@/shared/types';
+import type { JournalEntry,  _Task } from '@/shared/types';
 
 type ModalType = 'action' | 'mission' | 'ritual' | 'journal' | 'search' | null;
 

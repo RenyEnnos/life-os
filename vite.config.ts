@@ -73,7 +73,7 @@ export default defineConfig({
           'forms': ['zod'],
 
           // Internationalization
-          'i18n': ['react-i18next', 'i18next', 'i18next-browser-languagedetector'],
+          'i18n': ['react-i18n ___ext', 'i18next', 'i18next-browser-languagedetector'],
 
           // Charts and visualization
           'charts': ['recharts'],
@@ -86,14 +86,14 @@ export default defineConfig({
         entryFileNames: 'assets/js/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name?.split('.') || [];
-          const ext = info[info.length - 1];
+          const  ___ext = info[info.length - 1];
           if (/\.(png|jpe?g|gif|svg|webp|ico)$/i.test(assetInfo.name || '')) {
-            return 'assets/images/[name]-[hash][extname]';
+            return 'assets/images/[name]-[hash][ ___extname]';
           }
           if (/\.css$/i.test(assetInfo.name || '')) {
-            return 'assets/css/[name]-[hash][extname]';
+            return 'assets/css/[name]-[hash][ ___extname]';
           }
-          return 'assets/[name]-[hash][extname]';
+          return 'assets/[name]-[hash][ ___extname]';
         },
       }
     },
@@ -140,7 +140,7 @@ export default defineConfig({
       '@tanstack/react-query',
       'zustand',
       'lucide-react',
-      'react-i18next',
+      'react-i18n ___ext',
     ],
   },
 })

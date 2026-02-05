@@ -11,16 +11,16 @@ vi.mock("@/shared/api/http", () => {
         if (url.endsWith("/api/rewards")) return [{ id: "r1", title: "Reward 1" }]
         return []
       }),
-      post: vi.fn(async (_url: string, body?: Record<string, unknown>) => {
-        if (_url.includes("/xp")) return {
+      post: vi.fn(async ( __url: string, body?: Record<string, unknown>) => {
+        if ( __url.includes("/xp")) return {
           success: true,
           current_xp: (typeof body?.amount === 'number' ? body.amount : 0) + 100,
           level: 4
         }
-        if (_url.includes("/rewards") && !_url.includes("xp")) return { id: "r2", title: body?.title || "New Reward" }
+        if ( __url.includes("/rewards") && ! __url.includes("xp")) return { id: "r2", title: body?.title || "New Reward" }
         return {}
       }),
-      delete: vi.fn(async (_url: string) => ({})),
+      delete: vi.fn(async ( __url: string) => ({})),
     },
   }
 })

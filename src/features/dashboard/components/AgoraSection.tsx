@@ -38,7 +38,7 @@ const dayPartCopy: Record<DayPart, { title: string; subtitle: string; gradient: 
     }
 };
 
-const formatDue = (task: Task) => {
+const _formatDue = (task: Task) => {
     const legacyDue = (task as { due?: string | null }).due;
     const raw = task.due_date || legacyDue;
     if (!raw) return null;
