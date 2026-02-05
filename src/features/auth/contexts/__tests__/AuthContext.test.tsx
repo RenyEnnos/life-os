@@ -85,6 +85,7 @@ describe('AuthContext', () => {
             expect(screen.getByTestId('user-email')).toBeInTheDocument();
             expect(screen.getByTestId('user-email')).toHaveTextContent('login@example.com');
         });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         expect((authApi.login as any)).toHaveBeenCalledWith({ email: 'test@example.com', password: 'password' });
     });
 });

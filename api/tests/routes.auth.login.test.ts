@@ -45,7 +45,7 @@ vi.mock('../lib/supabase', () => ({
 vi.mock('bcryptjs', () => ({
   default: {
     hash: async () => 'hashed_pw',
-    compare: async (pw: string, hash: string) => pw === 'Secret123!'
+    compare: async (pw: string, _hash: string) => pw === 'Secret123!'
   }
 }));
 

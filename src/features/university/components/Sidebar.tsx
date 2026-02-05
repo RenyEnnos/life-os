@@ -2,8 +2,8 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export const Sidebar = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
+    const  _navigate = useNavigate();
+    const  _location = useLocation();
 
     return (
         <aside className="w-64 glass-panel m-4 rounded-xl flex flex-col justify-between p-6 h-[calc(100vh-2rem)]">

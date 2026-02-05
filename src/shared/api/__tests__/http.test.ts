@@ -3,14 +3,16 @@ import { fetchJSON, getJSON, postJSON, resolveApiUrl } from "../http"
 
 const originalFetch = global.fetch;
 
-// @ts-ignore - Sem tipagem no parâmetro para evitar conflitos com Vitest
+// @ts-expect-error - Sem tipagem no parâmetro para evitar conflitos com Vitest
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mockFetch(response: any) {
-    global.fetch = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    global.fetch = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) => {
         return {
             ok: response.status >= 200 && response.status < 300,
             status: response.status,
             statusText: response.statusText || "OK",
-            headers: response.headers,
+            headers: response.headers || { get: () => 'application/json' },
             json: async () => (typeof response.body === "string" ? response.body : JSON.stringify(response.body)),
             text: async () => (typeof response.body === "string" ? response.body : JSON.stringify(response.body)),
         } as Response
@@ -40,7 +42,8 @@ describe("http.ts", () => {
     })
 
     it("timeout aborts request", async () => {
-        // @ts-ignore - Override fetch for abort simulation
+        // @ts-expect-error - Override fetch for abort simulation
+
         global.fetch = vi.fn((_url: string, init?: RequestInit) => {
             const signal = init?.signal as AbortSignal | undefined
             return new Promise((_resolve, reject) => {
@@ -70,7 +73,8 @@ describe("http.ts", () => {
         const abs = resolveApiUrl("http://example.com/api/x")
         expect(abs).toBe("http://example.com/api/x")
         
-        // @ts-ignore - Simulate window with Location
+        // @ts-expect-error - Simulate window with Location
+
         global.window = {
             location: {
                 origin: "http://localhost:5174",

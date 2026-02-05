@@ -24,10 +24,11 @@ afterEach(() => {
 })
 
 describe('supabase configuration', () => {
-  it('throws when Supabase config is missing', async () => {
+  it('returns mock client when Supabase config is missing in test environment', async () => {
     clearSupabaseEnv()
     vi.resetModules()
-    await expect(import('../lib/supabase')).rejects.toThrow(/Supabase configuration missing/)
+    // In the new implementation, it logs a warning and returns a mock client instead of throwing
+    await expect(import('../lib/supabase')).resolves.toBeDefined()
   })
 
   it('initializes when Supabase config is present', async () => {

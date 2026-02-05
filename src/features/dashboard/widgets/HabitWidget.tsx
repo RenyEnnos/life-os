@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Activity, Check, Plus } from 'lucide-react';
+import { Activity, Check,  _Plus } from 'lucide-react';
 import { WidgetShell } from './WidgetShell';
 import { useDashboardData } from '@/features/dashboard/hooks/useDashboardData';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
