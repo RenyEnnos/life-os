@@ -1,5 +1,4 @@
 import React from 'react';
-import { Sidebar } from '../components/Sidebar';
 import { CourseGrid } from '../components/CourseGrid';
 import { AssignmentList } from '../components/AssignmentList';
 import { ScheduleWidget } from '../components/ScheduleWidget';
@@ -9,9 +8,6 @@ export const UniversityPage = () => {
   return (
     <div className="min-h-screen bg-oled text-white font-display selection:bg-primary/30">
       <div className="flex h-screen overflow-hidden">
-        {/* Left Sidebar Navigation */}
-        <Sidebar />
-
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
 
