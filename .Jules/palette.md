@@ -13,3 +13,7 @@
 ## 2025-12-27 - Task List Accessibility
 **Learning:** Task items were missing crucial accessibility context. Checkboxes lacked labels, priority dots relied on color, and delete buttons were generic.
 **Action:** Added dynamic `aria-label` to checkboxes ("Mark [Task] as complete"), `title`/`aria-label` to priority dots, and context to delete buttons ("Delete task: [Task]").
+
+## 2025-02-07 - Accessible Form Labels with useId
+**Learning:** Hardcoded IDs for form labels limit component reusability and can cause duplicate ID errors. React's `useId` hook provides a robust solution for generating unique IDs for `htmlFor`/`id` association.
+**Action:** Use `useId` when adding accessibility attributes to forms to ensure uniqueness and maintainability.
