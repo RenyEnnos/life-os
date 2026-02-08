@@ -50,6 +50,9 @@ export function QuickCapture() {
     return (
         <Card className="p-1 glass-panel border-purple-500/20 bg-purple-900/5">
             <div className="relative flex items-center">
+                <span role="status" className="sr-only">
+                    {isThinking ? 'Thinking...' : input ? 'Ready to capture' : 'Waiting for input'}
+                </span>
                 <div className="absolute left-3 text-purple-400 animate-pulse-slow">
                     {isThinking ? <Loader className="animate-spin" size={18} /> : <Sparkles size={18} />}
                 </div>
@@ -58,15 +61,17 @@ export function QuickCapture() {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Ask AI to capture task... (e.g. 'Email John tomorrow at 2pm')"
-                    className="w-full bg-transparent border-none text-white placeholder-zinc-500 py-3 pl-10 pr-12 focus:ring-0 focus:outline-none text-sm"
+                    aria-label="Quick capture task"
+                    className="w-full bg-transparent border-none text-white placeholder-zinc-500 py-3 pl-10 pr-12 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500/50 focus:bg-white/5 rounded-2xl transition-all"
                     disabled={isThinking}
                 />
                 <Button
                     size="icon"
                     variant="ghost"
-                    className="absolute right-1 w-8 h-8 rounded-full hover:bg-purple-500/20 text-purple-300"
+                    className="absolute right-1 w-8 h-8 rounded-full hover:bg-purple-500/20 text-purple-300 focus-visible:ring-2 focus-visible:ring-purple-500"
                     onClick={handleCapture}
                     disabled={!input.trim() || isThinking}
+                    aria-label="Capture task"
                 >
                     <ArrowRight size={16} />
                 </Button>
