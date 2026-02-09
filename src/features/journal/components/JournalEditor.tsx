@@ -8,7 +8,6 @@ import { journalApi } from '../api/journal.api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { InsightCard } from './InsightCard';
-import { cn } from '@/shared/lib/cn';
 
 interface JournalEditorProps {
     entry?: JournalEntry;
@@ -116,18 +115,20 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="p-2 hover:bg-white/5 rounded-full transition-colors"
+                        className="p-2 hover:bg-white/5 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+                        aria-label="Back"
                     >
                         <ArrowLeft size={18} />
                     </button>
                     <div className="h-4 w-px bg-white/10" />
                     <div className="flex items-center gap-2 text-xs font-mono bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
-                        <Calendar size={12} />
+                        <Calendar size={12} aria-hidden="true" />
                         <input
                             type="date"
                             className="bg-transparent border-none p-0 text-zinc-300 focus:outline-none focus:ring-0 w-24"
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
+                            aria-label="Select Date"
                         />
                     </div>
                 </div>
@@ -171,6 +172,7 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         autoFocus
+                        aria-label="Journal Title"
                     />
 
                     {/* Tags Area */}
@@ -184,11 +186,12 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                                     exit={{ opacity: 0, scale: 0.8 }}
                                     className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900 border border-white/10 text-xs font-medium text-zinc-400 group"
                                 >
-                                    <Hash size={10} className="text-zinc-600" />
+                                    <Hash size={10} className="text-zinc-600" aria-hidden="true" />
                                     {tag}
                                     <button
                                         onClick={() => removeTag(tag)}
-                                        className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-400"
+                                        className="ml-1 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-red-400/50 rounded-full transition-opacity hover:text-red-400 focus:outline-none"
+                                        aria-label={`Remove tag ${tag}`}
                                     >
                                         <X size={10} />
                                     </button>
@@ -209,14 +212,16 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                                         addTag();
                                     }
                                 }}
+                                aria-label="Add new tag"
                             />
                             {content.length > 20 && !isGeneratingTags && (
                                 <button
                                     type="button"
                                     onClick={handleGenerateTags}
-                                    className="ml-2 text-[10px] uppercase tracking-wider text-primary/60 hover:text-primary transition-colors flex items-center gap-1"
+                                    className="ml-2 text-[10px] uppercase tracking-wider text-primary/60 hover:text-primary transition-colors flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm"
+                                    aria-label="AI Suggest Tags"
                                 >
-                                    <Sparkles size={10} />
+                                    <Sparkles size={10} aria-hidden="true" />
                                     AI Suggest
                                 </button>
                             )}
@@ -231,6 +236,7 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         required
+                        aria-label="Journal Content"
                     />
 
                     {/* Neural Resonance Insight Card */}

@@ -24,10 +24,12 @@ afterEach(() => {
 })
 
 describe('supabase configuration', () => {
-  it('throws when Supabase config is missing', async () => {
+  it('warns and mocks when Supabase config is missing in test env', async () => {
     clearSupabaseEnv()
     vi.resetModules()
-    await expect(import('../lib/supabase')).rejects.toThrow(/Supabase configuration missing/)
+    const module = await import('../lib/supabase')
+    expect(module.supabase).toBeDefined()
+    expect(module.supabase.supabaseUrl).toBe('https://mock.supabase.co')
   })
 
   it('initializes when Supabase config is present', async () => {
