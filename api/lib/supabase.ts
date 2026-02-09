@@ -11,7 +11,11 @@ if (!supabaseUrl || !key) {
   if (!key) {
     missing.push('SUPABASE_SERVICE_ROLE_KEY | SUPABASE_SERVICE_KEY | SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY)')
   }
-  throw new Error(`Supabase configuration missing: ${missing.join(', ')}`)
+  if (process.env.NODE_ENV === 'test') {
+    console.warn(`[Supabase] Mocking client due to missing config in test env: ${missing.join(', ')}`)
+  } else {
+    throw new Error(`Supabase configuration missing: ${missing.join(', ')}`)
+  }
 }
 
 console.info('[Supabase] configuration loaded', {
@@ -20,6 +24,8 @@ console.info('[Supabase] configuration loaded', {
   hasAnonKey: Boolean(supabaseAnonKey)
 })
 
-const supabase: SupabaseClient = createClient(supabaseUrl, key)
+const supabase: SupabaseClient = (supabaseUrl && key)
+  ? createClient(supabaseUrl, key)
+  : createClient('https://mock.supabase.co', 'mock-key')
 
 export { supabase }
