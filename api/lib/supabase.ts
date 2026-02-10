@@ -3,11 +3,21 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY
-const key = supabaseServiceRoleKey || supabaseAnonKey
+let key = supabaseServiceRoleKey || supabaseAnonKey
 
-if (!supabaseUrl || !key) {
+// Mock for test environment if not configured
+if ((!supabaseUrl || !key) && (process.env.NODE_ENV === 'test' || process.env.VITEST)) {
+  console.warn('[Supabase] Running in TEST mode with mock credentials');
+  // Only mock if not present, to allow tests to override if they want
+  if (!supabaseUrl) process.env.SUPABASE_URL = 'https://mock.supabase.co';
+  if (!key) key = 'mock-key';
+}
+
+const finalUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://mock.supabase.co';
+
+if (!finalUrl || !key) {
   const missing: string[] = []
-  if (!supabaseUrl) missing.push('SUPABASE_URL (or VITE_SUPABASE_URL)')
+  if (!finalUrl) missing.push('SUPABASE_URL (or VITE_SUPABASE_URL)')
   if (!key) {
     missing.push('SUPABASE_SERVICE_ROLE_KEY | SUPABASE_SERVICE_KEY | SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY)')
   }
@@ -20,6 +30,6 @@ console.info('[Supabase] configuration loaded', {
   hasAnonKey: Boolean(supabaseAnonKey)
 })
 
-const supabase: SupabaseClient = createClient(supabaseUrl, key)
+const supabase: SupabaseClient = createClient(finalUrl, key)
 
 export { supabase }
