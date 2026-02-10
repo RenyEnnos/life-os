@@ -56,7 +56,7 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
                 {/* Cover Area */}
                 <div className="relative h-32 w-full bg-surface-hover shrink-0 group">
                     {coverUrl ? (
-                        <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
+                        <img src={coverUrl} alt="Project cover preview" className="w-full h-full object-cover" />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gradient-to-r from-gray-900 to-gray-800">
                             <ImageIcon className="opacity-20" />
@@ -64,7 +64,11 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
                     )}
 
                     {isLoadingCover && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
+                        <div
+                            className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm"
+                            role="status"
+                            aria-label="Loading new cover image"
+                        >
                             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                         </div>
                     )}
@@ -72,8 +76,9 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white"
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white"
                         onClick={(e) => { e.preventDefault(); handleShuffle(); }}
+                        aria-label="Shuffle cover image"
                     >
                         <RefreshCw size={14} />
                     </Button>
@@ -88,12 +93,14 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
                             className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono"
                             value={title}
                             onChange={e => setTitle(e.target.value)}
+                            aria-label="Project title"
                         />
                         <textarea
                             placeholder="Descrição e Objetivos"
                             className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono h-24 resize-none"
                             value={description}
                             onChange={e => setDescription(e.target.value)}
+                            aria-label="Project description"
                         />
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
