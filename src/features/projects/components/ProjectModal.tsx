@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import type { Project } from '@/shared/types';
@@ -23,6 +23,22 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
     const [isLoadingCover, setIsLoadingCover] = useState(false);
     const debouncedTitle = useDebounce(title, 800);
     const [page, setPage] = useState(1);
+
+    const titleInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        document.addEventListener('keydown', onKey);
+
+        // Focus title input on mount
+        titleInputRef.current?.focus();
+
+        return () => document.removeEventListener('keydown', onKey);
+    }, [onClose]);
 
     useEffect(() => {
         if (debouncedTitle && debouncedTitle.length > 3) {
@@ -50,7 +66,12 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="project-modal-title"
+        >
             <Card className="w-full max-w-md p-0 bg-background border-primary/20 overflow-hidden flex flex-col max-h-[90vh]">
 
                 {/* Cover Area */}
@@ -72,33 +93,48 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white"
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white"
                         onClick={(e) => { e.preventDefault(); handleShuffle(); }}
+                        aria-label="Shuffle cover image"
                     >
                         <RefreshCw size={14} />
                     </Button>
                 </div>
 
                 <div className="p-6 overflow-y-auto">
-                    <h3 className="font-bold font-mono text-lg mb-4 text-primary">NOVO PROJETO</h3>
+                    <h3
+                        id="project-modal-title"
+                        className="font-bold font-mono text-lg mb-4 text-primary"
+                    >
+                        NOVO PROJETO
+                    </h3>
                     <div className="space-y-4">
                         <input
+                            ref={titleInputRef}
                             type="text"
                             placeholder="Nome do Projeto (ex: Viagem Japão)"
                             className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono"
                             value={title}
                             onChange={e => setTitle(e.target.value)}
+                            aria-label="Nome do Projeto"
                         />
                         <textarea
                             placeholder="Descrição e Objetivos"
                             className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono h-24 resize-none"
                             value={description}
                             onChange={e => setDescription(e.target.value)}
+                            aria-label="Descrição e Objetivos"
                         />
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
-                                <label className="text-xs font-mono text-muted-foreground">Status</label>
+                                <label
+                                    htmlFor="project-status"
+                                    className="text-xs font-mono text-muted-foreground"
+                                >
+                                    Status
+                                </label>
                                 <select
+                                    id="project-status"
                                     className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono text-sm"
                                     value={status}
                                     onChange={e => setStatus(e.target.value as Project['status'])}
@@ -109,8 +145,14 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
                                 </select>
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs font-mono text-muted-foreground">Prioridade</label>
+                                <label
+                                    htmlFor="project-priority"
+                                    className="text-xs font-mono text-muted-foreground"
+                                >
+                                    Prioridade
+                                </label>
                                 <select
+                                    id="project-priority"
                                     className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono text-sm"
                                     value={priority}
                                     onChange={e => setPriority(e.target.value as Project['priority'])}
@@ -122,8 +164,14 @@ export function ProjectModal({ onClose, onSubmit }: ProjectModalProps) {
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-xs font-mono text-muted-foreground">Prazo (Opcional)</label>
+                            <label
+                                htmlFor="project-deadline"
+                                className="text-xs font-mono text-muted-foreground"
+                            >
+                                Prazo (Opcional)
+                            </label>
                             <input
+                                id="project-deadline"
                                 type="date"
                                 className="w-full bg-surface border border-border rounded p-2 text-foreground font-mono"
                                 value={deadline}
