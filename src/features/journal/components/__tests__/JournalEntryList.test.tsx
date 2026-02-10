@@ -30,8 +30,8 @@ describe('JournalEntryList', () => {
         );
 
         // These expectations will fail until aria-labels are added
-        expect(screen.getByRole('button', { name: /editar/i })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /excluir/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /edit entry: meu diário/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /delete entry: meu diário/i })).toBeInTheDocument();
     });
 
     it('ensures actions are visible on focus', () => {
@@ -43,7 +43,7 @@ describe('JournalEntryList', () => {
             />
         );
 
-        const editButton = screen.getByRole('button', { name: /editar/i });
+        const editButton = screen.getByRole('button', { name: /edit entry: meu diário/i });
         // The container holding the buttons should have focus-within:opacity-100
         // Structure: <div className="flex gap-2 ..."> <Button> ... </div>
         const container = editButton.parentElement;
