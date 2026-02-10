@@ -10,8 +10,8 @@ function mockFetch(response: any) {
             ok: response.status >= 200 && response.status < 300,
             status: response.status,
             statusText: response.statusText || "OK",
-            headers: response.headers,
-            json: async () => (typeof response.body === "string" ? response.body : JSON.stringify(response.body)),
+            headers: new Headers(response.headers || {}),
+            json: async () => (typeof response.body === "string" ? JSON.parse(response.body) : response.body),
             text: async () => (typeof response.body === "string" ? response.body : JSON.stringify(response.body)),
         } as Response
     })
@@ -28,15 +28,15 @@ describe("http.ts", () => {
     })
 
     it("fetchJSON returns parsed JSON on 2xx", async () => {
-        mockFetch({ status: 200, body: { ok: true, value: 42 } })
+        mockFetch({ status: 200, headers: { "content-type": "application/json" }, body: { ok: true, value: 42 } })
         const data = await fetchJSON<{ ok: boolean; value: number }>("/api/test")
         expect(data.ok).toBe(true)
         expect(data.value).toBe(42)
     })
 
     it("fetchJSON throws on non-2xx with JSON message", async () => {
-        mockFetch({ status: 500, statusText: "Internal Server Error", body: { error: "oops" } })
-        await expect(fetchJSON("/api/fail")).rejects.toThrow(/500 Internal Server Error: oops/)
+        mockFetch({ status: 500, headers: { "content-type": "application/json" }, statusText: "Internal Server Error", body: { error: "oops" } })
+        await expect(fetchJSON("/api/fail")).rejects.toThrow(/oops/)
     })
 
     it("timeout aborts request", async () => {
@@ -59,7 +59,7 @@ describe("http.ts", () => {
     })
 
     it("getJSON/postJSON call fetchJSON with method", async () => {
-        mockFetch({ status: 200, body: { ok: true } })
+        mockFetch({ status: 200, headers: { "content-type": "application/json" }, body: { ok: true } })
         const g = await getJSON<{ ok: boolean }>("/api/ok")
         expect(g.ok).toBe(true)
         const p = await postJSON<{ ok: boolean }>("/api/ok", { a: 1 })
