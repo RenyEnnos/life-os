@@ -13,6 +13,12 @@ if ((!supabaseUrl || !key) && (process.env.NODE_ENV === 'test' || process.env.VI
   if (!key) key = 'mock-key';
 }
 
+// In test environment, ensure we can bypass database checks
+if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (global as any).mockUser = { id: 'u1', email: 'user@example.com', name: 'Test User' };
+}
+
 const finalUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://mock.supabase.co';
 
 if (!finalUrl || !key) {
