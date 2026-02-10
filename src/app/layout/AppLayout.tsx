@@ -76,6 +76,8 @@ export function AppLayout() {
                 setShowOnboarding(false);
             }} />
 
+            <GlobalModalOrchestrator />
+
             {/* Sidebar Navigation - Always Visible on Desktop */}
             <aside className="hidden lg:flex flex-col w-24 h-screen shrink-0 z-50">
                 <NavigationSystem isSanctuaryActive={isActive} />
