@@ -1,6 +1,9 @@
 import React from 'react';
+import { useUIStore } from '@/shared/stores/uiStore';
 
 export const IndexPage = () => {
+  const { openModal } = useUIStore();
+
   return (
     <div className="min-h-screen bg-oled text-white font-display selection:bg-primary/30">
 
@@ -135,7 +138,10 @@ export const IndexPage = () => {
                   <span className="material-symbols-outlined text-orange-400 group-hover:scale-110 transition-transform">timer</span>
                   <span className="text-xs font-semibold">Start Focus</span>
                 </button>
-                <button className="aspect-square rounded-lg bg-white/5 hover:bg-white/10 transition-all flex flex-col items-center justify-center gap-2 group">
+                <button
+                  onClick={() => openModal('journal')}
+                  className="aspect-square rounded-lg bg-white/5 hover:bg-white/10 transition-all flex flex-col items-center justify-center gap-2 group"
+                >
                   <span className="material-symbols-outlined text-purple-400 group-hover:scale-110 transition-transform">edit_note</span>
                   <span className="text-xs font-semibold">Journal</span>
                 </button>

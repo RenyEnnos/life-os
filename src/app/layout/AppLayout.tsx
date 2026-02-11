@@ -61,6 +61,7 @@ export function AppLayout() {
 
     return (
         <div className="relative min-h-[100dvh] w-full bg-background-dark text-zinc-200 font-display selection:bg-primary/30 flex flex-row overflow-x-hidden">
+            <GlobalModalOrchestrator />
             <ScrollToTop />
 
             {/* ATMOSPHERE LAYER - Fixed Background Elements */}
