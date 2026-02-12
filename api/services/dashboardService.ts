@@ -1,19 +1,16 @@
 import { habitsService } from './habitsService'
 import { symbiosisService } from './symbiosisService'
 import { rewardsService } from './rewardsService'
-import { financeService } from './financeService'
 
 export type DashboardSummary = {
-    lifeScore: any
+    lifeScore: unknown
     habitConsistency: { percentage: number; weeklyData: number[] }
     vitalLoad: { totalImpact: number; state: 'balanced' | 'overloaded' | 'underloaded'; label: string }
-    widgets: any
+    widgets: Record<string, unknown>
 }
 
 export const dashboardService = {
     async getSummary(userId: string): Promise<DashboardSummary> {
-        const today = new Date().toISOString().split('T')[0]
-
         // Parallel Fetching
         const [score, habits, habitLogs, links] = await Promise.all([
             rewardsService.getUserScore(userId),
@@ -23,8 +20,8 @@ export const dashboardService = {
         ])
 
         // 1. Calculate Habit Consistency
-        const activeHabits = (habits || []).filter((h: any) => h.active)
-        const consistency = await this.calculateConsistency(userId, activeHabits, habitLogs || [])
+        const activeHabits = (habits || []).filter((h: { active: boolean }) => h.active)
+        const consistency = await this.calculateConsistency(activeHabits, habitLogs || [])
 
         return {
             lifeScore: score,
@@ -34,7 +31,8 @@ export const dashboardService = {
         }
     },
 
-    async calculateConsistency(userId: string, habits: any[], logs: any[]) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async calculateConsistency(habits: unknown[], logs: Array<{ logging_date?: string; logged_date?: string; date?: string; habit_id: string }>) {
         const today = new Date().toISOString().split('T')[0]
         if (!habits.length) return { percentage: 0, weeklyData: [0, 0, 0, 0, 0, 0, 0] }
 
@@ -59,8 +57,8 @@ export const dashboardService = {
         return { percentage, weeklyData }
     },
 
-    calculateVitalLoad(links: any[]) {
-        const totalImpact = links.reduce((sum: number, link: any) => sum + (link.impact_vital ?? 0), 0);
+    calculateVitalLoad(links: Array<{ impact_vital?: number }>) {
+        const totalImpact = links.reduce((sum: number, link) => sum + (link.impact_vital ?? 0), 0);
         const state = totalImpact > 3 ? 'overloaded' : totalImpact < -1 ? 'underloaded' : 'balanced';
         const label = state === 'balanced' ? 'Carga vital equilibrada' : state === 'overloaded' ? 'Carga vital alta — priorize recuperação' : 'Carga vital baixa — adicione estímulos leves';
         // Cast state to strict type to fix lint error

@@ -5,7 +5,10 @@ const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY
 const key = supabaseServiceRoleKey || supabaseAnonKey
 
-if (!supabaseUrl || !key) {
+// Allow mock/test environment to bypass strict config check
+const isTest = process.env.NODE_ENV === 'test' || process.env.AI_TEST_MODE === 'mock'
+
+if ((!supabaseUrl || !key) && !isTest) {
   const missing: string[] = []
   if (!supabaseUrl) missing.push('SUPABASE_URL (or VITE_SUPABASE_URL)')
   if (!key) {
@@ -17,9 +20,15 @@ if (!supabaseUrl || !key) {
 console.info('[Supabase] configuration loaded', {
   urlConfigured: Boolean(supabaseUrl),
   hasServiceKey: Boolean(supabaseServiceRoleKey),
-  hasAnonKey: Boolean(supabaseAnonKey)
+  hasAnonKey: Boolean(supabaseAnonKey),
+  isTest
 })
 
-const supabase: SupabaseClient = createClient(supabaseUrl, key)
+// In test mode with missing config, use dummy values to prevent crash on import.
+// The actual calls should be mocked in tests.
+const finalUrl = supabaseUrl || (isTest ? 'https://example.supabase.co' : '')
+const finalKey = key || (isTest ? 'public-anon-key' : '')
+
+const supabase: SupabaseClient = createClient(finalUrl, finalKey)
 
 export { supabase }

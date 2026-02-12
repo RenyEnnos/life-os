@@ -12,7 +12,7 @@ export const JournalPage = () => {
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-white/40 group-focus-within:text-primary transition-colors">
                 <span className="material-symbols-outlined text-lg">search</span>
               </div>
-              <input className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent text-white placeholder-white/30 transition-all" placeholder="Search entries..." type="text" />
+              <input aria-label="Search entries" className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent text-white placeholder-white/30 transition-all" placeholder="Search entries..." type="text" />
             </div>
           </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar px-4 pb-6 space-y-2">
@@ -58,7 +58,7 @@ export const JournalPage = () => {
           <div className="flex flex-col items-center pt-12 pb-6 px-12 z-10">
             <div className="w-full max-w-2xl flex justify-between items-end mb-8">
               <div className="flex-1">
-                <input className="bg-transparent border-none text-white text-4xl font-bold p-0 focus:ring-0 w-full mb-1" placeholder="Title..." type="text" value="Morning Reflection" />
+                <input aria-label="Journal entry title" className="bg-transparent border-none text-white text-4xl font-bold p-0 focus:ring-0 w-full mb-1" placeholder="Title..." type="text" value="Morning Reflection" />
                 <div className="flex items-center gap-2 text-white/30 text-sm">
                   <span className="material-symbols-outlined text-sm">event</span>
                   <span>Thursday, October 24, 2024</span>
@@ -69,16 +69,16 @@ export const JournalPage = () => {
             </div>
             {/* Floating Toolbar */}
             <div className="glass h-14 rounded-full px-4 flex items-center gap-1 shadow-2xl border border-white/10">
-              <button className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-full transition-colors">
+              <button aria-label="Bold" className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none">
                 <span className="material-symbols-outlined">format_bold</span>
               </button>
-              <button className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-full transition-colors">
+              <button aria-label="Italic" className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none">
                 <span className="material-symbols-outlined">format_italic</span>
               </button>
-              <button className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-full transition-colors">
+              <button aria-label="Bullet list" className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none">
                 <span className="material-symbols-outlined">format_list_bulleted</span>
               </button>
-              <button className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-full transition-colors">
+              <button aria-label="Checklist" className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none">
                 <span className="material-symbols-outlined">checklist</span>
               </button>
               <div className="w-px h-6 bg-white/10 mx-2"></div>
@@ -99,7 +99,9 @@ export const JournalPage = () => {
         <aside className="w-72 glass border-l border-white/5 h-full flex flex-col p-6">
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-white font-bold text-sm tracking-wide">INSIGHTS</h3>
-            <span className="material-symbols-outlined text-white/40 cursor-pointer">chevron_right</span>
+            <button aria-label="Collapse insights sidebar" className="text-white/40 cursor-pointer hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded">
+              <span className="material-symbols-outlined">chevron_right</span>
+            </button>
           </div>
           <div className="mb-10">
             <p className="text-white/40 text-[10px] uppercase font-bold tracking-widest mb-4">Mood Tracking</p>
