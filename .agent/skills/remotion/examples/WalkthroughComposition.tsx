@@ -16,7 +16,7 @@ const calculateDuration = () => {
 };
 
 export const WalkthroughComposition: React.FC = () => {
-  const {fps, width, height} = screensManifest.videoConfig;
+  const {fps} = screensManifest.videoConfig;
 
   return (
     <TransitionSeries>

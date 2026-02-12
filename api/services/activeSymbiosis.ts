@@ -16,7 +16,7 @@ export const activeSymbiosis = {
                 // list returns array, need to find specific one. Ideally habitsService.get(id)
                 // Optimization: habitsService.get(id) doesn't exist yet, we iterate or add it.
                 // For now, let's assume we can filter.
-                const targetHabit = (habit as any[]).find((h: any) => h.id === habitId)
+                const targetHabit = (habit as Array<{ id: string; attribute?: string }>).find((h) => h.id === habitId)
 
                 if (targetHabit?.attribute) {
                     console.log(`[Symbiosis] Attribute Boost: ${targetHabit.attribute}`)
