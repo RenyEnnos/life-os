@@ -11,6 +11,11 @@ export default defineConfig({
     globals: true,
     coverage: {
       provider: 'v8'
+    },
+    env: {
+      JWT_SECRET: 'test-secret',
+      NODE_ENV: 'test',
+      AI_TEST_MODE: 'mock'
     }
   },
   resolve: {

@@ -1,5 +1,4 @@
 import {Composition} from 'remotion';
-import {Sequence} from 'remotion';
 import {fade} from '@remotion/transitions/fade';
 import {slide} from '@remotion/transitions/slide';
 import {TransitionSeries} from '@remotion/transitions';
