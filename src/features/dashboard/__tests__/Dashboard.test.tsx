@@ -74,8 +74,8 @@ describe('Dashboard Page', () => {
             </QueryClientProvider>
         );
 
-        expect(screen.getAllByText(/Nexus/i)[0]).toBeInTheDocument();
-        expect(screen.getByText(/Agora Dinâmico/i)).toBeInTheDocument();
+        expect(screen.getByText(/Good Afternoon, Pedro/i)).toBeInTheDocument();
+        expect(screen.getAllByText(/Focus Session/i)[0]).toBeInTheDocument();
     });
 });
 /** @vitest-environment jsdom */

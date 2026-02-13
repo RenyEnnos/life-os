@@ -49,8 +49,8 @@ export const IndexPage = () => {
               <h3 className="text-sm font-bold text-white/40 uppercase tracking-widest mb-6">Focus Session</h3>
               <div className="relative flex items-center justify-center mb-6">
                 <svg className="w-40 h-40 transform -rotate-90">
-                  <circle className="text-white/5" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-width="8"></circle>
-                  <circle className="text-primary glow-blue" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-dasharray="440" stroke-dashoffset="154" stroke-width="8"></circle>
+                  <circle className="text-white/5" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" strokeWidth="8"></circle>
+                  <circle className="text-primary glow-blue" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" strokeDasharray="440" strokeDashoffset="154" strokeWidth="8"></circle>
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-3xl font-black">25:00</span>
@@ -58,10 +58,16 @@ export const IndexPage = () => {
                 </div>
               </div>
               <div className="flex gap-4">
-                <button className="size-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+                <button
+                  aria-label="Start focus session"
+                  className="size-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
                   <span className="material-symbols-outlined text-white fill-1">play_arrow</span>
                 </button>
-                <button className="size-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all">
+                <button
+                  aria-label="Reset timer"
+                  className="size-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
                   <span className="material-symbols-outlined text-white">refresh</span>
                 </button>
               </div>
@@ -150,8 +156,8 @@ export const IndexPage = () => {
               <div className="flex items-center gap-6 my-4">
                 <div className="relative size-24 flex items-center justify-center">
                   <svg className="w-24 h-24 transform -rotate-90">
-                    <circle className="text-white/5" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-width="6"></circle>
-                    <circle className="text-primary" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251" stroke-dashoffset="37" stroke-width="6"></circle>
+                    <circle className="text-white/5" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" strokeWidth="6"></circle>
+                    <circle className="text-primary" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" strokeDasharray="251" strokeDashoffset="37" strokeWidth="6"></circle>
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className="text-2xl font-black">85</span>
@@ -220,12 +226,16 @@ export const IndexPage = () => {
                     <div className="bg-orange-400 h-full w-1/2 rounded-full"></div>
                   </div>
                 </div>
-                <div className="flex items-center justify-center border border-dashed border-white/10 rounded-lg hover:border-white/30 transition-all cursor-pointer">
+                <button
+                  type="button"
+                  aria-label="Create new project"
+                  className="flex w-full h-full items-center justify-center border border-dashed border-white/10 rounded-lg hover:border-white/30 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background outline-none"
+                >
                   <div className="flex flex-col items-center gap-2 text-white/30">
                     <span className="material-symbols-outlined">add</span>
                     <span className="text-xs font-bold uppercase tracking-widest">New Project</span>
                   </div>
-                </div>
+                </button>
               </div>
             </div>
           </div>
