@@ -40,23 +40,23 @@ function memoryRepo<T>(): BaseRepo<T> {
 function supabaseRepo<T>(table: string): BaseRepo<T> {
   return {
     async list(userId) {
-      const { data, error } = await supabase.from(table).select('*').eq('user_id', userId).is('deleted_at', null)
+      const { data, error } = await supabase.from(table as any).select('*').eq('user_id', userId).is('deleted_at', null)
       if (error) throw new Error(error.message)
       return (data ?? []) as T[]
     },
     async create(userId, payload) {
-      const { data, error } = await supabase.from(table).insert([{ user_id: userId, ...payload }]).select().single()
+      const { data, error } = await supabase.from(table as any).insert([{ user_id: userId, ...payload }]).select().single()
       if (error) throw new Error(error.message)
       return data as T
     },
     async update(userId, id, payload) {
-      const { data, error } = await supabase.from(table).update(payload).eq('id', id).eq('user_id', userId).select().single()
+      const { data, error } = await supabase.from(table as any).update(payload).eq('id', id).eq('user_id', userId).select().single()
       if (error) return null
       return data as T
     },
     async remove(userId, id) {
       // Soft delete implementation
-      const { error } = await supabase.from(table).update({ deleted_at: new Date().toISOString() }).eq('id', id).eq('user_id', userId)
+      const { error } = await supabase.from(table as any).update({ deleted_at: new Date().toISOString() }).eq('id', id).eq('user_id', userId)
       if (error) return false
       return true
     },

@@ -25,7 +25,16 @@ export const supabase = (isTest || !supabaseUrl || !supabaseKey)
       from: () => ({
         select: () => ({
           eq: () => ({
-            single: () => Promise.resolve({ data: null, error: null }),
+            single: () => Promise.resolve({
+              data: {
+                id: 'test-user-id',
+                email: 'test@example.com',
+                name: 'Test User',
+                preferences: {},
+                theme: 'dark'
+              },
+              error: null
+            }),
             maybeSingle: () => Promise.resolve({ data: null, error: null }),
           }),
           order: () => ({
