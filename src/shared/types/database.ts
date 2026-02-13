@@ -452,6 +452,87 @@ export type Database = {
                         referencedColumns: ["id"]
                     }
                 ]
+            },
+            users: {
+                Row: {
+                    id: string
+                    email: string
+                    name: string | null
+                    avatar_url: string | null
+                    preferences: Json
+                    theme: string
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id: string
+                    email: string
+                    name?: string | null
+                    avatar_url?: string | null
+                    preferences?: Json
+                    theme?: string
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    email?: string
+                    name?: string | null
+                    avatar_url?: string | null
+                    preferences?: Json
+                    theme?: string
+                    created_at?: string
+                    updated_at?: string
+                }
+                Relationships: []
+            },
+            db_ops: {
+                Row: { [key: string]: Json | undefined },
+                Insert: { [key: string]: Json | undefined },
+                Update: { [key: string]: Json | undefined },
+                Relationships: []
+            },
+            auth_logs: {
+                Row: { [key: string]: Json | undefined },
+                Insert: { [key: string]: Json | undefined },
+                Update: { [key: string]: Json | undefined },
+                Relationships: []
+            },
+            perf_logs: {
+                Row: { [key: string]: Json | undefined },
+                Insert: { [key: string]: Json | undefined },
+                Update: { [key: string]: Json | undefined },
+                Relationships: []
+            },
+            ai_logs: {
+                Row: { [key: string]: Json | undefined },
+                Insert: { [key: string]: Json | undefined },
+                Update: { [key: string]: Json | undefined },
+                Relationships: []
+            },
+            medication_reminders: {
+                Row: { [key: string]: Json | undefined },
+                Insert: { [key: string]: Json | undefined },
+                Update: { [key: string]: Json | undefined },
+                Relationships: []
+            },
+            swot_entries: {
+                Row: { [key: string]: Json | undefined },
+                Insert: { [key: string]: Json | undefined },
+                Update: { [key: string]: Json | undefined },
+                Relationships: []
+            },
+            courses: {
+                Row: { [key: string]: Json | undefined },
+                Insert: { [key: string]: Json | undefined },
+                Update: { [key: string]: Json | undefined },
+                Relationships: []
+            },
+            assignments: {
+                Row: { [key: string]: Json | undefined },
+                Insert: { [key: string]: Json | undefined },
+                Update: { [key: string]: Json | undefined },
+                Relationships: []
             }
         }
         Views: {
