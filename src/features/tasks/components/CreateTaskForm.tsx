@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { useAI } from '@/features/ai-assistant/hooks/useAI';
@@ -20,6 +20,7 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
     const [energyLevel, setEnergyLevel] = useState<EnergyLevel>('any');
     const [timeBlock, setTimeBlock] = useState<TimeBlock>('any');
 
+    const formId = useId();
     const { generateTags } = useAI();
     const [isGeneratingTags, setIsGeneratingTags] = useState(false);
 
@@ -76,8 +77,14 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-                <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Título</label>
+                <label
+                    htmlFor={`${formId}-title`}
+                    className="text-sm font-mono text-muted-foreground uppercase tracking-wider"
+                >
+                    Título
+                </label>
                 <Input
+                    id={`${formId}-title`}
                     type="text"
                     required
                     value={title}
@@ -88,8 +95,14 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Descrição (Opcional)</label>
+                <label
+                    htmlFor={`${formId}-description`}
+                    className="text-sm font-mono text-muted-foreground uppercase tracking-wider"
+                >
+                    Descrição (Opcional)
+                </label>
                 <textarea
+                    id={`${formId}-description`}
                     className="flex min-h-[80px] w-full rounded-md border border-input bg-surface/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono focus:bg-surface transition-colors"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -98,8 +111,14 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Data de Vencimento</label>
+                <label
+                    htmlFor={`${formId}-duedate`}
+                    className="text-sm font-mono text-muted-foreground uppercase tracking-wider"
+                >
+                    Data de Vencimento
+                </label>
                 <Input
+                    id={`${formId}-duedate`}
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
@@ -110,10 +129,14 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
             {/* Dynamic Now Fields */}
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">
+                    <label
+                        htmlFor={`${formId}-energy`}
+                        className="text-sm font-mono text-muted-foreground uppercase tracking-wider"
+                    >
                         Energia
                     </label>
                     <select
+                        id={`${formId}-energy`}
                         value={energyLevel}
                         onChange={(e) => setEnergyLevel(e.target.value as EnergyLevel)}
                         className="w-full bg-surface/50 border border-border rounded-md p-2 text-sm font-mono text-foreground focus:bg-surface focus:border-primary focus:outline-none transition-colors"
@@ -125,10 +148,14 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">
+                    <label
+                        htmlFor={`${formId}-period`}
+                        className="text-sm font-mono text-muted-foreground uppercase tracking-wider"
+                    >
                         Período
                     </label>
                     <select
+                        id={`${formId}-period`}
                         value={timeBlock}
                         onChange={(e) => setTimeBlock(e.target.value as TimeBlock)}
                         className="w-full bg-surface/50 border border-border rounded-md p-2 text-sm font-mono text-foreground focus:bg-surface focus:border-primary focus:outline-none transition-colors"
@@ -143,7 +170,12 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
 
             <div className="space-y-2">
                 <div className="flex justify-between items-end">
-                    <label className="text-sm font-mono text-muted-foreground">Tags</label>
+                    <label
+                        htmlFor={`${formId}-tags`}
+                        className="text-sm font-mono text-muted-foreground"
+                    >
+                        Tags
+                    </label>
                     <Button
                         type="button"
                         variant="ghost"
@@ -158,6 +190,7 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                 </div>
                 <div className="flex gap-2">
                     <input
+                        id={`${formId}-tags`}
                         type="text"
                         className="flex-1 bg-surface border border-border rounded-md p-2 text-foreground focus:border-primary focus:outline-none font-mono text-sm"
                         value={newTag}
@@ -170,7 +203,12 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                         }}
                         placeholder="Adicionar tag..."
                     />
-                    <Button type="button" variant="outline" onClick={addTag}>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={addTag}
+                        aria-label="Add tag"
+                    >
                         <X size={16} className="rotate-45" />
                     </Button>
                 </div>
