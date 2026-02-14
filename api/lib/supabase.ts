@@ -11,7 +11,12 @@ if (!supabaseUrl || !key) {
   if (!key) {
     missing.push('SUPABASE_SERVICE_ROLE_KEY | SUPABASE_SERVICE_KEY | SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY)')
   }
-  throw new Error(`Supabase configuration missing: ${missing.join(', ')}`)
+  // Allow CI/Test environments to proceed without valid config
+  if (process.env.NODE_ENV === 'test' || process.env.CI) {
+    console.warn(`[Supabase] Configuration missing in test/CI environment: ${missing.join(', ')}`);
+  } else {
+    throw new Error(`Supabase configuration missing: ${missing.join(', ')}`)
+  }
 }
 
 console.info('[Supabase] configuration loaded', {
@@ -20,6 +25,7 @@ console.info('[Supabase] configuration loaded', {
   hasAnonKey: Boolean(supabaseAnonKey)
 })
 
-const supabase: SupabaseClient = createClient(supabaseUrl, key)
+// Ensure variables are defined or fallback to dummy values for tests
+const supabase: SupabaseClient = createClient(supabaseUrl || 'http://localhost:54321', key || 'dummy-key')
 
 export { supabase }
