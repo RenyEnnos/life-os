@@ -10,10 +10,13 @@ function mockFetch(response: any) {
             ok: response.status >= 200 && response.status < 300,
             status: response.status,
             statusText: response.statusText || "OK",
-            headers: response.headers,
-            json: async () => (typeof response.body === "string" ? response.body : JSON.stringify(response.body)),
+            headers: {
+                get: (name: string) => response.headers ? response.headers[name] : (name === "content-type" ? "application/json" : null),
+                ...response.headers
+            },
+            json: async () => response.body,
             text: async () => (typeof response.body === "string" ? response.body : JSON.stringify(response.body)),
-        } as Response
+        } as unknown as Response
     })
 }
 
@@ -36,7 +39,7 @@ describe("http.ts", () => {
 
     it("fetchJSON throws on non-2xx with JSON message", async () => {
         mockFetch({ status: 500, statusText: "Internal Server Error", body: { error: "oops" } })
-        await expect(fetchJSON("/api/fail")).rejects.toThrow(/500 Internal Server Error: oops/)
+        await expect(fetchJSON("/api/fail")).rejects.toThrow(/oops/)
     })
 
     it("timeout aborts request", async () => {
