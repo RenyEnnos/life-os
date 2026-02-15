@@ -16,6 +16,16 @@ export const authenticateToken = async (
   next: NextFunction
 ) => {
   try {
+    // Check for mock mode first
+    if (process.env.AI_TEST_MODE === 'mock') {
+        req.user = {
+            id: 'test-user',
+            email: 'test@example.com',
+            name: 'Test User'
+        }
+        return next()
+    }
+
     const token = req.cookies?.token || (req.headers.authorization && req.headers.authorization.split(' ')[1])
 
     if (!token) {
