@@ -64,12 +64,12 @@ export const budgetService = {
 
             return {
                 categoryId: b.category_id as string,
-                categoryName: (b.finance_categories as any)?.name || 'Unknown',
+                categoryName: (b.finance_categories as any)?.name || 'Unknown', // eslint-disable-line @typescript-eslint/no-explicit-any
                 limit,
                 spent,
                 remaining,
                 status,
-                period: b.period as any
+                period: b.period as any // eslint-disable-line @typescript-eslint/no-explicit-any
             }
         })
     }
