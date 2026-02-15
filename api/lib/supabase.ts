@@ -5,7 +5,10 @@ const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY
 const key = supabaseServiceRoleKey || supabaseAnonKey
 
-if (!supabaseUrl || !key) {
+// Allow missing configuration in test/mock environment
+const isTest = process.env.NODE_ENV === 'test' || process.env.AI_TEST_MODE === 'mock' || process.env.VITEST === 'true';
+
+if ((!supabaseUrl || !key) && !isTest) {
   const missing: string[] = []
   if (!supabaseUrl) missing.push('SUPABASE_URL (or VITE_SUPABASE_URL)')
   if (!key) {
@@ -20,6 +23,10 @@ console.info('[Supabase] configuration loaded', {
   hasAnonKey: Boolean(supabaseAnonKey)
 })
 
-const supabase: SupabaseClient = createClient(supabaseUrl, key)
+// Provide a mock client or throw later if used in production without config
+const finalUrl = supabaseUrl || 'https://mock.supabase.co'
+const finalKey = key || 'mock-key'
+
+const supabase: SupabaseClient = createClient(finalUrl, finalKey)
 
 export { supabase }

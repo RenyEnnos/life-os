@@ -1,5 +1,4 @@
 import {Composition} from 'remotion';
-import {Sequence} from 'remotion';
 import {fade} from '@remotion/transitions/fade';
 import {slide} from '@remotion/transitions/slide';
 import {TransitionSeries} from '@remotion/transitions';
@@ -16,7 +15,7 @@ const calculateDuration = () => {
 };
 
 export const WalkthroughComposition: React.FC = () => {
-  const {fps, width, height} = screensManifest.videoConfig;
+  const {fps} = screensManifest.videoConfig;
 
   return (
     <TransitionSeries>

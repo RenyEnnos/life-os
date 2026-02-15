@@ -26,6 +26,8 @@ afterEach(() => {
 describe('supabase configuration', () => {
   it('throws when Supabase config is missing', async () => {
     clearSupabaseEnv()
+    process.env.NODE_ENV = 'production'
+    delete process.env.VITEST
     vi.resetModules()
     await expect(import('../lib/supabase')).rejects.toThrow(/Supabase configuration missing/)
   })
