@@ -58,10 +58,10 @@ export const IndexPage = () => {
                 </div>
               </div>
               <div className="flex gap-4">
-                <button className="size-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+                <button aria-label="Start Focus Session" className="size-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
                   <span className="material-symbols-outlined text-white fill-1">play_arrow</span>
                 </button>
-                <button className="size-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all">
+                <button aria-label="Reset Focus Session" className="size-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all">
                   <span className="material-symbols-outlined text-white">refresh</span>
                 </button>
               </div>
@@ -91,20 +91,20 @@ export const IndexPage = () => {
                   </div>
                   <span className="text-xs text-primary/70 font-bold">4 Day Streak</span>
                 </div>
-                <div className="p-4 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
+                <button type="button" aria-label="Mark Reading as done" className="w-full p-4 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
                   <div className="flex items-center gap-4">
                     <div className="size-6 rounded border border-white/20 flex items-center justify-center"></div>
                     <span className="font-medium text-white/70">Reading</span>
                   </div>
                   <span className="text-xs text-white/30 uppercase font-bold">20 min</span>
-                </div>
-                <div className="p-4 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
+                </button>
+                <button type="button" aria-label="Mark Gym Session as done" className="w-full p-4 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
                   <div className="flex items-center gap-4">
                     <div className="size-6 rounded border border-white/20 flex items-center justify-center"></div>
                     <span className="font-medium text-white/70">Gym Session</span>
                   </div>
                   <span className="text-xs text-white/30 uppercase font-bold">Target PM</span>
-                </div>
+                </button>
               </div>
               <div className="mt-8 p-4 rounded-lg bg-gradient-to-br from-primary/20 to-transparent border border-primary/10">
                 <p className="text-sm font-semibold mb-2">Consistency Score</p>
