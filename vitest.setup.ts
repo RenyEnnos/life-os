@@ -5,3 +5,6 @@ import '@testing-library/jest-dom/vitest'
 // beforeAll(() => server.listen())
 // afterEach(() => server.resetHandlers())
 // afterAll(() => server.close())
+
+// Mock environment variables for testing
+process.env.JWT_SECRET = 'test-secret-for-vitest'

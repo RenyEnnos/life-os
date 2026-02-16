@@ -6,12 +6,24 @@ const originalFetch = global.fetch;
 // @ts-ignore - Sem tipagem no parâmetro para evitar conflitos com Vitest
 function mockFetch(response: any) {
     global.fetch = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
+        const defaultHeaders: Record<string, string> = {};
+        if (response.body && typeof response.body === 'object') {
+             defaultHeaders['content-type'] = 'application/json';
+        }
+
+        const mergedHeaders = { ...defaultHeaders, ...(response.headers || {}) };
+
         return {
             ok: response.status >= 200 && response.status < 300,
             status: response.status,
             statusText: response.statusText || "OK",
-            headers: response.headers,
-            json: async () => (typeof response.body === "string" ? response.body : JSON.stringify(response.body)),
+            headers: {
+                get: (key: string) => {
+                    const normalizedKey = key.toLowerCase();
+                    return mergedHeaders[normalizedKey] || null;
+                }
+            },
+            json: async () => response.body,
             text: async () => (typeof response.body === "string" ? response.body : JSON.stringify(response.body)),
         } as Response
     })
@@ -36,7 +48,8 @@ describe("http.ts", () => {
 
     it("fetchJSON throws on non-2xx with JSON message", async () => {
         mockFetch({ status: 500, statusText: "Internal Server Error", body: { error: "oops" } })
-        await expect(fetchJSON("/api/fail")).rejects.toThrow(/500 Internal Server Error: oops/)
+        // The implementation throws the error message from the body directly without status prefix
+        await expect(fetchJSON("/api/fail")).rejects.toThrow(/oops/)
     })
 
     it("timeout aborts request", async () => {

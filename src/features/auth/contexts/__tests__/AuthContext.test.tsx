@@ -51,23 +51,26 @@ const renderWithProviders = (ui: React.ReactNode) => {
 const mockedAuthApi = vi.mocked(authApi, true);
 
 describe('AuthContext', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         vi.clearAllMocks();
         queryClient.clear();
+        await queryClient.cancelQueries();
         localStorage.clear();
     });
 
-    it('verifies session on mount', async () => {
-        const mockUser = { id: '1', email: 'test@example.com' } as unknown as User;
-        mockedAuthApi.verify.mockResolvedValue(mockUser);
+    it('initializes from local storage without immediate verification (cache-first)', async () => {
+        const mockUser = { id: '1', email: 'stored@example.com' } as unknown as User;
+        localStorage.setItem('auth_user', JSON.stringify(mockUser));
 
         renderWithProviders(<TestComponent />);
 
+        // Should load from localStorage immediately
         await waitFor(() => {
-            expect(screen.getByTestId('user-email')).toBeInTheDocument();
-            expect(screen.getByTestId('user-email')).toHaveTextContent('test@example.com');
+            expect(screen.getByTestId('user-email')).toHaveTextContent('stored@example.com');
         });
-        expect(authApi.verify).toHaveBeenCalled();
+
+        // Verification should NOT be called immediately due to staleTime: 5 mins in AuthProvider
+        expect(authApi.verify).not.toHaveBeenCalled();
     });
 
     it('handles regular login flow', async () => {
@@ -82,9 +85,12 @@ describe('AuthContext', () => {
         });
 
         await waitFor(() => {
-            expect(screen.getByTestId('user-email')).toBeInTheDocument();
             expect(screen.getByTestId('user-email')).toHaveTextContent('login@example.com');
         });
-        expect((authApi.login as any)).toHaveBeenCalledWith({ email: 'test@example.com', password: 'password' });
+
+        expect(authApi.login).toHaveBeenCalledWith(
+            expect.objectContaining({ email: 'test@example.com', password: 'password' }),
+            expect.anything()
+        );
     });
 });
