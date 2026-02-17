@@ -8,7 +8,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
     try {
         const budgets = await budgetService.list(req.user!.id)
         res.json(budgets)
-    } catch (err) {
+  } catch (_err) {
         res.status(500).json({ error: 'Failed to list budgets' })
     }
 })

@@ -20,6 +20,7 @@ vi.mock("@/shared/api/http", () => {
         if (_url.includes("/rewards") && !_url.includes("xp")) return { id: "r2", title: body?.title || "New Reward" }
         return {}
       }),
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       delete: vi.fn(async (_url: string) => ({})),
     },
   }

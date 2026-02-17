@@ -38,7 +38,8 @@ const dayPartCopy: Record<DayPart, { title: string; subtitle: string; gradient: 
     }
 };
 
-const formatDue = (task: Task) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _formatDue = (task: Task) => {
     const legacyDue = (task as { due?: string | null }).due;
     const raw = task.due_date || legacyDue;
     if (!raw) return null;
@@ -62,7 +63,8 @@ function getDayPart(now = new Date()): DayPart {
 export function AgoraSection() {
     const { user } = useAuth();
     const prefersReducedMotion = useReducedMotion();
-    const { agenda, habitConsistency, vitalLoad, isLoading } = useDashboardData();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { agenda: _agenda, habitConsistency, vitalLoad, isLoading } = useDashboardData();
     const dayPart = getDayPart();
     const { data: synapseData, isLoading: suggestionsLoading } = useQuery({
         queryKey: ['synapse-suggestions'],

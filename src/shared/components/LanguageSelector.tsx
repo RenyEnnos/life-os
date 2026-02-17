@@ -10,7 +10,8 @@ const languages = [
 ];
 
 export function LanguageSelector({ className }: { className?: string }) {
-  const { i18n, t } = useTranslation();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { i18n, t: _t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const currentLang = i18n.language;

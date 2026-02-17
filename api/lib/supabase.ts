@@ -1,9 +1,11 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
+const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true'
+
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || (isTest ? 'https://test.supabase.co' : undefined)
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY
-const key = supabaseServiceRoleKey || supabaseAnonKey
+const key = supabaseServiceRoleKey || supabaseAnonKey || (isTest ? 'test-key' : undefined)
 
 if (!supabaseUrl || !key) {
   const missing: string[] = []

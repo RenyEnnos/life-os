@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Activity, Check, Plus } from 'lucide-react';
+import { Activity, Check } from 'lucide-react';
 import { WidgetShell } from './WidgetShell';
 import { useDashboardData } from '@/features/dashboard/hooks/useDashboardData';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,7 +10,8 @@ import type { Habit } from '@/shared/types';
 export function HabitWidget() {
     const { habits, habitConsistency, isLoading } = useDashboardData();
     const qc = useQueryClient();
-    const [selectedHabitId, setSelectedHabitId] = useState('');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_selectedHabitId, setSelectedHabitId] = useState('');
 
     const logHabit = useMutation({
         mutationFn: (habitId: string) => {

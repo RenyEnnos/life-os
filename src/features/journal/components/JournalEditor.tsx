@@ -8,7 +8,7 @@ import { journalApi } from '../api/journal.api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { InsightCard } from './InsightCard';
-import { cn } from '@/shared/lib/cn';
+// import { cn } from '@/shared/lib/cn';
 
 interface JournalEditorProps {
     entry?: JournalEntry;

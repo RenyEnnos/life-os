@@ -91,6 +91,7 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
                                         itemStyle={{ color: '#fff', fontSize: '12px' }}
                                         labelStyle={{ display: 'none' }}
                                         cursor={{ stroke: '#8b5cf6', strokeWidth: 1, strokeDasharray: '4 4' }}
+                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                         formatter={(value: any) => `R$ ${Number(value).toFixed(2)}`}
                                     />
                                     <Area
@@ -150,6 +151,7 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
                                         boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
                                     }}
                                     itemStyle={{ color: '#fff', fontSize: '12px' }}
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                     formatter={(value: any) => `R$ ${Number(value).toFixed(2)}`}
                                 />
                                 <Legend
