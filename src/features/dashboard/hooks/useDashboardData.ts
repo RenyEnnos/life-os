@@ -15,25 +15,29 @@ export function useDashboardData() {
   const { data: dashboardSummary, isLoading: summaryLoading } = useQuery<DashboardSummary>({
     queryKey: ['dashboard', 'summary', userId],
     queryFn: () => dashboardApi.getSummary(),
-    enabled: !!userId
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 5, // 5 minutes - dashboard data changes frequently
   });
 
   const { data: tasks, isLoading: tasksLoading } = useQuery<Task[]>({
     queryKey: ['tasks', userId, 1, 10],
     queryFn: () => tasksApi.getPaginated(1, 10),
     enabled: !!userId,
+    staleTime: 1000 * 60 * 5, // 5 minutes - tasks can change frequently
   });
 
   const { data: habits, isLoading: habitsLoading } = useQuery<Habit[]>({
     queryKey: ['habits', userId, 1, 10],
     queryFn: () => habitsApi.getPaginated(1, 10),
     enabled: !!userId,
+    staleTime: 1000 * 60 * 10, // 10 minutes - habits change less frequently
   });
 
   const { data: financeData, isLoading: financeLoading } = useQuery<FinanceSummary>({
     queryKey: ['finance', 'summary', userId],
     queryFn: () => financesApi.getSummary(),
-    enabled: !!userId
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 10, // 10 minutes - financial data changes less often
   });
 
   const today = new Date().toISOString().split('T')[0];
