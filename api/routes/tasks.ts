@@ -11,13 +11,6 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Prom
   const userId = req.user!.id
   try {
     const data = await tasksService.list(userId, req.query)
-    const { due_today } = req.query as Record<string, string>
-    if (due_today === 'true') {
-      const today = new Date().toISOString().split('T')[0]
-      const filtered = data.filter((t) => typeof t.due_date === 'string' && t.due_date.startsWith(today))
-      res.json(filtered)
-      return
-    }
     res.json(data)
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'Unknown error'
