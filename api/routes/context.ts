@@ -1,49 +1,56 @@
+/**
+ * Context API routes
+ * Handle external context data (market, weather, news)
+ */
+import { Router, type Request, type Response } from 'express'
+import { ContextGateway } from '../services/contextGateway'
 
-import { Router } from 'express';
-import { ContextGateway } from '../services/contextGateway';
+const router = Router()
 
-const router = Router();
+/**
+ * Get synapse briefing (market, weather, news)
+ * GET /api/context/synapse-briefing
+ */
+router.get('/synapse-briefing', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const lat = req.query.lat ? Number(req.query.lat) : undefined
+    const lon = req.query.lon ? Number(req.query.lon) : undefined
 
-// Rota unificada para o "Heads-Up Display" da Sinapse
-router.get('/synapse-briefing', async (req, res) => {
-    try {
-        const lat = req.query.lat ? Number(req.query.lat) : undefined;
-        const lon = req.query.lon ? Number(req.query.lon) : undefined;
+    const [market, weather, news] = await Promise.all([
+      ContextGateway.getMarketPulse(),
+      ContextGateway.getWeather(lat, lon),
+      ContextGateway.getNews()
+    ])
 
-        const [market, weather, news] = await Promise.all([
-            ContextGateway.getMarketPulse(),
-            ContextGateway.getWeather(lat, lon),
-            ContextGateway.getNews()
-        ]);
+    res.json({
+      success: true,
+      data: {
+        market,
+        weather,
+        news,
+        avatar_url: `https://robohash.org/${(req.query.user as string) || 'commander'}?set=set4&bgset=bg2&size=200x200`
+      }
+    })
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Context Grid Offline'
+    res.status(500).json({ success: false, error: msg, code: 'CONTEXT_ERROR' })
+  }
+})
 
-        res.json({
-            success: true,
-            data: {
-                market,
-                weather,
-                news,
-                // RoboHash Avatar Generator
-                avatar_url: `https://robohash.org/${(req.query.user as string) || 'commander'}?set=set4&bgset=bg2&size=200x200`
-            }
-        });
-    } catch (error) {
-        console.error('Context Grid Error:', error);
-        // Graceful degradation - sends partial empty data rather than 500 if possible, 
-        // but here we stick to the Polidor's request:
-        res.status(500).json({ success: false, error: 'Context Grid Offline' });
-    }
-});
+/**
+ * Get weather data
+ * GET /api/context/weather
+ */
+router.get('/weather', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const lat = req.query.lat ? Number(req.query.lat) : undefined
+    const lon = req.query.lon ? Number(req.query.lon) : undefined
+    const weather = await ContextGateway.getWeather(lat, lon)
+    res.json(weather)
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Weather Service Unavailable'
+    res.status(500).json({ error: msg, code: 'WEATHER_ERROR' })
+  }
+})
 
-// Weather specific endpoint for WeatherCard detailed view if needed later
-router.get('/weather', async (req, res) => {
-    try {
-        const lat = req.query.lat ? Number(req.query.lat) : undefined;
-        const lon = req.query.lon ? Number(req.query.lon) : undefined;
-        const weather = await ContextGateway.getWeather(lat, lon);
-        res.json(weather);
-    } catch {
-        res.status(500).json({ error: 'Weather Service Unavailable' });
-    }
-});
-
-export default router;
+export default router
