@@ -10,10 +10,29 @@ const cache = new Map<string, { ts: number; data: any[] }>()
 const CACHE_TTL_MS = 2 * 60 * 1000
 
 export const habitsService = {
-  async list(userId: string, query: unknown) {
-    void query
+  async list(userId: string, query: { page?: string; pageSize?: string } & Record<string, unknown>) {
+    const { page, pageSize } = query
 
-    // Check cache
+    // If pagination is requested, bypass cache and use paginated query
+    if (page !== undefined || pageSize !== undefined) {
+      const pageNum = Math.max(1, parseInt(page as string) || 1)
+      const size = Math.max(1, Math.min(100, parseInt(pageSize as string) || 50))
+      const from = (pageNum - 1) * size
+      const to = from + size - 1
+
+      const { data, error } = await supabase
+        .from('habits')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true })
+        .range(from, to)
+
+      if (error) throw error
+
+      return data
+    }
+
+    // Check cache (for non-paginated requests)
     const now = Date.now()
     const cached = cache.get(userId)
     if (cached && now - cached.ts < CACHE_TTL_MS) {
