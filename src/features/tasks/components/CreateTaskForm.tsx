@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { useAI } from '@/features/ai-assistant/hooks/useAI';
@@ -12,6 +12,7 @@ interface CreateTaskFormProps {
 }
 
 export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
+    const id = useId();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [dueDate, setDueDate] = useState('');
@@ -76,8 +77,9 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-                <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Título</label>
+                <label htmlFor={`${id}-title`} className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Título</label>
                 <Input
+                    id={`${id}-title`}
                     type="text"
                     required
                     value={title}
@@ -88,8 +90,9 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Descrição (Opcional)</label>
+                <label htmlFor={`${id}-description`} className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Descrição (Opcional)</label>
                 <textarea
+                    id={`${id}-description`}
                     className="flex min-h-[80px] w-full rounded-md border border-input bg-surface/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono focus:bg-surface transition-colors"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -98,8 +101,9 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Data de Vencimento</label>
+                <label htmlFor={`${id}-dueDate`} className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Data de Vencimento</label>
                 <Input
+                    id={`${id}-dueDate`}
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
@@ -110,10 +114,11 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
             {/* Dynamic Now Fields */}
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">
+                    <label htmlFor={`${id}-energyLevel`} className="text-sm font-mono text-muted-foreground uppercase tracking-wider">
                         Energia
                     </label>
                     <select
+                        id={`${id}-energyLevel`}
                         value={energyLevel}
                         onChange={(e) => setEnergyLevel(e.target.value as EnergyLevel)}
                         className="w-full bg-surface/50 border border-border rounded-md p-2 text-sm font-mono text-foreground focus:bg-surface focus:border-primary focus:outline-none transition-colors"
@@ -125,10 +130,11 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">
+                    <label htmlFor={`${id}-timeBlock`} className="text-sm font-mono text-muted-foreground uppercase tracking-wider">
                         Período
                     </label>
                     <select
+                        id={`${id}-timeBlock`}
                         value={timeBlock}
                         onChange={(e) => setTimeBlock(e.target.value as TimeBlock)}
                         className="w-full bg-surface/50 border border-border rounded-md p-2 text-sm font-mono text-foreground focus:bg-surface focus:border-primary focus:outline-none transition-colors"
@@ -143,7 +149,7 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
 
             <div className="space-y-2">
                 <div className="flex justify-between items-end">
-                    <label className="text-sm font-mono text-muted-foreground">Tags</label>
+                    <label htmlFor={`${id}-newTag`} className="text-sm font-mono text-muted-foreground">Tags</label>
                     <Button
                         type="button"
                         variant="ghost"
@@ -158,6 +164,7 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                 </div>
                 <div className="flex gap-2">
                     <input
+                        id={`${id}-newTag`}
                         type="text"
                         className="flex-1 bg-surface border border-border rounded-md p-2 text-foreground focus:border-primary focus:outline-none font-mono text-sm"
                         value={newTag}
@@ -170,7 +177,7 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                         }}
                         placeholder="Adicionar tag..."
                     />
-                    <Button type="button" variant="outline" onClick={addTag}>
+                    <Button type="button" variant="outline" onClick={addTag} aria-label="Adicionar tag">
                         <X size={16} className="rotate-45" />
                     </Button>
                 </div>

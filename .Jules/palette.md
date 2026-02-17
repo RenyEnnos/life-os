@@ -13,3 +13,7 @@
 ## 2025-12-27 - Task List Accessibility
 **Learning:** Task items were missing crucial accessibility context. Checkboxes lacked labels, priority dots relied on color, and delete buttons were generic.
 **Action:** Added dynamic `aria-label` to checkboxes ("Mark [Task] as complete"), `title`/`aria-label` to priority dots, and context to delete buttons ("Delete task: [Task]").
+
+## 2025-12-29 - Form Accessibility & ShimmerButton
+**Learning:** `CreateTaskForm` (and likely others) lacked basic `label`/`input` association, relying on visual proximity. Also, `ShimmerButton` intercepts clicks with an overlay, breaking standard Playwright interactions.
+**Action:** Use `useId` for unique form IDs and ensure `htmlFor` matches `id`. In Playwright verification scripts, always use `.click(force=True)` for `ShimmerButton`.
