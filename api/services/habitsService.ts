@@ -105,12 +105,27 @@ export const habitsService = {
     return true
   },
 
-  async getLogs(userId: string, query: { date?: string }) {
-    const { date } = query
+  async getLogs(userId: string, query: { date?: string; from?: string; to?: string; limit?: string }) {
+    const { date, from, to, limit } = query
     let q = supabase.from('habit_logs').select('*').eq('user_id', userId)
 
     if (date) {
+      // Single date filter takes precedence
       q = q.eq('logged_date', date)
+    } else if (from || to) {
+      // Date range filtering
+      if (from) {
+        q = q.gte('logged_date', from)
+      }
+      if (to) {
+        q = q.lte('logged_date', to)
+      }
+    }
+
+    // Apply limit if specified (max 1000 to prevent excessive queries)
+    if (limit !== undefined) {
+      const limitNum = Math.max(1, Math.min(1000, parseInt(limit) || 100))
+      q = q.limit(limitNum)
     }
 
     const { data, error } = await q
