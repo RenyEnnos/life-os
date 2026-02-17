@@ -1,7 +1,10 @@
+import NodeCache from 'node-cache'
 import { habitsService } from './habitsService'
 import { symbiosisService } from './symbiosisService'
 import { rewardsService } from './rewardsService'
 import { financeService } from './financeService'
+
+const cache = new NodeCache({ stdTTL: 600 }) // 10 min default
 
 export type DashboardSummary = {
     lifeScore: any
@@ -13,12 +16,18 @@ export type DashboardSummary = {
 export const dashboardService = {
     async getSummary(userId: string): Promise<DashboardSummary> {
         const today = new Date().toISOString().split('T')[0]
+        const cacheKey = `dashboard_summary_${userId}_${today}`
+
+        // Check cache first
+        if (cache.has(cacheKey)) {
+            return cache.get(cacheKey) as DashboardSummary
+        }
 
         // Parallel Fetching
         const [score, habits, habitLogs, links] = await Promise.all([
             rewardsService.getUserScore(userId),
             habitsService.list(userId, {}),
-            habitsService.getLogs(userId, { date: undefined }), // Fix: getLogs might check 'date' param. 'from' was guess.
+            habitsService.getLogs(userId, { date: undefined }),
             symbiosisService.list(userId)
         ])
 
@@ -26,12 +35,17 @@ export const dashboardService = {
         const activeHabits = (habits || []).filter((h: any) => h.active)
         const consistency = await this.calculateConsistency(userId, activeHabits, habitLogs || [])
 
-        return {
+        const result = {
             lifeScore: score,
             habitConsistency: consistency,
             vitalLoad: this.calculateVitalLoad(links),
             widgets: {}
         }
+
+        // Cache for 5 minutes (300 seconds)
+        cache.set(cacheKey, result, 300)
+
+        return result
     },
 
     async calculateConsistency(userId: string, habits: any[], logs: any[]) {
