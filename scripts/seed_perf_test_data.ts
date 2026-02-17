@@ -266,7 +266,7 @@ async function main() {
 
     // Seed data
     await seedTasks(userId, 1000);
-    await seedHabitsAndLogs(userId, 10, 365);
+    await seedHabitsAndLogs(userId, 100, 365);
 
     // Print statistics
     await printStats(userId);
