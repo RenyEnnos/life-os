@@ -19,14 +19,14 @@ export function useDashboardData() {
   });
 
   const { data: tasks, isLoading: tasksLoading } = useQuery<Task[]>({
-    queryKey: ['tasks', userId],
-    queryFn: () => tasksApi.getAll(),
+    queryKey: ['tasks', userId, 1, 10],
+    queryFn: () => tasksApi.getPaginated(1, 10),
     enabled: !!userId,
   });
 
   const { data: habits, isLoading: habitsLoading } = useQuery<Habit[]>({
-    queryKey: ['habits', userId],
-    queryFn: () => habitsApi.list(userId!),
+    queryKey: ['habits', userId, 1, 10],
+    queryFn: () => habitsApi.getPaginated(1, 10),
     enabled: !!userId,
   });
 
