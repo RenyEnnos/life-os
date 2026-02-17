@@ -13,7 +13,8 @@ export const rewardsService = {
 
     if (!data) {
       // Initialize if not exists
-      const { data: newData, error: createError } = await supabase
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { data: _newData, error: createError } = await supabase
         .from('user_xp')
         .insert([{ user_id: userId }])
         .select()

@@ -163,7 +163,7 @@ export function withErrorTracking<P extends object>(
 ): React.FC<P> {
   return function WrappedComponent(props: P) {
     try {
-      // @ts-ignore
+      // @ts-expect-error Types might not match perfectly but this is a generic wrapper
       return <Component {...props} />;
     } catch (error) {
       captureError(error, context);

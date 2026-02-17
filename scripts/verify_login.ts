@@ -14,6 +14,7 @@ async function verifyLogin() {
         console.log('Login successful!');
         console.log('Status:', response.status);
         console.log('User ID:', response.data.user.id);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error('Login failed!');
         if (error.response) {

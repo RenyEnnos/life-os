@@ -20,6 +20,7 @@ type VitalName = 'CLS' | 'FID' | 'FCP' | 'LCP' | 'TTFB' | 'INP';
 /**
  * Get rating based on metric value and thresholds
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getRating(name: VitalName, value: number): 'good' | 'needs-improvement' | 'poor' {
   const threshold = THRESHOLDS[name];
   if (!threshold) return 'needs-improvement';
