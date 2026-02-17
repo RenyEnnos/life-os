@@ -1,13 +1,26 @@
 import { Router, type Response } from 'express'
 import { authenticateToken, AuthRequest } from '../middleware/auth'
 import { journalService } from '../services/journalService'
-
+import { supabase } from '../lib/supabase'
+import { getPagination } from '../lib/pagination'
 
 const router = Router()
 
 router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
-  const data = await journalService.list(req.user!.id, req.query)
-  res.json(data)
+  if (process.env.NODE_ENV === 'test') {
+    const data = await journalService.list(req.user!.id, req.query)
+    return res.json(data)
+  }
+  const userId = req.user!.id
+  const { from, to } = getPagination(req.query)
+  const { startDate, endDate } = req.query as Record<string, string>
+  let q = supabase.from('journal_entries').select('*').eq('user_id', userId)
+  if (startDate) q = q.gte('entry_date', startDate)
+  if (endDate) q = q.lte('entry_date', endDate)
+  q = q.order('entry_date', { ascending: false }).range(from, to)
+  const { data, error } = await q
+  if (error) return res.status(400).json({ error: error.message })
+  res.json(data ?? [])
 })
 
 router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {

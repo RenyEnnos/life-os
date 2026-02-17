@@ -2,8 +2,8 @@ import { supabase } from '../lib/supabase'
 import type { JournalEntry } from '../../shared/types'
 
 export const journalService = {
-  async list(userId: string, query: { date?: string }) {
-    const { date } = query
+  async list(userId: string, query: { date?: string; startDate?: string; endDate?: string }) {
+    const { date, startDate, endDate } = query
     let q = supabase
       .from('journal_entries')
       .select('*')
@@ -12,6 +12,14 @@ export const journalService = {
 
     if (date) {
       q = q.eq('entry_date', date)
+    }
+
+    if (startDate) {
+      q = q.gte('entry_date', startDate)
+    }
+
+    if (endDate) {
+      q = q.lte('entry_date', endDate)
     }
 
     const { data, error } = await q
