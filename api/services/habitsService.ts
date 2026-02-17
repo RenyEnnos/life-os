@@ -5,9 +5,20 @@ import { rewardsService } from './rewardsService'
 
 import { eventBus, Events } from '../lib/events'
 
+const cache = new Map<string, { ts: number; data: any[] }>()
+const CACHE_TTL_MS = 2 * 60 * 1000
+
 export const habitsService = {
   async list(userId: string, query: unknown) {
     void query
+
+    // Check cache
+    const now = Date.now()
+    const cached = cache.get(userId)
+    if (cached && now - cached.ts < CACHE_TTL_MS) {
+      return cached.data
+    }
+
     const { data, error } = await supabase
       .from('habits')
       .select('*')
@@ -15,6 +26,9 @@ export const habitsService = {
       .order('created_at', { ascending: true })
 
     if (error) throw error
+
+    // Set cache
+    cache.set(userId, { ts: now, data: data || [] })
     return data
   },
 
@@ -27,6 +41,10 @@ export const habitsService = {
 
     if (error) throw error
     await logDbOp('habits', 'insert', userId, { id: (data as { id: string })?.id })
+
+    // Invalidate cache
+    cache.delete(userId)
+
     return data
   },
 
@@ -41,6 +59,10 @@ export const habitsService = {
 
     if (error) throw error
     await logDbOp('habits', 'update', userId, { id })
+
+    // Invalidate cache
+    cache.delete(userId)
+
     return data
   },
 
@@ -53,6 +75,10 @@ export const habitsService = {
 
     if (error) throw error
     await logDbOp('habits', 'delete', userId, { id })
+
+    // Invalidate cache
+    cache.delete(userId)
+
     return true
   },
 
