@@ -19,4 +19,10 @@ export const habitSchema = z.object({
 export const createHabitSchema = habitSchema;
 export const updateHabitSchema = habitSchema.partial();
 
+export const createHabitLogSchema = z.object({
+    value: z.number().int('Value must be an integer'),
+    date: z.string().min(1, 'Date is required').regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+});
+
 export type HabitInput = z.infer<typeof habitSchema>;
+export type HabitLogInput = z.infer<typeof createHabitLogSchema>;
