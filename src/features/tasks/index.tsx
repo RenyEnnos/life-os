@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { addDays, format, isBefore, isSameDay, startOfWeek } from 'date-fns';
 import Modal from '@/shared/ui/Modal';
 import { Loader } from '@/shared/ui/Loader';
@@ -33,15 +33,35 @@ function normalizeDate(value?: string | null) {
 }
 
 export default function TasksPage() {
-    const { tasks, isLoading, createTask, updateTask, deleteTask } = useTasks();
+    const { tasks, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, createTask, updateTask, deleteTask } = useTasks();
     const { generatePlan } = useAI();
     const { showToast } = useToast();
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const [filter, setFilter] = useState<Filter>('all');
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
     const [plan, setPlan] = useState<Record<string, string[]> | null>(null);
     const [isPlanning, setIsPlanning] = useState(false);
+
+    // Infinite scroll: detect when user scrolls near bottom
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        const handleScroll = () => {
+            const { scrollTop, scrollHeight, clientHeight } = container;
+            const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
+
+            // Trigger next page when user scrolls to 90% of content
+            if (scrollPercentage > 0.9 && hasNextPage && !isFetchingNextPage) {
+                fetchNextPage();
+            }
+        };
+
+        container.addEventListener('scroll', handleScroll);
+        return () => container.removeEventListener('scroll', handleScroll);
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     const today = useMemo(() => {
         const t = new Date();
@@ -309,9 +329,14 @@ export default function TasksPage() {
                                 </div>
                             </div>
 
-                    <div className="flex flex-col divide-y divide-white/10 overflow-y-auto pr-2 custom-scrollbar z-10 h-full max-h-[600px]">
+                    <div ref={scrollContainerRef} className="flex flex-col divide-y divide-white/10 overflow-y-auto pr-2 custom-scrollbar z-10 h-full max-h-[600px]">
                         {filteredTasks.map(renderTask)}
-                        {!filteredTasks.length && (
+                        {isFetchingNextPage && (
+                            <div className="flex items-center justify-center py-4">
+                                <Loader text="" />
+                            </div>
+                        )}
+                        {!filteredTasks.length && !isFetchingNextPage && (
                             <div className="text-sm text-zinc-500 py-6 text-center">
                                 Nenhuma tarefa encontrada para este filtro.
                             </div>
