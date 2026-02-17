@@ -1,6 +1,7 @@
 import { repoFactory } from '../repositories/factory'
 import type { BaseRepo } from '../repositories/factory'
 import { rewardsService } from './rewardsService'
+import { invalidate } from './aiCache'
 
 type Task = { id: string; user_id: string; title: string; description?: string; due_date?: string; completed?: boolean; tags?: string[] }
 
@@ -12,10 +13,15 @@ class TasksServiceImpl {
   async list(userId: string, query: unknown) { void query; return this.repo.list(userId) }
   async create(userId: string, payload: Partial<Task>) {
     if (!payload?.title) throw new Error('Title is required')
-    return this.repo.create(userId, { ...payload, completed: false, tags: payload.tags ?? [] })
+    const result = await this.repo.create(userId, { ...payload, completed: false, tags: payload.tags ?? [] })
+    await invalidate(userId, 'tasks')
+    return result
   }
   async update(userId: string, id: string, payload: Partial<Task>) {
     const updated = await this.repo.update(userId, id, payload)
+
+    // Invalidate cache
+    await invalidate(userId, 'tasks')
 
     // Check if task was just completed
     if (payload.completed === true) {
@@ -34,7 +40,9 @@ class TasksServiceImpl {
     return updated
   }
   async remove(userId: string, id: string) {
-    return this.repo.remove(userId, id)
+    const result = await this.repo.remove(userId, id)
+    await invalidate(userId, 'tasks')
+    return result
   }
 }
 

@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase'
 import { Habit } from '../../shared/types'
 import { logDbOp } from '../lib/dbLogger'
 import { rewardsService } from './rewardsService'
+import { invalidate } from './aiCache'
 
 import { eventBus, Events } from '../lib/events'
 
@@ -44,6 +45,7 @@ export const habitsService = {
 
     // Invalidate cache
     cache.delete(userId)
+    await invalidate(userId, 'habits')
 
     return data
   },
@@ -62,6 +64,7 @@ export const habitsService = {
 
     // Invalidate cache
     cache.delete(userId)
+    await invalidate(userId, 'habits')
 
     return data
   },
@@ -78,6 +81,7 @@ export const habitsService = {
 
     // Invalidate cache
     cache.delete(userId)
+    await invalidate(userId, 'habits')
 
     return true
   },
