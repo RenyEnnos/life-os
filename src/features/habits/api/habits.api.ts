@@ -14,6 +14,15 @@ export const habitsApi = {
         return data;
     },
 
+    getPaginated: async (page: number, pageSize: number) => {
+        const params = new URLSearchParams({
+            page: page.toString(),
+            pageSize: pageSize.toString()
+        });
+        const data = await apiClient.get<Habit[]>(`/api/habits?${params.toString()}`);
+        return data;
+    },
+
     create: async (habit: Partial<Habit>) => {
         const data = await apiClient.post<Habit>('/api/habits', habit);
         return data;

@@ -1,0 +1,39 @@
+{
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  },
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Read(./**)",
+      "Write(./**)",
+      "Edit(./**)",
+      "Glob(./**)",
+      "Grep(./**)",
+      "Read(/home/pedro/Projetos de codifica\u00e7\u00e3o/LIfe0S/.auto-claude/worktrees/tasks/001-performance-optimization-query-optimization/**)",
+      "Write(/home/pedro/Projetos de codifica\u00e7\u00e3o/LIfe0S/.auto-claude/worktrees/tasks/001-performance-optimization-query-optimization/**)",
+      "Edit(/home/pedro/Projetos de codifica\u00e7\u00e3o/LIfe0S/.auto-claude/worktrees/tasks/001-performance-optimization-query-optimization/**)",
+      "Glob(/home/pedro/Projetos de codifica\u00e7\u00e3o/LIfe0S/.auto-claude/worktrees/tasks/001-performance-optimization-query-optimization/**)",
+      "Grep(/home/pedro/Projetos de codifica\u00e7\u00e3o/LIfe0S/.auto-claude/worktrees/tasks/001-performance-optimization-query-optimization/**)",
+      "Read(/home/pedro/Projetos de codifica\u00e7\u00e3o/LIfe0S/.auto-claude/worktrees/tasks/001-performance-optimization-query-optimization/.auto-claude/specs/001-performance-optimization-query-optimization/**)",
+      "Write(/home/pedro/Projetos de codifica\u00e7\u00e3o/LIfe0S/.auto-claude/worktrees/tasks/001-performance-optimization-query-optimization/.auto-claude/specs/001-performance-optimization-query-optimization/**)",
+      "Edit(/home/pedro/Projetos de codifica\u00e7\u00e3o/LIfe0S/.auto-claude/worktrees/tasks/001-performance-optimization-query-optimization/.auto-claude/specs/001-performance-optimization-query-optimization/**)",
+      "Read(/home/pedro/Projetos de codifica\u00e7\u00e3o/LIfe0S/.auto-claude/**)",
+      "Write(/home/pedro/Projetos de codifica\u00e7\u00e3o/LIfe0S/.auto-claude/**)",
+      "Edit(/home/pedro/Projetos de codifica\u00e7\u00e3o/LIfe0S/.auto-claude/**)",
+      "Glob(/home/pedro/Projetos de codifica\u00e7\u00e3o/LIfe0S/.auto-claude/**)",
+      "Grep(/home/pedro/Projetos de codifica\u00e7\u00e3o/LIfe0S/.auto-claude/**)",
+      "Bash(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "mcp__context7__resolve-library-id(*)",
+      "mcp__context7__get-library-docs(*)",
+      "mcp__graphiti-memory__search_nodes(*)",
+      "mcp__graphiti-memory__search_facts(*)",
+      "mcp__graphiti-memory__add_episode(*)",
+      "mcp__graphiti-memory__get_episodes(*)",
+      "mcp__graphiti-memory__get_entity_edge(*)"
+    ]
+  }
+}

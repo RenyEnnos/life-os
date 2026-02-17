@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useRef, useCallback, useEffect } from 'react';
 import { BentoCard } from '@/shared/ui/BentoCard';
 import { cn } from '@/shared/lib/cn';
 import { subDays, eachDayOfInterval, format, getDay } from 'date-fns';
@@ -11,7 +11,13 @@ interface HabitContributionGraphProps {
     className?: string;
 }
 
+const WEEK_WIDTH = 16; // 12px (w-3) + 4px (gap-1)
+const BUFFER_WEEKS = 8; // Render buffer weeks on each side
+
 export const HabitContributionGraph = ({ logs, className }: HabitContributionGraphProps) => {
+    const [visibleRange, setVisibleRange] = useState({ start: 0, end: 53 });
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
     // Generate last 365 days (or appropriate range for the view)
     const days = useMemo(() => {
         const today = new Date();
@@ -49,6 +55,53 @@ export const HabitContributionGraph = ({ logs, className }: HabitContributionGra
         return weeksArray;
     }, [days]);
 
+    // Calculate visible weeks based on scroll position
+    const updateVisibleRange = useCallback(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        const scrollLeft = container.scrollLeft;
+        const containerWidth = container.clientWidth;
+
+        const startWeek = Math.max(0, Math.floor(scrollLeft / WEEK_WIDTH) - BUFFER_WEEKS);
+        const endWeek = Math.min(
+            weeks.length,
+            Math.ceil((scrollLeft + containerWidth) / WEEK_WIDTH) + BUFFER_WEEKS
+        );
+
+        setVisibleRange({ start: startWeek, end: endWeek });
+    }, [weeks.length]);
+
+    // Setup scroll listener
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        // Initial calculation
+        updateVisibleRange();
+
+        // Use requestAnimationFrame for smooth updates
+        let rafId: number;
+        const handleScroll = () => {
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(updateVisibleRange);
+        };
+
+        container.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('resize', updateVisibleRange);
+
+        return () => {
+            container.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('resize', updateVisibleRange);
+            if (rafId) cancelAnimationFrame(rafId);
+        };
+    }, [updateVisibleRange]);
+
+    // Get visible weeks with buffer
+    const visibleWeeks = useMemo(() => {
+        return weeks.slice(visibleRange.start, visibleRange.end);
+    }, [weeks, visibleRange]);
+
     return (
         <BentoCard
             title="Consistência Anual"
@@ -56,9 +109,20 @@ export const HabitContributionGraph = ({ logs, className }: HabitContributionGra
             className={cn("col-span-1 md:col-span-2 lg:col-span-4", className)}
         >
             <div className="flex flex-col gap-2 h-full justify-center">
-                <div className="flex items-end gap-1 overflow-x-auto pb-2 hide-scrollbar">
-                    {weeks.map((week, wIdx) => (
-                        <div key={wIdx} className="flex flex-col gap-1">
+                <div
+                    ref={scrollContainerRef}
+                    className="flex items-end gap-1 overflow-x-auto pb-2 hide-scrollbar"
+                >
+                    {/* Left spacer for virtual scrolling */}
+                    <div style={{ width: `${visibleRange.start * WEEK_WIDTH}px`, flexShrink: 0 }} />
+
+                    {/* Visible weeks */}
+                    {visibleWeeks.map((week, wIdx) => (
+                        <div
+                            key={visibleRange.start + wIdx}
+                            className="flex flex-col gap-1"
+                            style={{ width: `${WEEK_WIDTH}px`, flexShrink: 0 }}
+                        >
                             {week.map((day) => {
                                 const level = getActivityLevel(day);
                                 return (
@@ -78,6 +142,14 @@ export const HabitContributionGraph = ({ logs, className }: HabitContributionGra
                             })}
                         </div>
                     ))}
+
+                    {/* Right spacer for virtual scrolling */}
+                    <div
+                        style={{
+                            width: `${(weeks.length - visibleRange.end) * WEEK_WIDTH}px`,
+                            flexShrink: 0
+                        }}
+                    />
                 </div>
                 <div className="flex items-center justify-end gap-2 text-[10px] text-zinc-500 font-mono">
                     <span>Menos</span>

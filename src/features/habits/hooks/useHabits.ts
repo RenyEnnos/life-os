@@ -1,16 +1,37 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { habitsApi } from '../api/habits.api';
+import { Habit } from '../types';
+
+const PAGE_SIZE = 50;
 
 export function useHabits() {
     const { user } = useAuth();
     const queryClient = useQueryClient();
 
-    const { data: habits, isLoading } = useQuery({
-        queryKey: ['habits', user?.id],
-        queryFn: () => habitsApi.list(user!.id),
+    const {
+        data: infiniteData,
+        isLoading,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useInfiniteQuery<Habit[]>({
+        queryKey: ['habits', user?.id, 'infinite'],
+        queryFn: async ({ pageParam }) => {
+            const pageNum = typeof pageParam === 'number' ? pageParam : 1;
+            return habitsApi.getPaginated(pageNum, PAGE_SIZE);
+        },
         enabled: !!user,
+        initialPageParam: 1,
+        getNextPageParam: (lastPage, allPages) => {
+            if (lastPage.length < PAGE_SIZE) {
+                return undefined;
+            }
+            return allPages.length + 1;
+        },
     });
+
+    const habits = infiniteData?.pages.flatMap((page) => page) ?? [];
 
     const { data: logs } = useQuery({
         queryKey: ['habit-logs', user?.id],
@@ -37,6 +58,9 @@ export function useHabits() {
         habits,
         logs,
         isLoading,
+        isFetchingNextPage,
+        hasNextPage,
+        fetchNextPage,
         createHabit,
         logHabit,
     };

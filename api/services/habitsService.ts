@@ -2,12 +2,43 @@ import { supabase } from '../lib/supabase'
 import { Habit } from '../../shared/types'
 import { logDbOp } from '../lib/dbLogger'
 import { rewardsService } from './rewardsService'
+import { invalidate } from './aiCache'
 
 import { eventBus, Events } from '../lib/events'
 
+const cache = new Map<string, { ts: number; data: any[] }>()
+const CACHE_TTL_MS = 2 * 60 * 1000
+
 export const habitsService = {
-  async list(userId: string, query: unknown) {
-    void query
+  async list(userId: string, query: { page?: string; pageSize?: string } & Record<string, unknown>) {
+    const { page, pageSize } = query
+
+    // If pagination is requested, bypass cache and use paginated query
+    if (page !== undefined || pageSize !== undefined) {
+      const pageNum = Math.max(1, parseInt(page as string) || 1)
+      const size = Math.max(1, Math.min(100, parseInt(pageSize as string) || 50))
+      const from = (pageNum - 1) * size
+      const to = from + size - 1
+
+      const { data, error } = await supabase
+        .from('habits')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true })
+        .range(from, to)
+
+      if (error) throw error
+
+      return data
+    }
+
+    // Check cache (for non-paginated requests)
+    const now = Date.now()
+    const cached = cache.get(userId)
+    if (cached && now - cached.ts < CACHE_TTL_MS) {
+      return cached.data
+    }
+
     const { data, error } = await supabase
       .from('habits')
       .select('*')
@@ -15,6 +46,9 @@ export const habitsService = {
       .order('created_at', { ascending: true })
 
     if (error) throw error
+
+    // Set cache
+    cache.set(userId, { ts: now, data: data || [] })
     return data
   },
 
@@ -27,6 +61,11 @@ export const habitsService = {
 
     if (error) throw error
     await logDbOp('habits', 'insert', userId, { id: (data as { id: string })?.id })
+
+    // Invalidate cache
+    cache.delete(userId)
+    await invalidate(userId, 'habits')
+
     return data
   },
 
@@ -41,6 +80,11 @@ export const habitsService = {
 
     if (error) throw error
     await logDbOp('habits', 'update', userId, { id })
+
+    // Invalidate cache
+    cache.delete(userId)
+    await invalidate(userId, 'habits')
+
     return data
   },
 
@@ -53,15 +97,35 @@ export const habitsService = {
 
     if (error) throw error
     await logDbOp('habits', 'delete', userId, { id })
+
+    // Invalidate cache
+    cache.delete(userId)
+    await invalidate(userId, 'habits')
+
     return true
   },
 
-  async getLogs(userId: string, query: { date?: string }) {
-    const { date } = query
+  async getLogs(userId: string, query: { date?: string; from?: string; to?: string; limit?: string }) {
+    const { date, from, to, limit } = query
     let q = supabase.from('habit_logs').select('*').eq('user_id', userId)
 
     if (date) {
+      // Single date filter takes precedence
       q = q.eq('logged_date', date)
+    } else if (from || to) {
+      // Date range filtering
+      if (from) {
+        q = q.gte('logged_date', from)
+      }
+      if (to) {
+        q = q.lte('logged_date', to)
+      }
+    }
+
+    // Apply limit if specified (max 1000 to prevent excessive queries)
+    if (limit !== undefined) {
+      const limitNum = Math.max(1, Math.min(1000, parseInt(limit) || 100))
+      q = q.limit(limitNum)
     }
 
     const { data, error } = await q

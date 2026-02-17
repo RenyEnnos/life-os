@@ -5,8 +5,8 @@ import { get, set, del } from 'idb-keyval'
 export const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
-            staleTime: 1000 * 60 * 60 * 24, // 24 hours (offline first approach)
-            gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
+            staleTime: 1000 * 60 * 5, // 5 minutes - balance between freshness and performance
+            gcTime: 1000 * 60 * 60, // 1 hour - cache duration
             retry: 1,
             refetchOnWindowFocus: false,
             refetchOnReconnect: true,
