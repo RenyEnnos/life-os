@@ -4,7 +4,8 @@ import { authApi } from '../api/auth.api';
 import { AuthContext } from './AuthContext';
 import { clearAuthToken, setAuthToken } from '@/shared/api/authToken';
 import { normalizeEmail, normalizeName } from '@/shared/lib/normalize';
-import type { LoginRequest, RegisterRequest, User } from '@/shared/types';
+import type { LoginRequest, RegisterRequest } from '@/shared/types';
+import type { User } from '@supabase/supabase-js';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();

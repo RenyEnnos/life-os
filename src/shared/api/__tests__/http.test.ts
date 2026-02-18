@@ -90,10 +90,11 @@ describe("http.ts", () => {
 
     it("resolveApiUrl builds absolute URL", () => {
         const abs = resolveApiUrl("http://example.com/api/x")
-        expect(abs).toBe("http://example.com/api/x")
+        expect(abs).toBe("http://example.com/api/x");
         
-        // @ts-expect-error - Simulate window with Location
-        global.window = {
+        // Simulate window with Location
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (global as any).window = {
             location: {
                 origin: "http://localhost:5174",
                 host: "localhost:5174",

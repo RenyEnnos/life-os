@@ -91,7 +91,7 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
                                         itemStyle={{ color: '#fff', fontSize: '12px' }}
                                         labelStyle={{ display: 'none' }}
                                         cursor={{ stroke: '#8b5cf6', strokeWidth: 1, strokeDasharray: '4 4' }}
-                                        formatter={(value: number) => `R$ ${value.toFixed(2)}`}
+                                        formatter={(value: number | string | Array<unknown> | readonly unknown[] | undefined) => `R$ ${Number(value).toFixed(2)}`}
                                     />
                                     <Area
                                         type="monotone"
@@ -150,7 +150,7 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
                                         boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
                                     }}
                                     itemStyle={{ color: '#fff', fontSize: '12px' }}
-                                    formatter={(value: number) => `R$ ${value.toFixed(2)}`}
+                                    formatter={(value: number | string | Array<unknown> | readonly unknown[] | undefined) => `R$ ${Number(value).toFixed(2)}`}
                                 />
                                 <Legend
                                     layout="horizontal"
