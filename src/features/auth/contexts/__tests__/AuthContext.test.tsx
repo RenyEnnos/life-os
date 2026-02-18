@@ -70,6 +70,23 @@ describe('AuthContext', () => {
         expect(authApi.verify).toHaveBeenCalled();
     });
 
+    it('initializes as logged out when localStorage is empty', async () => {
+        // Ensure there is no persisted user in localStorage
+        localStorage.removeItem('auth_user');
+
+        renderWithProviders(<TestComponent />);
+
+        // Initial value in context should reflect the new behavior for empty storage
+        // When initialData is undefined, useQuery will fetch immediately, so verify SHOULD be called.
+        // But initially, user is null/undefined, so UI should show "No User"
+        expect(screen.getByTestId('user-email')).toHaveTextContent('No User');
+
+        // With empty storage and undefined initialData, useQuery fetches
+        await waitFor(() => {
+             expect(authApi.verify).toHaveBeenCalled();
+        });
+    });
+
     it('handles regular login flow', async () => {
         const mockUser = { id: '2', email: 'login@example.com' } as unknown as User;
         mockedAuthApi.login.mockResolvedValue({ user: mockUser });
@@ -86,6 +103,7 @@ describe('AuthContext', () => {
             expect(screen.getByTestId('user-email')).toHaveTextContent('login@example.com');
         });
 
+        expect(authApi.login).toHaveBeenCalledTimes(1);
         // Check only the first argument (credentials) and ignore any potential second argument
         expect((authApi.login as any).mock.calls[0][0]).toEqual({ email: 'test@example.com', password: 'password' });
     });

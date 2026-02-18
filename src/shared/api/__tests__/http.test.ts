@@ -5,6 +5,7 @@ const originalFetch = global.fetch;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mockFetch(response: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     global.fetch = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) => {
         const headersMap = new Map();
         if (response.headers) {
@@ -22,7 +23,17 @@ function mockFetch(response: any) {
             headers: {
                 get: (key: string) => headersMap.get(key.toLowerCase()) || null
             },
-            json: async () => (typeof response.body === "string" ? JSON.parse(response.body) : response.body),
+            json: async () => {
+                if (typeof response.body === "string") {
+                    try {
+                        return JSON.parse(response.body);
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    } catch (e) {
+                        throw new Error("Invalid JSON in mock response body");
+                    }
+                }
+                return response.body;
+            },
             text: async () => (typeof response.body === "string" ? response.body : JSON.stringify(response.body)),
         } as unknown as Response
     })

@@ -12,7 +12,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Hydrate initial user from localStorage for immediate feedback
   const getInitialUser = (): User | undefined => {
     const cached = localStorage.getItem('auth_user');
-    return cached ? JSON.parse(cached) : undefined;
+    if (!cached) return undefined;
+    try {
+      return JSON.parse(cached);
+    } catch {
+      console.warn('[AuthProvider] Failed to parse cached user, clearing storage');
+      localStorage.removeItem('auth_user');
+      return undefined;
+    }
   };
 
   const { data: user, isLoading, isFetching } = useQuery({
