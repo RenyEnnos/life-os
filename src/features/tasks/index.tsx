@@ -210,7 +210,7 @@ export default function TasksPage() {
                     aria-label={`Delete task: ${task.title}`}
                     disabled={deleteTask.isPending}
                 >
-                    <span className="material-symbols-outlined text-[18px]">{deleteTask.isPending ? 'hourglass_top' : 'more_horiz'}</span>
+                    <span className="material-symbols-outlined text-[18px]">{deleteTask.isPending ? 'hourglass_top' : 'delete'}</span>
                 </button>
             </div>
         );

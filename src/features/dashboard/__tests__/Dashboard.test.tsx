@@ -63,7 +63,7 @@ describe('Dashboard Page', () => {
         cleanup();
     });
 
-    it('renders dashboard title', () => {
+    it('renders dashboard title and accessibility elements', () => {
         render(
             <QueryClientProvider client={queryClient}>
                 <AuthProvider>
@@ -74,8 +74,17 @@ describe('Dashboard Page', () => {
             </QueryClientProvider>
         );
 
-        expect(screen.getAllByText(/Nexus/i)[0]).toBeInTheDocument();
-        expect(screen.getByText(/Agora Dinâmico/i)).toBeInTheDocument();
+        // Check for current dashboard content
+        expect(screen.getByText(/Good Afternoon/i)).toBeInTheDocument();
+        expect(screen.getByText(/Weekly Goal Progress/i)).toBeInTheDocument();
+
+        // Check for accessibility improvements (Palette's work)
+        // Focus Timer buttons
+        expect(screen.getByLabelText('Start focus session')).toBeInTheDocument();
+        expect(screen.getByLabelText('Reset focus timer')).toBeInTheDocument();
+
+        // Habit Tracker buttons (checking one example)
+        expect(screen.getByRole('button', { name: /Mark Reading as done/i })).toBeInTheDocument();
     });
 });
 /** @vitest-environment jsdom */

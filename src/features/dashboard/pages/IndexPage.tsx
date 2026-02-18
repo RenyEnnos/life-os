@@ -49,8 +49,8 @@ export const IndexPage = () => {
               <h3 className="text-sm font-bold text-white/40 uppercase tracking-widest mb-6">Focus Session</h3>
               <div className="relative flex items-center justify-center mb-6">
                 <svg className="w-40 h-40 transform -rotate-90">
-                  <circle className="text-white/5" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-width="8"></circle>
-                  <circle className="text-primary glow-blue" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-dasharray="440" stroke-dashoffset="154" stroke-width="8"></circle>
+                  <circle className="text-white/5" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" strokeWidth="8"></circle>
+                  <circle className="text-primary glow-blue" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" strokeDasharray="440" strokeDashoffset="154" strokeWidth="8"></circle>
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-3xl font-black">25:00</span>
@@ -58,10 +58,16 @@ export const IndexPage = () => {
                 </div>
               </div>
               <div className="flex gap-4">
-                <button className="size-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+                <button
+                  className="size-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30"
+                  aria-label="Start focus session"
+                >
                   <span className="material-symbols-outlined text-white fill-1">play_arrow</span>
                 </button>
-                <button className="size-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all">
+                <button
+                  className="size-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all"
+                  aria-label="Reset focus timer"
+                >
                   <span className="material-symbols-outlined text-white">refresh</span>
                 </button>
               </div>
@@ -91,20 +97,28 @@ export const IndexPage = () => {
                   </div>
                   <span className="text-xs text-primary/70 font-bold">4 Day Streak</span>
                 </div>
-                <div className="p-4 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
+                <button
+                  type="button"
+                  className="w-full text-left p-4 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-primary"
+                  aria-label="Mark Reading as done, 20 minutes"
+                >
                   <div className="flex items-center gap-4">
                     <div className="size-6 rounded border border-white/20 flex items-center justify-center"></div>
                     <span className="font-medium text-white/70">Reading</span>
                   </div>
                   <span className="text-xs text-white/30 uppercase font-bold">20 min</span>
-                </div>
-                <div className="p-4 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
+                </button>
+                <button
+                  type="button"
+                  className="w-full text-left p-4 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-primary"
+                  aria-label="Mark Gym Session as done, Target PM"
+                >
                   <div className="flex items-center gap-4">
                     <div className="size-6 rounded border border-white/20 flex items-center justify-center"></div>
                     <span className="font-medium text-white/70">Gym Session</span>
                   </div>
                   <span className="text-xs text-white/30 uppercase font-bold">Target PM</span>
-                </div>
+                </button>
               </div>
               <div className="mt-8 p-4 rounded-lg bg-gradient-to-br from-primary/20 to-transparent border border-primary/10">
                 <p className="text-sm font-semibold mb-2">Consistency Score</p>
@@ -150,8 +164,8 @@ export const IndexPage = () => {
               <div className="flex items-center gap-6 my-4">
                 <div className="relative size-24 flex items-center justify-center">
                   <svg className="w-24 h-24 transform -rotate-90">
-                    <circle className="text-white/5" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-width="6"></circle>
-                    <circle className="text-primary" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251" stroke-dashoffset="37" stroke-width="6"></circle>
+                    <circle className="text-white/5" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" strokeWidth="6"></circle>
+                    <circle className="text-primary" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" strokeDasharray="251" strokeDashoffset="37" strokeWidth="6"></circle>
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className="text-2xl font-black">85</span>
