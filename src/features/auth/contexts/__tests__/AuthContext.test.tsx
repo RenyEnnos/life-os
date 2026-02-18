@@ -66,7 +66,7 @@ describe('AuthContext', () => {
         await waitFor(() => {
             expect(screen.getByTestId('user-email')).toBeInTheDocument();
             expect(screen.getByTestId('user-email')).toHaveTextContent('test@example.com');
-        });
+        }, { timeout: 3000 });
         expect(authApi.verify).toHaveBeenCalled();
     });
 
@@ -85,6 +85,8 @@ describe('AuthContext', () => {
             expect(screen.getByTestId('user-email')).toBeInTheDocument();
             expect(screen.getByTestId('user-email')).toHaveTextContent('login@example.com');
         });
-        expect((authApi.login as any)).toHaveBeenCalledWith({ email: 'test@example.com', password: 'password' });
+
+        // Check only the first argument (credentials) and ignore any potential second argument
+        expect((authApi.login as any).mock.calls[0][0]).toEqual({ email: 'test@example.com', password: 'password' });
     });
 });

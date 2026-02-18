@@ -10,9 +10,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
 
   // Hydrate initial user from localStorage for immediate feedback
-  const getInitialUser = (): User | null => {
+  const getInitialUser = (): User | undefined => {
     const cached = localStorage.getItem('auth_user');
-    return cached ? JSON.parse(cached) : null;
+    return cached ? JSON.parse(cached) : undefined;
   };
 
   const { data: user, isLoading, isFetching } = useQuery({
