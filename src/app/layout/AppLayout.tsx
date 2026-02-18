@@ -106,6 +106,7 @@ export function AppLayout() {
             </main>
 
             <MemoizedSanctuaryOverlay />
+            <GlobalModalOrchestrator />
         </div>
     );
 }

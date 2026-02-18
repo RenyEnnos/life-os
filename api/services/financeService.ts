@@ -68,9 +68,6 @@ class FinanceServiceImpl {
   }
 
   async summary(userId: string) {
-    const now = new Date()
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-
     // Get all transactions for summary (can optimize to use DB aggregation later)
     // For now, fetch current month for specific summary, or all? 
     // The previous implementation fetched simple list.

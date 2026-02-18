@@ -227,7 +227,7 @@ export function errorHandler(
   error: unknown,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void {
   // Get status code
   const statusCode = getStatusCode(error)

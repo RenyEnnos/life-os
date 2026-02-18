@@ -2,6 +2,8 @@
  * Tests for errorHandler.ts
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
   handleError,

@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useFocusStore } from '../stores/useFocusStore';
-import { cn } from '@/shared/lib/cn';
-import { Maximize2, Minimize2, Pause, Play, Square, CheckCircle2 } from 'lucide-react';
+import { Minimize2, Pause, Play, CheckCircle2 } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { tasksApi } from '@/features/tasks/api/tasks.api';
 import confetti from 'canvas-confetti';

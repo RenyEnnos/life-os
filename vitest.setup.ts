@@ -1,8 +1,9 @@
-// Mock Supabase environment variables for testing
-process.env.SUPABASE_URL = 'http://localhost:54321'
-process.env.SUPABASE_ANON_KEY = 'mock-anon-key'
 /* eslint-disable @typescript-eslint/no-explicit-any */
-process.env.SUPABASE_SERVICE_ROLE_KEY = 'mock-service-role-key'
+// Mock Supabase environment variables for testing - ONLY if not present
+// We avoid setting SUPABASE_URL if it's missing to allow RLS tests to skip gracefully
+if (!process.env.JWT_SECRET) process.env.JWT_SECRET = 'test-secret'
+process.env.SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'mock-anon-key'
+process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'mock-service-role-key'
 
 import '@testing-library/jest-dom/vitest'
 import { beforeAll, afterEach, afterAll, vi } from 'vitest'
@@ -10,7 +11,14 @@ import { server } from './src/test/msw/server'
 
 // Mock Supabase client to avoid network requests in integration tests
 vi.mock('./api/lib/supabase', () => {
-  const users: any[] = []
+  const users: any[] = [
+    {
+      id: 'u1',
+      email: 'user@example.com',
+      name: 'Test User',
+      created_at: new Date().toISOString()
+    }
+  ]
 
   return {
     supabase: {

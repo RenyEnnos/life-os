@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from "vitest"
 import { tasksApi } from "../tasks.api"
-import { ApiError } from "@/shared/api/http"
 
 vi.mock("@/shared/api/http", () => {
       return {
