@@ -2,11 +2,17 @@
 import request from 'supertest'
 import type { Application } from 'express'
 import { describe, it, expect, beforeAll } from 'vitest'
+import { server } from '../../src/test/msw/server'
 
 let app: Application
 
 describe('Auth integration flow', () => {
-  beforeAll(async () => { process.env.NODE_ENV = 'test'; process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret'; app = (await import('../app')).default }, 30000)
+  beforeAll(async () => {
+    server.close()
+    process.env.NODE_ENV = 'test';
+    process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
+    app = (await import('../app')).default
+  }, 30000)
   it('register, login, verify, update theme, verify, logout', async () => {
     const email = `user_${Date.now()}@example.com`
     const password = 'StrongPass1!'
