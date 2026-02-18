@@ -1,27 +1,42 @@
-import { Router } from 'express';
-import { MediaService } from '../services/mediaService';
-import { authenticateToken, AuthRequest } from '../middleware/auth';
+/**
+ * Media API routes
+ * Handle media search (images, etc.)
+ */
+import { Router, type Response } from 'express'
+import { MediaService } from '../services/mediaService'
+import { authenticateToken, type AuthRequest } from '../middleware/auth'
+import { z } from 'zod'
 
-const router = Router();
+const router = Router()
 
-router.get('/images', authenticateToken, async (req: AuthRequest, res) => {
-    try {
-        const query = req.query.query as string;
-        const page = req.query.page ? Number(req.query.page) : 1;
+/**
+ * Search for images
+ * GET /api/media/images
+ */
+router.get('/images', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  const schema = z.object({
+    query: z.string().min(1),
+    page: z.coerce.number().optional().default(1)
+  })
 
-        if (!query) {
-            return res.status(400).json({ error: 'Query required' });
-        }
+  const parsed = schema.safeParse(req.query)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Query required', code: 'INVALID_MEDIA_QUERY' })
+    return
+  }
 
-        const data = await MediaService.searchImages(query, page);
+  try {
+    const { query, page } = parsed.data
+    const data = await MediaService.searchImages(query, page)
 
-        // Hint for frontend
-        res.setHeader('X-Debounce-Recommended', '800');
+    // Hint for frontend
+    res.setHeader('X-Debounce-Recommended', '800')
 
-        res.json(data);
-    } catch {
-        res.status(500).json({ error: 'Media Service Unavailable' });
-    }
-});
+    res.json(data)
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Media Service Unavailable'
+    res.status(500).json({ error: msg, code: 'MEDIA_ERROR' })
+  }
+})
 
-export default router;
+export default router
