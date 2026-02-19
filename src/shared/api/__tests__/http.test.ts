@@ -92,7 +92,7 @@ describe("http.ts", () => {
         const abs = resolveApiUrl("http://example.com/api/x")
         expect(abs).toBe("http://example.com/api/x")
         
-        // @ts-expect-error - Simulate window with Location
+        // Simulate window with Location
         global.window = {
             location: {
                 origin: "http://localhost:5174",

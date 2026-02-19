@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         const user = await authApi.verify();
         localStorage.setItem('auth_user', JSON.stringify(user));
-        return user;
+        return user as unknown as User;
       } catch (error) {
         console.warn('[AuthContext] Session verification failed:', error);
         localStorage.removeItem('auth_user');
