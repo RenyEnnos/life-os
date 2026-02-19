@@ -34,6 +34,7 @@ export const PremiumTaskCard = memo(function PremiumTaskCard({ task, onToggle, o
             <div className="relative flex items-center gap-4 p-4 w-full h-full z-10">
                 <button
                     onClick={onToggle}
+                    aria-label={task.completed ? `Mark "${task.title}" as incomplete` : `Mark "${task.title}" as complete`}
                     className={clsx(
                         "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300",
                         task.completed
@@ -81,6 +82,7 @@ export const PremiumTaskCard = memo(function PremiumTaskCard({ task, onToggle, o
                         onClick={handleEnterSanctuary}
                         className="opacity-0 group-hover:opacity-100 text-white/30 hover:text-purple-400 hover:bg-purple-500/10 transition-all"
                         title="Enter Sanctuary"
+                        aria-label={`Enter Sanctuary for "${task.title}"`}
                     >
                         <Moon size={16} />
                     </Button>
@@ -91,6 +93,7 @@ export const PremiumTaskCard = memo(function PremiumTaskCard({ task, onToggle, o
                     variant="ghost"
                     size="icon"
                     onClick={onDelete}
+                    aria-label={`Delete task: "${task.title}"`}
                     className="opacity-0 group-hover:opacity-100 text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-all"
                 >
                     <Trash2 size={16} />

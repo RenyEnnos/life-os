@@ -13,3 +13,7 @@
 ## 2025-12-27 - Task List Accessibility
 **Learning:** Task items were missing crucial accessibility context. Checkboxes lacked labels, priority dots relied on color, and delete buttons were generic.
 **Action:** Added dynamic `aria-label` to checkboxes ("Mark [Task] as complete"), `title`/`aria-label` to priority dots, and context to delete buttons ("Delete task: [Task]").
+
+## 2025-12-29 - Premium Component Accessibility
+**Learning:** Premium/flair components (like `PremiumTaskCard`) often prioritize visuals over accessibility and can be missed when auditing base components.
+**Action:** Always audit premium/alternative component variants when fixing accessibility in base components.

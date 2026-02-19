@@ -21,7 +21,7 @@ export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
         )}>
             <button
                 onClick={onToggle}
-                aria-label={task.completed ? "Mark task as incomplete" : "Mark task as complete"}
+                aria-label={task.completed ? `Mark "${task.title}" as incomplete` : `Mark "${task.title}" as complete`}
                 className={clsx(
                     "w-6 h-6 rounded-sm border-2 flex items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
                     task.completed
@@ -65,7 +65,7 @@ export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
                 variant="ghost"
                 size="icon"
                 onClick={onDelete}
-                aria-label="Delete task"
+                aria-label={`Delete task: "${task.title}"`}
                 className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
             >
                 <Trash2 size={16} />

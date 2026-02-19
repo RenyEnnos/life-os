@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { render, screen } from '@testing-library/react';
-import { TaskItem } from '../TaskItem';
+import { PremiumTaskCard } from '../PremiumTaskCard';
 import { Task } from '@/shared/types';
 import { vi, describe, it, expect } from 'vitest';
 import React from 'react';
@@ -10,13 +10,27 @@ vi.mock('lucide-react', () => ({
     Check: () => <span data-testid="icon-check">Check</span>,
     Trash2: () => <span data-testid="icon-trash">Trash</span>,
     Calendar: () => <span data-testid="icon-calendar">Calendar</span>,
+    Moon: () => <span data-testid="icon-moon">Moon</span>,
 }));
 
-// Partial mock of Task
+// Mock Sanctuary Store
+vi.mock('@/shared/stores/sanctuaryStore', () => ({
+    useSanctuaryStore: (selector: any) => selector({ enter: vi.fn() }),
+}));
+
+// Mock UI components to avoid framer-motion issues in JSDOM
+vi.mock('@/shared/ui/premium/MagicCard', () => ({
+    MagicCard: ({ children, className }: any) => <div className={className}>{children}</div>,
+}));
+
+vi.mock('@/shared/ui/premium/BorderBeam', () => ({
+    BorderBeam: () => <div data-testid="border-beam" />,
+}));
+
 const mockTask: Task = {
     id: '1',
     user_id: 'user1',
-    title: 'Test Task',
+    title: 'Test Premium Task',
     completed: false,
     due_date: null,
     created_at: '2023-01-01',
@@ -24,42 +38,51 @@ const mockTask: Task = {
     tags: [],
 } as unknown as Task;
 
-describe('TaskItem', () => {
+describe('PremiumTaskCard', () => {
     it('renders with correct accessibility labels', () => {
         const onToggle = vi.fn();
         const onDelete = vi.fn();
 
         render(
-            <TaskItem
+            <PremiumTaskCard
                 task={mockTask}
                 onToggle={onToggle}
                 onDelete={onDelete}
             />
         );
 
-        // Check toggle button aria-label (incomplete state)
+        // Check toggle button
         const toggleButton = screen.getByLabelText(`Mark "${mockTask.title}" as complete`);
         expect(toggleButton).toBeInTheDocument();
 
-        // Check delete button aria-label
+        // Check sanctuary button
+        const sanctuaryButton = screen.getByLabelText(`Enter Sanctuary for "${mockTask.title}"`);
+        expect(sanctuaryButton).toBeInTheDocument();
+
+        // Check delete button
         const deleteButton = screen.getByLabelText(`Delete task: "${mockTask.title}"`);
         expect(deleteButton).toBeInTheDocument();
     });
 
-    it('updates toggle aria-label when completed', () => {
+    it('updates labels when completed', () => {
         const completedTask = { ...mockTask, completed: true };
         const onToggle = vi.fn();
         const onDelete = vi.fn();
 
         render(
-            <TaskItem
+            <PremiumTaskCard
                 task={completedTask}
                 onToggle={onToggle}
                 onDelete={onDelete}
             />
         );
 
+        // Check toggle button (incomplete)
         const toggleButton = screen.getByLabelText(`Mark "${mockTask.title}" as incomplete`);
         expect(toggleButton).toBeInTheDocument();
+
+        // Sanctuary button is not rendered when completed
+        const sanctuaryButton = screen.queryByLabelText(`Enter Sanctuary for "${mockTask.title}"`);
+        expect(sanctuaryButton).not.toBeInTheDocument();
     });
 });
