@@ -27,7 +27,13 @@ describe('supabase configuration', () => {
   it('throws when Supabase config is missing', async () => {
     clearSupabaseEnv()
     vi.resetModules()
-    await expect(import('../lib/supabase')).rejects.toThrow(/Supabase configuration missing/)
+    const originalNodeEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production' // Force production env to trigger the error
+    try {
+      await expect(import('../lib/supabase')).rejects.toThrow(/Supabase configuration missing/)
+    } finally {
+      process.env.NODE_ENV = originalNodeEnv
+    }
   })
 
   it('initializes when Supabase config is present', async () => {
