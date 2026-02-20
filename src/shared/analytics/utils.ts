@@ -6,6 +6,14 @@
 // GA4 Measurement ID - Replace with your actual ID
 const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
 
+/**
+ * Validates Google Analytics ID format
+ * Expected format: G-XXXXXXXXXX, UA-XXXXXXXX-X, or YT-XXXXXXXX
+ */
+function isValidGaId(id: string): boolean {
+  return /^(G|UA|YT)-[A-Z0-9-]+$/.test(id);
+}
+
 // Declare gtag for TypeScript
 declare global {
   interface Window {
@@ -25,6 +33,11 @@ declare global {
 export function initializeAnalytics(): void {
   if (!GA_MEASUREMENT_ID) {
     console.warn('GA_MEASUREMENT_ID not found. Analytics disabled.');
+    return;
+  }
+
+  if (!isValidGaId(GA_MEASUREMENT_ID)) {
+    console.error('Invalid GA_MEASUREMENT_ID format. Analytics disabled.');
     return;
   }
 
