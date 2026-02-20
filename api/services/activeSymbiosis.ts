@@ -16,6 +16,7 @@ export const activeSymbiosis = {
                 // list returns array, need to find specific one. Ideally habitsService.get(id)
                 // Optimization: habitsService.get(id) doesn't exist yet, we iterate or add it.
                 // For now, let's assume we can filter.
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const targetHabit = (habit as any[]).find((h: any) => h.id === habitId)
 
                 if (targetHabit?.attribute) {

@@ -4,15 +4,23 @@ import { authApi } from '../api/auth.api';
 import { AuthContext } from './AuthContext';
 import { clearAuthToken, setAuthToken } from '@/shared/api/authToken';
 import { normalizeEmail, normalizeName } from '@/shared/lib/normalize';
-import type { LoginRequest, RegisterRequest, User } from '@/shared/types';
+import type { LoginRequest, RegisterRequest } from '@/shared/types';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
 
   // Hydrate initial user from localStorage for immediate feedback
-  const getInitialUser = (): User | null => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getInitialUser = (): any => {
     const cached = localStorage.getItem('auth_user');
-    return cached ? JSON.parse(cached) : null;
+    if (!cached) return undefined;
+    try {
+      return JSON.parse(cached);
+    } catch {
+      console.warn('[AuthProvider] Failed to parse cached user, clearing storage');
+      localStorage.removeItem('auth_user');
+      return undefined;
+    }
   };
 
   const { data: user, isLoading, isFetching } = useQuery({

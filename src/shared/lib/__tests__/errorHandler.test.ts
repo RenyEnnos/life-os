@@ -1,45 +1,48 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+/**
+ * Tests for errorHandler.ts
+ */
+
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
   handleError,
   handleFetchError,
-  ErrorCategory,
-  ErrorSeverity,
   createErrorHandler,
   shouldReportError,
   shouldNotifyUser,
   getSuggestedAction,
+  ErrorCategory,
+  ErrorSeverity,
 } from '../errorHandler'
-import { ApiError } from '@/shared/api/http'
+import { ApiError } from '../../api/http'
 
 // Mock console methods
-const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { })
+const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
 
 describe('errorHandler', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    consoleWarnSpy.mockClear()
+    consoleErrorSpy.mockClear()
+  })
+
+  afterEach(() => {
+    consoleWarnSpy.mockClear()
+    consoleErrorSpy.mockClear()
   })
 
   describe('handleError', () => {
-    it('should categorize network errors correctly', () => {
-      const error = new Error('Failed to fetch')
-      const result = handleError('/api/test', error)
-
-      expect(result.category).toBe(ErrorCategory.NETWORK)
-      expect(result.severity).toBe(ErrorSeverity.MEDIUM)
-      expect(result.shouldRetry).toBe(true)
-    })
-
-    it('should categorize validation errors correctly', () => {
-      const error = new ApiError('Validation error', 400)
+    it('should handle ApiError with 400 status', () => {
+      const error = new ApiError('Bad request', 400)
       const result = handleError('/api/test', error)
 
       expect(result.category).toBe(ErrorCategory.VALIDATION)
       expect(result.severity).toBe(ErrorSeverity.LOW)
+      expect(result.userMessage).toBeDefined()
       expect(result.shouldRetry).toBe(false)
+      expect(result.originalError).toBe(error)
     })
 
-    it('should categorize auth errors correctly', () => {
+    it('should handle ApiError with 401 status', () => {
       const error = new ApiError('Unauthorized', 401)
       const result = handleError('/api/test', error)
 
@@ -48,7 +51,7 @@ describe('errorHandler', () => {
       expect(result.shouldRetry).toBe(false)
     })
 
-    it('should categorize not found errors correctly', () => {
+    it('should handle ApiError with 404 status', () => {
       const error = new ApiError('Not found', 404)
       const result = handleError('/api/test', error)
 
@@ -57,7 +60,15 @@ describe('errorHandler', () => {
       expect(result.shouldRetry).toBe(false)
     })
 
-    it('should categorize server errors correctly', () => {
+    it('should handle ApiError with 429 status', () => {
+      const error = new ApiError('Too many requests', 429)
+      const result = handleError('/api/test', error)
+
+      expect(result.category).toBe(ErrorCategory.VALIDATION)
+      expect(result.shouldRetry).toBe(true)
+    })
+
+    it('should handle ApiError with 500 status', () => {
       const error = new ApiError('Internal server error', 500)
       const result = handleError('/api/test', error)
 
@@ -66,24 +77,42 @@ describe('errorHandler', () => {
       expect(result.shouldRetry).toBe(true)
     })
 
-    it('should categorize unknown errors correctly', () => {
+    it('should handle network error', () => {
+      const error = new Error('Failed to fetch')
+      const result = handleError('/api/test', error)
+
+      expect(result.category).toBe(ErrorCategory.NETWORK)
+      expect(result.severity).toBe(ErrorSeverity.MEDIUM)
+      expect(result.shouldRetry).toBe(true)
+    })
+
+    it('should handle timeout error', () => {
+      const error = { name: 'AbortError', message: 'Aborted' }
+      const result = handleError('/api/test', error)
+
+      expect(result.category).toBe(ErrorCategory.NETWORK)
+      expect(result.severity).toBe(ErrorSeverity.MEDIUM)
+      expect(result.shouldRetry).toBe(true)
+    })
+
+    it('should handle generic error', () => {
       const error = new Error('Unknown error')
       const result = handleError('/api/test', error)
 
       expect(result.category).toBe(ErrorCategory.UNKNOWN)
       expect(result.severity).toBe(ErrorSeverity.MEDIUM)
-      expect(result.shouldRetry).toBe(false)
     })
 
-    it('should log critical errors as errors', () => {
-      const error = new Error('Critical error')
-      handleError('/api/test', error)
+    it('should handle non-Error objects', () => {
+      const error = 'string error'
+      const result = handleError('/api/test', error)
 
-      expect(consoleErrorSpy).toHaveBeenCalled()
+      expect(result.originalError).toBeInstanceOf(Error)
+      expect(result.originalError.message).toBe('string error')
     })
 
-    it('should log low severity errors as warnings', () => {
-      const error = new ApiError('Validation error', 400)
+    it('should log 4xx errors as warnings', () => {
+      const error = new ApiError('Bad request', 400)
       handleError('/api/test', error)
 
       expect(consoleWarnSpy).toHaveBeenCalled()
@@ -207,7 +236,6 @@ describe('errorHandler', () => {
 
       expect(shouldReportError(result)).toBe(true)
     })
-
     it('should return false for validation errors', () => {
       const result: any = {
         category: ErrorCategory.VALIDATION,

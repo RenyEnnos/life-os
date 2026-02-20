@@ -5,7 +5,6 @@ import {
     isMorning,
     filterTasksByDynamicNow,
     applyDynamicNowFilter,
-    type FilterResult,
     type ActualTimeBlock
 } from '../dynamicNow';
 
@@ -119,7 +118,7 @@ describe('filterTasksByDynamicNow - Evening rule', () => {
     ];
 
     it('should hide high-energy tasks after 18:00', () => {
-        const result = filterTasksByDynamicNow(tasks, 18);
+        const result = filterTasksByDynamicNow(tasks as any, 18);
 
         expect(result.visibleTasks).toHaveLength(3);
         expect(result.hiddenTasks).toHaveLength(1);
@@ -128,7 +127,7 @@ describe('filterTasksByDynamicNow - Evening rule', () => {
     });
 
     it('should provide correct reason for hiding high-energy tasks', () => {
-        const result = filterTasksByDynamicNow(tasks, 19);
+        const result = filterTasksByDynamicNow(tasks as any, 19);
 
         expect(result.hiddenReason).toBe('1 high-energy task hidden after 6pm');
     });
@@ -140,7 +139,7 @@ describe('filterTasksByDynamicNow - Evening rule', () => {
             { id: '3', title: 'Medium', energy_level: 'medium' },
         ];
 
-        const result = filterTasksByDynamicNow(multipleHighTasks, 20);
+        const result = filterTasksByDynamicNow(multipleHighTasks as any, 20);
 
         expect(result.hiddenReason).toBe('2 high-energy tasks hidden after 6pm');
     });
@@ -151,7 +150,7 @@ describe('filterTasksByDynamicNow - Evening rule', () => {
             { id: '2', title: 'Medium', energy_level: 'medium' },
         ];
 
-        const result = filterTasksByDynamicNow(noHighTasks, 18);
+        const result = filterTasksByDynamicNow(noHighTasks as any, 18);
 
         expect(result.hiddenReason).toBeNull();
     });
@@ -162,7 +161,7 @@ describe('filterTasksByDynamicNow - Evening rule', () => {
             { id: '2', title: 'Task 2' },
         ];
 
-        const result = filterTasksByDynamicNow(tasksWithoutEnergy, 18);
+        const result = filterTasksByDynamicNow(tasksWithoutEnergy as any, 18);
 
         expect(result.visibleTasks).toHaveLength(2);
         expect(result.hiddenTasks).toHaveLength(0);
@@ -179,7 +178,7 @@ describe('filterTasksByDynamicNow - Morning rule', () => {
     ];
 
     it('should prioritize morning tasks before 09:00', () => {
-        const result = filterTasksByDynamicNow(tasks, 8);
+        const result = filterTasksByDynamicNow(tasks as any, 8);
 
         expect(result.visibleTasks).toHaveLength(5);
         expect(result.visibleTasks[0].id).toBe('1'); // Morning task first
@@ -188,14 +187,14 @@ describe('filterTasksByDynamicNow - Morning rule', () => {
     });
 
     it('should not hide tasks in the morning', () => {
-        const result = filterTasksByDynamicNow(tasks, 6);
+        const result = filterTasksByDynamicNow(tasks as any, 6);
 
         expect(result.visibleTasks).toHaveLength(5);
         expect(result.hiddenTasks).toHaveLength(0);
     });
 
     it('should handle tasks with no time_block', () => {
-        const result = filterTasksByDynamicNow(tasks, 7);
+        const result = filterTasksByDynamicNow(tasks as any, 7);
 
         expect(result.visibleTasks).toHaveLength(5);
         expect(result.visibleTasks[0].id).toBe('1');
@@ -211,7 +210,7 @@ describe('filterTasksByDynamicNow - Default behavior', () => {
 
     it('should not filter during mid-day hours (9-17)', () => {
         for (let hour = 9; hour <= 17; hour++) {
-            const result = filterTasksByDynamicNow(tasks, hour);
+            const result = filterTasksByDynamicNow(tasks as any, hour);
 
             expect(result.visibleTasks).toHaveLength(3);
             expect(result.hiddenTasks).toHaveLength(0);
@@ -232,10 +231,10 @@ describe('filterTasksByDynamicNow - Default behavior', () => {
             { id: '1', title: 'High morning', energy_level: 'high', time_block: 'morning' },
         ];
 
-        const morningResult = filterTasksByDynamicNow(mixedTasks, 8);
+        const morningResult = filterTasksByDynamicNow(mixedTasks as any, 8);
         expect(morningResult.visibleTasks).toHaveLength(1);
 
-        const eveningResult = filterTasksByDynamicNow(mixedTasks, 18);
+        const eveningResult = filterTasksByDynamicNow(mixedTasks as any, 18);
         expect(eveningResult.visibleTasks).toHaveLength(0);
         expect(eveningResult.hiddenTasks).toHaveLength(1);
     });
@@ -248,7 +247,7 @@ describe('applyDynamicNowFilter', () => {
     ];
 
     it('should return all tasks unchanged when disabled', () => {
-        const result = applyDynamicNowFilter(tasks, false);
+        const result = applyDynamicNowFilter(tasks as any, false);
 
         expect(result.visibleTasks).toHaveLength(2);
         expect(result.hiddenTasks).toHaveLength(0);
@@ -256,7 +255,7 @@ describe('applyDynamicNowFilter', () => {
     });
 
     it('should apply filtering when enabled', () => {
-        const result = applyDynamicNowFilter(tasks, true, false);
+        const result = applyDynamicNowFilter(tasks as any, true, false);
 
         // Since we don't control the hour, we just verify it runs
         expect(Array.isArray(result.visibleTasks)).toBe(true);
@@ -265,11 +264,11 @@ describe('applyDynamicNowFilter', () => {
 
     it('should show hidden tasks when showHidden is true', () => {
         // Mock the hour by testing with a known evening time
-        const resultWithEvening = filterTasksByDynamicNow(tasks, 18);
+        const resultWithEvening = filterTasksByDynamicNow(tasks as any, 18);
         expect(resultWithEvening.hiddenTasks).toHaveLength(1);
 
         // Now test applyDynamicNowFilter with showHidden
-        const result = applyDynamicNowFilter(tasks, true, true);
+        const result = applyDynamicNowFilter(tasks as any, true, true);
 
         // All tasks should be visible when showHidden is true (if it's evening)
         // or all visible if not evening
@@ -278,7 +277,7 @@ describe('applyDynamicNowFilter', () => {
 
     it('should maintain hiddenReason when showHidden is true', () => {
         // Test with explicit evening hour
-        const result = filterTasksByDynamicNow(tasks, 18);
+        const result = filterTasksByDynamicNow(tasks as any, 18);
         expect(result.hiddenReason).toBeTruthy();
     });
 
@@ -292,7 +291,7 @@ describe('applyDynamicNowFilter', () => {
 
     it('should respect currentHour when provided', () => {
         const result = applyDynamicNowFilter(
-            [{ id: '1', title: 'High', energy_level: 'high' }],
+            [{ id: '1', title: 'High', energy_level: 'high' }] as any,
             true,
             false
         );
@@ -310,19 +309,19 @@ describe('edge cases', () => {
     ];
 
     it('should handle boundary hour 18 correctly', () => {
-        const result = filterTasksByDynamicNow(tasks, 18);
+        const result = filterTasksByDynamicNow(tasks as any, 18);
         expect(result.hiddenTasks).toHaveLength(1);
         expect(result.hiddenTasks[0].id).toBe('1');
     });
 
     it('should handle boundary hour 9 correctly', () => {
-        const result = filterTasksByDynamicNow(tasks, 9);
+        const result = filterTasksByDynamicNow(tasks as any, 9);
         expect(result.visibleTasks).toHaveLength(2);
         expect(result.hiddenTasks).toHaveLength(0);
     });
 
     it('should handle hour 0 correctly', () => {
-        const result = filterTasksByDynamicNow(tasks, 0);
+        const result = filterTasksByDynamicNow(tasks as any, 0);
         // Hour 0 is morning, not evening
         expect(result.visibleTasks[0].id).toBe('2');
     });
@@ -333,7 +332,7 @@ describe('edge cases', () => {
             { id: '2', title: 'Task 2', energy_level: 'high' },
         ];
 
-        const result = filterTasksByDynamicNow(tasksWithUndefined, 18);
+        const result = filterTasksByDynamicNow(tasksWithUndefined as any, 18);
         expect(result.visibleTasks).toHaveLength(1);
         expect(result.hiddenTasks).toHaveLength(1);
     });
@@ -344,7 +343,7 @@ describe('edge cases', () => {
             { id: '2', title: 'High 2', energy_level: 'high' },
         ];
 
-        const result = filterTasksByDynamicNow(allHighTasks, 18);
+        const result = filterTasksByDynamicNow(allHighTasks as any, 18);
         expect(result.visibleTasks).toHaveLength(0);
         expect(result.hiddenTasks).toHaveLength(2);
     });
@@ -355,7 +354,7 @@ describe('edge cases', () => {
             { id: '2', title: 'Low 2', energy_level: 'medium' },
         ];
 
-        const result = filterTasksByDynamicNow(allLowTasks, 18);
+        const result = filterTasksByDynamicNow(allLowTasks as any, 18);
         expect(result.visibleTasks).toHaveLength(2);
         expect(result.hiddenTasks).toHaveLength(0);
         expect(result.hiddenReason).toBeNull();

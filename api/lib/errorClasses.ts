@@ -99,9 +99,12 @@ export class ConflictError extends AppError {
  * Used when rate limit is exceeded (429 Too Many Requests)
  */
 export class RateLimitError extends AppError {
+    public retryAfter?: number;
+
     constructor(message: string = 'Rate limit exceeded', retryAfter?: number) {
         super(message, 429, 'RATE_LIMIT_ERROR');
         this.name = 'RateLimitError';
+        this.retryAfter = retryAfter;
     }
 }
 

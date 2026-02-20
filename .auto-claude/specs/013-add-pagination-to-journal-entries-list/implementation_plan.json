@@ -1,0 +1,341 @@
+{
+  "feature": "Add Pagination to Journal Entries List",
+  "description": "Implement pagination for the journal entries list view using the existing pagination pattern from the finances API. The journal currently lists all entries without pagination, which will cause performance issues as users accumulate entries.",
+  "workflow_type": "feature",
+  "workflow_rationale": "This is a feature addition that follows a clear dependency chain: backend pagination must be implemented first, then the frontend can consume the paginated API, and finally the UI can display pagination controls. Each phase depends on the previous one completing.",
+  "phases": [
+    {
+      "id": "phase-1-backend",
+      "name": "Backend API Pagination",
+      "type": "implementation",
+      "description": "Add pagination support to the journal service and API route using the existing getPagination helper from api/lib/pagination.ts",
+      "depends_on": [],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-1-1",
+          "description": "Add PaginatedResponse type to shared/types.ts for consistent pagination response structure",
+          "service": "backend",
+          "files_to_modify": [
+            "shared/types.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "shared/types.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "grep -q 'PaginatedResponse' shared/types.ts && echo 'PaginatedResponse type exists' || echo 'Type not found'",
+            "expected": "PaginatedResponse type exists"
+          },
+          "status": "completed"
+        },
+        {
+          "id": "subtask-1-2",
+          "description": "Update journalService.list() to support pagination parameters and return paginated response with total count",
+          "service": "backend",
+          "files_to_modify": [
+            "api/services/journalService.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "api/routes/finances.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "grep -q 'getPagination\\|range(from' api/services/journalService.ts && echo 'Pagination pattern found' || echo 'Not found'",
+            "expected": "Pagination pattern found"
+          },
+          "status": "completed"
+        },
+        {
+          "id": "subtask-1-3",
+          "description": "Update journal API route to pass query parameters to service and handle pagination response",
+          "service": "backend",
+          "files_to_modify": [
+            "api/routes/journal.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "api/routes/finances.ts"
+          ],
+          "verification": {
+            "type": "api",
+            "method": "GET",
+            "url": "http://localhost:3000/api/journal?page=1&pageSize=10",
+            "expected_status": 200
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": "phase-2-frontend-api",
+      "name": "Frontend API Client",
+      "type": "implementation",
+      "description": "Update the journal API client to support page and pageSize parameters",
+      "depends_on": [
+        "phase-1-backend"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-2-1",
+          "description": "Update journalApi.list() to accept page and pageSize parameters",
+          "service": "frontend",
+          "files_to_modify": [
+            "src/features/journal/api/journal.api.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "src/features/journal/api/journal.api.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "grep -q 'page.*pageSize\\|pageSize' src/features/journal/api/journal.api.ts && echo 'Pagination params found' || echo 'Not found'",
+            "expected": "Pagination params found"
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": "phase-3-frontend-data",
+      "name": "Frontend Data Layer",
+      "type": "implementation",
+      "description": "Update the useJournal hook to manage pagination state and pass params to API",
+      "depends_on": [
+        "phase-2-frontend-api"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-3-1",
+          "description": "Update useJournal hook to manage page/pageSize state and pass to journalApi.list()",
+          "service": "frontend",
+          "files_to_modify": [
+            "src/features/journal/hooks/useJournal.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "src/features/journal/hooks/useJournal.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "grep -q 'useState.*page\\|useState.*pageSize' src/features/journal/hooks/useJournal.ts && echo 'Pagination state found' || echo 'Not found'",
+            "expected": "Pagination state found"
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": "phase-4-frontend-ui",
+      "name": "Frontend UI Components",
+      "type": "implementation",
+      "description": "Create reusable Pagination component and integrate with JournalEntryList",
+      "depends_on": [
+        "phase-3-frontend-data"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-4-1",
+          "description": "Create reusable Pagination component in src/shared/ui/Pagination.tsx with prev/next buttons and page indicator",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/shared/ui/Pagination.tsx"
+          ],
+          "patterns_from": [
+            "src/shared/ui/Button.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "test -f src/shared/ui/Pagination.tsx && echo 'Pagination component exists' || echo 'Not found'",
+            "expected": "Pagination component exists"
+          },
+          "status": "completed"
+        },
+        {
+          "id": "subtask-4-2",
+          "description": "Update JournalEntryList to accept pagination props and render Pagination component",
+          "service": "frontend",
+          "files_to_modify": [
+            "src/features/journal/components/JournalEntryList.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "src/features/journal/components/JournalEntryList.tsx"
+          ],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:5173/journal",
+            "checks": [
+              "Pagination controls are visible",
+              "No console errors"
+            ]
+          },
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-5-testing",
+      "name": "Testing",
+      "type": "integration",
+      "description": "Update and add tests for pagination functionality",
+      "depends_on": [
+        "phase-1-backend",
+        "phase-4-frontend-ui"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-5-1",
+          "description": "Add backend test for journal API pagination with page/pageSize parameters",
+          "service": "backend",
+          "files_to_modify": [
+            "api/tests/routes.journal.test.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "api/tests/routes.tasks.test.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm run test -- api/tests/routes.journal.test.ts",
+            "expected": "tests pass"
+          },
+          "status": "pending"
+        },
+        {
+          "id": "subtask-5-2",
+          "description": "Update JournalPage integration test to verify pagination works end-to-end",
+          "service": "frontend",
+          "files_to_modify": [
+            "src/features/journal/__tests__/JournalPage.int.test.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "src/features/journal/__tests__/JournalPage.int.test.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm run test:integration -- JournalPage",
+            "expected": "tests pass"
+          },
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_phases": 5,
+    "total_subtasks": 9,
+    "services_involved": [
+      "backend",
+      "frontend"
+    ],
+    "parallelism": {
+      "max_parallel_phases": 1,
+      "parallel_groups": [],
+      "recommended_workers": 1,
+      "speedup_estimate": "Sequential execution - each phase depends on previous completion"
+    },
+    "startup_command": "npm run dev"
+  },
+  "verification_strategy": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "test_creation_phase": "post_implementation",
+    "test_types_required": [
+      "unit",
+      "integration"
+    ],
+    "security_scanning_required": false,
+    "staging_deployment_required": false,
+    "acceptance_criteria": [
+      "Backend API returns paginated journal entries with total count",
+      "Frontend displays pagination controls",
+      "Page navigation works correctly",
+      "All existing tests pass",
+      "New pagination tests pass"
+    ],
+    "verification_steps": [
+      {
+        "name": "Backend API Pagination",
+        "command": "curl -H 'Authorization: Bearer $TOKEN' 'http://localhost:3000/api/journal?page=1&pageSize=10'",
+        "expected_outcome": "Returns entries array with pagination metadata",
+        "type": "manual",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Unit Tests",
+        "command": "npm run test",
+        "expected_outcome": "All tests pass",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Integration Tests",
+        "command": "npm run test:integration",
+        "expected_outcome": "Integration tests pass",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      }
+    ],
+    "reasoning": "Medium risk change involves modifying API contract and adding new UI components. Unit and integration tests required to ensure pagination works correctly without breaking existing functionality."
+  },
+  "qa_acceptance": {
+    "unit_tests": {
+      "required": true,
+      "commands": [
+        "npm run test"
+      ],
+      "minimum_coverage": null
+    },
+    "integration_tests": {
+      "required": true,
+      "commands": [
+        "npm run test:integration"
+      ],
+      "services_to_test": [
+        "backend",
+        "frontend"
+      ]
+    },
+    "e2e_tests": {
+      "required": false,
+      "commands": [],
+      "flows": []
+    },
+    "browser_verification": {
+      "required": true,
+      "pages": [
+        {
+          "url": "http://localhost:5173/journal",
+          "checks": [
+            "Pagination controls render",
+            "Next/Previous buttons work",
+            "Page indicator displays correctly"
+          ]
+        }
+      ]
+    },
+    "database_verification": {
+      "required": false,
+      "checks": []
+    }
+  },
+  "qa_signoff": null,
+  "status": "queue",
+  "planStatus": "queued",
+  "xstateState": "error",
+  "executionPhase": "failed",
+  "updated_at": "2026-02-20T20:48:54.695Z",
+  "reviewReason": "errors"
+}

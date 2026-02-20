@@ -1,17 +1,37 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { tasksApi } from '../api/tasks.api';
 import { Task } from '../types';
+
+const PAGE_SIZE = 50;
 
 export function useTasks() {
     const { user } = useAuth();
     const queryClient = useQueryClient();
 
-    const { data: tasks, isLoading } = useQuery<Task[]>({
-        queryKey: ['tasks', user?.id],
-        queryFn: () => tasksApi.getAll(),
+    const {
+        data: infiniteData,
+        isLoading,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useInfiniteQuery<Task[]>({
+        queryKey: ['tasks', user?.id, 'infinite'],
+        queryFn: async ({ pageParam }) => {
+            const pageNum = typeof pageParam === 'number' ? pageParam : 1;
+            return tasksApi.getPaginated(pageNum, PAGE_SIZE);
+        },
         enabled: !!user,
+        initialPageParam: 1,
+        getNextPageParam: (lastPage, allPages) => {
+            if (lastPage.length < PAGE_SIZE) {
+                return undefined;
+            }
+            return allPages.length + 1;
+        },
     });
+
+    const tasks = infiniteData?.pages.flatMap((page) => page) ?? [];
 
     const createTask = useMutation({
         mutationFn: tasksApi.create,
@@ -38,6 +58,9 @@ export function useTasks() {
     return {
         tasks,
         isLoading,
+        isFetchingNextPage,
+        hasNextPage,
+        fetchNextPage,
         createTask,
         updateTask,
         deleteTask,

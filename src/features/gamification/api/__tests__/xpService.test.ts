@@ -111,19 +111,19 @@ describe("xpService", () => {
       expect(userXP?.user_id).toBe("user-123")
       expect(userXP?.total_xp).toBe(500)
       expect(userXP?.level).toBe(2)
-      expect(userXP?.attributes.body).toBe(100)
-      expect(userXP?.attributes.mind).toBe(150)
-      expect(userXP?.attributes.spirit).toBe(100)
-      expect(userXP?.attributes.output).toBe(150)
+      expect((userXP?.attributes as any)?.body).toBe(100)
+      expect((userXP?.attributes as any)?.mind).toBe(150)
+      expect((userXP?.attributes as any)?.spirit).toBe(100)
+      expect((userXP?.attributes as any)?.output).toBe(150)
     })
 
     it("includes XP history in user data", async () => {
       const userXP = await getUserXP("user-123")
       expect(userXP?.xp_history).toBeDefined()
-      expect(userXP?.xp_history.length).toBe(3)
-      expect(userXP?.xp_history[0].amount).toBe(50)
-      expect(userXP?.xp_history[0].category).toBe("body")
-      expect(userXP?.xp_history[0].source).toBe("exercise")
+      expect((userXP?.xp_history as any[])?.length).toBe(3)
+      expect((userXP?.xp_history as any[])?.[0].amount).toBe(50)
+      expect((userXP?.xp_history as any[])?.[0].category).toBe("body")
+      expect((userXP?.xp_history as any[])?.[0].source).toBe("exercise")
     })
 
     it("returns null when API returns no data", async () => {
@@ -142,10 +142,10 @@ describe("xpService", () => {
       })
 
       const userXP = await getUserXP("user-123")
-      expect(userXP?.attributes.body).toBe(0)
-      expect(userXP?.attributes.mind).toBe(0)
-      expect(userXP?.attributes.spirit).toBe(0)
-      expect(userXP?.attributes.output).toBe(0)
+      expect((userXP?.attributes as any)?.body).toBe(0)
+      expect((userXP?.attributes as any)?.mind).toBe(0)
+      expect((userXP?.attributes as any)?.spirit).toBe(0)
+      expect((userXP?.attributes as any)?.output).toBe(0)
     })
   })
 

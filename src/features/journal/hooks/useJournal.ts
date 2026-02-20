@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { journalApi } from '../api/journal.api';
 import type { JournalEntry } from '@/shared/types';
@@ -6,10 +7,12 @@ import type { JournalEntry } from '@/shared/types';
 export function useJournal() {
     const { user } = useAuth();
     const queryClient = useQueryClient();
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
     const { data: entries, isLoading } = useQuery<JournalEntry[]>({
-        queryKey: ['journal', user?.id],
-        queryFn: async () => journalApi.list(),
+        queryKey: ['journal', user?.id, page, pageSize],
+        queryFn: async () => journalApi.list(undefined, undefined, page, pageSize),
         enabled: !!user,
     });
 
@@ -41,5 +44,9 @@ export function useJournal() {
         createEntry,
         updateEntry,
         deleteEntry,
+        page,
+        setPage,
+        pageSize,
+        setPageSize,
     };
 }

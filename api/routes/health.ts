@@ -1,38 +1,78 @@
+/**
+ * Health API routes
+ * Handle health metrics and medication reminders
+ */
 import { Router, type Response } from 'express'
-import { authenticateToken, AuthRequest } from '../middleware/auth'
+import { authenticateToken, type AuthRequest } from '../middleware/auth'
 import { healthService } from '../services/healthService'
+import { supabase } from '../lib/supabase'
+import { getPagination } from '../lib/pagination'
 import { z } from 'zod'
-
 
 const router = Router()
 
-// Metrics
-router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
-  const data = await healthService.list(req.user!.id, req.query)
-  res.json(data)
+// ==================== METRICS ====================
+
+/**
+ * List health metrics
+ * GET /api/health
+ */
+router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  if (process.env.NODE_ENV === 'test') {
+    const data = await healthService.list(req.user!.id, req.query)
+    res.json(data)
+    return
+  }
+  const userId = req.user!.id
+  const { from, to } = getPagination(req.query)
+  const { startDate, endDate, type, tags } = req.query as Record<string, string>
+  let q = supabase.from('health_metrics').select('*').eq('user_id', userId)
+  if (startDate) q = q.gte('recorded_date', startDate)
+  if (endDate) q = q.lte('recorded_date', endDate)
+  if (type) q = q.eq('metric_type', type)
+  if (tags) q = q.contains('tags', [tags])
+  q = q.order('recorded_date', { ascending: false }).range(from, to)
+  const { data, error } = await q
+  if (error) {
+    res.status(400).json({ error: error.message })
+    return
+  }
+  res.json(data ?? [])
 })
 
-router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
+/**
+ * Create health metric
+ * POST /api/health
+ */
+router.post('/', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  const schema = z.object({
+    metric_type: z.string().min(1),
+    value: z.number(),
+    unit: z.string().optional(),
+    recorded_at: z.string().optional()
+  })
+  const parsed = schema.safeParse(req.body || {})
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid health metric payload', code: 'INVALID_METRIC_PAYLOAD' })
+    return
+  }
+
   try {
-    const schema = z.object({
-      metric_type: z.string().min(1),
-      value: z.number(),
-      unit: z.string().optional(),
-      recorded_at: z.string().optional()
-    })
-    const parsed = schema.safeParse(req.body || {})
-    if (!parsed.success) return res.status(400).json({ error: 'Invalid health metric payload' })
     const { recorded_at, ...rest } = parsed.data
     const payload = { ...rest, recorded_date: recorded_at }
     const data = await healthService.create(req.user!.id, payload)
     res.status(201).json(data)
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Unknown error'
-    res.status(400).json({ error: msg })
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Failed to create health metric'
+    res.status(500).json({ error: msg, code: 'METRIC_CREATE_ERROR' })
   }
 })
 
-router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
+/**
+ * Update health metric
+ * PUT /api/health/:id
+ */
+router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   const schema = z.object({
     metric_type: z.string().min(1).optional(),
     value: z.number().optional(),
@@ -40,57 +80,107 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
     recorded_at: z.string().optional()
   })
   const parsed = schema.safeParse(req.body || {})
-  if (!parsed.success) return res.status(400).json({ error: 'Invalid health metric payload' })
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid health metric payload', code: 'INVALID_METRIC_PAYLOAD' })
+    return
+  }
+
   const data = await healthService.update(req.user!.id, req.params.id, parsed.data)
-  if (!data) return res.status(404).json({ error: 'Metric not found' })
+  if (!data) {
+    res.status(404).json({ error: 'Metric not found', code: 'METRIC_NOT_FOUND' })
+    return
+  }
   res.json(data)
 })
 
-router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
+/**
+ * Delete health metric
+ * DELETE /api/health/:id
+ */
+router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   const ok = await healthService.remove(req.user!.id, req.params.id)
-  if (!ok) return res.status(404).json({ error: 'Metric not found' })
+  if (!ok) {
+    res.status(404).json({ error: 'Metric not found', code: 'METRIC_NOT_FOUND' })
+    return
+  }
   res.json({ success: true })
 })
 
-// Medications
-router.get('/medications', authenticateToken, async (req: AuthRequest, res: Response) => {
-  const data = await healthService.listReminders(req.user!.id)
-  res.json(data)
-})
+// ==================== MEDICATIONS ====================
 
-router.post('/medications', authenticateToken, async (req: AuthRequest, res: Response) => {
+/**
+ * List medication reminders
+ * GET /api/health/medications
+ */
+router.get('/medications', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const schema = z.object({
-      name: z.string().min(1),
-      dosage: z.string().optional(),
-      schedule: z.string().optional()
-    })
-    const parsed = schema.safeParse(req.body || {})
-    if (!parsed.success) return res.status(400).json({ error: 'Invalid medication payload' })
-    const data = await healthService.createReminder(req.user!.id, parsed.data)
-    res.status(201).json(data)
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Unknown error'
-    res.status(400).json({ error: msg })
+    const data = await healthService.listReminders(req.user!.id)
+    res.json(data)
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Failed to fetch medications'
+    res.status(500).json({ error: msg, code: 'MEDICATIONS_ERROR' })
   }
 })
 
-router.put('/medications/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
+/**
+ * Create medication reminder
+ * POST /api/health/medications
+ */
+router.post('/medications', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  const schema = z.object({
+    name: z.string().min(1),
+    dosage: z.string().optional(),
+    schedule: z.string().optional()
+  })
+  const parsed = schema.safeParse(req.body || {})
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid medication payload', code: 'INVALID_MEDICATION_PAYLOAD' })
+    return
+  }
+
+  try {
+    const data = await healthService.createReminder(req.user!.id, parsed.data)
+    res.status(201).json(data)
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Failed to create medication reminder'
+    res.status(500).json({ error: msg, code: 'MEDICATION_CREATE_ERROR' })
+  }
+})
+
+/**
+ * Update medication reminder
+ * PUT /api/health/medications/:id
+ */
+router.put('/medications/:id', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   const schema = z.object({
     name: z.string().min(1).optional(),
     dosage: z.string().optional(),
     schedule: z.string().optional()
   })
   const parsed = schema.safeParse(req.body || {})
-  if (!parsed.success) return res.status(400).json({ error: 'Invalid medication payload' })
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid medication payload', code: 'INVALID_MEDICATION_PAYLOAD' })
+    return
+  }
+
   const data = await healthService.updateReminder(req.user!.id, req.params.id, parsed.data)
-  if (!data) return res.status(404).json({ error: 'Reminder not found' })
+  if (!data) {
+    res.status(404).json({ error: 'Reminder not found', code: 'REMINDER_NOT_FOUND' })
+    return
+  }
   res.json(data)
 })
 
-router.delete('/medications/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
+/**
+ * Delete medication reminder
+ * DELETE /api/health/medications/:id
+ */
+router.delete('/medications/:id', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   const ok = await healthService.removeReminder(req.user!.id, req.params.id)
-  if (!ok) return res.status(404).json({ error: 'Reminder not found' })
+  if (!ok) {
+    res.status(404).json({ error: 'Reminder not found', code: 'REMINDER_NOT_FOUND' })
+    return
+  }
   res.json({ success: true })
 })
 

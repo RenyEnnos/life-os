@@ -16,7 +16,8 @@ const mockAudioContext = {
     createBuffer: vi.fn(),
     createBufferSource: vi.fn(),
     createGain: vi.fn(),
-    currentTime: 0
+    currentTime: 0,
+    destination: {}
 };
 
 const mockAudioBuffer = {

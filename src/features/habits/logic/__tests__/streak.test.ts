@@ -19,42 +19,48 @@ describe('calculateStreak', () => {
         mockLogs = [
             {
                 id: '1',
-                habit_id: 'habit-1',
+                user_id: 'user-123',
+      habit_id: 'habit-1',
                 date: today.toISOString(),
                 value: 1,
                 created_at: today.toISOString(),
             },
             {
                 id: '2',
-                habit_id: 'habit-1',
+                user_id: 'user-123',
+      habit_id: 'habit-1',
                 date: yesterday.toISOString(),
                 value: 1,
                 created_at: yesterday.toISOString(),
             },
             {
                 id: '3',
-                habit_id: 'habit-1',
+                user_id: 'user-123',
+      habit_id: 'habit-1',
                 date: twoDaysAgo.toISOString(),
                 value: 1,
                 created_at: twoDaysAgo.toISOString(),
             },
             {
                 id: '4',
-                habit_id: 'habit-1',
+                user_id: 'user-123',
+      habit_id: 'habit-1',
                 date: threeDaysAgo.toISOString(),
                 value: 1,
                 created_at: threeDaysAgo.toISOString(),
             },
             {
                 id: '5',
-                habit_id: 'habit-2',
+                user_id: 'user-123',
+      habit_id: 'habit-2',
                 date: today.toISOString(),
                 value: 1,
                 created_at: today.toISOString(),
             },
             {
                 id: '6',
-                habit_id: 'habit-1',
+                user_id: 'user-123',
+      habit_id: 'habit-1',
                 date: yesterday.toISOString(),
                 value: 0, // Failed completion
                 created_at: yesterday.toISOString(),
@@ -91,7 +97,8 @@ describe('calculateStreak', () => {
         const oldLogs: HabitLog[] = [
             {
                 id: '1',
-                habit_id: 'habit-1',
+                user_id: 'user-123',
+      habit_id: 'habit-1',
                 date: fourDaysAgo.toISOString(),
                 value: 1,
                 created_at: fourDaysAgo.toISOString(),
@@ -112,14 +119,16 @@ describe('calculateStreak', () => {
         const logsNoToday: HabitLog[] = [
             {
                 id: '1',
-                habit_id: 'habit-3',
+                user_id: 'user-123',
+      habit_id: 'habit-3',
                 date: yesterday.toISOString(),
                 value: 1,
                 created_at: yesterday.toISOString(),
             },
             {
                 id: '2',
-                habit_id: 'habit-3',
+                user_id: 'user-123',
+      habit_id: 'habit-3',
                 date: twoDaysAgo.toISOString(),
                 value: 1,
                 created_at: twoDaysAgo.toISOString(),
@@ -136,14 +145,16 @@ describe('calculateStreak', () => {
         const duplicateLogs: HabitLog[] = [
             {
                 id: '1',
-                habit_id: 'habit-4',
+                user_id: 'user-123',
+      habit_id: 'habit-4',
                 date: today.toISOString(),
                 value: 1,
                 created_at: today.toISOString(),
             },
             {
                 id: '2',
-                habit_id: 'habit-4',
+                user_id: 'user-123',
+      habit_id: 'habit-4',
                 date: today.toISOString(),
                 value: 1,
                 created_at: new Date(today.getTime() + 1000).toISOString(), // Same day, different time
@@ -164,21 +175,24 @@ describe('calculateStreak', () => {
         const gapLogs: HabitLog[] = [
             {
                 id: '1',
-                habit_id: 'habit-5',
+                user_id: 'user-123',
+      habit_id: 'habit-5',
                 date: today.toISOString(),
                 value: 1,
                 created_at: today.toISOString(),
             },
             {
                 id: '2',
-                habit_id: 'habit-5',
+                user_id: 'user-123',
+      habit_id: 'habit-5',
                 date: yesterday.toISOString(),
                 value: 1,
                 created_at: yesterday.toISOString(),
             },
             {
                 id: '3',
-                habit_id: 'habit-5',
+                user_id: 'user-123',
+      habit_id: 'habit-5',
                 date: fourDaysAgo.toISOString(), // Gap: missing 2 and 3 days ago
                 value: 1,
                 created_at: fourDaysAgo.toISOString(),
@@ -198,14 +212,16 @@ describe('calculateStreak', () => {
         const logs: HabitLog[] = [
             {
                 id: '1',
-                habit_id: 'habit-6',
+                user_id: 'user-123',
+      habit_id: 'habit-6',
                 date: today.toISOString(),
                 value: 1,
                 created_at: today.toISOString(),
             },
             {
                 id: '2',
-                habit_id: 'habit-6',
+                user_id: 'user-123',
+      habit_id: 'habit-6',
                 date: yesterday.toISOString(),
                 value: 1,
                 created_at: yesterday.toISOString(),
@@ -222,7 +238,8 @@ describe('calculateStreak', () => {
         const singleDayLogs: HabitLog[] = [
             {
                 id: '1',
-                habit_id: 'habit-7',
+                user_id: 'user-123',
+      habit_id: 'habit-7',
                 date: today.toISOString(),
                 value: 1,
                 created_at: today.toISOString(),
@@ -241,21 +258,24 @@ describe('calculateStreak', () => {
         const mixedValueLogs: HabitLog[] = [
             {
                 id: '1',
-                habit_id: 'habit-8',
+                user_id: 'user-123',
+      habit_id: 'habit-8',
                 date: today.toISOString(),
                 value: 1, // Success
                 created_at: today.toISOString(),
             },
             {
                 id: '2',
-                habit_id: 'habit-8',
+                user_id: 'user-123',
+      habit_id: 'habit-8',
                 date: yesterday.toISOString(),
                 value: 0, // Fail
                 created_at: yesterday.toISOString(),
             },
             {
                 id: '3',
-                habit_id: 'habit-8',
+                user_id: 'user-123',
+      habit_id: 'habit-8',
                 date: yesterday.toISOString(),
                 value: -1, // Another fail
                 created_at: new Date(yesterday.getTime() + 1000).toISOString(),
@@ -277,7 +297,8 @@ describe('calculateStreak', () => {
 
             logs.push({
                 id: `log-${i}`,
-                habit_id: 'habit-9',
+                user_id: 'user-123',
+      habit_id: 'habit-9',
                 date: date.toISOString(),
                 value: 1,
                 created_at: date.toISOString(),
@@ -301,21 +322,24 @@ describe('calculateStreak', () => {
         const yesterdayLogs: HabitLog[] = [
             {
                 id: '1',
-                habit_id: 'habit-10',
+                user_id: 'user-123',
+      habit_id: 'habit-10',
                 date: yesterday.toISOString(),
                 value: 1,
                 created_at: yesterday.toISOString(),
             },
             {
                 id: '2',
-                habit_id: 'habit-10',
+                user_id: 'user-123',
+      habit_id: 'habit-10',
                 date: twoDaysAgo.toISOString(),
                 value: 1,
                 created_at: twoDaysAgo.toISOString(),
             },
             {
                 id: '3',
-                habit_id: 'habit-10',
+                user_id: 'user-123',
+      habit_id: 'habit-10',
                 date: threeDaysAgo.toISOString(),
                 value: 1,
                 created_at: threeDaysAgo.toISOString(),
