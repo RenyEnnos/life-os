@@ -1,9 +1,5 @@
 import 'dotenv/config'
-import express, {
-  type Request,
-  type Response,
-  type NextFunction,
-} from 'express'
+import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import * as Sentry from "@sentry/node";
@@ -148,39 +144,17 @@ import financeCategoriesRoutes from './routes/financeCategories'
 app.use('/api/finance-categories', financeCategoriesRoutes)
 import universityRoutes from './routes/university'
 app.use('/api/university', universityRoutes)
+
 /**
  * error handler middleware
  */
-if (process.env.NODE_ENV === 'production') {
-  // Sentry.setupExpressErrorHandler(app); // specific setup if needed
-}
-app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
-  if (process.env.NODE_ENV === 'production') {
-    Sentry.captureException(error);
-  }
-  if (error?.message === 'CORS_NOT_ALLOWED' || error?.message === 'Not allowed by CORS') {
-    res.status(403).json({
-      success: false,
-      error: 'CORS origin not allowed',
-    })
-    return
-  }
-  void next
-  res.status(500).json({
-    success: false,
-    error: 'Server internal error',
-  })
-})
+import { errorHandler, notFoundHandler } from './middleware/errorHandler'
 
-/**
- * 404 handler
- */
-app.use((req: Request, res: Response) => {
-  res.status(404).json({
-    success: false,
-    error: 'API not found',
-  })
-})
+// Error handler (must be after all routes)
+app.use(errorHandler)
+
+// 404 handler (must be last)
+app.use(notFoundHandler)
 
 // Initialize Active Intelligence
 import { activeSymbiosis } from './services/activeSymbiosis'
