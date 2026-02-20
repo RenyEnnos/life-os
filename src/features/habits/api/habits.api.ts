@@ -1,4 +1,4 @@
-import { apiClient, ApiError } from '@/shared/api/http';
+import { apiClient } from '@/shared/api/http';
 import { Habit } from '../types';
 
 type HabitLogResponse = {
@@ -57,13 +57,8 @@ export const habitsApi = {
      */
     list: async (userId?: string): Promise<Habit[]> => {
         void userId;
-        try {
-            const data = await apiClient.get<Habit[]>('/api/habits');
-            return data;
-        } catch (error) {
-            // Re-throw to let UI layer handle with user-friendly messages
-            throw error;
-        }
+        const data = await apiClient.get<Habit[]>('/api/habits');
+        return data;
     },
 
     /**
@@ -76,13 +71,8 @@ export const habitsApi = {
         // Validate input before making request
         validateHabitData(habit, true);
 
-        try {
-            const data = await apiClient.post<Habit>('/api/habits', habit);
-            return data;
-        } catch (error) {
-            // Re-throw to let UI layer handle with user-friendly messages
-            throw error;
-        }
+        const data = await apiClient.post<Habit>('/api/habits', habit);
+        return data;
     },
 
     /**
@@ -97,13 +87,8 @@ export const habitsApi = {
         validateHabitId(id);
         validateHabitData(updates, false);
 
-        try {
-            const data = await apiClient.put<Habit>(`/api/habits/${id}`, updates);
-            return data;
-        } catch (error) {
-            // Re-throw to let UI layer handle with user-friendly messages
-            throw error;
-        }
+        const data = await apiClient.put<Habit>(`/api/habits/${id}`, updates);
+        return data;
     },
 
     /**
@@ -116,12 +101,7 @@ export const habitsApi = {
         // Validate input before making request
         validateHabitId(id);
 
-        try {
-            await apiClient.delete(`/api/habits/${id}`);
-        } catch (error) {
-            // Re-throw to let UI layer handle with user-friendly messages
-            throw error;
-        }
+        await apiClient.delete(`/api/habits/${id}`);
     },
 
     /**
@@ -132,17 +112,12 @@ export const habitsApi = {
      */
     getLogs: async (userId?: string, date?: string): Promise<(HabitLogResponse & { date: string })[]> => {
         void userId;
-        try {
-            const query = date ? `?date=${date}` : '';
-            const data = await apiClient.get<HabitLogResponse[]>(`/api/habits/logs${query}`);
-            return (data || []).map((log): HabitLogResponse & { date: string } => ({
-                ...log,
-                date: log.date ?? log.logged_date ?? ''
-            }));
-        } catch (error) {
-            // Re-throw to let UI layer handle with user-friendly messages
-            throw error;
-        }
+        const query = date ? `?date=${date}` : '';
+        const data = await apiClient.get<HabitLogResponse[]>(`/api/habits/logs${query}`);
+        return (data || []).map((log): HabitLogResponse & { date: string } => ({
+            ...log,
+            date: log.date ?? log.logged_date ?? ''
+        }));
     },
 
     /**
@@ -168,12 +143,7 @@ export const habitsApi = {
             throw new Error('Valor deve ser um número positivo');
         }
 
-        try {
-            const data = await apiClient.post<Record<string, unknown>>(`/api/habits/${habitId}/log`, { value, date });
-            return data;
-        } catch (error) {
-            // Re-throw to let UI layer handle with user-friendly messages
-            throw error;
-        }
+        const data = await apiClient.post<Record<string, unknown>>(`/api/habits/${habitId}/log`, { value, date });
+        return data;
     }
 };

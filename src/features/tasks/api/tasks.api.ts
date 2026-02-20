@@ -1,4 +1,4 @@
-import { apiClient, ApiError } from '@/shared/api/http';
+import { apiClient } from '@/shared/api/http';
 import { Task } from '@/shared/types';
 
 /**
@@ -43,13 +43,8 @@ export const tasksApi = {
      * @throws {ApiError} If fetch fails
      */
     getAll: async (): Promise<Task[]> => {
-        try {
-            const data = await apiClient.get<Task[]>('/api/tasks');
-            return data;
-        } catch (error) {
-            // Re-throw to let UI layer handle with user-friendly messages
-            throw error;
-        }
+        const data = await apiClient.get<Task[]>('/api/tasks');
+        return data;
     },
 
     /**
@@ -62,13 +57,8 @@ export const tasksApi = {
         // Validate input before making request
         validateTaskData(task, true);
 
-        try {
-            const data = await apiClient.post<Task>('/api/tasks', task);
-            return data;
-        } catch (error) {
-            // Re-throw to let UI layer handle with user-friendly messages
-            throw error;
-        }
+        const data = await apiClient.post<Task>('/api/tasks', task);
+        return data;
     },
 
     /**
@@ -83,13 +73,8 @@ export const tasksApi = {
         validateTaskId(id);
         validateTaskData(updates, false);
 
-        try {
-            const data = await apiClient.put<Task>(`/api/tasks/${id}`, updates);
-            return data;
-        } catch (error) {
-            // Re-throw to let UI layer handle with user-friendly messages
-            throw error;
-        }
+        const data = await apiClient.put<Task>(`/api/tasks/${id}`, updates);
+        return data;
     },
 
     /**
@@ -102,11 +87,6 @@ export const tasksApi = {
         // Validate input before making request
         validateTaskId(id);
 
-        try {
-            await apiClient.delete(`/api/tasks/${id}`);
-        } catch (error) {
-            // Re-throw to let UI layer handle with user-friendly messages
-            throw error;
-        }
+        await apiClient.delete(`/api/tasks/${id}`);
     }
 };
