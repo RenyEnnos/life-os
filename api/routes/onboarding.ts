@@ -144,4 +144,62 @@ router.put('/', authenticateToken, async (req: AuthRequest, res: Response): Prom
   }
 })
 
+/**
+ * Update individual step progress
+ * POST /api/onboarding/progress
+ */
+router.post('/progress', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { step, completed } = req.body
+
+    // Validate required fields
+    if (!step || typeof step !== 'string') {
+      res.status(400).json({ error: 'Step is required and must be a string', code: 'INVALID_STEP' })
+      return
+    }
+
+    if (typeof completed !== 'boolean') {
+      res.status(400).json({ error: 'Completed is required and must be a boolean', code: 'INVALID_COMPLETED' })
+      return
+    }
+
+    // Get current onboarding progress
+    const { data: current, error: fetchError } = await supabase
+      .from('onboarding_progress')
+      .select('*')
+      .eq('user_id', req.user!.id)
+      .single()
+
+    if (fetchError) {
+      if (fetchError.code === 'PGRST116') {
+        res.status(404).json({ error: 'Onboarding progress not found', code: 'ONBOARDING_NOT_FOUND' })
+        return
+      }
+      res.status(500).json({ error: 'Failed to fetch onboarding progress', code: 'ONBOARDING_FETCH_ERROR' })
+      return
+    }
+
+    // Update the specific step in steps_completed
+    const stepsCompleted = current.steps_completed as Record<string, boolean> || {}
+    stepsCompleted[step] = completed
+
+    const { data, error } = await supabase
+      .from('onboarding_progress')
+      .update({ steps_completed: stepsCompleted })
+      .eq('user_id', req.user!.id)
+      .select('*')
+      .single()
+
+    if (error || !data) {
+      res.status(500).json({ error: 'Failed to update step progress', code: 'STEP_UPDATE_ERROR' })
+      return
+    }
+
+    res.json(data)
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Failed to update step progress'
+    res.status(500).json({ error: msg, code: 'ONBOARDING_ERROR' })
+  }
+})
+
 export default router
