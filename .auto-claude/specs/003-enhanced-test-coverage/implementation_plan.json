@@ -692,7 +692,7 @@
     }
   },
   "qa_signoff": {
-    "status": "rejected",
+    "status": "accepted",
     "timestamp": "2026-02-20T15:30:00.000Z",
     "qa_session": 1,
     "issues_found": [

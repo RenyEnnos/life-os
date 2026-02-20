@@ -16,8 +16,8 @@ import {
 import { ApiError } from '../../api/http'
 
 // Mock console methods
-const consoleWarnSpy = vi.spyOn(console, 'warn')
-const consoleErrorSpy = vi.spyOn(console, 'error')
+const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { })
+const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
 
 describe('errorHandler', () => {
   beforeEach(() => {
@@ -224,6 +224,18 @@ describe('errorHandler', () => {
       expect(shouldReportError(result)).toBe(true)
     })
 
+    it('should return true for critical errors', () => {
+      const result: any = {
+        category: ErrorCategory.UNKNOWN,
+        severity: ErrorSeverity.CRITICAL,
+        userMessage: 'test',
+        message: 'test',
+        shouldRetry: false,
+        originalError: new Error(),
+      }
+
+      expect(shouldReportError(result)).toBe(true)
+    })
     it('should return false for validation errors', () => {
       const result: any = {
         category: ErrorCategory.VALIDATION,

@@ -1,91 +1,28 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as Sentry from '@sentry/node'
+import {
+  AppError,
+  ValidationError,
+  AuthenticationError,
+  AuthorizationError,
+  NotFoundError,
+  ConflictError,
+  RateLimitError,
+  InternalServerError,
+  ServiceUnavailableError,
+} from '../lib/errorClasses'
 
-/**
- * Base application error class
- */
-export class AppError extends Error {
-  constructor(
-    public statusCode: number,
-    public message: string,
-    public isOperational = true
-  ) {
-    super(message)
-    Object.setPrototypeOf(this, AppError.prototype)
-    Error.captureStackTrace(this, this.constructor)
-  }
-}
-
-/**
- * Validation error (400)
- */
-export class ValidationError extends AppError {
-  constructor(message: string = 'Validation failed') {
-    super(400, message)
-  }
-}
-
-/**
- * Authentication error (401)
- */
-export class AuthenticationError extends AppError {
-  constructor(message: string = 'Authentication required') {
-    super(401, message)
-  }
-}
-
-/**
- * Authorization error (403)
- */
-export class AuthorizationError extends AppError {
-  constructor(message: string = 'Insufficient permissions') {
-    super(403, message)
-  }
-}
-
-/**
- * Not found error (404)
- */
-export class NotFoundError extends AppError {
-  constructor(message: string = 'Resource not found') {
-    super(404, message)
-  }
-}
-
-/**
- * Conflict error (409)
- */
-export class ConflictError extends AppError {
-  constructor(message: string = 'Resource conflict') {
-    super(409, message)
-  }
-}
-
-/**
- * Rate limit error (429)
- */
-export class RateLimitError extends AppError {
-  constructor(message: string = 'Too many requests') {
-    super(429, message)
-  }
-}
-
-/**
- * Internal server error (500)
- */
-export class InternalServerError extends AppError {
-  constructor(message: string = 'Internal server error') {
-    super(500, message)
-  }
-}
-
-/**
- * Service unavailable error (503)
- */
-export class ServiceUnavailableError extends AppError {
-  constructor(message: string = 'Service temporarily unavailable') {
-    super(503, message)
-  }
+// Re-export error classes for backward compatibility if needed, though direct import from lib is preferred
+export {
+  AppError,
+  ValidationError,
+  AuthenticationError,
+  AuthorizationError,
+  NotFoundError,
+  ConflictError,
+  RateLimitError,
+  InternalServerError,
+  ServiceUnavailableError,
 }
 
 /**
@@ -246,12 +183,16 @@ export function errorHandler(
 
   // Prepare response details for development
   const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
-  const details = isDevelopment && error instanceof Error
-    ? {
-        message: error.message,
-        stack: error.stack,
-      }
-    : undefined
+  let details: unknown = undefined
+
+  if (isAppError(error) && error.details) {
+    details = error.details
+  } else if (isDevelopment && error instanceof Error) {
+    details = {
+      message: error.message,
+      stack: error.stack,
+    }
+  }
 
   // Send error response
   sendErrorResponse(res, statusCode, userMessage, details)

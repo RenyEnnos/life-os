@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import React from 'react';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
-import { getDailyXP } from '@/features/gamification/api/xpService';
+import * as xpService from '@/features/gamification/api/xpService';
 
 // Mock AuthContext
 vi.mock('@/features/auth/contexts/AuthContext', () => ({
@@ -13,9 +13,7 @@ vi.mock('@/features/auth/contexts/AuthContext', () => ({
 }));
 
 // Mock getDailyXP from xpService
-vi.mock('@/features/gamification/api/xpService', () => ({
-    getDailyXP: vi.fn(),
-}));
+vi.mock('@/features/gamification/api/xpService');
 
 // Mock framer-motion AnimatePresence
 vi.mock('framer-motion', () => ({
@@ -94,7 +92,7 @@ describe('VisualLegacy', () => {
     });
 
     it('sets up hover tooltip state correctly on mouse move', async () => {
-        vi.mocked(getDailyXP).mockResolvedValue(mockDailyXPData);
+        vi.mocked(xpService.getDailyXP).mockResolvedValue(mockDailyXPData);
 
         const { container } = renderWithProviders(<VisualLegacy />);
 
@@ -116,7 +114,7 @@ describe('VisualLegacy', () => {
     });
 
     it('clears hover tooltip on mouse leave', async () => {
-        vi.mocked(getDailyXP).mockResolvedValue(mockDailyXPData);
+        vi.mocked(xpService.getDailyXP).mockResolvedValue(mockDailyXPData);
 
         const { container } = renderWithProviders(<VisualLegacy />);
 
@@ -135,7 +133,7 @@ describe('VisualLegacy', () => {
     });
 
     it('handles resize events gracefully', async () => {
-        vi.mocked(getDailyXP).mockResolvedValue(mockDailyXPData);
+        vi.mocked(xpService.getDailyXP).mockResolvedValue(mockDailyXPData);
 
         renderWithProviders(<VisualLegacy />);
 
@@ -148,7 +146,7 @@ describe('VisualLegacy', () => {
     });
 
     it('displays tooltip with correct data when hovering over a star point', async () => {
-        vi.mocked(getDailyXP).mockResolvedValue(mockDailyXPData);
+        vi.mocked(xpService.getDailyXP).mockResolvedValue(mockDailyXPData);
 
         const { container } = renderWithProviders(<VisualLegacy />);
 
@@ -171,7 +169,7 @@ describe('VisualLegacy', () => {
     });
 
     it('shows correct date and XP count in tooltip', async () => {
-        vi.mocked(getDailyXP).mockResolvedValue(mockDailyXPData);
+        vi.mocked(xpService.getDailyXP).mockResolvedValue(mockDailyXPData);
 
         renderWithProviders(<VisualLegacy />);
 
@@ -183,7 +181,7 @@ describe('VisualLegacy', () => {
     });
 
     it('handles empty history data gracefully', async () => {
-        vi.mocked(getDailyXP).mockResolvedValue([]);
+        vi.mocked(xpService.getDailyXP).mockResolvedValue([]);
 
         const { container } = renderWithProviders(<VisualLegacy />);
 
@@ -193,7 +191,7 @@ describe('VisualLegacy', () => {
     });
 
     it('handles null history data gracefully', async () => {
-        vi.mocked(getDailyXP).mockResolvedValue(null as any);
+        vi.mocked(xpService.getDailyXP).mockResolvedValue(null as any);
 
         const { container } = renderWithProviders(<VisualLegacy />);
 

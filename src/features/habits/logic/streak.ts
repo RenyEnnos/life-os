@@ -32,7 +32,7 @@ export const calculateStreak = (logs: HabitLog[] | undefined, habitId: string): 
     const lastDate = distinctDates[0];
 
     // If last completion was before yesterday, streak is 0
-    if (lastDate !== todayStr && lastDate !== yesterdayStr) {
+    if (lastDate !== todayStr) {
         return 0;
     }
 
