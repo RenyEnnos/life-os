@@ -10,6 +10,7 @@ import {
   RateLimitError,
   InternalServerError,
   ServiceUnavailableError,
+  type ErrorDetails,
 } from '../lib/errorClasses'
 
 // Re-export error classes for backward compatibility if needed, though direct import from lib is preferred
@@ -138,11 +139,11 @@ function logError(error: unknown, statusCode: number, req: Request): void {
 /**
  * Send error response
  */
-function sendErrorResponse(res: Response, statusCode: number, message: string, details?: unknown): void {
+function sendErrorResponse(res: Response, statusCode: number, message: string, details?: ErrorDetails[] | { message: string; stack?: string }): void {
   const response: {
     success: false
     error: string
-    details?: unknown
+    details?: ErrorDetails[] | { message: string; stack?: string }
   } = {
     success: false,
     error: message,
@@ -183,7 +184,7 @@ export function errorHandler(
 
   // Prepare response details for development
   const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
-  let details: unknown = undefined
+  let details: ErrorDetails[] | { message: string; stack?: string } | undefined = undefined
 
   if (isAppError(error) && error.details) {
     details = error.details
