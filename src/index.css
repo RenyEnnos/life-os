@@ -221,6 +221,23 @@
     transform: none !important;
   }
 
+  /* Disable Tailwind pulse-slow animation */
+  .animate-pulse-slow {
+    animation: none !important;
+  }
+
+  /* Disable Tailwind breathe animation */
+  .animate-breathe {
+    animation: none !important;
+    transform: scale(1) !important;
+  }
+
+  /* Disable Tailwind draw animation */
+  .animate-draw {
+    animation: none !important;
+    height: var(--target-height) !important;
+  }
+
   /* Disable all transitions and animations globally */
   *,
   *::before,
@@ -256,6 +273,23 @@
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+
+  /* Disable Tailwind pulse-slow animation */
+  .animate-pulse-slow {
+    animation: none !important;
+  }
+
+  /* Disable Tailwind breathe animation */
+  .animate-breathe {
+    animation: none !important;
+    transform: scale(1) !important;
+  }
+
+  /* Disable Tailwind draw animation */
+  .animate-draw {
+    animation: none !important;
+    height: var(--target-height) !important;
   }
 
   /* Disable all transitions and animations globally */
