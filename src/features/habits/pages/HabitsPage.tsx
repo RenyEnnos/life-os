@@ -80,8 +80,8 @@ export const HabitsPage = () => {
               <div className="flex items-center gap-6">
                 <div className="relative flex items-center justify-center">
                   <svg className="w-20 h-20 -rotate-90">
-                    <circle className="text-white/5" cx="40" cy="40" fill="transparent" r="34" stroke="currentColor" stroke-width="6"></circle>
-                    <circle className="text-primary blue-glow" cx="40" cy="40" fill="transparent" r="34" stroke="currentColor" stroke-dasharray="213.6" stroke-dashoffset="53.4" stroke-width="6"></circle>
+                    <circle className="text-white/5" cx="40" cy="40" fill="transparent" r="34" stroke="currentColor" strokeWidth="6"></circle>
+                    <circle className="text-primary blue-glow" cx="40" cy="40" fill="transparent" r="34" stroke="currentColor" strokeDasharray="213.6" strokeDashoffset="53.4" strokeWidth="6"></circle>
                   </svg>
                   <span className="absolute text-sm font-bold text-white">75%</span>
                 </div>

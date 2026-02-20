@@ -10,7 +10,59 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     globals: true,
     coverage: {
-      provider: 'v8'
+      provider: 'v8',
+      reportOnFailure: true,
+      all: false, // Only count files actually imported by tests
+      // Only include critical business logic in coverage calculations
+      include: [
+        'src/features/*/api/**/*.{js,jsx,ts,tsx}',
+        'src/features/*/hooks/**/*.{js,jsx,ts,tsx}',
+        'src/features/*/logic/**/*.{js,jsx,ts,tsx}',
+        'src/features/gamification/**/*.{js,jsx,ts,tsx}',
+        'src/features/onboarding/**/*.{js,jsx,ts,tsx}',
+        'src/features/habits/api/**/*.{js,jsx,ts,tsx}',
+        'src/features/habits/logic/**/*.{js,jsx,ts,tsx}',
+        'src/features/habits/hooks/**/*.{js,jsx,ts,tsx}',
+        'src/features/journal/api/**/*.{js,jsx,ts,tsx}',
+        'src/features/health/api/**/*.{js,jsx,ts,tsx}',
+        'src/features/tasks/api/**/*.{js,jsx,ts,tsx}',
+        'src/features/auth/api/**/*.{js,jsx,ts,tsx}',
+        'src/shared/api/http.ts',
+        'src/shared/api/authToken.ts',
+        'src/shared/lib/normalize.ts',
+        'src/shared/lib/syncQueue.ts',
+        'src/shared/lib/cn.ts',
+        'src/shared/lib/dynamicNow/**/*',
+        'src/shared/lib/audio/noiseGenerator.ts'
+      ],
+      exclude: [
+        'node_modules/',
+        'dist/',
+        'build/',
+        'coverage/',
+        '**/*.test.{js,jsx,ts,tsx}',
+        '**/*.spec.{js,jsx,ts,tsx}',
+        '**/__tests__/**',
+        'src/api/**',
+        'api/**',
+        // Exclude non-critical files from coverage requirements
+        'src/**/*.stories.tsx',
+        'src/**/*.stories.ts',
+        'src/shared/types/database.ts',
+        'src/design/**/*',
+        'src/stories/**/*',
+        'src/shared/types/**/*.ts',
+        'src/tokens/**/*',
+        'src/motion/**/*'
+      ],
+      thresholds: {
+        lines: 70,
+        functions: 70,
+        branches: 70,
+        statements: 70,
+        perFile: false,
+        autoUpdate: false
+      }
     }
   },
   resolve: {
