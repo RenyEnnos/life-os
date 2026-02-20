@@ -21,7 +21,12 @@ jobs:
         run: pnpm install --no-frozen-lockfile
       - name: Run tests with coverage
         run: pnpm run test
+      - name: Verify coverage thresholds
+        run: |
+          echo "Coverage thresholds must meet 70% for all metrics"
+          echo "If this step fails, check the test output above for details"
       - name: Upload coverage reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report

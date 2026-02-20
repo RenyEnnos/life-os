@@ -39,7 +39,7 @@ export const HealthPage = () => {
                             </div>
                             <div className="h-24 w-full flex items-end">
                                 <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
-                                    <path d="M0,30 Q10,10 20,25 T40,15 T60,20 T80,5 T100,25" fill="none" stroke="#f43f5e" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+                                    <path d="M0,30 Q10,10 20,25 T40,15 T60,20 T80,5 T100,25" fill="none" stroke="#f43f5e" strokeWidth="2" vectorEffect="non-scaling-stroke"></path>
                                     <path d="M0,30 Q10,10 20,25 T40,15 T60,20 T80,5 T100,25 L100,40 L0,40 Z" fill="url(#grad-red)" opacity="0.1"></path>
                                     <defs>
                                         <linearGradient id="grad-red" x1="0%" x2="0%" y1="0%" y2="100%">
@@ -60,8 +60,8 @@ export const HealthPage = () => {
                         <div className="glass p-6 rounded-lg flex items-center gap-6">
                             <div className="relative h-24 w-24 flex items-center justify-center shrink-0">
                                 <svg className="w-full h-full -rotate-90">
-                                    <circle cx="48" cy="48" fill="none" r="40" stroke="rgba(255,255,255,0.05)" stroke-width="8"></circle>
-                                    <circle cx="48" cy="48" fill="none" r="40" stroke="#60a5fa" stroke-dasharray="251.2" stroke-dashoffset="30" stroke-width="8"></circle>
+                                    <circle cx="48" cy="48" fill="none" r="40" stroke="rgba(255,255,255,0.05)" strokeWidth="8"></circle>
+                                    <circle cx="48" cy="48" fill="none" r="40" stroke="#60a5fa" strokeDasharray="251.2" strokeDashoffset="30" strokeWidth="8"></circle>
                                 </svg>
                                 <div className="absolute flex flex-col items-center">
                                     <span className="text-2xl font-black leading-none">88</span>
@@ -80,8 +80,8 @@ export const HealthPage = () => {
                         <div className="glass p-6 rounded-lg flex items-center gap-6">
                             <div className="relative h-24 w-24 flex items-center justify-center shrink-0">
                                 <svg className="w-full h-full -rotate-90">
-                                    <circle cx="48" cy="48" fill="none" r="40" stroke="rgba(255,255,255,0.05)" stroke-width="8"></circle>
-                                    <circle cx="48" cy="48" fill="none" r="40" stroke="#4ade80" stroke-dasharray="251.2" stroke-dashoffset="40" stroke-width="8"></circle>
+                                    <circle cx="48" cy="48" fill="none" r="40" stroke="rgba(255,255,255,0.05)" strokeWidth="8"></circle>
+                                    <circle cx="48" cy="48" fill="none" r="40" stroke="#4ade80" strokeDasharray="251.2" strokeDashoffset="40" strokeWidth="8"></circle>
                                 </svg>
                                 <div className="absolute flex flex-col items-center">
                                     <span className="material-symbols-outlined text-activity-green">directions_run</span>

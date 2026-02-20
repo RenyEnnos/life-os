@@ -82,13 +82,13 @@ export const FinancesPage = () => {
             <div className="h-64 w-full relative">
               <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1000 300">
                 {/* Income Line (Primary) */}
-                <path d="M0,250 Q100,220 200,180 T400,150 T600,120 T800,80 T1000,50" fill="none" stroke="#308ce8" stroke-linecap="round" stroke-width="4"></path>
+                <path d="M0,250 Q100,220 200,180 T400,150 T600,120 T800,80 T1000,50" fill="none" stroke="#308ce8" strokeLinecap="round" strokeWidth="4"></path>
                 {/* Spending Line (Warning Red) */}
-                <path d="M0,280 Q100,260 200,270 T400,230 T600,240 T800,210 T1000,220" fill="none" stroke="#ef4444" stroke-linecap="round" stroke-width="4"></path>
+                <path d="M0,280 Q100,260 200,270 T400,230 T600,240 T800,210 T1000,220" fill="none" stroke="#ef4444" strokeLinecap="round" strokeWidth="4"></path>
                 {/* Reference Grids */}
-                <line stroke="white" stroke-opacity="0.05" x1="0" x2="1000" y1="50" y2="50"></line>
-                <line stroke="white" stroke-opacity="0.05" x1="0" x2="1000" y1="150" y2="150"></line>
-                <line stroke="white" stroke-opacity="0.05" x1="0" x2="1000" y1="250" y2="250"></line>
+                <line stroke="white" strokeOpacity="0.05" x1="0" x2="1000" y1="50" y2="50"></line>
+                <line stroke="white" strokeOpacity="0.05" x1="0" x2="1000" y1="150" y2="150"></line>
+                <line stroke="white" strokeOpacity="0.05" x1="0" x2="1000" y1="250" y2="250"></line>
               </svg>
             </div>
             <div className="flex justify-between mt-4 text-xs font-bold text-gray-500 tracking-wider">
