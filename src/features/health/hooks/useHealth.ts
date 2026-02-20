@@ -3,13 +3,13 @@ import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { healthApi } from '../api/health.api';
 import type { HealthMetric, MedicationReminder } from '@/shared/types';
 
-export function useHealth() {
+export function useHealth(filters?: Record<string, string>) {
     const { user } = useAuth();
     const queryClient = useQueryClient();
 
     const { data: metrics, isLoading: loadingMetrics } = useQuery<HealthMetric[]>({
-        queryKey: ['health-metrics', user?.id],
-        queryFn: async () => healthApi.listMetrics(),
+        queryKey: ['health-metrics', user?.id, filters],
+        queryFn: async () => healthApi.listMetrics(user?.id, filters),
         enabled: !!user,
     });
 
