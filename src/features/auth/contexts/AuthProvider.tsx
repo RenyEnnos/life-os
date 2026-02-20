@@ -4,13 +4,14 @@ import { authApi } from '../api/auth.api';
 import { AuthContext } from './AuthContext';
 import { clearAuthToken, setAuthToken } from '@/shared/api/authToken';
 import { normalizeEmail, normalizeName } from '@/shared/lib/normalize';
-import type { LoginRequest, RegisterRequest, User } from '@/shared/types';
+import type { LoginRequest, RegisterRequest } from '@/shared/types';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
 
   // Hydrate initial user from localStorage for immediate feedback
-  const getInitialUser = (): User | undefined => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getInitialUser = (): any => {
     const cached = localStorage.getItem('auth_user');
     if (!cached) return undefined;
     try {

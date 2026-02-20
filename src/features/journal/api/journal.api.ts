@@ -1,4 +1,4 @@
-import { apiClient, ApiError } from '@/shared/api/http';
+import { apiClient } from '@/shared/api/http';
 import { JournalEntry, JournalInsight } from '@/shared/types';
 
 /**
@@ -64,14 +64,9 @@ export const journalApi = {
      * @throws {ApiError} If fetch fails
      */
     list: async (_userId?: string, date?: string): Promise<JournalEntry[]> => {
-        try {
-            const params = date ? `?date=${date}` : '';
-            const data = await apiClient.get<JournalEntry[]>(`/api/journal${params}`);
-            return data;
-        } catch (error) {
-            // Re-throw to let UI layer handle with user-friendly messages
-            throw error;
-        }
+        const params = date ? `?date=${date}` : '';
+        const data = await apiClient.get<JournalEntry[]>(`/api/journal${params}`);
+        return data;
     },
 
     /**
@@ -84,13 +79,8 @@ export const journalApi = {
         // Validate input before making request
         validateEntryData(entry, true);
 
-        try {
-            const data = await apiClient.post<JournalEntry>('/api/journal', entry);
-            return data;
-        } catch (error) {
-            // Re-throw to let UI layer handle with user-friendly messages
-            throw error;
-        }
+        const data = await apiClient.post<JournalEntry>('/api/journal', entry);
+        return data;
     },
 
     /**
@@ -105,13 +95,8 @@ export const journalApi = {
         validateEntryId(id);
         validateEntryData(updates, false);
 
-        try {
-            const data = await apiClient.put<JournalEntry>(`/api/journal/${id}`, updates);
-            return data;
-        } catch (error) {
-            // Re-throw to let UI layer handle with user-friendly messages
-            throw error;
-        }
+        const data = await apiClient.put<JournalEntry>(`/api/journal/${id}`, updates);
+        return data;
     },
 
     /**
@@ -124,12 +109,7 @@ export const journalApi = {
         // Validate input before making request
         validateEntryId(id);
 
-        try {
-            await apiClient.delete(`/api/journal/${id}`);
-        } catch (error) {
-            // Re-throw to let UI layer handle with user-friendly messages
-            throw error;
-        }
+        await apiClient.delete(`/api/journal/${id}`);
     },
 
     /**
@@ -145,15 +125,10 @@ export const journalApi = {
             throw new Error('ID da entrada é obrigatório para análise');
         }
 
-        try {
-            const data = await apiClient.post<{ success: boolean; insight?: JournalInsight }>(
-                `/api/resonance/analyze/${entry.id}`,
-                {}
-            );
-            return data.insight ?? null;
-        } catch (error) {
-            // Re-throw to let UI layer handle with user-friendly messages
-            throw error;
-        }
+        const data = await apiClient.post<{ success: boolean; insight?: JournalInsight }>(
+            `/api/resonance/analyze/${entry.id}`,
+            {}
+        );
+        return data.insight ?? null;
     }
 };

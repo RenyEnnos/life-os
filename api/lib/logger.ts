@@ -29,7 +29,6 @@ export interface LogMetadata {
 
 // Base pino logger configuration
 const isProduction = process.env.NODE_ENV === 'production'
-const isTest = process.env.NODE_ENV === 'test'
 
 const baseLogger = pino({
   level: process.env.LOG_LEVEL || (isProduction ? 'info' : 'debug'),
@@ -188,7 +187,6 @@ class StructuredLogger {
    * Log HTTP request details
    */
   logHttpRequest(req: Request | AuthRequest, statusCode: number, responseTime?: number): void {
-    const context = extractRequestContext(req)
     const logger = this.withRequest(req)
 
     const meta: LogMetadata = {
