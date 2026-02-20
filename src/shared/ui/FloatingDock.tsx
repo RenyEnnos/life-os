@@ -10,6 +10,7 @@ import {
     PlusCircle
 } from 'lucide-react';
 import { QuickActionModal } from './QuickActionModal';
+import { useReducedMotion } from '@/shared/hooks/useReducedMotion';
 
 import { LucideIcon } from 'lucide-react';
 
@@ -67,6 +68,7 @@ function DockIcon({
     isActive: boolean
 }) {
     const ref = useRef<HTMLDivElement>(null);
+    const reducedMotion = useReducedMotion();
 
     const distance = useTransform(mouseX, (val) => {
         const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
@@ -74,12 +76,19 @@ function DockIcon({
     });
 
     const widthSync = useTransform(distance, [-150, 0, 150], [40, 80, 40]);
-    const width = useSpring(widthSync, { mass: 0.1, stiffness: 150, damping: 12 });
+    const width = useSpring(widthSync, {
+        mass: 0.1,
+        stiffness: 150,
+        damping: 12
+    });
+
+    // Use fixed width when reduced motion is enabled
+    const finalWidth = reducedMotion ? 40 : width;
 
     const content = (
         <motion.div
             ref={ref}
-            style={{ width }}
+            style={{ width: finalWidth }}
             className={cn(
                 "aspect-square rounded-full flex items-center justify-center relative group transition-colors",
                 isActive ? "bg-primary/20 border border-primary/50" : "bg-white/5 border border-white/10 hover:bg-white/10",

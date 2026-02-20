@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckSquare, Book, ListTodo, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MagneticButton } from './MagneticButton';
+import { useReducedMotion } from '@/shared/hooks/useReducedMotion';
 
 const springTransition = {
     type: "spring" as const,
@@ -17,6 +18,7 @@ interface QuickActionModalProps {
 
 export function QuickActionModal({ isOpen, onClose }: QuickActionModalProps) {
     const navigate = useNavigate();
+    const reducedMotion = useReducedMotion();
 
     const handleAction = (path: string) => {
         navigate(path);
@@ -29,20 +31,20 @@ export function QuickActionModal({ isOpen, onClose }: QuickActionModalProps) {
                 <>
                     {/* Backdrop */}
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+                        initial={reducedMotion ? false : { opacity: 0 }}
+                        animate={reducedMotion ? { opacity: 1 } : { opacity: 1 }}
+                        exit={reducedMotion ? { opacity: 0 } : { opacity: 0 }}
                         onClick={onClose}
-                        transition={springTransition}
+                        transition={reducedMotion ? { duration: 0 } : springTransition}
                         className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
                     />
 
                     {/* Modal */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        transition={springTransition}
+                        initial={reducedMotion ? false : { opacity: 0, scale: 0.9, y: 20 }}
+                        animate={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
+                        exit={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 20 }}
+                        transition={reducedMotion ? { duration: 0 } : springTransition}
                         className="fixed bottom-32 left-1/2 -translate-x-1/2 z-[70] w-full max-w-sm px-4"
                     >
                         <div className="bg-surface/90 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden">

@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { useState, ReactNode } from 'react';
 import { ToastContext, type ToastType } from './toastContext';
+import { useReducedMotion } from '@/shared/hooks/useReducedMotion';
 
 interface Toast {
     id: string;
@@ -37,6 +38,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 }
 
 function GlassToast({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }) {
+    const reducedMotion = useReducedMotion();
+
     const icons = {
         success: <CheckCircle2 className="w-5 h-5 text-green-400" />,
         error: <AlertCircle className="w-5 h-5 text-red-400" />,
@@ -51,10 +54,10 @@ function GlassToast({ toast, onDismiss }: { toast: Toast; onDismiss: () => void 
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.9 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            initial={reducedMotion ? false : { opacity: 0, y: -20, scale: 0.9 }}
+            animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+            exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: -20, scale: 0.9 }}
+            transition={reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 25 }}
             className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-full glass-panel border ${borderColors[toast.type]} shadow-lg backdrop-blur-xl min-w-[300px]`}
         >
             {icons[toast.type]}
