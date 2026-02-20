@@ -235,3 +235,74 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* High contrast theme for accessibility (WCAG AAA compliant) */
+.high-contrast,
+[data-high-contrast="true"] {
+  /* Override CSS variables with high contrast values */
+  --background: 0 0% 0%; /* #000000 - Pure black */
+  --surface: 0 0% 0%; /* #000000 - Pure black */
+  --surface-highlight: 0 0% 5%; /* Slightly lighter */
+
+  --foreground: 0 0% 100%; /* #FFFFFF - Pure white */
+  --primary: 210 100% 50%; /* Brighter blue for better contrast */
+  --primary-foreground: 0 0% 100%;
+
+  --muted: 0 0% 10%; /* Darker but visible */
+  --muted-foreground: 0 0% 85%; /* Light gray for readability */
+
+  --destructive: 0 100% 50%; /* Pure red for maximum contrast */
+
+  --border: 0 0% 100%; /* White borders for clear visibility */
+  --input: 0 0% 0%;
+}
+
+.high-contrast,
+[data-high-contrast="true"] {
+  /* Enhanced borders and outlines */
+  .glass-card {
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    outline: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .glass-card:hover {
+    border-color: rgba(255, 255, 255, 0.9) !important;
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .dashboard-shell .glass-card {
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    outline: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .dashboard-shell .glass-card:hover {
+    border-color: rgba(255, 255, 255, 0.9) !important;
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+  }
+
+  /* Stronger focus indicators */
+  *:focus-visible {
+    outline: 3px solid #FFFFFF !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Enhanced text readability */
+  .text-label {
+    color: #E0E0E0 !important;
+  }
+
+  /* Clearer scrollbar */
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.5) !important;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  .dashboard-shell ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.5) !important;
+  }
+  .dashboard-shell ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+  }
+}
