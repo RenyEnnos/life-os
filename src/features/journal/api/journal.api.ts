@@ -58,13 +58,19 @@ function validateEntryData(entry: Partial<JournalEntry>, requireContent = true):
  */
 export const journalApi = {
     /**
-     * Get all journal entries, optionally filtered by date
+     * Get all journal entries, optionally filtered by date and paginated
      * @param _userId - User ID (deprecated, currently unused)
      * @param date - Optional date filter
+     * @param page - Optional page number (1-indexed)
+     * @param pageSize - Optional number of items per page
      * @throws {ApiError} If fetch fails
      */
-    list: async (_userId?: string, date?: string): Promise<JournalEntry[]> => {
-        const params = date ? `?date=${date}` : '';
+    list: async (_userId?: string, date?: string, page?: number, pageSize?: number): Promise<JournalEntry[]> => {
+        const queryParams = new URLSearchParams();
+        if (date) queryParams.append('date', date);
+        if (page !== undefined) queryParams.append('page', page.toString());
+        if (pageSize !== undefined) queryParams.append('pageSize', pageSize.toString());
+        const params = queryParams.toString() ? `?${queryParams.toString()}` : '';
         const data = await apiClient.get<JournalEntry[]>(`/api/journal${params}`);
         return data;
     },
