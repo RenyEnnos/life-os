@@ -13,7 +13,9 @@ vi.mock('@/features/auth/contexts/AuthContext', () => ({
 }));
 
 // Mock getDailyXP from xpService
-vi.mock('@/features/gamification/api/xpService');
+vi.mock('@/features/gamification/api/xpService', () => ({
+    getDailyXP: vi.fn(),
+}));
 
 // Mock framer-motion AnimatePresence
 vi.mock('framer-motion', () => ({

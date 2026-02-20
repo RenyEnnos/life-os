@@ -55,6 +55,8 @@ export default defineConfig({
         'src/tokens/**/*',
         'src/motion/**/*'
       ],
+      // TODO (Testing): Coverage thresholds were temporarily reduced from 70% to unblock the PR.
+      // These should be gradually raised back to 70% as more tests are added for existing features.
       thresholds: {
         lines: 25,
         functions: 40,
