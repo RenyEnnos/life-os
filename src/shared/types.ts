@@ -183,3 +183,15 @@ export interface VitalLoadSummary {
     state: VitalLoadState;
     label: string;
 }
+
+export interface Onboarding {
+    id: string | null;
+    user_id: string;
+    current_step: string;
+    steps_completed: Record<string, boolean>;
+    completed: boolean;
+    skipped: boolean;
+    created_at: string | null;
+    updated_at: string | null;
+    completed_at?: string | null;
+}
