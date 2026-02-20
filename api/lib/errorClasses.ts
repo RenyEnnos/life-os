@@ -16,6 +16,7 @@ export class AppError extends Error {
     statusCode: number;
     code: string;
     details?: ErrorDetails[];
+    isOperational: boolean;
 
     constructor(
         message: string,
@@ -28,6 +29,7 @@ export class AppError extends Error {
         this.statusCode = statusCode;
         this.code = code;
         this.details = details;
+        this.isOperational = true;
 
         // Maintains proper stack trace for where our error was thrown
         if (Error.captureStackTrace) {
@@ -122,5 +124,16 @@ export class ServiceUnavailableError extends AppError {
     constructor(message: string = 'Service temporarily unavailable') {
         super(message, 503, 'SERVICE_UNAVAILABLE');
         this.name = 'ServiceUnavailableError';
+    }
+}
+
+/**
+ * Internal Server Error
+ * Used for unexpected server errors (500 Internal Server Error)
+ */
+export class InternalServerError extends AppError {
+    constructor(message: string = 'Internal server error') {
+        super(message, 500, 'INTERNAL_ERROR');
+        this.name = 'InternalServerError';
     }
 }

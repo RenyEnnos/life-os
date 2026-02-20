@@ -201,7 +201,7 @@ export function handleError(url: string, error: unknown): ErrorResult {
 export function handleFetchError(url: string, error: unknown): Error {
   // Already an ApiError, just log and return
   if (error instanceof ApiError) {
-    const result = handleError(url, error)
+    handleError(url, error)
     // Re-throw the original ApiError
     return error
   }

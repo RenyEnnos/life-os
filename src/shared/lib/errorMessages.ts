@@ -247,8 +247,7 @@ export function isValidationError(error: Error | ApiError): boolean {
 
   const errWithCode = error as { code?: string }
   return errWithCode.code === 'VALIDATION_ERROR' ||
-    errWithCode.code === 'BAD_REQUEST' ||
-    Boolean(error.message.includes('inválid'))
+    errWithCode.code === 'BAD_REQUEST'
 }
 
 /**
@@ -261,8 +260,7 @@ export function isAuthError(error: Error | ApiError): boolean {
 
   const errWithCode = error as { code?: string }
   return errWithCode.code === 'AUTHENTICATION_ERROR' ||
-    errWithCode.code === 'AUTHORIZATION_ERROR' ||
-    false
+    errWithCode.code === 'AUTHORIZATION_ERROR'
 }
 
 /**
@@ -291,6 +289,5 @@ export function isServerError(error: Error | ApiError): boolean {
   const errWithCode = error as { code?: string }
   return errWithCode.code === 'INTERNAL_ERROR' ||
     errWithCode.code === 'SERVER_ERROR' ||
-    errWithCode.code === 'SERVICE_UNAVAILABLE' ||
-    false
+    errWithCode.code === 'SERVICE_UNAVAILABLE'
 }
