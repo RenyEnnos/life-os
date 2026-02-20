@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect, vi, beforeEach } from "vitest"
 import { healthApi } from "../health.api"
 
 vi.mock("@/shared/api/http", () => {
@@ -18,27 +18,94 @@ vi.mock("@/shared/api/http", () => {
 })
 
 describe("health.api", () => {
-  it("listMetrics returns metrics", async () => {
-    const metrics = await healthApi.listMetrics()
-    expect(metrics[0].metric_type).toBe("sleep")
+  describe("listMetrics", () => {
+    it("returns metrics without filters", async () => {
+      const metrics = await healthApi.listMetrics()
+      expect(metrics[0].metric_type).toBe("sleep")
+    })
+
+    it("includes startDate filter in query params", async () => {
+      const metrics = await healthApi.listMetrics(undefined, { startDate: "2024-01-01" })
+      expect(metrics[0].metric_type).toBe("sleep")
+    })
+
+    it("includes endDate filter in query params", async () => {
+      const metrics = await healthApi.listMetrics(undefined, { endDate: "2024-12-31" })
+      expect(metrics[0].metric_type).toBe("sleep")
+    })
+
+    it("includes tags filter in query params", async () => {
+      const metrics = await healthApi.listMetrics(undefined, { tags: "exercise,morning" })
+      expect(metrics[0].metric_type).toBe("sleep")
+    })
+
+    it("includes type filter in query params", async () => {
+      const metrics = await healthApi.listMetrics(undefined, { type: "weight" })
+      expect(metrics[0].metric_type).toBe("sleep")
+    })
+
+    it("combines multiple filters", async () => {
+      const metrics = await healthApi.listMetrics(undefined, {
+        startDate: "2024-01-01",
+        endDate: "2024-12-31",
+        type: "sleep"
+      })
+      expect(metrics[0].metric_type).toBe("sleep")
+    })
+
+    it("handles all filters together", async () => {
+      const metrics = await healthApi.listMetrics("user123", {
+        startDate: "2024-01-01",
+        endDate: "2024-12-31",
+        tags: "health",
+        type: "weight"
+      })
+      expect(metrics[0].metric_type).toBe("sleep")
+    })
   })
-  it("createMetric posts metric", async () => {
-    const created = await healthApi.createMetric({ metric_type: "sleep", value: 8 })
-    expect(created.id).toBeDefined()
+
+  describe("createMetric", () => {
+    it("posts metric with recorded_date mapped to recorded_at", async () => {
+      const created = await healthApi.createMetric({ metric_type: "sleep", value: 8, recorded_date: "2024-01-01" })
+      expect(created.id).toBeDefined()
+    })
+
+    it("posts metric without recorded_date", async () => {
+      const created = await healthApi.createMetric({ metric_type: "sleep", value: 8 })
+      expect(created.id).toBeDefined()
+    })
   })
-  it("listReminders returns meds", async () => {
-    const meds = await healthApi.listReminders()
-    expect(meds[0].name).toBe("Omega-3")
+
+  describe("deleteMetric", () => {
+    it("deletes metric by id", async () => {
+      await expect(healthApi.deleteMetric("h1")).resolves.toBeUndefined()
+    })
   })
-  it("createReminder posts medication", async () => {
-    const created = await healthApi.createReminder({ name: "Vit D3" })
-    expect(created.id).toBeDefined()
+
+  describe("listReminders", () => {
+    it("returns medications", async () => {
+      const meds = await healthApi.listReminders()
+      expect(meds[0].name).toBe("Omega-3")
+    })
   })
-  it("updateReminder puts medication", async () => {
-    const updated = await healthApi.updateReminder("m1", { dosage: "2g" })
-    expect(updated.dosage).toBe("2g")
+
+  describe("createReminder", () => {
+    it("posts medication", async () => {
+      const created = await healthApi.createReminder({ name: "Vit D3" })
+      expect(created.id).toBeDefined()
+    })
   })
-  it("deleteReminder removes medication", async () => {
-    await expect(healthApi.deleteReminder("m1")).resolves.toBeUndefined()
+
+  describe("updateReminder", () => {
+    it("puts medication updates", async () => {
+      const updated = await healthApi.updateReminder("m1", { dosage: "2g" })
+      expect(updated.dosage).toBe("2g")
+    })
+  })
+
+  describe("deleteReminder", () => {
+    it("removes medication", async () => {
+      await expect(healthApi.deleteReminder("m1")).resolves.toBeUndefined()
+    })
   })
 })
