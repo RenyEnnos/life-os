@@ -33,7 +33,15 @@ export default defineConfig({
         'src/shared/types/**/*.ts',
         'src/tokens/**/*',
         'src/motion/**/*'
-      ]
+      ],
+      thresholds: {
+        lines: 70,
+        functions: 70,
+        branches: 70,
+        statements: 70,
+        perFile: false,
+        autoUpdate: false
+      }
     }
   },
   resolve: {
