@@ -1,9 +1,13 @@
-import { Router, type Response } from 'express';
-import { authenticateToken, AuthRequest } from '../middleware/auth';
-import { aiManager } from '../services/ai/AIManager';
-import { supabase } from '../lib/supabase';
+/**
+ * Resonance API routes
+ * Handle journal entry mood analysis and insights
+ */
+import { Router, type Response } from 'express'
+import { authenticateToken, type AuthRequest } from '../middleware/auth'
+import { aiManager } from '../services/ai/AIManager'
+import { supabase } from '../lib/supabase'
 
-const router = Router();
+const router = Router()
 
 // Mood detection prompt
 const MOOD_PROMPT = `Analyze the following journal entry and extract:
@@ -15,177 +19,210 @@ Respond ONLY in valid JSON:
 {"mood_score": number, "themes": ["string"], "summary": "string"}
 
 Entry:
-`;
+`
 
-// Analyze journal entry
-router.post('/analyze/:entryId', authenticateToken, async (req: AuthRequest, res: Response) => {
-    const userId = req.user!.id;
-    const { entryId } = req.params;
+/**
+ * Analyze journal entry for mood and themes
+ * POST /api/resonance/analyze/:entryId
+ */
+router.post('/analyze/:entryId', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  const userId = req.user!.id
+  const { entryId } = req.params
 
+  try {
+    // 1. Fetch the journal entry
+    const { data: entry, error: fetchError } = await supabase
+      .from('journal_entries')
+      .select('*')
+      .eq('id', entryId)
+      .eq('user_id', userId)
+      .single()
+
+    if (fetchError || !entry) {
+      res.status(404).json({ error: 'Entry not found', code: 'ENTRY_NOT_FOUND' })
+      return
+    }
+
+    // 2. Check rate limit (only 1 analysis per entry per day)
+    const today = new Date().toISOString().split('T')[0]
+    const { data: existingInsight } = await supabase
+      .from('journal_insights')
+      .select('id')
+      .eq('journal_entry_id', entryId)
+      .eq('insight_type', 'mood')
+      .gte('created_at', `${today}T00:00:00`)
+      .limit(1)
+
+    if (existingInsight && existingInsight.length > 0) {
+      res.status(429).json({ error: 'Analysis already performed today', cached: true, code: 'RATE_LIMIT' })
+      return
+    }
+
+    // 3. Call AI for analysis
+    const content = entry.content || entry.title || ''
+    if (content.length < 10) {
+      res.status(400).json({ error: 'Entry too short for analysis', code: 'ENTRY_TOO_SHORT' })
+      return
+    }
+
+    const aiResponse = await aiManager.execute('speed', {
+      systemPrompt: 'You are a mood and theme analyzer for journal entries. Respond only in valid JSON.',
+      userPrompt: MOOD_PROMPT + content,
+      jsonMode: true,
+    })
+
+    // 4. Parse AI response
+    let analysis: { mood_score?: number; themes?: string[]; summary?: string }
     try {
-        // 1. Fetch the journal entry
-        const { data: entry, error: fetchError } = await supabase
-            .from('journal_entries')
-            .select('*')
-            .eq('id', entryId)
-            .eq('user_id', userId)
-            .single();
-
-        if (fetchError || !entry) {
-            return res.status(404).json({ error: 'Entry not found' });
-        }
-
-        // 2. Check rate limit (only 1 analysis per entry per day)
-        const today = new Date().toISOString().split('T')[0];
-        const { data: existingInsight } = await supabase
-            .from('journal_insights')
-            .select('id')
-            .eq('journal_entry_id', entryId)
-            .eq('insight_type', 'mood')
-            .gte('created_at', `${today}T00:00:00`)
-            .limit(1);
-
-        if (existingInsight && existingInsight.length > 0) {
-            return res.status(429).json({ error: 'Analysis already performed today', cached: true });
-        }
-
-        // 3. Call AI for analysis
-        const content = entry.content || entry.title || '';
-        if (content.length < 10) {
-            return res.status(400).json({ error: 'Entry too short for analysis' });
-        }
-
-        const aiResponse = await aiManager.execute('speed', {
-            systemPrompt: 'You are a mood and theme analyzer for journal entries. Respond only in valid JSON.',
-            userPrompt: MOOD_PROMPT + content,
-            jsonMode: true,
-        });
-
-        // 4. Parse AI response
-        let analysis: { mood_score?: number; themes?: string[]; summary?: string };
-        try {
-            const jsonMatch = aiResponse.text.match(/\{[\s\S]*\}/);
-            analysis = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
-        } catch {
-            console.error('Failed to parse AI response:', aiResponse.text);
-            analysis = { mood_score: 5, themes: [], summary: 'Analysis unavailable' };
-        }
-
-        // 5. Store mood insight
-        const { error: insertError } = await supabase.from('journal_insights').insert({
-            journal_entry_id: entryId,
-            user_id: userId,
-            insight_type: 'mood',
-            content: analysis,
-        });
-
-        if (insertError) {
-            console.error('Failed to store insight:', insertError);
-            // Still return the analysis even if storage fails
-        }
-
-        // 6. Update journal entry with mood score
-        if (analysis.mood_score !== undefined) {
-            await supabase
-                .from('journal_entries')
-                .update({
-                    mood_score: analysis.mood_score,
-                    last_analyzed_at: new Date().toISOString()
-                })
-                .eq('id', entryId);
-        }
-
-        res.json({
-            success: true,
-            insight: {
-                mood_score: analysis.mood_score,
-                themes: analysis.themes || [],
-                summary: analysis.summary || '',
-            },
-        });
-    } catch (error) {
-        console.error('Journal analysis error:', error);
-        res.status(500).json({ error: 'Analysis failed' });
+      const jsonMatch = aiResponse.text.match(/\{[\s\S]*\}/)
+      analysis = jsonMatch ? JSON.parse(jsonMatch[0]) : {}
+    } catch {
+      analysis = { mood_score: 5, themes: [], summary: 'Analysis unavailable' }
     }
-});
 
-// General insights listing (optional filters)
-router.get('/insights', authenticateToken, async (req: AuthRequest, res: Response) => {
-    const userId = req.user!.id;
-    const { entryId, type, limit } = req.query as { entryId?: string; type?: string; limit?: string };
+    // 5. Store mood insight
+    const { error: insertError } = await supabase.from('journal_insights').insert({
+      journal_entry_id: entryId,
+      user_id: userId,
+      insight_type: 'mood',
+      content: analysis,
+    })
 
+    if (insertError) {
+      // Still return the analysis even if storage fails
+    }
+
+    // 6. Update journal entry with mood score
+    if (analysis.mood_score !== undefined) {
+      await supabase
+        .from('journal_entries')
+        .update({
+          mood_score: analysis.mood_score,
+          last_analyzed_at: new Date().toISOString()
+        })
+        .eq('id', entryId)
+    }
+
+    res.json({
+      success: true,
+      insight: {
+        mood_score: analysis.mood_score,
+        themes: analysis.themes || [],
+        summary: analysis.summary || '',
+      },
+    })
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Analysis failed'
+    res.status(500).json({ error: msg, code: 'ANALYSIS_ERROR' })
+  }
+})
+
+/**
+ * General insights listing (optional filters)
+ * GET /api/resonance/insights
+ */
+router.get('/insights', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  const userId = req.user!.id
+  const { entryId, type, limit } = req.query as { entryId?: string; type?: string; limit?: string }
+
+  try {
     let q = supabase
-        .from('journal_insights')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+      .from('journal_insights')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
 
-    if (entryId) q = q.eq('journal_entry_id', entryId);
-    if (type) q = q.eq('insight_type', type);
-    if (limit) q = q.limit(Number(limit));
+    if (entryId) q = q.eq('journal_entry_id', entryId)
+    if (type) q = q.eq('insight_type', type)
+    if (limit) q = q.limit(Number(limit))
 
-    const { data, error } = await q;
-    if (error) return res.status(500).json({ error: error.message });
-    res.json(data || []);
-});
+    const { data, error } = await q
+    if (error) {
+      res.status(500).json({ error: 'Failed to fetch insights', code: 'INSIGHTS_FETCH_ERROR' })
+      return
+    }
+    res.json(data || [])
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Failed to fetch insights'
+    res.status(500).json({ error: msg, code: 'INSIGHTS_ERROR' })
+  }
+})
 
-// Get insights for an entry
-router.get('/insights/:entryId', authenticateToken, async (req: AuthRequest, res: Response) => {
-    const userId = req.user!.id;
-    const { entryId } = req.params;
+/**
+ * Get insights for a specific entry
+ * GET /api/resonance/insights/:entryId
+ */
+router.get('/insights/:entryId', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  const userId = req.user!.id
+  const { entryId } = req.params
 
+  try {
     const { data, error } = await supabase
-        .from('journal_insights')
-        .select('*')
-        .eq('journal_entry_id', entryId)
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+      .from('journal_insights')
+      .select('*')
+      .eq('journal_entry_id', entryId)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
 
     if (error) {
-        return res.status(500).json({ error: error.message });
+      res.status(500).json({ error: 'Failed to fetch entry insights', code: 'ENTRY_INSIGHTS_ERROR' })
+      return
     }
 
-    res.json(data || []);
-});
+    res.json(data || [])
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Failed to fetch entry insights'
+    res.status(500).json({ error: msg, code: 'ENTRY_INSIGHTS_FETCH_ERROR' })
+  }
+})
 
-// Get weekly summary
-router.get('/weekly', authenticateToken, async (req: AuthRequest, res: Response) => {
-    const userId = req.user!.id;
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
+/**
+ * Get weekly mood summary
+ * GET /api/resonance/weekly
+ */
+router.get('/weekly', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  const userId = req.user!.id
+  const weekAgo = new Date()
+  weekAgo.setDate(weekAgo.getDate() - 7)
 
+  try {
     const { data: insights, error } = await supabase
-        .from('journal_insights')
-        .select('content, created_at')
-        .eq('user_id', userId)
-        .eq('insight_type', 'mood')
-        .gte('created_at', weekAgo.toISOString())
-        .order('created_at', { ascending: true });
+      .from('journal_insights')
+      .select('content, created_at')
+      .eq('user_id', userId)
+      .eq('insight_type', 'mood')
+      .gte('created_at', weekAgo.toISOString())
+      .order('created_at', { ascending: true })
 
     if (error) {
-        return res.status(500).json({ error: error.message });
+      res.status(500).json({ error: 'Failed to fetch weekly summary', code: 'WEEKLY_ERROR' })
+      return
     }
 
     // Calculate trend
     const moodScores = (insights || [])
-        .map(i => (i.content as { mood_score?: number })?.mood_score)
-        .filter((s): s is number => s !== undefined);
+      .map(i => (i.content as { mood_score?: number })?.mood_score)
+      .filter((s): s is number => s !== undefined)
 
     const avgMood = moodScores.length
-        ? moodScores.reduce((a, b) => a + b, 0) / moodScores.length
-        : null;
+      ? moodScores.reduce((a, b) => a + b, 0) / moodScores.length
+      : null
 
     const trend = moodScores.length >= 2
-        ? moodScores.slice(-3).reduce((a, b) => a + b, 0) / 3 -
+      ? moodScores.slice(-3).reduce((a, b) => a + b, 0) / 3 -
         moodScores.slice(0, 3).reduce((a, b) => a + b, 0) / 3
-        : 0;
+      : 0
 
     res.json({
-        entries_analyzed: moodScores.length,
-        average_mood: avgMood ? Math.round(avgMood * 10) / 10 : null,
-        trend: trend > 0.5 ? 'up' : trend < -0.5 ? 'down' : 'stable',
-        moods: moodScores,
-    });
-});
+      entries_analyzed: moodScores.length,
+      average_mood: avgMood ? Math.round(avgMood * 10) / 10 : null,
+      trend: trend > 0.5 ? 'up' : trend < -0.5 ? 'down' : 'stable',
+      moods: moodScores,
+    })
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Failed to compute weekly summary'
+    res.status(500).json({ error: msg, code: 'WEEKLY_SUMMARY_ERROR' })
+  }
+})
 
-export default router;
+export default router

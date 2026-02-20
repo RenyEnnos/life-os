@@ -160,3 +160,11 @@ export interface AILog {
   error_message?: string
   created_at: string
 }
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}

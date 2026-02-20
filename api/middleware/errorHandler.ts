@@ -164,6 +164,7 @@ export function errorHandler(
   error: unknown,
   req: Request,
   res: Response,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction
 ): void {
   // Get status code
@@ -182,16 +183,15 @@ export function errorHandler(
 
   // Prepare response details for development
   const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
-
   let details: unknown = undefined
 
   if (isAppError(error) && error.details) {
-      details = error.details
+    details = error.details
   } else if (isDevelopment && error instanceof Error) {
-      details = {
-        message: error.message,
-        stack: error.stack,
-      }
+    details = {
+      message: error.message,
+      stack: error.stack,
+    }
   }
 
   // Send error response

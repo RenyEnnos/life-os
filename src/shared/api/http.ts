@@ -1,4 +1,5 @@
 import { getAuthToken } from './authToken';
+import { handleFetchError } from '../lib/errorHandler';
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
@@ -47,7 +48,6 @@ export async function fetchJSON<T = unknown>(url: string, options: FetchOptions 
 
     if (!res.ok) {
       const message = isJson ? (body?.message || body?.error || "Erro na requisição") : (body || "Erro na requisição")
-      console.warn(`[HTTP] Error ${res.status} on ${url}:`, message, isJson ? body : '')
 
       if (isJson && body?.details) {
         throw new ApiError(message, res.status, body.details)
@@ -57,24 +57,8 @@ export async function fetchJSON<T = unknown>(url: string, options: FetchOptions 
     }
     return body as T
   } catch (err: unknown) {
-    // Log operacional errors (4xx) as warnings, not errors to avoid console noise
-    if (err instanceof ApiError && err.status < 500) {
-      console.warn(`[HTTP] Validation/Client error on ${url}:`, err.message);
-    } else {
-      console.error(`[HTTP] Fetch failed for ${url}:`, err);
-    }
-
-    if (err instanceof ApiError) {
-      throw err;
-    }
-    const errObj = err as { name?: string; message?: string }
-    if (errObj?.name === "AbortError") {
-      throw new Error("Tempo de requisição excedido")
-    }
-    if (errObj?.message?.includes("Failed to fetch")) {
-      throw new Error("Falha na conexão com o servidor. Verifique se o backend está rodando.")
-    }
-    throw err
+    // Use centralized error handler to process and re-throw
+    throw handleFetchError(url, err)
   } finally {
     clearTimeout(timeout)
   }

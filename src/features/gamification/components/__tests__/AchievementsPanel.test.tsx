@@ -56,7 +56,7 @@ const mockAchievements: AchievementWithStatus[] = [
         description: 'Complete your first task',
         icon: 'Check',
         xp_reward: 100,
-        criteria: {},
+        condition_type: 'tasks_completed',
         created_at: '2023-01-01',
         unlocked: true,
         unlockedAt: '2023-01-15',
@@ -67,7 +67,7 @@ const mockAchievements: AchievementWithStatus[] = [
         description: 'Complete 100 tasks',
         icon: 'Trophy',
         xp_reward: 500,
-        criteria: {},
+        condition_type: 'tasks_completed',
         created_at: '2023-01-01',
         unlocked: false,
     },
@@ -77,12 +77,12 @@ const mockAchievements: AchievementWithStatus[] = [
         description: 'Complete a task before 8 AM',
         icon: 'Sun',
         xp_reward: 200,
-        criteria: {},
+        condition_type: 'tasks_completed',
         created_at: '2023-01-01',
         unlocked: true,
         unlockedAt: '2023-01-10',
     },
-];
+] as any;
 
 describe('AchievementsPanel', () => {
     beforeEach(() => {
@@ -92,7 +92,7 @@ describe('AchievementsPanel', () => {
 
     it('renders loading state while fetching achievements', async () => {
         vi.mocked(getAchievementsWithStatus).mockImplementation(
-            () => new Promise(() => {}) // Never resolves
+            () => new Promise(() => { }) // Never resolves
         );
 
         const { container } = render(<AchievementsPanel />);

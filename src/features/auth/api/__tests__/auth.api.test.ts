@@ -21,7 +21,7 @@ describe('authApi', () => {
             const mockCredentials = {
                 email: 'test@example.com',
                 password: 'password123',
-            };
+            } as any;
 
             const mockResponse = {
                 user: {
@@ -43,7 +43,7 @@ describe('authApi', () => {
             const mockCredentials = {
                 email: 'test@example.com',
                 password: 'wrong-password',
-            };
+            } as any;
 
             const mockError = new Error('Invalid credentials');
             (apiClient.post as any).mockRejectedValue(mockError);
@@ -59,7 +59,7 @@ describe('authApi', () => {
                 email: 'newuser@example.com',
                 password: 'password123',
                 name: 'New User',
-            };
+            } as any;
 
             const mockResponse = {
                 user: {
@@ -82,7 +82,7 @@ describe('authApi', () => {
                 email: 'existing@example.com',
                 password: 'password123',
                 name: 'Existing User',
-            };
+            } as any;
 
             const mockError = new Error('Email already exists');
             (apiClient.post as any).mockRejectedValue(mockError);
@@ -95,7 +95,7 @@ describe('authApi', () => {
             const mockCredentials = {
                 email: 'minimal@example.com',
                 password: 'password123',
-            };
+            } as any;
 
             const mockResponse = {
                 user: {

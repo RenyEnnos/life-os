@@ -4,15 +4,19 @@ import { Trash2, Edit2 } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { Tag } from '@/shared/ui/Tag';
+import { Pagination } from '@/shared/ui/Pagination';
 import type { JournalEntry } from '@/shared/types';
 
 interface JournalEntryListProps {
     entries: JournalEntry[];
     onEdit: (entry: JournalEntry) => void;
     onDelete: (id: string) => void;
+    currentPage?: number;
+    totalPages?: number;
+    onPageChange?: (page: number) => void;
 }
 
-export function JournalEntryList({ entries, onEdit, onDelete }: JournalEntryListProps) {
+export function JournalEntryList({ entries, onEdit, onDelete, currentPage, totalPages, onPageChange }: JournalEntryListProps) {
     if (!entries?.length) {
         return (
             <div className="text-center py-20 border border-dashed border-border rounded-lg">
@@ -22,43 +26,53 @@ export function JournalEntryList({ entries, onEdit, onDelete }: JournalEntryList
     }
 
     return (
-        <div className="space-y-4">
-            {entries.map((entry) => (
-                <Card key={entry.id} className="p-6 border-border hover:border-primary/50 transition-colors group">
-                    <div className="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 className="text-xl font-bold font-mono text-primary mb-1">
-                                {entry.title || 'Sem Título'}
-                            </h3>
-                            <p className="text-sm text-muted-foreground font-mono">
-                                {format(new Date(entry.entry_date), "dd 'de' MMMM, yyyy", { locale: ptBR })}
+        <div className="space-y-6">
+            <div className="space-y-4">
+                {entries.map((entry) => (
+                    <Card key={entry.id} className="p-6 border-border hover:border-primary/50 transition-colors group">
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 className="text-xl font-bold font-mono text-primary mb-1">
+                                    {entry.title || 'Sem Título'}
+                                </h3>
+                                <p className="text-sm text-muted-foreground font-mono">
+                                    {format(new Date(entry.entry_date), "dd 'de' MMMM, yyyy", { locale: ptBR })}
+                                </p>
+                            </div>
+                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                                <Button variant="ghost" size="icon" onClick={() => onEdit(entry)} aria-label="Editar entrada">
+                                    <Edit2 size={16} />
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={() => onDelete(entry.id)} className="text-destructive hover:bg-destructive/10" aria-label="Excluir entrada">
+                                    <Trash2 size={16} />
+                                </Button>
+                            </div>
+                        </div>
+
+                        <div className="prose prose-invert max-w-none">
+                            <p className="text-gray-300 whitespace-pre-wrap font-mono text-sm leading-relaxed">
+                                {entry.content}
                             </p>
                         </div>
-                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-                            <Button variant="ghost" size="icon" onClick={() => onEdit(entry)} aria-label="Editar entrada">
-                                <Edit2 size={16} />
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => onDelete(entry.id)} className="text-destructive hover:bg-destructive/10" aria-label="Excluir entrada">
-                                <Trash2 size={16} />
-                            </Button>
-                        </div>
-                    </div>
 
-                    <div className="prose prose-invert max-w-none">
-                        <p className="text-gray-300 whitespace-pre-wrap font-mono text-sm leading-relaxed">
-                            {entry.content}
-                        </p>
-                    </div>
+                        {entry.tags?.length && entry.tags.length > 0 ? (
+                            <div className="flex gap-2 mt-4 pt-4 border-t border-border/50">
+                                {entry.tags?.map((tag: string) => (
+                                    <Tag key={tag} variant="outline" size="sm">#{tag}</Tag>
+                                ))}
+                            </div>
+                        ) : null}
+                    </Card>
+                ))}
+            </div>
 
-                    {entry.tags?.length && entry.tags.length > 0 ? (
-                        <div className="flex gap-2 mt-4 pt-4 border-t border-border/50">
-                            {entry.tags?.map((tag: string) => (
-                                <Tag key={tag} variant="outline" size="sm">#{tag}</Tag>
-                            ))}
-                        </div>
-                    ) : null}
-                </Card>
-            ))}
+            {currentPage && totalPages && onPageChange && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={onPageChange}
+                />
+            )}
         </div>
     );
 }

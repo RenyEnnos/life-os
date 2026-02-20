@@ -1,12 +1,15 @@
 import { supabase } from '../lib/supabase'
+import { getPagination } from '../lib/pagination'
 import type { JournalEntry } from '../../shared/types'
 
 export const journalService = {
-  async list(userId: string, query: { date?: string }) {
-    const { date } = query
+  async list(userId: string, query: { date?: string; startDate?: string; endDate?: string; page?: string | string[]; pageSize?: string | string[] }) {
+    const { date, startDate, endDate } = query
+    const { from, to } = getPagination(query)
+
     let q = supabase
       .from('journal_entries')
-      .select('*')
+      .select('*', { count: 'exact' })
       .eq('user_id', userId)
       .order('entry_date', { ascending: false })
 
@@ -14,10 +17,20 @@ export const journalService = {
       q = q.eq('entry_date', date)
     }
 
-    const { data, error } = await q
+    if (startDate) {
+      q = q.gte('entry_date', startDate)
+    }
+
+    if (endDate) {
+      q = q.lte('entry_date', endDate)
+    }
+
+    q = q.range(from, to)
+
+    const { data, error, count } = await q
 
     if (error) throw error
-    return data
+    return { data: data ?? [], total: count ?? 0 }
   },
 
   async create(userId: string, payload: Partial<JournalEntry>) {

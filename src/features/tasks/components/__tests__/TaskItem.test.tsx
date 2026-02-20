@@ -38,11 +38,11 @@ describe('TaskItem', () => {
         );
 
         // Check toggle button aria-label (incomplete state)
-        const toggleButton = screen.getByLabelText('Mark task as complete');
+        const toggleButton = screen.getByLabelText(`Mark task "${mockTask.title}" as complete`);
         expect(toggleButton).toBeInTheDocument();
 
         // Check delete button aria-label
-        const deleteButton = screen.getByLabelText('Delete task');
+        const deleteButton = screen.getByLabelText(`Delete task: "${mockTask.title}"`);
         expect(deleteButton).toBeInTheDocument();
     });
 
@@ -59,7 +59,7 @@ describe('TaskItem', () => {
             />
         );
 
-        const toggleButton = screen.getByLabelText('Mark task as incomplete');
+        const toggleButton = screen.getByLabelText(`Mark task "${mockTask.title}" as incomplete`);
         expect(toggleButton).toBeInTheDocument();
     });
 });

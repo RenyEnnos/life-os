@@ -1,76 +1,116 @@
+/**
+ * Habits API routes
+ * Handle habit CRUD operations, logging, and tracking.
+ */
 import { Router, type Response } from 'express'
-import { authenticateToken, AuthRequest } from '../middleware/auth'
+import { authenticateToken, type AuthRequest } from '../middleware/auth'
+import { validate } from '../middleware/validate'
 import { habitsService } from '../services/habitsService'
-import { z } from 'zod'
-
+import { createHabitSchema, updateHabitSchema, createHabitLogSchema } from '@/shared/schemas/habit'
 
 const router = Router()
 
-router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
-  const data = await habitsService.list(req.user!.id, req.query)
-  res.json(data)
-})
-
-router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
+/**
+ * List Habits
+ * GET /api/habits
+ */
+router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const schema = z.object({
-      title: z.string().min(1),
-      description: z.string().optional(),
-      type: z.enum(['binary', 'numeric']),
-      goal: z.number().nonnegative().optional(),
-      routine: z.enum(['morning', 'afternoon', 'evening', 'any']).optional(),
-      active: z.boolean().optional()
-    })
-    const parsed = schema.safeParse(req.body || {})
-    if (!parsed.success) return res.status(400).json({ error: 'Invalid habit payload' })
-    const data = await habitsService.create(req.user!.id, parsed.data)
-    res.status(201).json(data)
-  } catch (e: unknown) {
-    console.error('Create habit error:', JSON.stringify(e, null, 2))
-    const msg = e instanceof Error ? e.message : 'Unknown error'
-    res.status(400).json({ error: msg })
+    const data = await habitsService.list(req.user!.id, req.query)
+    res.json(data)
+  } catch (error) {
+    console.error('[Habits] List error:', error)
+    res.status(500).json({ error: 'Failed to fetch habits', code: 'HABITS_LIST_FAILED' })
   }
 })
 
-router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
-  const schema = z.object({
-    title: z.string().min(1).optional(),
-    description: z.string().optional(),
-    type: z.enum(['binary', 'numeric']).optional(),
-    goal: z.number().nonnegative().optional(),
-    routine: z.enum(['morning', 'afternoon', 'evening', 'any']).optional(),
-    active: z.boolean().optional()
-  })
-  const parsed = schema.safeParse(req.body || {})
-  if (!parsed.success) return res.status(400).json({ error: 'Invalid habit payload' })
-  const data = await habitsService.update(req.user!.id, req.params.id, parsed.data)
-  if (!data) return res.status(404).json({ error: 'Habit not found' })
-  res.json(data)
-})
-
-router.get('/logs', authenticateToken, async (req: AuthRequest, res: Response) => {
-  const data = await habitsService.getLogs(req.user!.id, req.query)
-  res.json(data)
-})
-
-router.post('/:id/log', authenticateToken, async (req: AuthRequest, res: Response) => {
+/**
+ * Create Habit
+ * POST /api/habits
+ */
+router.post('/', authenticateToken, validate(createHabitSchema), async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const schema = z.object({ value: z.number().int(), date: z.string().min(1) })
-    const parsed = schema.safeParse(req.body || {})
-    if (!parsed.success) return res.status(400).json({ error: 'Invalid log payload' })
-    const { value, date } = parsed.data
+    const data = await habitsService.create(req.user!.id, req.body)
+    res.status(201).json(data)
+  } catch (error) {
+    console.error('[Habits] Create error:', error)
+    const message = error instanceof Error ? error.message : 'Failed to create habit'
+    res.status(400).json({ error: message, code: 'HABIT_CREATE_FAILED' })
+  }
+})
+
+/**
+ * Update Habit
+ * PUT /api/habits/:id
+ */
+router.put('/:id', authenticateToken, validate(updateHabitSchema), async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const data = await habitsService.update(req.user!.id, req.params.id, req.body)
+    if (!data) {
+      res.status(404).json({ error: 'Habit not found', code: 'HABIT_NOT_FOUND' })
+      return
+    }
+    res.json(data)
+  } catch (error) {
+    console.error('[Habits] Update error:', error)
+    const message = error instanceof Error ? error.message : 'Failed to update habit'
+    res.status(400).json({ error: message, code: 'HABIT_UPDATE_FAILED' })
+  }
+})
+
+/**
+ * Delete Habit
+ * DELETE /api/habits/:id
+ */
+router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const ok = await habitsService.remove(req.user!.id, req.params.id)
+    if (!ok) {
+      res.status(404).json({ error: 'Habit not found', code: 'HABIT_NOT_FOUND' })
+      return
+    }
+    res.json({ success: true })
+  } catch (error) {
+    console.error('[Habits] Delete error:', error)
+    res.status(500).json({ error: 'Failed to delete habit', code: 'HABIT_DELETE_FAILED' })
+  }
+})
+
+/**
+ * Get Habit Logs
+ * GET /api/habits/logs
+ */
+router.get('/logs', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const data = await habitsService.getLogs(req.user!.id, req.query)
+    res.json(data)
+  } catch (error) {
+    console.error('[Habits] Get logs error:', error)
+    res.status(500).json({ error: 'Failed to fetch habit logs', code: 'HABIT_LOGS_FETCH_FAILED' })
+  }
+})
+
+/**
+ * Log Habit Entry
+ * POST /api/habits/:id/log
+ */
+router.post('/:id/log', authenticateToken, validate(createHabitLogSchema), async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { value, date } = req.body
     const data = await habitsService.log(req.user!.id, req.params.id, value, date)
-    res.status(201).json(data)
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Unknown error'
-    res.status(400).json({ error: msg })
-  }
-})
 
-router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
-  const ok = await habitsService.remove(req.user!.id, req.params.id)
-  if (!ok) return res.status(404).json({ error: 'Habit not found' })
-  res.json({ success: true })
+    if (data === null && value === 0) {
+      // Log was removed (toggled off)
+      res.json({ success: true, message: 'Habit log removed' })
+      return
+    }
+
+    res.status(201).json(data)
+  } catch (error) {
+    console.error('[Habits] Log entry error:', error)
+    const message = error instanceof Error ? error.message : 'Failed to log habit entry'
+    res.status(400).json({ error: message, code: 'HABIT_LOG_FAILED' })
+  }
 })
 
 export default router
