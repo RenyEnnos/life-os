@@ -1,20 +1,27 @@
 import { ReactNode, useRef, useState, ElementType, isValidElement, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/shared/lib/cn';
+import { useReducedMotion } from '@/shared/hooks/useReducedMotion';
 
 // --- GRID CONTAINER ---
 export const BentoGrid = ({ className, children }: { className?: string; children: ReactNode }) => {
+    const reducedMotion = useReducedMotion();
+
     return (
         <motion.div
-            initial="hidden"
+            initial={reducedMotion ? false : "hidden"}
             animate="show"
-            variants={{
-                hidden: { opacity: 0 },
-                show: {
-                    opacity: 1,
-                    transition: { staggerChildren: 0.1 }
-                }
-            }}
+            variants={
+                reducedMotion
+                    ? undefined
+                    : {
+                        hidden: { opacity: 0 },
+                        show: {
+                            opacity: 1,
+                            transition: { staggerChildren: 0.1 }
+                        }
+                    }
+            }
             className={cn(
                 "group/bento grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-[1920px] mx-auto auto-rows-[160px] md:auto-rows-[180px]",
                 className
@@ -49,6 +56,7 @@ export const BentoCard = ({
 }: BentoCardProps) => {
     const divRef = useRef<HTMLDivElement>(null);
     const [enableSpotlight, setEnableSpotlight] = useState(false);
+    const reducedMotion = useReducedMotion();
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -76,9 +84,13 @@ export const BentoCard = ({
             onPointerMove={handlePointerMove}
             onPointerEnter={handlePointerMove}
             onClick={onClick}
-            // FÍSICA TÁTIL: Subtle breathe effect
-            whileHover={{ scale: 1.01, transition: { duration: 0.3, ease: "easeOut" } }}
-            whileTap={{ scale: 0.98 }}
+            // FÍSICA TÁTIL: Subtle breathe effect (disabled when reduced motion is enabled)
+            whileHover={
+                reducedMotion
+                    ? undefined
+                    : { scale: 1.01, transition: { duration: 0.3, ease: "easeOut" } }
+            }
+            whileTap={reducedMotion ? undefined : { scale: 0.98 }}
             className={cn(
                 "group relative overflow-hidden rounded-3xl border border-white/5 bg-zinc-900/30 backdrop-blur-xl flex flex-col transition-all duration-300 hover:border-white/10 hover:bg-zinc-900/40 shadow-2xl shadow-black/80",
                 onClick && "cursor-pointer",
