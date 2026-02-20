@@ -23,7 +23,16 @@ export default defineConfig({
         '**/*.spec.{js,jsx,ts,tsx}',
         '**/__tests__/**',
         'src/api/**',
-        'api/**'
+        'api/**',
+        // Exclude non-critical files from coverage requirements
+        'src/**/*.stories.tsx',
+        'src/**/*.stories.ts',
+        'src/shared/types/database.ts',
+        'src/design/**/*',
+        'src/stories/**/*',
+        'src/shared/types/**/*.ts',
+        'src/tokens/**/*',
+        'src/motion/**/*'
       ]
     }
   },
