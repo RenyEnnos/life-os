@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useAccessibilityStore } from '@/shared/stores/accessibilityStore';
 
 type AccessibilityPreferenceKey = 'reducedMotion' | 'highContrast';
 
@@ -6,13 +6,26 @@ interface AccessibilitySettingsProps {
     className?: string;
 }
 
-export default function AccessibilitySettings({ className = '' }: AccessibilitySettingsProps) {
-    const [toggles, setToggles] = useState<Record<AccessibilityPreferenceKey, boolean>>({
-        reducedMotion: false,
-        highContrast: false,
-    });
+// Font size percentage mapping
+const FONT_SIZE_PERCENTAGES: Record<string, number> = {
+    'small': 85,
+    'medium': 100,
+    'large': 115,
+    'extra-large': 130,
+};
 
-    const [fontSize, setFontSize] = useState(100);
+// Reverse mapping from percentage to store value
+const PERCENTAGE_TO_FONT_SIZE: Record<number, string> = {
+    85: 'small',
+    100: 'medium',
+    115: 'large',
+    130: 'extra-large',
+};
+
+export default function AccessibilitySettings({ className = '' }: AccessibilitySettingsProps) {
+    const { reducedMotion, highContrast, fontSize, toggleReducedMotion, toggleHighContrast, setFontSize } = useAccessibilityStore();
+
+    const currentFontSizePercentage = FONT_SIZE_PERCENTAGES[fontSize] || 100;
 
     const accessibilityList = [
         {
@@ -28,11 +41,18 @@ export default function AccessibilitySettings({ className = '' }: AccessibilityS
     ];
 
     const handleToggle = (key: AccessibilityPreferenceKey) => {
-        setToggles((prev) => ({ ...prev, [key]: !prev[key] }));
+        if (key === 'reducedMotion') {
+            toggleReducedMotion();
+        } else if (key === 'highContrast') {
+            toggleHighContrast();
+        }
     };
 
     const handleFontSizeChange = (value: number) => {
-        setFontSize(value);
+        const fontSizeValue = PERCENTAGE_TO_FONT_SIZE[value] as 'small' | 'medium' | 'large' | 'extra-large';
+        if (fontSizeValue) {
+            setFontSize(fontSizeValue);
+        }
     };
 
     return (
@@ -52,7 +72,7 @@ export default function AccessibilitySettings({ className = '' }: AccessibilityS
                                         className="sr-only peer"
                                         id={pref.key}
                                         type="checkbox"
-                                        checked={toggles[pref.key]}
+                                        checked={pref.key === 'reducedMotion' ? reducedMotion : highContrast}
                                         onChange={() => handleToggle(pref.key)}
                                     />
                                     <div className="w-12 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary shadow-inner transition-colors duration-300" />
@@ -78,16 +98,16 @@ export default function AccessibilitySettings({ className = '' }: AccessibilityS
                                 min="85"
                                 max="130"
                                 step="5"
-                                value={fontSize}
+                                value={currentFontSizePercentage}
                                 onChange={(e) => handleFontSizeChange(Number(e.target.value))}
                                 className="flex-1 h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-primary hover:accent-primary/80 transition-all"
                             />
                             <span className="text-xs text-zinc-500 font-medium">130%</span>
                         </div>
                         <div className="flex items-center justify-between mt-2">
-                            <span className="text-xs text-zinc-600">Current size: {fontSize}%</span>
+                            <span className="text-xs text-zinc-600">Current size: {currentFontSizePercentage}%</span>
                             <button
-                                onClick={() => setFontSize(100)}
+                                onClick={() => setFontSize('medium')}
                                 className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
                             >
                                 Reset to default
