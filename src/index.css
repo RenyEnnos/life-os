@@ -160,4 +160,41 @@
       transform: translateY(0);
     }
   }
-} 
+}
+
+/* Reduced motion support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable smooth scrolling */
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable transitions on glass cards */
+  .glass-card {
+    transition: none !important;
+  }
+
+  .dashboard-shell .glass-card {
+    transition: none !important;
+  }
+
+  /* Disable animations on enter animations */
+  .animate-enter,
+  .animate-enter-delay-1,
+  .animate-enter-delay-2,
+  .animate-enter-delay-3 {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Disable all transitions and animations globally */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
