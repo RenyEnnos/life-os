@@ -1,0 +1,696 @@
+{
+  "feature": "Enhanced Test Coverage",
+  "description": "Expand test coverage beyond E2E tests to include comprehensive unit and integration tests. Achieve minimum 70% code coverage for critical business logic and user-facing features.",
+  "workflow_type": "feature",
+  "workflow_rationale": "This is a feature enhancement that requires adding tests across multiple service areas (utilities, APIs, components, integration). The work can be organized by service/feature area with minimal dependencies between test files.",
+  "phases": [
+    {
+      "id": "phase-1-shared-utilities",
+      "name": "Shared Utilities Tests",
+      "type": "implementation",
+      "description": "Add unit tests for shared utility functions that are used across the application. These have no dependencies and can be tested in isolation.",
+      "depends_on": [],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-1-1",
+          "description": "Create unit tests for normalize.ts utility functions",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/shared/lib/__tests__/normalize.test.ts"
+          ],
+          "patterns_from": [
+            "src/shared/lib/__tests__/cn.test.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/shared/lib/__tests__/normalize.test.ts",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for normalizeEmail and normalizeName utilities. All 13 tests pass successfully using node environment. Tests cover email lowercase conversion, whitespace trimming, unicode normalization, empty string handling, undefined/null handling, case preservation for names, and special character preservation."
+        },
+        {
+          "id": "subtask-1-2",
+          "description": "Create unit tests for syncQueue.ts async queue operations",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/shared/lib/__tests__/syncQueue.test.ts"
+          ],
+          "patterns_from": [
+            "src/shared/api/__tests__/http.test.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- --environment=node src/shared/lib/__tests__/syncQueue.test.ts",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for syncQueue Zustand store. All 17 tests pass successfully using node environment (jsdom has compatibility issues with current setup). Tests cover addToQueue (item creation, id generation, appending), removeFromQueue (removal, not found handling), clearQueue, and processQueue (POST/PUT/PATCH/DELETE operations, sequential processing, error handling, queue state management). Note: Tests require --environment=node flag due to jsdom/webidl-conversions compatibility issues."
+        },
+        {
+          "id": "subtask-1-3",
+          "description": "Create unit tests for dynamicNow/filters.ts date filtering logic",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/shared/lib/__tests__/dynamicNow.test.ts"
+          ],
+          "patterns_from": [
+            "src/shared/lib/__tests__/cn.test.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/shared/lib/__tests__/dynamicNow.test.ts",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for dynamicNow/filters.ts module. All 33 tests pass successfully using node environment. Tests cover getCurrentTimeBlock() (time block determination), isEvening() and isMorning() (hour-based predicates), filterTasksByDynamicNow() (main filtering logic for evening/morning rules with edge cases), and applyDynamicNowFilter() (hook-ready filter with enabled state). Note: Tests require --environment=node flag due to Date constructor mocking requirements.",
+          "updated_at": "2026-02-17T23:31:11.614451+00:00"
+        },
+        {
+          "id": "subtask-1-4",
+          "description": "Create unit tests for audio/noiseGenerator.ts sound generation",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/shared/lib/__tests__/audio.test.ts"
+          ],
+          "patterns_from": [
+            "src/shared/lib/__tests__/cn.test.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/shared/lib/__tests__/audio.test.ts",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for audio/noiseGenerator.ts Web Audio API module. All 30 tests pass successfully. Tests cover startNoise() (AudioContext creation, white/pink/brown noise generation, node connections, fade-in effect), stopNoise() (fade-out effect, source stopping, graceful error handling), setNoiseVolume() (volume clamping, state handling), isNoisePlaying() (state tracking), disposeAudio() (context cleanup), and noise type variations. Fixed project-wide jsdom compatibility issue by downgrading to version 24.1.3 for Node.js 18 support. Properly mocks Web Audio API and uses fake timers for setTimeout handling."
+        },
+        {
+          "id": "subtask-1-5",
+          "description": "Enhance tests for http.ts client with edge cases",
+          "service": "frontend",
+          "files_to_modify": [
+            "src/shared/api/__tests__/http.test.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "src/shared/api/__tests__/http.test.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/shared/api/__tests__/http.test.ts",
+            "expected": "Tests pass with improved coverage"
+          },
+          "status": "completed",
+          "notes": "Enhanced http.ts test suite with comprehensive edge case coverage. Expanded from 8 to 41 tests covering: different HTTP status codes (200, 201, 204, 400, 401, 403, 404, 500), non-JSON response handling, various error message formats, empty response bodies, custom headers, timeout behavior, network failures, request body handling, all HTTP method wrappers (putJSON, patchJSON, delJSON), apiClient object methods, resolveApiUrl edge cases (empty string, absolute URLs, path normalization), and ApiError class functionality. Fixed mockFetch helper to properly set content-type headers for JSON responses. All 41 tests pass successfully with improved code coverage."
+        },
+        {
+          "id": "subtask-1-6",
+          "description": "Create unit tests for authToken.ts token management",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/shared/api/__tests__/authToken.test.ts"
+          ],
+          "patterns_from": [
+            "src/shared/api/__tests__/http.test.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/shared/api/__tests__/authToken.test.ts",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for authToken.ts module. All 22 tests pass successfully. Tests cover getAuthToken() (token retrieval, null when not found, unavailable storage, error handling, string preservation), setAuthToken() (token storage, JWT tokens, null/undefined removal, empty string handling, unavailable storage, error handling, token overwriting), clearAuthToken() (token removal, non-existent token, unavailable storage, error handling), and integration scenarios (full token lifecycle, multiple operations, localStorage isolation, preservation of other entries). Properly mocks localStorage with full API implementation including store, getItem, setItem, removeItem, clear, length, and key methods."
+        }
+      ]
+    },
+    {
+      "id": "phase-2-gamification-api",
+      "name": "Gamification API Tests",
+      "type": "implementation",
+      "description": "Add unit tests for gamification API services (XP and achievements). These are critical business logic functions.",
+      "depends_on": [],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-2-1",
+          "description": "Create unit tests for xpService.ts (calculateLevel, awardXP, getUserXP, getDailyXP)",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/features/gamification/api/__tests__/xpService.test.ts"
+          ],
+          "patterns_from": [
+            "src/features/journal/api/__tests__/journal.api.test.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/features/gamification/api/__tests__/xpService.test.ts",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for xpService.ts. All 19 tests pass successfully. Tests cover calculateLevel() (formula validation using floor(sqrt(xp/100)), edge cases for negative/zero XP, level thresholds), awardXP() (successful XP awarding with new level, API error handling), getUserXP() (data fetching, attributes parsing, null handling, missing attributes with defaults), and getDailyXP() (date aggregation, intensity level calculation, empty results handling, date sorting). Properly mocks apiClient using vi.mock with beforeEach reset pattern for clean test isolation."
+        },
+        {
+          "id": "subtask-2-2",
+          "description": "Create unit tests for achievementService.ts (getAchievements, getUserAchievements, notifyAchievementUnlock)",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/features/gamification/api/__tests__/achievementService.test.ts"
+          ],
+          "patterns_from": [
+            "src/features/journal/api/__tests__/journal.api.test.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/features/gamification/api/__tests__/achievementService.test.ts",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for achievementService.ts. All 4 tests pass successfully. Tests cover getAchievements() (fetches all achievements with proper structure, name, and XP reward validation), getUserAchievements() (fetches user's unlocked achievements with user_id, achievement_id, and unlocked_at validation), and notifyAchievementUnlock() (shows toast notifications for single and multiple achievements with correct message format, XP display, duration, and styling). Properly mocks apiClient using vi.mock with beforeEach reset pattern for clean test isolation, and mocks react-hot-toast for notification testing.",
+          "updated_at": "2026-02-18T00:00:46.105010+00:00"
+        },
+        {
+          "id": "subtask-2-3",
+          "description": "Create unit tests for archetypes.ts logic (archetype calculations)",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/features/gamification/logic/__tests__/archetypes.test.ts"
+          ],
+          "patterns_from": [
+            "src/shared/lib/__tests__/cn.test.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/features/gamification/logic/__tests__/archetypes.test.ts",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for archetypes.ts. All 29 tests pass successfully. Tests cover ARCHETYPES constant (all 5 archetypes exist with correct properties and values), getArchetype function (null/undefined attributes returning Aspirant, all zero values returning Aspirant, dominant attribute scenarios for each archetype (Maker/Scholar/Titan/Monk), tie detection returning Aspirant), and getDominantAttribute function (null/undefined returning null, zero values returning null, dominant attribute retrieval for all four attributes, tie handling returning first max). Properly tests archetype calculation logic including edge cases for ties, zeros, and negative values."
+        }
+      ]
+    },
+    {
+      "id": "phase-3-gamification-hooks",
+      "name": "Gamification Hooks Tests",
+      "type": "implementation",
+      "description": "Add unit tests for gamification React hooks that fetch and manage XP/achievement data.",
+      "depends_on": [
+        "phase-2-gamification-api"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-3-1",
+          "description": "Create unit tests for useUserXP hook (data fetching, caching, error handling)",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/features/gamification/hooks/__tests__/useUserXP.test.tsx"
+          ],
+          "patterns_from": [
+            "src/features/habits/hooks/__tests__/useHabits.test.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/features/gamification/hooks/__tests__/useUserXP.test.tsx",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for useUserXP hook. All 6 tests pass successfully. Tests cover data fetching (fetches user XP for authenticated user, calls rewardsApi.getUserScore), loading state (returns true while fetching, false after completion), error handling (handles API errors gracefully), caching behavior (uses React Query cache on subsequent renders, API called only once), authentication state (returns undefined when no user authenticated, query disabled, API not called), and cache invalidation (fetches fresh data after invalidation, API called twice). Properly mocks rewardsApi and AuthContext, uses custom QueryClient wrapper with retry disabled for error testing."
+        }
+      ]
+    },
+    {
+      "id": "phase-4-gamification-components",
+      "name": "Gamification Components Tests",
+      "type": "implementation",
+      "description": "Add unit tests for gamification UI components (XP bar, achievement panels, cards).",
+      "depends_on": [
+        "phase-3-gamification-hooks"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-4-1",
+          "description": "Create unit tests for XPBar component (level display, progress bar)",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/features/gamification/components/__tests__/XPBar.test.tsx"
+          ],
+          "patterns_from": [
+            "src/features/tasks/components/__tests__/TaskItem.test.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/features/gamification/components/__tests__/XPBar.test.tsx",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for XPBar component. All 9 tests pass successfully. Tests cover loading states (returns null when loading or no userXP data), level display rendering (showLevel prop controls visibility, correct level number displayed), XP progress text calculations (mid-level progress, level start with 0 XP, near level end), progress bar rendering (motion div with framer-motion), and custom className support. Properly mocks useUserXP hook, lucide-react Trophy icon, and framer-motion motion component following TaskItem.test.tsx patterns."
+        },
+        {
+          "id": "subtask-4-2",
+          "description": "Create unit tests for AchievementsPanel component (achievement list, unlock status)",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/features/gamification/components/__tests__/AchievementsPanel.test.tsx"
+          ],
+          "patterns_from": [
+            "src/features/tasks/components/__tests__/TaskItem.test.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/features/gamification/components/__tests__/AchievementsPanel.test.tsx",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for AchievementsPanel component. All 10 tests pass successfully. Tests cover loading state (displays Loader2 icon while fetching), achievement list rendering (all achievements displayed after loading), filter functionality (all/unlocked/locked filters work correctly), empty state handling (shows message when no achievements match filter), unlocked count display (shows correct X/Y count), filter tabs rendering (all, unlocked, locked buttons present), user authentication checks (does not fetch when user is null), and custom className support. Properly mocks useAuth, getAchievementsWithStatus, lucide-react icons (Loader2, Trophy), framer-motion motion component, and AchievementCard component following TaskItem.test.tsx patterns.",
+          "updated_at": "2026-02-18T00:14:00.000000+00:00"
+        },
+        {
+          "id": "subtask-4-3",
+          "description": "Create unit tests for AchievementCard component (display, locked/unlocked states)",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/features/gamification/components/__tests__/AchievementCard.test.tsx"
+          ],
+          "patterns_from": [
+            "src/features/tasks/components/__tests__/TaskItem.test.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/features/gamification/components/__tests__/AchievementCard.test.tsx",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for AchievementCard component. All 6 tests pass successfully. Tests cover unlocked achievement rendering (name, description, XP reward, unlock date, no lock icon), locked achievement rendering (name, description, XP reward, lock icon present, no unlock date), styling differences (grayscale filter for locked achievements, reduced opacity for locked achievements), unlock date formatting (toLocaleDateString format), and custom className support. Properly mocks MagicCard component and uses importOriginal for lucide-react to preserve all icons, allowing realistic testing of icon selection logic. Tests verify visual state differences between locked and unlocked achievements following TaskItem.test.tsx patterns.",
+          "updated_at": "2026-02-18T00:16:21.000000+00:00"
+        },
+        {
+          "id": "subtask-4-4",
+          "description": "Create unit tests for ArchetypeCard component (archetype display)",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/features/gamification/components/__tests__/ArchetypeCard.test.tsx"
+          ],
+          "patterns_from": [
+            "src/features/tasks/components/__tests__/TaskItem.test.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/features/gamification/components/__tests__/ArchetypeCard.test.tsx",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for ArchetypeCard component. All 13 tests pass successfully. Tests cover loading state (skeleton rendering), null state handling, default variant rendering with all five archetypes (Maker, Scholar, Titan, Monk, Aspirant), compact variant rendering, progress bar display with correct percentage calculations, dominant attribute display, className prop support, and edge cases (balanced attributes returning Aspirant, zero attribute values). Properly mocks useUserXP hook, MagicCard component, framer-motion motion component, and uses importOriginal for lucide-react to preserve all icons. Tests verify archetype name, description, icon rendering, and progress bar calculations following AchievementCard.test.tsx patterns."
+        }
+      ]
+    },
+    {
+      "id": "phase-5-user-feature-tests",
+      "name": "User Feature Component Tests",
+      "type": "implementation",
+      "description": "Add tests for user-facing features that currently have zero test coverage (settings, profile, onboarding).",
+      "depends_on": [],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-5-1",
+          "description": "Create unit tests for SettingsPage component (theme toggle, settings form)",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/features/settings/__tests__/SettingsPage.test.tsx"
+          ],
+          "patterns_from": [
+            "src/features/auth/__tests__/LoginPage.test.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/features/settings/__tests__/SettingsPage.test.tsx",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for SettingsPage component. All 8 tests pass successfully. Tests cover profile information rendering (Settings header, Manage your workspace subtitle), toggle switches for all three preferences (emailNotifications, publicProfile, autoFocus with correct initial states), form input updates (fullName, username, bio fields), and preference titles/descriptions display (Email Notifications, Public Profile, Focus Mode Auto-Start with correct descriptions). Properly wraps component with QueryClientProvider, BrowserRouter, and AuthProvider following LoginPage.test.tsx patterns. Uses document.getElementById for checkbox selection due to sr-only class and getByDisplayValue for text inputs."
+        },
+        {
+          "id": "subtask-5-2",
+          "description": "Create unit tests for ProfilePage component (user profile display)",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/features/profile/__tests__/ProfilePage.test.tsx"
+          ],
+          "patterns_from": [
+            "src/features/auth/__tests__/LoginPage.test.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/features/profile/__tests__/ProfilePage.test.tsx",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for ProfilePage component. All 3 tests pass successfully. Tests cover profile header rendering (User Identity & Legacy title, Identity System subtitle), metric cards display (Experience, Momentum, Total Focus cards), and vault section rendering (Data Vault header, Bio/Mission label, Base of Operations, Digital Uplink, Code Repository, Contact fields). Properly wraps component with QueryClientProvider, BrowserRouter, and AuthProvider following LoginPage.test.tsx and SettingsPage.test.tsx patterns. Tests verify key UI elements are present on the page for user profile display functionality."
+        },
+        {
+          "id": "subtask-5-3",
+          "description": "Create unit tests for OnboardingModal component (onboarding flow)",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/features/onboarding/__tests__/OnboardingModal.test.tsx"
+          ],
+          "patterns_from": [
+            "src/features/auth/__tests__/LoginPage.test.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/features/onboarding/__tests__/OnboardingModal.test.tsx",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive unit tests for OnboardingModal component. All 18 tests pass successfully. Tests cover modal visibility (renders when open, null when closed), welcome step (LIFE OS branding, start button, skip button), step navigation (through all 6 steps: welcome, focus, habit, task, finance, ready), focus selection (productivity/bio-rhythm/capital options, confirm button state), form submissions (habit, task, finance forms with navigation), skip functionality (all form steps can be skipped), completion flow (ready step with quote, completeOnboarding call, onClose call), and progress indicators (6 dots rendered for all steps). Properly mocks all hooks (useHabits, useTasks, useTransactions, useOnboardingStore), forms (CreateHabitForm, CreateTaskForm, TransactionForm), and premium UI components (AnimatedGradientText, ShimmerButton, Confetti) following LoginPage.test.tsx patterns."
+        }
+      ]
+    },
+    {
+      "id": "phase-6-integration-tests",
+      "name": "Integration Tests",
+      "type": "integration",
+      "description": "Add integration tests for critical user flows that involve multiple components working together.",
+      "depends_on": [
+        "phase-3-gamification-hooks",
+        "phase-5-user-feature-tests"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-6-1",
+          "description": "Create integration test for Dashboard page (widgets loading, data display)",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/features/dashboard/__tests__/DashboardPage.int.test.tsx"
+          ],
+          "patterns_from": [
+            "src/features/journal/__tests__/JournalPage.int.test.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm run test:integration -- src/features/dashboard/__tests__/DashboardPage.int.test.tsx",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive integration test for Dashboard page. Test verifies all major widgets render correctly with their data: welcome widget with greeting, focus timer (Pomodoro display), habit tracker (Meditation and Deep Work habits), quick actions (New Task, Log Expense, Start Focus, Journal buttons), health widget (Sleep Score), and recent projects (LifeOS project). Follows JournalPage.int.test.tsx pattern with vi.mock for AuthContext, QueryClientProvider wrapper, and async findByText for dynamic content. Test passes successfully."
+        },
+        {
+          "id": "subtask-6-2",
+          "description": "Create integration test for Authentication flow (login, logout, session persistence)",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/features/auth/__tests__/AuthFlow.int.test.tsx"
+          ],
+          "patterns_from": [
+            "src/features/journal/__tests__/JournalPage.int.test.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm run test:integration -- src/features/auth/__tests__/AuthFlow.int.test.tsx",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive integration tests for Authentication flow. All 4 tests pass successfully. Tests cover complete login flow (user submits credentials, authentication API called, user state updates, UI reflects authenticated state), complete logout flow (user logs out, logout API called, session cleared, UI reflects logged out state), session persistence across page reloads (localStorage caching, user state restored on remount, verification API behavior), and session verification failure (error handling, proper state reset, localStorage cleanup). Properly mocks authApi, wraps components with QueryClientProvider, MemoryRouter, and AuthProvider following JournalPage.int.test.tsx patterns. Tests verify end-to-end authentication functionality."
+        },
+        {
+          "id": "subtask-6-3",
+          "description": "Create integration test for Gamification flow (XP earning, level up, achievement unlock)",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/features/gamification/__tests__/GamificationFlow.int.test.tsx"
+          ],
+          "patterns_from": [
+            "src/features/journal/__tests__/JournalPage.int.test.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm run test:integration -- src/features/gamification/__tests__/GamificationFlow.int.test.tsx",
+            "expected": "Tests pass"
+          },
+          "status": "completed",
+          "notes": "Created comprehensive integration test for Gamification flow. All 10 tests pass successfully. Tests cover XP earning flow (awardXP API call, newLevel response, error handling), Level up calculation (calculateLevel with sqrt formula, calculateNextLevelXp, threshold determination), Achievement unlock flow (getAchievementsWithStatus fetching, unlocked/locked status tracking, toast notifications with notifyAchievementUnlock), and End-to-end gamification flow (XP progression tracking with useUserXP hook, level calculations across thresholds, achievement progression with unlocked/locked counts). Properly mocks apiClient, rewardsApi, AuthContext, and react-hot-toast following JournalPage.int.test.tsx patterns. Tests verify complete gamification system integration including React Query caching.",
+          "updated_at": "2026-02-18T00:37:39.116601+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-7-coverage-verification",
+      "name": "Coverage Verification",
+      "type": "integration",
+      "description": "Run full test suite with coverage reporting to verify 70% target is met. Identify and fill remaining gaps.",
+      "depends_on": [
+        "phase-1-shared-utilities",
+        "phase-2-gamification-api",
+        "phase-4-gamification-components",
+        "phase-5-user-feature-tests",
+        "phase-6-integration-tests"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-7-1",
+          "description": "Run complete test suite with coverage report",
+          "service": "frontend",
+          "files_to_modify": [
+            "vitest.config.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "npm run test -- --coverage",
+            "expected": "Coverage report generated successfully"
+          },
+          "status": "completed",
+          "notes": "Successfully ran complete test suite with coverage report. Updated vitest.config.ts to show coverage even when tests fail (reportOnFailure: true) and excluded backend API files from frontend coverage. Current frontend coverage: 18.64% statements (below 70% target). Coverage breakdown: 56.21% branches, 35.57% functions, 18.64% lines. Coverage report saved to frontend-coverage-report.txt. Test results: 47 passing test files, 7 failing test files (mostly integration tests with timeout issues). Next step: subtask-7-2 will analyze coverage gaps and identify files below 70% coverage."
+        },
+        {
+          "id": "subtask-7-2",
+          "description": "Analyze coverage report and identify gaps below 70%",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "manual",
+            "instructions": "Review coverage/ directory report. Identify files below 70% coverage and create additional tests if needed."
+          },
+          "status": "completed",
+          "notes": "Completed comprehensive coverage gap analysis. Current overall coverage: 18.67% statements (below 70% target by 51.33 percentage points). Analysis identified 274 files below 70% coverage: 274 files with 0% coverage, 0 files with 1-29%, 0 files with 30-49%, 0 files with 50-69%. Created detailed reports: coverage-gap-analysis.md (comprehensive analysis with categories and recommendations) and priority-test-files.md (prioritized action list for subtask-7-3). Key findings: Well-covered features include gamification (70-100%), onboarding (99%), calendar (100%), and shared utilities (90-100%). Major gaps: Dashboard widgets (0%), all habit components (0%), focus feature (0%), journal editor (0%), all Zustand stores (0%), and most UI components (0%). Recommended approach for subtask-7-3: 1) Update vitest.config.ts to exclude non-critical files (*.stories.tsx, database.ts, barrel exports), 2) Focus on Priority 1 quick wins (VisualLegacy.tsx, auth.api.ts), 3) Add tests to critical user flows (journal editor, habit components, dashboard widgets), 4) Test shared utilities (state stores, toast system). Realistic projection: With exclusions and targeted tests, expect to reach 45-55% coverage. Original 70% target may require additional testing phases beyond this spec."
+        },
+        {
+          "id": "subtask-7-3",
+          "description": "Add targeted tests for files still below 70% coverage",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "npm run test -- --coverage",
+            "expected": "Overall coverage >= 70%"
+          },
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-8-ci-setup",
+      "name": "CI/CD Integration",
+      "type": "integration",
+      "description": "Configure test coverage to run in CI/CD pipeline and block merges if coverage drops.",
+      "depends_on": [
+        "phase-7-coverage-verification"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-8-1",
+          "description": "Create or update GitHub Actions workflow to run tests with coverage",
+          "service": "frontend",
+          "files_to_modify": [
+            ".github/workflows/test.yml"
+          ],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "manual",
+            "instructions": "Verify workflow file exists and includes test coverage check"
+          },
+          "status": "pending"
+        },
+        {
+          "id": "subtask-8-2",
+          "description": "Configure coverage threshold enforcement in package.json",
+          "service": "frontend",
+          "files_to_modify": [
+            "package.json"
+          ],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "npm run test -- --coverage",
+            "expected": "Tests respect coverage thresholds"
+          },
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "verification_strategy": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "test_creation_phase": "post_implementation",
+    "test_types_required": [
+      "unit",
+      "integration"
+    ],
+    "security_scanning_required": false,
+    "staging_deployment_required": false,
+    "acceptance_criteria": [
+      "All new tests pass",
+      "Overall code coverage >= 70%",
+      "Test suite completes in under 5 minutes",
+      "Tests run in CI/CD pipeline"
+    ],
+    "verification_steps": [
+      {
+        "name": "Unit Tests",
+        "command": "npm test",
+        "expected_outcome": "All unit tests pass",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Integration Tests",
+        "command": "npm run test:integration",
+        "expected_outcome": "All integration tests pass",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Coverage Report",
+        "command": "npm run test -- --coverage",
+        "expected_outcome": "Coverage >= 70% for src directory",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Test Suite Performance",
+        "command": "time npm test",
+        "expected_outcome": "Test suite completes in under 5 minutes",
+        "type": "test",
+        "required": true,
+        "blocking": false
+      }
+    ],
+    "reasoning": "Medium risk change requires comprehensive unit and integration test coverage. All tests must pass and meet coverage threshold before completion."
+  },
+  "summary": {
+    "total_phases": 8,
+    "total_subtasks": 26,
+    "services_involved": [
+      "frontend"
+    ],
+    "parallelism": {
+      "max_parallel_phases": 4,
+      "parallel_groups": [
+        {
+          "phases": [
+            "phase-1-shared-utilities",
+            "phase-2-gamification-api",
+            "phase-5-user-feature-tests"
+          ],
+          "reason": "These phases test different feature areas with no dependencies between them"
+        },
+        {
+          "phases": [
+            "phase-3-gamification-hooks",
+            "phase-4-gamification-components"
+          ],
+          "reason": "Can run in parallel after API tests are complete"
+        },
+        {
+          "phases": [
+            "phase-6-integration-tests"
+          ],
+          "reason": "Integration tests can run in parallel once component/hook tests complete"
+        }
+      ],
+      "recommended_workers": 3,
+      "speedup_estimate": "2.5x faster than sequential"
+    },
+    "startup_command": "npm test -- --watch"
+  },
+  "qa_acceptance": {
+    "unit_tests": {
+      "required": true,
+      "commands": [
+        "npm test"
+      ],
+      "minimum_coverage": 70
+    },
+    "integration_tests": {
+      "required": true,
+      "commands": [
+        "npm run test:integration"
+      ],
+      "services_to_test": [
+        "frontend"
+      ]
+    },
+    "e2e_tests": {
+      "required": false,
+      "commands": [
+        "npm run test:e2e"
+      ],
+      "flows": [
+        "authentication",
+        "dashboard",
+        "habits",
+        "tasks"
+      ]
+    },
+    "browser_verification": {
+      "required": false,
+      "pages": []
+    },
+    "database_verification": {
+      "required": false,
+      "checks": []
+    }
+  },
+  "qa_signoff": null,
+  "status": "in_progress",
+  "planStatus": "in_progress",
+  "updated_at": "2026-02-20T14:34:17.941Z",
+  "last_updated": "2026-02-18T00:37:39.116617+00:00",
+  "recoveryNote": "Task recovered from stuck state at 2026-02-20T14:34:15.469Z"
+}
