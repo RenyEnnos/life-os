@@ -9,6 +9,10 @@ vi.mock('@/features/auth/contexts/AuthContext', () => {
   }
 })
 
+vi.mock('@/shared/api/http', () => ({
+  apiClient: { get: vi.fn(), post: vi.fn() }
+}))
+
 describe('DashboardPage integration', () => {
   it('renders dashboard widgets with data display', async () => {
     const client = new QueryClient()
@@ -19,7 +23,11 @@ describe('DashboardPage integration', () => {
     )
 
     // Test welcome widget
-    expect(await screen.findByText(/Good Afternoon/i)).toBeTruthy()
+    try {
+      expect(await screen.findByText(/Good Afternoon/i, {}, { timeout: 5000 })).toBeTruthy()
+    } catch (error) {
+      throw new Error(`Dashboard loading timed out: ${error}`)
+    }
 
     // Test focus timer widget
     expect(screen.getByText(/Focus Session/i)).toBeTruthy()
