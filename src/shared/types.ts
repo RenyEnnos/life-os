@@ -183,3 +183,18 @@ export interface VitalLoadSummary {
     state: VitalLoadState;
     label: string;
 }
+
+// Accessibility Types
+export type ReducedMotionMode = 'system' | 'enabled' | 'disabled';
+
+export type ContrastMode = 'normal' | 'high';
+
+export type FontScale = 'small' | 'normal' | 'large' | 'extra-large';
+
+export interface AccessibilityPreferences {
+    reduced_motion: ReducedMotionMode;
+    high_contrast: ContrastMode;
+    font_scale: FontScale;
+    disable_animations: boolean;
+    reduce_transparency: boolean;
+}
