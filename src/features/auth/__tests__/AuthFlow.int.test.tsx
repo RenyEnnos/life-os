@@ -10,12 +10,12 @@ import type { User } from '@/shared/types'
 
 vi.mock('../api/auth.api')
 
-const mockUser: User = {
+const mockUser = {
   id: 'u1',
   email: 'user@example.com',
   name: 'Test User',
   created_at: '2024-01-01T00:00:00Z'
-}
+} as unknown as User
 
 const TestComponent = () => {
   const { user, login, logout, loading } = useAuth()
@@ -60,8 +60,8 @@ describe('AuthFlow integration', () => {
 
   it('performs complete login flow', async () => {
     const mockedAuthApi = vi.mocked(authApi)
-    mockedAuthApi.verify.mockResolvedValue(null) // No initial session
-    mockedAuthApi.login.mockResolvedValue({ user: mockUser, token: 'mock-token' })
+    mockedAuthApi.verify.mockResolvedValue(null as any) // No initial session
+    mockedAuthApi.login.mockResolvedValue({ user: mockUser, token: 'mock-token' } as any)
 
     renderWithProviders(<TestComponent />)
 
@@ -94,8 +94,8 @@ describe('AuthFlow integration', () => {
 
   it('performs complete logout flow', async () => {
     const mockedAuthApi = vi.mocked(authApi)
-    mockedAuthApi.verify.mockResolvedValue(null) // No initial session
-    mockedAuthApi.login.mockResolvedValue({ user: mockUser, token: 'mock-token' })
+    mockedAuthApi.verify.mockResolvedValue(null as any) // No initial session
+    mockedAuthApi.login.mockResolvedValue({ user: mockUser, token: 'mock-token' } as any)
     mockedAuthApi.logout.mockResolvedValue(undefined)
 
     renderWithProviders(<TestComponent />)
@@ -129,8 +129,8 @@ describe('AuthFlow integration', () => {
 
   it('persists session across page reloads', async () => {
     const mockedAuthApi = vi.mocked(authApi)
-    mockedAuthApi.verify.mockResolvedValue(null) // No initial session
-    mockedAuthApi.login.mockResolvedValue({ user: mockUser, token: 'mock-token' })
+    mockedAuthApi.verify.mockResolvedValue(null as any) // No initial session
+    mockedAuthApi.login.mockResolvedValue({ user: mockUser, token: 'mock-token' } as any)
 
     // Initial render and login
     const { unmount } = renderWithProviders(<TestComponent />)

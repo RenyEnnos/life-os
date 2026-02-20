@@ -728,8 +728,11 @@
     }
   },
   "qa_signoff": null,
-  "status": "in_progress",
-  "planStatus": "in_progress",
-  "updated_at": "2026-02-17T19:02:46.772Z",
-  "last_updated": "2026-02-17T17:52:00.000Z"
+  "status": "human_review",
+  "planStatus": "review",
+  "updated_at": "2026-02-20T20:46:23.870Z",
+  "last_updated": "2026-02-17T17:52:00.000Z",
+  "reviewReason": "completed",
+  "xstateState": "human_review",
+  "executionPhase": "complete"
 }

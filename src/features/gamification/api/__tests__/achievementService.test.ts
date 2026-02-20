@@ -27,8 +27,8 @@ describe("achievementService", () => {
             name: "First Step",
             description: "Complete your first journal entry",
             xp_reward: 50,
-            requirement_type: "journal_entries",
-            requirement_value: 1,
+            condition_type: "journal_entries",
+            condition_value: 1,
             created_at: new Date().toISOString()
           },
           {
@@ -36,8 +36,8 @@ describe("achievementService", () => {
             name: "Consistency King",
             description: "Complete 7 journal entries in a row",
             xp_reward: 100,
-            requirement_type: "streak",
-            requirement_value: 7,
+            condition_type: "streak",
+            condition_value: 7,
             created_at: new Date().toISOString()
           }
         ]
@@ -74,17 +74,17 @@ describe("achievementService", () => {
   })
 
   it("notifyAchievementUnlock shows toast notifications", () => {
-    const achievements: Achievement[] = [
+    const achievements = [
       {
         id: "1",
         name: "First Step",
         description: "Complete your first journal entry",
         xp_reward: 50,
-        requirement_type: "journal_entries",
-        requirement_value: 1,
+        condition_type: "journal_entries",
+        condition_value: 1,
         created_at: new Date().toISOString()
       }
-    ]
+    ] as unknown as Achievement[]
 
     notifyAchievementUnlock(achievements)
 
@@ -102,14 +102,14 @@ describe("achievementService", () => {
   })
 
   it("notifyAchievementUnlock shows multiple toasts for multiple achievements", () => {
-    const achievements: Achievement[] = [
+    const achievements = [
       {
         id: "1",
         name: "First Step",
         description: "Complete your first journal entry",
         xp_reward: 50,
-        requirement_type: "journal_entries",
-        requirement_value: 1,
+        condition_type: "journal_entries",
+        condition_value: 1,
         created_at: new Date().toISOString()
       },
       {
@@ -117,11 +117,11 @@ describe("achievementService", () => {
         name: "Consistency King",
         description: "Complete 7 journal entries in a row",
         xp_reward: 100,
-        requirement_type: "streak",
-        requirement_value: 7,
+        condition_type: "streak",
+        condition_value: 7,
         created_at: new Date().toISOString()
       }
-    ]
+    ] as unknown as Achievement[]
 
     notifyAchievementUnlock(achievements)
 

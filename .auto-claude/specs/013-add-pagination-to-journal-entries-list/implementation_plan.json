@@ -332,9 +332,10 @@
     }
   },
   "qa_signoff": null,
-  "status": "in_progress",
-  "planStatus": "in_progress",
-  "xstateState": "planning",
-  "executionPhase": "coding",
-  "updated_at": "2026-02-20T18:42:57.133Z"
+  "status": "queue",
+  "planStatus": "queued",
+  "xstateState": "error",
+  "executionPhase": "failed",
+  "updated_at": "2026-02-20T20:48:54.695Z",
+  "reviewReason": "errors"
 }

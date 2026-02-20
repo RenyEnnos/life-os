@@ -43,7 +43,7 @@ const mockUnlockedAchievement: AchievementWithStatus = {
     requirement_type: 'tasks_completed',
     requirement_value: 1,
     attribute: 'output',
-} as AchievementWithStatus;
+} as unknown as AchievementWithStatus;
 
 const mockLockedAchievement: AchievementWithStatus = {
     id: '2',
@@ -56,7 +56,7 @@ const mockLockedAchievement: AchievementWithStatus = {
     requirement_type: 'tasks_completed',
     requirement_value: 100,
     attribute: 'output',
-} as AchievementWithStatus;
+} as unknown as AchievementWithStatus;
 
 describe('AchievementCard', () => {
     it('renders unlocked achievement with correct styling', () => {

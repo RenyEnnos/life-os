@@ -65,7 +65,7 @@ export const CacheService = {
     try {
       const cache = getCache(namespace, ttl);
       const cacheKey = generateKey(namespace, key, userId);
-      return cache.set(cacheKey, value, ttl);
+      return ttl !== undefined ? cache.set(cacheKey, value, ttl) : cache.set(cacheKey, value);
     } catch (error) {
       console.error(`Cache set error for ${namespace}:${key}:`, error instanceof Error ? error.message : String(error));
       return false;
