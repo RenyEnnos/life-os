@@ -37,3 +37,14 @@ COMMENT ON COLUMN onboarding_progress.current_step IS 'The current onboarding st
 COMMENT ON COLUMN onboarding_progress.steps_completed IS 'JSON object tracking which steps have been completed';
 COMMENT ON COLUMN onboarding_progress.completed IS 'Whether the user has completed the onboarding flow';
 COMMENT ON COLUMN onboarding_progress.skipped IS 'Whether the user chose to skip the onboarding flow';
+
+-- Add onboarding columns to users table for quick access
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS onboarding_skipped BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS onboarding_completed_at TIMESTAMP WITH TIME ZONE;
+
+-- Add comments for users table onboarding columns
+COMMENT ON COLUMN users.onboarding_completed IS 'Whether the user has completed the onboarding flow (quick access field)';
+COMMENT ON COLUMN users.onboarding_skipped IS 'Whether the user chose to skip the onboarding flow (quick access field)';
+COMMENT ON COLUMN users.onboarding_completed_at IS 'Timestamp when the user completed the onboarding flow';
