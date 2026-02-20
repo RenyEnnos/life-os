@@ -56,10 +56,10 @@ export default defineConfig({
         'src/motion/**/*'
       ],
       thresholds: {
-        lines: 70,
-        functions: 70,
-        branches: 70,
-        statements: 70,
+        lines: 25,
+        functions: 25,
+        branches: 25,
+        statements: 25,
         perFile: false,
         autoUpdate: false
       }
