@@ -57,11 +57,11 @@ export default defineConfig({
       ],
       thresholds: {
         lines: 25,
-        functions: 25,
-        branches: 25,
+        functions: 40,
+        branches: 60,
         statements: 25,
         perFile: false,
-        autoUpdate: false
+        autoUpdate: true
       }
     }
   },
