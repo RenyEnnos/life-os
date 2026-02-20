@@ -2,8 +2,8 @@ import { supabase } from '../lib/supabase'
 import type { HealthMetric, MedicationReminder } from '../../shared/types'
 
 export const healthService = {
-  async list(userId: string, query: { date?: string; type?: string; limit?: number }) {
-    const { date, type, limit } = query
+  async list(userId: string, query: { date?: string; type?: string; limit?: number; startDate?: string; endDate?: string; tags?: string }) {
+    const { date, type, limit, startDate, endDate, tags } = query
     let q = supabase
       .from('health_metrics')
       .select('*')
@@ -12,6 +12,9 @@ export const healthService = {
 
     if (date) q = q.eq('recorded_date', date)
     if (type) q = q.eq('metric_type', type)
+    if (startDate) q = q.gte('recorded_date', startDate)
+    if (endDate) q = q.lte('recorded_date', endDate)
+    if (tags) q = q.contains('tags', [tags])
     if (limit) q = q.limit(Number(limit))
 
     const { data, error } = await q
