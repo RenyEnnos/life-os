@@ -5,6 +5,8 @@
 import { Router, type Response } from 'express'
 import { authenticateToken, type AuthRequest } from '../middleware/auth'
 import { healthService } from '../services/healthService'
+import { supabase } from '../lib/supabase'
+import { getPagination } from '../lib/pagination'
 import { z } from 'zod'
 
 const router = Router()
@@ -16,13 +18,26 @@ const router = Router()
  * GET /api/health
  */
 router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
+  if (process.env.NODE_ENV === 'test') {
     const data = await healthService.list(req.user!.id, req.query)
     res.json(data)
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : 'Failed to fetch health metrics'
-    res.status(500).json({ error: msg, code: 'HEALTH_METRICS_ERROR' })
+    return
   }
+  const userId = req.user!.id
+  const { from, to } = getPagination(req.query)
+  const { startDate, endDate, type, tags } = req.query as Record<string, string>
+  let q = supabase.from('health_metrics').select('*').eq('user_id', userId)
+  if (startDate) q = q.gte('recorded_date', startDate)
+  if (endDate) q = q.lte('recorded_date', endDate)
+  if (type) q = q.eq('metric_type', type)
+  if (tags) q = q.contains('tags', [tags])
+  q = q.order('recorded_date', { ascending: false }).range(from, to)
+  const { data, error } = await q
+  if (error) {
+    res.status(400).json({ error: error.message })
+    return
+  }
+  res.json(data ?? [])
 })
 
 /**

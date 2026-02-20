@@ -3,13 +3,15 @@ import { HealthMetric, MedicationReminder } from '@/shared/types';
 
 export const healthApi = {
     // Metrics
-    listMetrics: async (_userId?: string, query?: { date?: string; type?: string; limit?: number }) => {
+    listMetrics: async (_userId?: string, filters?: Record<string, string>) => {
         const params = new URLSearchParams();
-        if (query?.date) params.append('date', query.date);
-        if (query?.type) params.append('type', query.type);
-        if (query?.limit) params.append('limit', String(query.limit));
+        if (filters?.startDate) params.append('startDate', filters.startDate);
+        if (filters?.endDate) params.append('endDate', filters.endDate);
+        if (filters?.tags) params.append('tags', filters.tags);
+        if (filters?.type) params.append('type', filters.type);
 
-        const data = await apiClient.get<HealthMetric[]>(`/api/health${params.toString() ? `?${params.toString()}` : ''}`);
+        const query = params.toString();
+        const data = await apiClient.get<HealthMetric[]>(`/api/health${query ? `?${query}` : ''}`);
         return data;
     },
 
