@@ -99,7 +99,7 @@ api/.mock-data/
 # ===========================
 # Uncomment ONE of these based on your package manager:
 # package-lock.json           # If using pnpm
-# pnpm-lock.yaml                # If using npm
+pnpm-lock.yaml                # If using npm
 
 # Auto Claude data directory
 .auto-claude/
@@ -108,7 +108,6 @@ api/.mock-data/
 .auto-claude-security.json
 .auto-claude-status
 .claude_settings.json
-.claude
 .worktrees/
 .security-key
 logs/security/

@@ -176,7 +176,7 @@
               "No console errors"
             ]
           },
-          "status": "pending"
+          "status": "completed"
         }
       ]
     },
@@ -332,10 +332,18 @@
     }
   },
   "qa_signoff": null,
+<<<<<<< HEAD
   "status": "queue",
   "planStatus": "queued",
   "xstateState": "error",
   "executionPhase": "failed",
   "updated_at": "2026-02-20T20:48:54.695Z",
   "reviewReason": "errors"
+=======
+  "status": "in_progress",
+  "planStatus": "in_progress",
+  "xstateState": "coding",
+  "executionPhase": "coding",
+  "updated_at": "2026-02-20T21:38:35.328Z"
+>>>>>>> auto-claude/013-add-pagination-to-journal-entries-list
 }
