@@ -241,8 +241,18 @@ router.post('/logout', async (req: Request, res: Response): Promise<void> => {
 })
 
 /**
- * Token Verify
- * GET /api/auth/verify
+ * @swagger
+ * /auth/verify:
+ *   get:
+ *     summary: Verify current session token
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Token is valid, returns user data
+ *       401:
+ *         description: No token provided or invalid
  */
 router.get('/verify', async (req: Request, res: Response): Promise<void> => {
   try {
