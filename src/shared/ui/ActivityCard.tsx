@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { motion, HTMLMotionProps } from 'framer-motion';
+import { useReducedMotion } from '@/shared/hooks/useReducedMotion';
 
 interface ActivityCardProps extends HTMLMotionProps<'div'> {
     title: string;
@@ -13,10 +14,12 @@ interface ActivityCardProps extends HTMLMotionProps<'div'> {
 
 const ActivityCard = forwardRef<HTMLDivElement, ActivityCardProps>(
     ({ className, title, value, subtitle, icon, progress, ...props }, ref) => {
+        const reducedMotion = useReducedMotion();
+
         return (
             <motion.div
                 ref={ref}
-                whileHover={{ scale: 1.02 }}
+                whileHover={reducedMotion ? undefined : { scale: 1.02 }}
                 className={cn(
                     "glass-panel rounded-xl p-6 flex flex-col justify-between relative overflow-hidden",
                     className
@@ -36,9 +39,9 @@ const ActivityCard = forwardRef<HTMLDivElement, ActivityCardProps>(
                     <div className="mt-4 z-10">
                         <div className="h-2 w-full bg-gray-700 rounded-full overflow-hidden">
                             <motion.div
-                                initial={{ width: 0 }}
+                                initial={reducedMotion ? { width: `${progress}%` } : { width: 0 }}
                                 animate={{ width: `${progress}%` }}
-                                transition={{ duration: 1, ease: "easeOut" }}
+                                transition={reducedMotion ? { duration: 0 } : { duration: 1, ease: "easeOut" }}
                                 className="h-full bg-primary"
                             />
                         </div>

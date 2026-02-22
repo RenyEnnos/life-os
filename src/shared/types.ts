@@ -184,14 +184,17 @@ export interface VitalLoadSummary {
     label: string;
 }
 
-export interface Onboarding {
-    id: string | null;
-    user_id: string;
-    current_step: string;
-    steps_completed: Record<string, boolean>;
-    completed: boolean;
-    skipped: boolean;
-    created_at: string | null;
-    updated_at: string | null;
-    completed_at?: string | null;
+// Accessibility Types
+export type ReducedMotionMode = 'system' | 'enabled' | 'disabled';
+
+export type ContrastMode = 'normal' | 'high';
+
+export type FontScale = 'small' | 'normal' | 'large' | 'extra-large';
+
+export interface AccessibilityPreferences {
+    reduced_motion: ReducedMotionMode;
+    high_contrast: ContrastMode;
+    font_scale: FontScale;
+    disable_animations: boolean;
+    reduce_transparency: boolean;
 }

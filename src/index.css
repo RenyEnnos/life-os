@@ -20,8 +20,17 @@
     
     --border: 0 0% 100%;
     --input: 240 3.7% 15.9%;
-    
+
     --radius: 0.5rem;
+
+    /* Font size scaling utilities for accessibility */
+    --font-scale: 1;
+    --font-scale-xs: 0.75;
+    --font-scale-sm: 0.875;
+    --font-scale-md: 1;
+    --font-scale-lg: 1.125;
+    --font-scale-xl: 1.25;
+    --font-scale-2xl: 1.5;
   }
 
   html {
@@ -128,6 +137,30 @@
     @apply text-[10px] text-zinc-500 font-medium tracking-widest uppercase;
   }
 
+  /* Font size scaling utilities using CSS variables */
+  .font-scale-xs {
+    font-size: calc(var(--font-scale-xs) * var(--font-scale, 1) * 1rem);
+  }
+  .font-scale-sm {
+    font-size: calc(var(--font-scale-sm) * var(--font-scale, 1) * 1rem);
+  }
+  .font-scale-md {
+    font-size: calc(var(--font-scale-md) * var(--font-scale, 1) * 1rem);
+  }
+  .font-scale-lg {
+    font-size: calc(var(--font-scale-lg) * var(--font-scale, 1) * 1rem);
+  }
+  .font-scale-xl {
+    font-size: calc(var(--font-scale-xl) * var(--font-scale, 1) * 1rem);
+  }
+  .font-scale-2xl {
+    font-size: calc(var(--font-scale-2xl) * var(--font-scale, 1) * 1rem);
+  }
+  .font-scale-base {
+    font-size: calc(var(--font-scale, 1) * 1rem);
+  }
+
+
   /* Subtle noise overlay for hero/atmosphere layers */
   .bg-noise {
     position: relative;
@@ -160,4 +193,203 @@
       transform: translateY(0);
     }
   }
-} 
+}
+
+/* Reduced motion support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable smooth scrolling */
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable transitions on glass cards */
+  .glass-card {
+    transition: none !important;
+  }
+
+  .dashboard-shell .glass-card {
+    transition: none !important;
+  }
+
+  /* Disable animations on enter animations */
+  .animate-enter,
+  .animate-enter-delay-1,
+  .animate-enter-delay-2,
+  .animate-enter-delay-3 {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Disable Tailwind pulse-slow animation */
+  .animate-pulse-slow {
+    animation: none !important;
+  }
+
+  /* Disable Tailwind breathe animation */
+  .animate-breathe {
+    animation: none !important;
+    transform: scale(1) !important;
+  }
+
+  /* Disable Tailwind draw animation */
+  .animate-draw {
+    animation: none !important;
+    height: var(--target-height) !important;
+  }
+
+  /* Disable all transitions and animations globally */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Data-attribute based reduced motion support for user override */
+[data-reduced-motion="true"] {
+  /* Disable smooth scrolling */
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable transitions on glass cards */
+  .glass-card {
+    transition: none !important;
+  }
+
+  .dashboard-shell .glass-card {
+    transition: none !important;
+  }
+
+  /* Disable animations on enter animations */
+  .animate-enter,
+  .animate-enter-delay-1,
+  .animate-enter-delay-2,
+  .animate-enter-delay-3 {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Disable Tailwind pulse-slow animation */
+  .animate-pulse-slow {
+    animation: none !important;
+  }
+
+  /* Disable Tailwind breathe animation */
+  .animate-breathe {
+    animation: none !important;
+    transform: scale(1) !important;
+  }
+
+  /* Disable Tailwind draw animation */
+  .animate-draw {
+    animation: none !important;
+    height: var(--target-height) !important;
+  }
+
+  /* Disable all transitions and animations globally */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast theme for accessibility (WCAG AAA compliant) */
+.high-contrast,
+[data-high-contrast="true"] {
+  /* Override CSS variables with high contrast values */
+  --background: 0 0% 0%; /* #000000 - Pure black */
+  --surface: 0 0% 0%; /* #000000 - Pure black */
+  --surface-highlight: 0 0% 5%; /* Slightly lighter */
+
+  --foreground: 0 0% 100%; /* #FFFFFF - Pure white */
+  --primary: 210 100% 50%; /* Brighter blue for better contrast */
+  --primary-foreground: 0 0% 100%;
+
+  --muted: 0 0% 10%; /* Darker but visible */
+  --muted-foreground: 0 0% 85%; /* Light gray for readability */
+
+  --destructive: 0 100% 50%; /* Pure red for maximum contrast */
+
+  --border: 0 0% 100%; /* White borders for clear visibility */
+  --input: 0 0% 0%;
+}
+
+.high-contrast,
+[data-high-contrast="true"] {
+  /* Enhanced borders and outlines */
+  .glass-card {
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    outline: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .glass-card:hover {
+    border-color: rgba(255, 255, 255, 0.9) !important;
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .dashboard-shell .glass-card {
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    outline: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .dashboard-shell .glass-card:hover {
+    border-color: rgba(255, 255, 255, 0.9) !important;
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+  }
+
+  /* Stronger focus indicators */
+  *:focus-visible {
+    outline: 3px solid #FFFFFF !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Enhanced text readability */
+  .text-label {
+    color: #E0E0E0 !important;
+  }
+
+  /* Clearer scrollbar */
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.5) !important;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  .dashboard-shell ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.5) !important;
+  }
+  .dashboard-shell ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+  }
+}
+
+/* Font size scaling support for accessibility */
+[data-font-scale="xs"] {
+  --font-scale: var(--font-scale-xs);
+}
+[data-font-scale="sm"] {
+  --font-scale: var(--font-scale-sm);
+}
+[data-font-scale="md"] {
+  --font-scale: var(--font-scale-md);
+}
+[data-font-scale="lg"] {
+  --font-scale: var(--font-scale-lg);
+}
+[data-font-scale="xl"] {
+  --font-scale: var(--font-scale-xl);
+}
+[data-font-scale="2xl"] {
+  --font-scale: var(--font-scale-2xl);
+}

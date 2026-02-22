@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/shared/lib/cn'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
+import { useReducedMotion } from '@/shared/hooks/useReducedMotion'
 
 type ModalProps = {
   open: boolean
@@ -22,6 +23,8 @@ const springTransition = {
 };
 
 export function Modal({ open, onClose, title, children, className, contentClassName }: ModalProps) {
+  const reducedMotion = useReducedMotion();
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     if (open) document.addEventListener('keydown', onKey)
@@ -36,11 +39,11 @@ export function Modal({ open, onClose, title, children, className, contentClassN
         <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4">
           {/* Backdrop with progressive blur */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
-            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            initial={reducedMotion ? false : { opacity: 0 }}
+            animate={reducedMotion ? { opacity: 1 } : { opacity: 1, backdropFilter: "blur(8px)" }}
+            exit={reducedMotion ? { opacity: 0 } : { opacity: 0, backdropFilter: "blur(0px)" }}
             onClick={onClose}
-            transition={springTransition}
+            transition={reducedMotion ? { duration: 0 } : springTransition}
             className="absolute inset-0 bg-black/60 backdrop-blur-md"
           />
 
@@ -48,10 +51,10 @@ export function Modal({ open, onClose, title, children, className, contentClassN
           <motion.div
             role="dialog"
             aria-modal="true"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={springTransition}
+            initial={reducedMotion ? false : { opacity: 0, scale: 0.95 }}
+            animate={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+            exit={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
+            transition={reducedMotion ? { duration: 0 } : springTransition}
             className={cn('relative w-full max-w-md bg-surface border border-white/10 rounded-3xl shadow-2xl overflow-hidden', className)}
           >
             <button
