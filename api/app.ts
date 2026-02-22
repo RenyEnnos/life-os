@@ -29,6 +29,7 @@ import calendarRoutes from './routes/calendar'
 import symbiosisRoutes from './routes/symbiosis'
 import synapseRoutes from './routes/synapse'
 import budgetRoutes from './routes/budgets'
+import onboardingRoutes from './routes/onboarding'
 
 // for esm mode
 
@@ -144,6 +145,7 @@ import financeCategoriesRoutes from './routes/financeCategories'
 app.use('/api/finance-categories', financeCategoriesRoutes)
 import universityRoutes from './routes/university'
 app.use('/api/university', universityRoutes)
+app.use('/api/onboarding', onboardingRoutes)
 
 /**
  * error handler middleware
