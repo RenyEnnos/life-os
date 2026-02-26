@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express'
-import jwt, { JwtPayload } from 'jsonwebtoken'
 import { supabase } from '../lib/supabase'
 
 export interface AuthRequest extends Request {
@@ -16,27 +15,41 @@ export const authenticateToken = async (
   next: NextFunction
 ) => {
   try {
-    const token = req.cookies?.token || (req.headers.authorization && req.headers.authorization.split(' ')[1])
+    const authHeader = req.headers.authorization;
+    const token = req.cookies?.token || (authHeader && authHeader.split(' ')[1]);
 
     if (!token) {
-      return res.status(401).json({ error: 'Access token required' })
+      return res.status(401).json({ error: 'Access token required' });
     }
-    const secret = process.env.JWT_SECRET
-    if (!secret) return res.status(500).json({ error: 'JWT_SECRET not configured' })
 
-    const decoded = jwt.verify(token, secret) as JwtPayload & { userId: string }
-    const { data: user, error } = await supabase
+    // Use Supabase to verify the token and get the user
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !authUser) {
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+
+    // Fetch additional user data from our 'users' table if needed
+    const { data: user, error: userError } = await supabase
       .from('users')
       .select('id, email, name')
-      .eq('id', decoded.userId)
-      .single()
+      .eq('id', authUser.id)
+      .single();
 
-    if (error || !user) {
-      return res.status(401).json({ error: 'Invalid token' })
+    if (userError || !user) {
+      // If user exists in Auth but not in our table, we might need to create them or just return auth data
+      req.user = {
+        id: authUser.id,
+        email: authUser.email!,
+        name: authUser.user_metadata?.full_name || authUser.email!.split('@')[0]
+      };
+    } else {
+      req.user = user;
     }
-    req.user = user
-    next()
-  } catch {
-    return res.status(403).json({ error: 'Invalid token' })
+
+    next();
+  } catch (err) {
+    console.error('Auth Middleware Error:', err);
+    return res.status(403).json({ error: 'Authentication failed' });
   }
-}
+};
