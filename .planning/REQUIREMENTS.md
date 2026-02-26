@@ -88,19 +88,43 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
+Which phases cover which requirements.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01..04 | Phase 1 | Pending |
-| DASH-01..03 | Phase 1 | Pending |
-| HABIT-01..05| Phase 1 | Pending |
-| TASK-01..04 | Phase 1 | Pending |
-| FIN-01..04  | Phase 2 | Pending |
-| UNI-01..04  | Phase 2 | Pending |
-| AI-01..04   | Phase 3 | Pending |
-| GAME-01..03 | Phase 4 | Pending |
-| JOURN-01..02| Phase 4 | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Pending |
+| DASH-01 | Phase 2 | Pending |
+| DASH-02 | Phase 2 | Pending |
+| DASH-03 | Phase 7 | Pending |
+| HABIT-01 | Phase 3 | Pending |
+| HABIT-02 | Phase 3 | Pending |
+| HABIT-03 | Phase 3 | Pending |
+| HABIT-04 | Phase 3 | Pending |
+| HABIT-05 | Phase 3 | Pending |
+| TASK-01 | Phase 4 | Pending |
+| TASK-02 | Phase 4 | Pending |
+| TASK-03 | Phase 4 | Pending |
+| TASK-04 | Phase 4 | Pending |
+| FIN-01 | Phase 5 | Pending |
+| FIN-02 | Phase 5 | Pending |
+| FIN-03 | Phase 5 | Pending |
+| FIN-04 | Phase 5 | Pending |
+| UNI-01 | Phase 6 | Pending |
+| UNI-02 | Phase 6 | Pending |
+| UNI-03 | Phase 6 | Pending |
+| UNI-04 | Phase 6 | Pending |
+| AI-01 | Phase 7 | Pending |
+| AI-02 | Phase 7 | Pending |
+| AI-03 | Phase 7 | Pending |
+| AI-04 | Phase 9 | Pending |
+| GAME-01 | Phase 8 | Pending |
+| GAME-02 | Phase 8 | Pending |
+| GAME-03 | Phase 8 | Pending |
+| JOURN-01 | Phase 9 | Pending |
+| JOURN-02 | Phase 9 | Pending |
 
 **Coverage:**
 - v1 requirements: 32 total
