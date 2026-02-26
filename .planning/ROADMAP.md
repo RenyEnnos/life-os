@@ -139,7 +139,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Project Scaffolding & Auth | 1/3 | In Progress|  |
+| 1. Project Scaffolding & Auth | 2/3 | In Progress|  |
 | 2. Core Infrastructure | 0/1 | Not started | - |
 | 3. Habit Tracking | 0/1 | Not started | - |
 | 4. Task Management | 0/1 | Not started | - |
