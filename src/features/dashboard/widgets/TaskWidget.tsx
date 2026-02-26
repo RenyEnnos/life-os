@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CheckCircle2, Circle, Plus, Play, Calendar } from 'lucide-react';
-import { WidgetShell } from './WidgetShell';
+import { Widget } from '@/shared/ui/Widget';
 import { useDashboardData } from '@/features/dashboard/hooks/useDashboardData';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { tasksApi } from '@/features/tasks/api/tasks.api';
@@ -41,16 +41,15 @@ export function TaskWidget() {
         }
     });
 
-    // We might want to see ALL active tasks, not just agenda?
-    // useDashboardData returns 'tasks' (all) and 'agenda' (today).
-    // For a widget, "Agenda" (Today) is usually best.
-
     return (
-        <WidgetShell
+        <Widget
             title="Missão do Dia"
             subtitle={`${agenda.filter(t => t.completed).length}/${agenda.length} Concluídas`}
-            icon={<CheckCircle2 size={18} className="text-primary" />}
-            className="h-full min-h-[320px]"
+            icon={CheckCircle2}
+            className="h-full min-h-[320px] col-span-1 row-span-2"
+            isLoading={isLoading}
+            isEmpty={!isLoading && agenda.length === 0 && !isAdding}
+            emptyMessage="Agenda livre hoje."
             action={
                 <button
                     onClick={() => setIsAdding(!isAdding)}
@@ -82,15 +81,6 @@ export function TaskWidget() {
                 )}
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 flex flex-col gap-2">
-                    {isLoading && <p className="text-xs text-zinc-500">Carregando...</p>}
-
-                    {!isLoading && agenda.length === 0 && !isAdding && (
-                        <div className="flex flex-col items-center justify-center h-full text-zinc-500 border border-dashed border-white/10 rounded-xl">
-                            <Calendar size={24} className="mb-2 opacity-50" />
-                            <p className="text-xs">Agenda livre hoje.</p>
-                        </div>
-                    )}
-
                     {agenda.map(task => (
                         <div key={task.id} className="group flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all">
                             <div className="flex items-center gap-3 overflow-hidden">
@@ -124,6 +114,6 @@ export function TaskWidget() {
                     ))}
                 </div>
             </div>
-        </WidgetShell>
+        </Widget>
     );
 }

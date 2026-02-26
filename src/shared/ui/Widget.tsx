@@ -6,6 +6,7 @@ import { AlertCircle } from 'lucide-react';
 
 interface WidgetProps {
   title: string;
+  subtitle?: string;
   icon?: React.ReactNode | React.ElementType;
   action?: React.ReactNode;
   isLoading?: boolean;
@@ -19,6 +20,7 @@ interface WidgetProps {
 
 export const Widget = ({
   title,
+  subtitle,
   icon,
   action,
   isLoading,
@@ -37,7 +39,14 @@ export const Widget = ({
       className={cn("h-full", className)}
       noPadding={noPadding}
     >
-      {isLoading ? (
+      <div className="h-full flex flex-col">
+        {subtitle && !isLoading && !isEmpty && !error && (
+          <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-medium mb-4 px-1">
+            {subtitle}
+          </p>
+        )}
+        <div className="flex-1">
+          {isLoading ? (
         <div className="space-y-3">
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-20 w-full" />

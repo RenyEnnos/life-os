@@ -1,9 +1,9 @@
 import React from 'react';
 import { BentoGrid } from '@/shared/ui/BentoGrid';
 import { BentoCard } from '@/shared/ui/BentoCard';
-import { HabitsWidget } from '@/features/habits/components/HabitsWidget';
-import { TasksWidget } from '@/features/tasks/components/TasksWidget';
-import { HealthWidget } from '@/features/health/components/HealthWidget';
+import { HabitWidget } from '@/features/dashboard/widgets/HabitWidget';
+import { TaskWidget } from '@/features/dashboard/widgets/TaskWidget';
+import { HealthWidget } from '@/features/dashboard/widgets/HealthWidget';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { Rocket, Target, Zap, Clock } from 'lucide-react';
 
@@ -64,8 +64,8 @@ export const IndexPage = () => {
             </BentoCard>
 
             {/* ZONE 2: TODAY (Habits & Tasks) */}
-            <HabitsWidget />
-            <TasksWidget />
+            <HabitWidget />
+            <TaskWidget />
 
             {/* ZONE 3: CONTEXT (Health & Insights) */}
             <HealthWidget />

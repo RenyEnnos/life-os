@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Activity, Check, Plus } from 'lucide-react';
-import { WidgetShell } from './WidgetShell';
+import { Widget } from '@/shared/ui/Widget';
 import { useDashboardData } from '@/features/dashboard/hooks/useDashboardData';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { habitsApi } from '@/features/habits/api/habits.api';
@@ -29,11 +29,14 @@ export function HabitWidget() {
     const sortedHabits = [...habits].sort((a, b) => (a.streak_current || 0) > (b.streak_current || 0) ? -1 : 1);
 
     return (
-        <WidgetShell
+        <Widget
             title="Hábitos"
             subtitle={`${habitConsistency?.percentage || 0}% Consistência`}
-            icon={<Activity size={18} className="text-sky-400" />}
-            className="h-full min-h-[320px]"
+            icon={Activity}
+            className="h-full min-h-[320px] col-span-1 row-span-2"
+            isLoading={isLoading}
+            isEmpty={!isLoading && habits.length === 0}
+            emptyMessage="Nenhum hábito rastreado hoje"
         >
             <div className="flex flex-col h-full gap-4">
                 {/* Consistency Chart */}
@@ -53,8 +56,7 @@ export function HabitWidget() {
 
                 {/* Quick Log */}
                 <div className="flex flex-col gap-2 flex-1 overflow-y-auto pr-1 custom-scrollbar">
-                    {isLoading && <p className="text-xs text-zinc-500">Carregando...</p>}
-                    {!isLoading && sortedHabits.map(habit => (
+                    {sortedHabits.map(habit => (
                         <button
                             key={habit.id}
                             onClick={() => logHabit.mutate(habit.id)}
@@ -89,6 +91,6 @@ export function HabitWidget() {
                     ))}
                 </div>
             </div>
-        </WidgetShell>
+        </Widget>
     );
 }
