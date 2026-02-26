@@ -4,8 +4,7 @@ import { useOnboardingStore } from '@/shared/stores/onboardingStore';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 
 export function OnboardingManager() {
-    const { user, loading } = useAuth();
-    const { hasCompletedOnboarding, completeOnboarding } = useOnboardingStore();
+    const { user, loading, hasCompletedOnboarding } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
@@ -18,7 +17,6 @@ export function OnboardingManager() {
     }, [user, loading, hasCompletedOnboarding]);
 
     const handleClose = () => {
-        completeOnboarding();
         setIsOpen(false);
     };
 

@@ -5,7 +5,22 @@ import { useAuthStore } from '@/shared/stores/authStore';
 const AuthContext = createContext<null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { setAuth, setLoading, setError, signOut } = useAuthStore();
+  const { setAuth, setProfile, setLoading, setError, signOut } = useAuthStore();
+
+  const fetchProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') throw error;
+      setProfile(data);
+    } catch (err) {
+      console.error('Error fetching profile:', err);
+    }
+  };
 
   useEffect(() => {
     // Initial session check
@@ -15,6 +30,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) throw error;
         setAuth(session);
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        }
       } catch (err: any) {
         console.error('Auth initialization error:', err);
         setError(err.message || 'Failed to initialize session');
@@ -27,8 +45,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         setAuth(session);
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        }
         if (_event === 'SIGNED_OUT') {
           signOut();
         }
@@ -38,7 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       subscription.unsubscribe();
     };
-  }, [setAuth, setLoading, setError, signOut]);
+  }, [setAuth, setProfile, setLoading, setError, signOut]);
 
   return (
     <AuthContext.Provider value={null}>
@@ -48,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 export const useAuth = () => {
-  const { user, session, isLoading, error, signOut } = useAuthStore();
+  const { user, session, profile, isLoading, error, signOut } = useAuthStore();
 
   const login = async (creds: { email: string; password: any }) => {
     const { error } = await supabase.auth.signInWithPassword(creds);
@@ -73,15 +94,31 @@ export const useAuth = () => {
     signOut();
   };
 
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) throw error;
+  };
+
+  const updatePassword = async (password: string) => {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) throw error;
+  };
+
   return {
     user,
     session,
+    profile,
     isLoading,
     loading: isLoading, // Compatibility
+    hasCompletedOnboarding: profile?.onboarding_completed || false,
     error,
     login,
     register,
     logout,
+    resetPassword,
+    updatePassword,
   };
 };
 

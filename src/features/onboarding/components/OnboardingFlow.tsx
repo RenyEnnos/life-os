@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ArrowRight, ArrowLeft, User, Target, Zap, Palette, Rocket } from 'lucide-react';
 import { useOnboardingStore, OnboardingFormData } from '@/shared/stores/onboardingStore';
+import { supabase } from '@/shared/lib/supabase';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
@@ -37,8 +38,29 @@ export function OnboardingFlow() {
     }
   };
 
-  const handleComplete = () => {
-    completeOnboarding();
+  const handleComplete = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: session.user.id,
+          full_name: formData.fullName,
+          nickname: formData.nickname,
+          goals: formData.goals,
+          focus_areas: formData.focusAreas,
+          theme: formData.theme,
+          onboarding_completed: true,
+          updated_at: new Date().toISOString(),
+        });
+
+      if (error) throw error;
+      completeOnboarding();
+    } catch (err) {
+      console.error('Failed to complete onboarding:', err);
+    }
   };
 
   const variants = {
