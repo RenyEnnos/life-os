@@ -143,7 +143,7 @@
 |-------|----------------|--------|-----------|
 | 1. Project Scaffolding & Auth | 3/3 | Complete    | 2026-02-26 |
 | 2. Core Infrastructure | 3/3 | Complete    | 2026-02-26 |
-| 3. Habit Tracking | 0/1 | Not started | - |
+| 3. Habit Tracking | 1/3 | In Progress|  |
 | 4. Task Management | 0/1 | Not started | - |
 | 5. Financial Management | 0/1 | Not started | - |
 | 6. University Management | 0/1 | Not started | - |
