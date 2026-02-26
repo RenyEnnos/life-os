@@ -15,8 +15,9 @@ A unified, gamified, and AI-powered personal productivity system that reduces co
 - **Frontend Core**: React 18, Vite, TypeScript, Tailwind CSS, Lucide React, Recharts.
 - **State/Data**: Zustand, React Query, Supabase (PostgreSQL).
 - **Backend Core**: Node.js, Express.
-- **Features (Implemented/In-progress)**: Dashboard, Habits, Tasks, Finances, University, Journal, Rewards, AI Integration (Groq/Google).
-- **Security**: Helmet, Rate Limiting, XSS Sanitization, Anti-CSRF, Auth Verification.
+- **Auth & Security**: Supabase Auth (Email/Pass), Reset Password flow, JWT verification in Express middleware.
+- **Onboarding**: 5-step interactive flow with database persistence.
+- **Security Features**: Helmet, Rate Limiting, XSS Sanitization, Anti-CSRF.
 
 ### Active
 
@@ -56,6 +57,8 @@ A unified, gamified, and AI-powered personal productivity system that reduces co
 | Feature-Sliced Design | Modularization and isolation of domain logic | ✓ Good |
 | Express Backend + Supabase | Governance and security layer over DB | ✓ Good |
 | React Query | Robust server-state management and caching | ✓ Good |
+| Supabase Auth Migration | Higher security and easier management than custom JWT | ✓ Good |
+| Database-backed Onboarding | Ensure continuity across devices and sessions | ✓ Good |
 
 ---
-*Last updated: 2026-02-26 after project scanning*
+*Last updated: 2026-02-26 after Phase 1*
