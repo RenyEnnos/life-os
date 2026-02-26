@@ -26,9 +26,9 @@
   3. User can securely reset a forgotten password via an email link.
   4. User can log out and be redirected to a public landing page.
 **Plans**: 3 plans
-- [ ] 01-01-PLAN.md — Scaffolding & Supabase Setup
-- [ ] 01-02-PLAN.md — Auth UI & Backend Migration
-- [ ] 01-03-PLAN.md — Onboarding System
+- [x] 01-01-PLAN.md — Scaffolding & Supabase Setup
+- [x] 01-02-PLAN.md — Auth UI & Backend Migration
+- [x] 01-03-PLAN.md — Onboarding System
 
 ### Phase 2: Core Infrastructure & Dashboard Layout
 **Goal**: Implement the primary user interface structure and widget system.
@@ -38,7 +38,9 @@
   1. User can view the 3-zone layout (Now/Today/Context) on the main dashboard.
   2. Dynamic widgets for Habits and Tasks are visible with "empty state" handling.
   3. Layout is responsive across mobile, tablet, and desktop views.
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 02-01-PLAN.md — Dashboard Infrastructure & Widgets
+- [ ] 02-02-PLAN.md — 3-Zone Layout & Orchestration
 
 ### Phase 3: Habit Tracking System
 **Goal**: Enable users to build and monitor daily habits with visual feedback.
@@ -140,7 +142,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Project Scaffolding & Auth | 3/3 | Complete    | 2026-02-26 |
-| 2. Core Infrastructure | 0/1 | Not started | - |
+| 2. Core Infrastructure | 1/3 | In Progress|  |
 | 3. Habit Tracking | 0/1 | Not started | - |
 | 4. Task Management | 0/1 | Not started | - |
 | 5. Financial Management | 0/1 | Not started | - |
