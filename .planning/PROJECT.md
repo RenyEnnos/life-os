@@ -17,11 +17,11 @@ A unified, gamified, and AI-powered personal productivity system that reduces co
 - **Backend Core**: Node.js, Express.
 - **Auth & Security**: Supabase Auth (Email/Pass), Reset Password flow, JWT verification in Express middleware.
 - **Onboarding**: 5-step interactive flow with database persistence.
+- **Dashboard**: 3-zone Bento Grid layout (Now/Today/Context) with reusable Widget framework.
 - **Security Features**: Helmet, Rate Limiting, XSS Sanitization, Anti-CSRF.
 
 ### Active
 
-- [ ] **Dashboard**: 3-zone layout (Now/Today/Context) with dynamic widgets.
 - [ ] **Habits**: Heatmap, streaks, analytics, quantified habits.
 - [ ] **Tasks**: Kanban board, Quick Capture with AI parsing.
 - [ ] **Finances**: Transaction tracking, AI categorization, visual charts.
@@ -59,6 +59,7 @@ A unified, gamified, and AI-powered personal productivity system that reduces co
 | React Query | Robust server-state management and caching | ✓ Good |
 | Supabase Auth Migration | Higher security and easier management than custom JWT | ✓ Good |
 | Database-backed Onboarding | Ensure continuity across devices and sessions | ✓ Good |
+| Widget Framework | Consistent UI/UX for all dashboard items with unified status handling | ✓ Good |
 
 ---
-*Last updated: 2026-02-26 after Phase 1*
+*Last updated: 2026-02-26 after Phase 2*
