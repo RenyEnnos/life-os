@@ -36,6 +36,11 @@ export interface Habit extends Omit<DbHabit, 'schedule'> {
     streak: number;
     routine: 'morning' | 'afternoon' | 'evening' | 'any';
     schedule: { frequency: string } & Record<string, string | number | boolean | null>;
+    type: 'binary' | 'quantified';
+    target_value: number;
+    unit?: string;
+    color?: string;
+    icon?: string;
 }
 
 export type DbTask = Database['public']['Tables']['tasks']['Row'];
