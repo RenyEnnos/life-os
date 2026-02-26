@@ -25,7 +25,10 @@
   2. User can log in and remain authenticated across browser sessions.
   3. User can securely reset a forgotten password via an email link.
   4. User can log out and be redirected to a public landing page.
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 01-01-PLAN.md — Scaffolding & Supabase Setup
+- [ ] 01-02-PLAN.md — Auth UI & Backend Migration
+- [ ] 01-03-PLAN.md — Onboarding System
 
 ### Phase 2: Core Infrastructure & Dashboard Layout
 **Goal**: Implement the primary user interface structure and widget system.
@@ -136,7 +139,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Project Scaffolding & Auth | 0/1 | Not started | - |
+| 1. Project Scaffolding & Auth | 3/3 | Planned | - |
 | 2. Core Infrastructure | 0/1 | Not started | - |
 | 3. Habit Tracking | 0/1 | Not started | - |
 | 4. Task Management | 0/1 | Not started | - |
