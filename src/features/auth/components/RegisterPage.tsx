@@ -7,21 +7,6 @@ import { motion, useMotionValue, useTransform, useSpring, Variants } from 'frame
 import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 
-import { ApiError } from '@/shared/api/http';
-
-type ValidationDetail = {
-    path?: string | string[];
-    message: string;
-};
-
-const isValidationDetail = (detail: unknown): detail is ValidationDetail => {
-    if (!detail || typeof detail !== 'object') {
-        return false;
-    }
-    const candidate = detail as { message?: unknown };
-    return typeof candidate.message === 'string';
-};
-
 export default function RegisterPage() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -90,42 +75,25 @@ export default function RegisterPage() {
             const normalizedEmail = email.trim().toLowerCase();
             const normalizedName = `${firstName} ${lastName}`.trim();
             await register({ email: normalizedEmail, password, name: normalizedName });
-            navigate('/');
-        } catch (err: unknown) {
+            
+            // Supabase sends a confirmation email by default
+            setError(
+                <div className="text-green-400">
+                    Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro antes de entrar.
+                </div>
+            );
+        } catch (err: any) {
             console.error('Registration Error:', err);
             
+            const msg = err?.message || '';
             let userFriendlyError: React.ReactNode = 'Falha ao criar conta.';
             
-            if (err instanceof ApiError && err.status === 400 && err.details) {
-                 userFriendlyError = (
-                    <div className="flex flex-col gap-1">
-                        <span className="font-semibold">Atenção</span>
-                        {Array.isArray(err.details) ? (
-                            <ul className="list-disc pl-4 space-y-0.5">
-                                {err.details.filter(isValidationDetail).map((detail, i: number) => {
-                                    const field = Array.isArray(detail.path)
-                                        ? detail.path.join('.')
-                                        : (detail.path || 'Campo desconhecido');
-                                    let msg = detail.message;
-                                    
-                                    // Translate fallback if backend sends raw Zod "Required"
-                                    if (msg === "Required") {
-                                        if (field.includes('email')) msg = "O e-mail é obrigatório.";
-                                        else if (field.includes('password')) msg = "A senha é obrigatória.";
-                                        else if (field.includes('name')) msg = "O nome é obrigatório.";
-                                        else msg = "Preencha todos os campos.";
-                                    }
-                                    
-                                    return <li key={i}>{msg}</li>;
-                                })}
-                            </ul>
-                        ) : (
-                            <span>{JSON.stringify(err.details)}</span>
-                        )}
-                    </div>
-                );
-            } else if (err instanceof ApiError && err.status === 400 && err.message.includes('already exists')) {
+            if (msg.includes('User already registered')) {
                 userFriendlyError = 'Este e-mail já está cadastrado.';
+            } else if (msg.includes('Password should be at least 6 characters')) {
+                userFriendlyError = 'A senha deve ter no mínimo 6 caracteres.';
+            } else {
+                userFriendlyError = msg || 'Ocorreu um erro inesperado no cadastro.';
             }
 
             setError(userFriendlyError);
