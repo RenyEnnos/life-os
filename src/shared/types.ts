@@ -198,3 +198,16 @@ export interface AccessibilityPreferences {
     disable_animations: boolean;
     reduce_transparency: boolean;
 }
+
+// Onboarding Types
+export interface Onboarding {
+    id: string;
+    user_id: string;
+    current_step: string;
+    steps_completed: Record<string, boolean>;
+    completed: boolean;
+    skipped: boolean;
+    created_at: string;
+    updated_at: string;
+    completed_at?: string | null;
+}
