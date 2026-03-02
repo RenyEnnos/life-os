@@ -1,15 +1,12 @@
 import { Habit as SharedHabit } from '@/shared/types';
 
 export interface Habit extends SharedHabit {
-    // Frontend specific aliases or optional props if not in shared yet
-    title?: string; // Legacy support or alias
-    active?: boolean; // Derived or missing in shared
-    type?: 'binary' | 'numeric';
-    goal?: number;
-    category?: string;
-    icon?: string;
+    // Frontend specific aliases or optional props
+    title?: string; // Support for title (sometimes used interchangeably with name)
+    active?: boolean;
     completed?: boolean;
     progress?: number;
+    category?: string; // Legacy or future use
 }
 
 export interface HabitLog {

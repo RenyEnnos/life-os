@@ -5,6 +5,8 @@ export interface DbUser {
     id: string;
     email?: string;
     name?: string;
+    full_name?: string;
+    nickname?: string;
     avatar_url?: string;
     preferences?: Record<string, unknown>;
     theme?: string;
@@ -36,6 +38,14 @@ export interface Habit extends Omit<DbHabit, 'schedule'> {
     streak: number;
     routine: 'morning' | 'afternoon' | 'evening' | 'any';
     schedule: { frequency: string } & Record<string, string | number | boolean | null>;
+    type: 'binary' | 'quantified';
+    target_value: number;
+    goal: number;
+    unit?: string;
+    color?: string;
+    icon?: string;
+    title: string;
+    name: string;
 }
 
 export type DbTask = Database['public']['Tables']['tasks']['Row'];
@@ -43,10 +53,13 @@ export type DbTask = Database['public']['Tables']['tasks']['Row'];
 export type EnergyLevel = 'high' | 'low' | 'any';
 export type TimeBlock = 'morning' | 'afternoon' | 'evening' | 'any';
 
+export type TaskStatus = 'todo' | 'in-progress' | 'done';
+
 export interface Task extends Omit<DbTask, 'tags'> {
     tags?: string[];
     energy_level?: EnergyLevel;
     time_block?: TimeBlock;
+    status: TaskStatus;
 }
 
 // Neural Resonance Types
@@ -151,6 +164,7 @@ export interface LifeScore {
     level: number;
     current_xp: number;
     next_level_xp: number;
+    xp_to_next_level: number;
     life_score: number;
     attributes: Record<string, number>;
     updated_at: string;
@@ -197,4 +211,17 @@ export interface AccessibilityPreferences {
     font_scale: FontScale;
     disable_animations: boolean;
     reduce_transparency: boolean;
+}
+
+// Onboarding Types
+export interface Onboarding {
+    id: string;
+    user_id: string;
+    current_step: string;
+    steps_completed: Record<string, boolean>;
+    completed: boolean;
+    skipped: boolean;
+    created_at: string;
+    updated_at: string;
+    completed_at?: string | null;
 }

@@ -61,5 +61,15 @@ export const aiApi = {
             method: 'POST',
             body: JSON.stringify({ input })
         });
+    },
+
+    parseEntity: async (input: string) => {
+        return apiFetch<{
+            type: 'task' | 'habit' | 'transaction';
+            data: any;
+        }>('/api/ai/parse-entity', {
+            method: 'POST',
+            body: JSON.stringify({ input })
+        });
     }
 };

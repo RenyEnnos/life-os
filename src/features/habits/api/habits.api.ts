@@ -41,7 +41,10 @@ function validateHabitData(habit: Partial<Habit>, requireTitle = true): void {
         throw new Error('Descrição deve ser uma string');
     }
 
-    if (habit.goal !== undefined && (typeof habit.goal !== 'number' || habit.goal < 0)) {
+    // Support both goal (legacy) and target_value
+    const targetValue = habit.target_value ?? habit.goal;
+
+    if (targetValue !== undefined && (typeof targetValue !== 'number' || targetValue < 0)) {
         throw new Error('Meta deve ser um número positivo');
     }
 }

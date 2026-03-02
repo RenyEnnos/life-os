@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
-import { authApi } from '../api/auth.api';
 
 import { MagneticButton } from '@/shared/ui/MagneticButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft, AlertCircle } from 'lucide-react';
 import { motion, useMotionValue, useTransform, useSpring, Variants } from 'framer-motion';
-
-import { ApiError } from '@/shared/api/http';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -17,7 +14,7 @@ export default function LoginPage() {
     const [successMessage, setSuccessMessage] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isRecovering, setIsRecovering] = useState(false);
-    const { login, user, loading: authLoading } = useAuth();
+    const { login, resetPassword, user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -89,102 +86,24 @@ export default function LoginPage() {
             await login({ email: emailClean, password: passwordClean });
             logAuthAttempt('SUCCESS', email);
             navigate('/');
-        } catch (err: unknown) {
+        } catch (err: any) {
             console.error('Login Error:', err);
-            if (err instanceof ApiError && err.details) {
-                console.warn('Login validation details:', err.details);
-            }
-            const msg = err instanceof Error ? err.message : '';
             let userFriendlyError: React.ReactNode = 'Falha no login. Verifique suas credenciais.';
             let logStatus = 'UNKNOWN_ERROR';
 
-            // Handle Validation Errors from Zod (via ApiError)
-            if (err instanceof ApiError && err.status === 400 && err.details) {
-                const details = Array.isArray(err.details)
-                    ? (err.details as Array<{ path?: string; message: string }>)
-                    : null;
-                userFriendlyError = (
-                    <div className="flex flex-col gap-1">
-                        <span className="font-semibold">Atenção</span>
-                        {details ? (
-                            <ul className="list-disc pl-4 space-y-0.5">
-                                {details.map((d, i: number) => {
-                                    // Use path to provide context
-                                    const field = d.path || 'Campo desconhecido';
-                                    let msg = d.message;
-                                    if (field.includes('email') && msg.includes('invalid')) {
-                                        msg = 'Formato de e-mail inválido. Ex: nome@dominio.com';
-                                    }
-                                    if (field.includes('password') && msg.includes('at least')) {
-                                        msg = 'A senha deve ter pelo menos 6 caracteres.';
-                                    }
-                                    // Translate fallback if needed
-                                    if (msg === "Required") {
-                                        if (field.includes('email')) msg = "O e-mail é obrigatório.";
-                                        else if (field.includes('password')) msg = "A senha é obrigatória.";
-                                        else msg = "Preencha todos os campos.";
-                                    }
-
-                                    return <li key={i}>{msg}</li>;
-                                })}
-                            </ul>
-                        ) : (
-                            <span>{JSON.stringify(err.details)}</span>
-                        )}
-                    </div>
-                );
-                logStatus = 'VALIDATION_FAILED';
-            } else if (msg.includes('USER_NOT_FOUND') || msg.includes('Invalid login credentials') || msg.includes('User not found')) {
-                // Embora 'Usuário não encontrado' possa permitir enumeração, o requisito solicitou explicitamente
-                // distinguir entre usuário não encontrado e senha incorreta se possível.
-                if (msg.includes('User not found') || msg.includes('USER_NOT_FOUND')) {
-                    userFriendlyError = (
-                        <div className="flex flex-col gap-1">
-                            <span className="font-semibold">Conta não encontrada</span>
-                            <span>Verifique o e-mail digitado ou <Link to="/register" className="underline hover:text-destructive">crie uma nova conta</Link>.</span>
-                        </div>
-                    );
-                    logStatus = 'USER_NOT_FOUND';
-                } else {
-                    userFriendlyError = (
-                        <div className="flex flex-col gap-1">
-                            <span className="font-semibold">Credenciais incorretas</span>
-                            <span>Verifique seu e-mail e senha. Se esqueceu, use a <button type="button" onClick={() => { setError(null); setIsRecovering(true); }} className="underline hover:text-destructive font-medium">opção de recuperação</button>.</span>
-                        </div>
-                    );
-                    logStatus = 'INVALID_CREDENTIALS';
-                }
-            } else if (msg.includes('WRONG_PASSWORD') || msg.includes('Incorrect password')) {
-                userFriendlyError = (
-                    <div className="flex flex-col gap-1">
-                        <span className="font-semibold">Senha incorreta</span>
-                        <span>Tente novamente ou <button type="button" onClick={() => { setError(null); setIsRecovering(true); }} className="underline hover:text-destructive font-medium">redefina sua senha</button>.</span>
-                    </div>
-                );
-                logStatus = 'WRONG_PASSWORD';
-            } else if (msg.includes('ACCOUNT_LOCKED')) {
-                userFriendlyError = (
-                    <div className="flex flex-col gap-1">
-                        <span className="font-semibold">Conta bloqueada</span>
-                        <span>Muitas tentativas falhas. Aguarde alguns minutos e tente novamente por segurança.</span>
-                    </div>
-                );
-                logStatus = 'ACCOUNT_LOCKED';
-            } else if (msg.includes('backend está rodando') || msg.includes('Failed to fetch')) {
-                userFriendlyError = (
-                    <div className="flex flex-col gap-1">
-                        <span className="font-semibold">Servidor Indisponível</span>
-                        <span>Não foi possível conectar ao servidor. Verifique se o backend está iniciado (npm run dev).</span>
-                    </div>
-                );
-                logStatus = 'CONNECTION_ERROR';
+            const msg = err?.message || '';
+            
+            if (msg.includes('Invalid login credentials') || msg.includes('invalid_credentials')) {
+                userFriendlyError = 'E-mail ou senha incorretos.';
+                logStatus = 'INVALID_CREDENTIALS';
+            } else if (msg.includes('Email not confirmed')) {
+                userFriendlyError = 'Por favor, confirme seu e-mail antes de acessar.';
+                logStatus = 'EMAIL_NOT_CONFIRMED';
+            } else if (msg.includes('too many requests')) {
+                userFriendlyError = 'Muitas tentativas. Tente novamente mais tarde.';
+                logStatus = 'RATE_LIMITED';
             } else {
-                userFriendlyError = (
-                    <div className="flex flex-col gap-1">
-                        <span className="font-semibold">Erro no acesso</span>
-                        <span>Ocorreu um problema inesperado: {msg || 'Erro desconhecido'}</span>
-                    </div>
-                );
+                userFriendlyError = msg || 'Ocorreu um erro inesperado no acesso.';
             }
 
             setError(userFriendlyError);
@@ -204,7 +123,7 @@ export default function LoginPage() {
             setError('');
             setSuccessMessage('');
             setIsSubmitting(true);
-            await authApi.resetPassword(email);
+            await resetPassword(email);
             setSuccessMessage('Link de recuperação enviado! Verifique seu e-mail.');
             logAuthAttempt('RECOVERY_REQUESTED', email);
         } catch (err) {

@@ -7,8 +7,11 @@ import { useAI } from '@/features/ai-assistant/hooks/useAI';
 import { useToast } from '@/shared/ui/useToast';
 import { cn } from '@/shared/lib/cn';
 import type { Task } from '@/shared/types';
+import { KanbanBoard } from './components/KanbanBoard';
+import { LayoutGrid, List } from 'lucide-react';
 
 type Filter = 'all' | 'active' | 'completed';
+type ViewMode = 'list' | 'kanban';
 
 const WEEK_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 function getPriorityColor(priority?: Task['priority']) {
@@ -39,6 +42,7 @@ export default function TasksPage() {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const [filter, setFilter] = useState<Filter>('all');
+    const [viewMode, setViewMode] = useState<ViewMode>('kanban');
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
     const [plan, setPlan] = useState<Record<string, string[]> | null>(null);
@@ -304,11 +308,38 @@ export default function TasksPage() {
                     </div>
 
                     <div className="flex flex-col lg:flex-row gap-6">
-                        <div className="lg:w-2/3 glass-card rounded-3xl bg-glass-surface backdrop-blur-xl border border-white/5 p-6 lg:p-8 flex flex-col relative overflow-hidden animate-enter animate-enter-delay-1">
+                        <div className={cn(
+                            "glass-card rounded-3xl bg-glass-surface backdrop-blur-xl border border-white/5 p-6 lg:p-8 flex flex-col relative overflow-hidden animate-enter animate-enter-delay-1",
+                            viewMode === 'list' ? "lg:w-2/3" : "w-full"
+                        )}>
                             <div className="flex justify-between items-center mb-6 z-10">
-                                <h3 className="text-xs text-zinc-500 uppercase tracking-widest font-semibold">Mission Control</h3>
+                                <div className="flex items-center gap-4">
+                                    <h3 className="text-xs text-zinc-500 uppercase tracking-widest font-semibold">Mission Control</h3>
+                                    <div className="flex bg-white/5 p-1 rounded-lg border border-white/5">
+                                        <button
+                                            onClick={() => setViewMode('list')}
+                                            className={cn(
+                                                "p-1.5 rounded-md transition-all",
+                                                viewMode === 'list' ? "bg-white/10 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-300"
+                                            )}
+                                            title="List View"
+                                        >
+                                            <List size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => setViewMode('kanban')}
+                                            className={cn(
+                                                "p-1.5 rounded-md transition-all",
+                                                viewMode === 'kanban' ? "bg-white/10 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-300"
+                                            )}
+                                            title="Kanban Board"
+                                        >
+                                            <LayoutGrid size={16} />
+                                        </button>
+                                    </div>
+                                </div>
                                 <div className="flex gap-2">
-                                    {(['all', 'active', 'completed'] as Filter[]).map((f) => (
+                                    {viewMode === 'list' && (['all', 'active', 'completed'] as Filter[]).map((f) => (
                                         <button
                                             key={f}
                                             type="button"
@@ -329,22 +360,29 @@ export default function TasksPage() {
                                 </div>
                             </div>
 
-                    <div ref={scrollContainerRef} className="flex flex-col divide-y divide-white/10 overflow-y-auto pr-2 custom-scrollbar z-10 h-full max-h-[600px]">
-                        {filteredTasks.map(renderTask)}
-                        {isFetchingNextPage && (
-                            <div className="flex items-center justify-center py-4">
-                                <Loader text="" />
+                    <div className="flex flex-col z-10 h-full min-h-[500px]">
+                        {viewMode === 'list' ? (
+                            <div ref={scrollContainerRef} className="flex flex-col divide-y divide-white/10 overflow-y-auto pr-2 custom-scrollbar max-h-[600px]">
+                                {filteredTasks.map(renderTask)}
+                                {isFetchingNextPage && (
+                                    <div className="flex items-center justify-center py-4">
+                                        <Loader text="" />
+                                    </div>
+                                )}
+                                {!filteredTasks.length && !isFetchingNextPage && (
+                                    <div className="text-sm text-zinc-500 py-6 text-center">
+                                        Nenhuma tarefa encontrada para este filtro.
+                                    </div>
+                                )}
                             </div>
-                        )}
-                        {!filteredTasks.length && !isFetchingNextPage && (
-                            <div className="text-sm text-zinc-500 py-6 text-center">
-                                Nenhuma tarefa encontrada para este filtro.
-                            </div>
+                        ) : (
+                            <KanbanBoard />
                         )}
                     </div>
                             <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/20 to-transparent pointer-events-none rounded-b-3xl" />
                         </div>
 
+                        {viewMode === 'list' && (
                         <div className="flex flex-col gap-6 lg:w-1/3">
                             <div className="glass-card flex-1 min-h-[220px] rounded-3xl bg-glass-surface backdrop-blur-xl border border-white/5 p-6 relative overflow-hidden flex flex-col justify-between animate-enter animate-enter-delay-2">
                                 <div className="flex justify-between items-start z-10">
@@ -419,6 +457,7 @@ export default function TasksPage() {
                                 </div>
                             </div>
                         </div>
+                        )}
                     </div>
                 </main>
             </div>

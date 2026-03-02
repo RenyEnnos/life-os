@@ -1,6 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/shared/api/http';
 import { Budget } from '@/features/finances/types';
+import { toast } from 'sonner';
 
 export type BudgetStatus = {
     categoryId: string;
@@ -13,6 +14,8 @@ export type BudgetStatus = {
 };
 
 export function useBudgets() {
+    const queryClient = useQueryClient();
+
     const { data: budgets, isLoading: isBudgetsLoading } = useQuery<Budget[]>({
         queryKey: ['budgets'],
         queryFn: () => apiClient.get('/api/budgets'),
@@ -23,9 +26,83 @@ export function useBudgets() {
         queryFn: () => apiClient.get('/api/budgets/status'),
     });
 
+    const createBudget = useMutation({
+        mutationFn: (newBudget: Partial<Budget>) => apiClient.post('/api/budgets', newBudget),
+        onMutate: async (newBudget) => {
+            await queryClient.cancelQueries({ queryKey: ['budgets'] });
+            const previousBudgets = queryClient.getQueryData<Budget[]>(['budgets']);
+            queryClient.setQueryData(['budgets'], (old: Budget[] | undefined) => [
+                ...(old || []),
+                { ...newBudget, id: 'temp-id' } as Budget,
+            ]);
+            return { previousBudgets };
+        },
+        onError: (err, newBudget, context) => {
+            queryClient.setQueryData(['budgets'], context?.previousBudgets);
+            toast.error('Erro ao criar orçamento');
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ['budgets'] });
+            queryClient.invalidateQueries({ queryKey: ['budgets', 'status'] });
+        },
+        onSuccess: () => {
+            toast.success('Orçamento criado com sucesso');
+        }
+    });
+
+    const updateBudget = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: Partial<Budget> }) => 
+            apiClient.put(`/api/budgets/${id}`, data),
+        onMutate: async ({ id, data }) => {
+            await queryClient.cancelQueries({ queryKey: ['budgets'] });
+            const previousBudgets = queryClient.getQueryData<Budget[]>(['budgets']);
+            queryClient.setQueryData(['budgets'], (old: Budget[] | undefined) =>
+                old?.map((b) => (b.id === id ? { ...b, ...data } : b))
+            );
+            return { previousBudgets };
+        },
+        onError: (err, variables, context) => {
+            queryClient.setQueryData(['budgets'], context?.previousBudgets);
+            toast.error('Erro ao atualizar orçamento');
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ['budgets'] });
+            queryClient.invalidateQueries({ queryKey: ['budgets', 'status'] });
+        },
+        onSuccess: () => {
+            toast.success('Orçamento atualizado');
+        }
+    });
+
+    const deleteBudget = useMutation({
+        mutationFn: (id: string) => apiClient.delete(`/api/budgets/${id}`),
+        onMutate: async (id) => {
+            await queryClient.cancelQueries({ queryKey: ['budgets'] });
+            const previousBudgets = queryClient.getQueryData<Budget[]>(['budgets']);
+            queryClient.setQueryData(['budgets'], (old: Budget[] | undefined) =>
+                old?.filter((b) => b.id !== id)
+            );
+            return { previousBudgets };
+        },
+        onError: (err, id, context) => {
+            queryClient.setQueryData(['budgets'], context?.previousBudgets);
+            toast.error('Erro ao excluir orçamento');
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ['budgets'] });
+            queryClient.invalidateQueries({ queryKey: ['budgets', 'status'] });
+        },
+        onSuccess: () => {
+            toast.success('Orçamento excluído');
+        }
+    });
+
     return {
         budgets: budgets || [],
         budgetStatus: budgetStatus || [],
         isLoading: isBudgetsLoading || isStatusLoading,
+        createBudget,
+        updateBudget,
+        deleteBudget
     };
 }

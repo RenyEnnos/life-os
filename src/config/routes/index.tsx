@@ -7,6 +7,7 @@ import { Loader } from '@/shared/ui/Loader';
 // Lazy load pages
 const LoginPage = lazy(() => import('@/features/auth/components/LoginPage'));
 const RegisterPage = lazy(() => import('@/features/auth/components/RegisterPage'));
+const ResetPasswordPage = lazy(() => import('@/features/auth/components/ResetPasswordPage'));
 const DashboardPage = lazy(() => import('@/features/dashboard'));
 const HabitsPage = lazy(() => import('@/features/habits'));
 const TasksPage = lazy(() => import('@/features/tasks'));
@@ -54,6 +55,7 @@ export function AppRoutes() {
                 {/* Public Routes */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
 
                 {/* Protected Routes */}
                 <Route element={

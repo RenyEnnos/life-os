@@ -1,15 +1,35 @@
+import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/shared/lib/cn';
 import { primaryNav, secondaryNav } from './navItems';
 import { LanguageSelector } from '@/shared/components/LanguageSelector';
+import { Sparkles } from 'lucide-react';
+import { QuickCaptureModal } from '@/shared/components/QuickCaptureModal';
+import { UserLevelStatus } from '@/features/user/components/UserLevelStatus';
 
 export const Sidebar = ({ className }: { className?: string }) => {
+    const [isCaptureOpen, setIsCaptureOpen] = useState(false);
+
     return (
         <aside className={cn("flex flex-col items-center py-8 w-24 h-full shrink-0 border-r border-white/10 bg-white/5 dark:bg-zinc-900/20 backdrop-blur-2xl shadow-xl z-50", className)}>
-            <div className="mb-8 shrink-0">
+            <div className="mb-8 shrink-0 flex flex-col items-center gap-6">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-zinc-800 to-zinc-700 flex items-center justify-center border border-white/10 shadow-lg hover:border-primary/40 transition-colors group cursor-pointer">
                     <span className="text-white/80 font-bold text-sm tracking-widest group-hover:text-white transition-colors">OS</span>
                 </div>
+
+                <UserLevelStatus size="sm" />
+
+                {/* Quick Capture Global Trigger */}
+                <button 
+                    onClick={() => setIsCaptureOpen(true)}
+                    aria-label="Abrir Captura Inteligente"
+                    className="group relative flex items-center justify-center p-3 rounded-xl transition-all duration-300 w-12 aspect-square bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 hover:border-purple-500/40 text-purple-400 hover:text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.1)]"
+                >
+                    <Sparkles className="h-6 w-6 animate-pulse-slow" strokeWidth={1.5} />
+                    <span className="absolute left-full ml-4 bg-purple-950/90 backdrop-blur border border-purple-500/30 px-2 py-1 rounded text-[10px] uppercase tracking-wider text-purple-200 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                        Captura Inteligente
+                    </span>
+                </button>
             </div>
 
             <nav className="flex flex-col gap-6 w-full px-4 flex-1 overflow-y-auto no-scrollbar items-center">
@@ -17,6 +37,7 @@ export const Sidebar = ({ className }: { className?: string }) => {
                     <NavLink
                         key={item.path}
                         to={item.path}
+                        aria-label={item.label}
                         className={({ isActive }) => cn(
                             "group relative flex items-center justify-center p-3 rounded-xl transition-all duration-300 w-full aspect-square",
                             isActive
@@ -69,6 +90,11 @@ export const Sidebar = ({ className }: { className?: string }) => {
                     style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCVPqcPWDT3hPr01e2HDirC5oJIReGS_I9VQWtVcd9Jeg7-ZvWFgDQfCv6EutPiYTzuE-re3TH5gEjialXzk5Eb8SJ3m82eLKwBuKSLDpWKr4JkJ_yftg1ioQEeRmNNBPiKJhA7IAj11REAjyt_eN6G3ka3T_PoSQNNU9d7cQ6Af9A6u-pdRHLfzCaPzGvoxAzXj6ge63w7ZFJhPW4J6cxpsTQe-UV2JJuJ124QPZ8DgIYXHP4uJji-EBFIe1WQsTDEKAGbz-RlcuI')" }}
                 />
             </div>
+
+            <QuickCaptureModal 
+                isOpen={isCaptureOpen} 
+                onClose={() => setIsCaptureOpen(false)} 
+            />
         </aside>
     );
 };

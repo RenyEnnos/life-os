@@ -3,13 +3,13 @@ import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { financesApi } from '../api/finances.api';
 import { Transaction } from '../types';
 
-export function useTransactions() {
+export function useTransactions(filters?: Record<string, string>) {
     const { user } = useAuth();
     const queryClient = useQueryClient();
 
     const { data: transactions, isLoading } = useQuery({
-        queryKey: ['transactions', user?.id],
-        queryFn: () => financesApi.list(),
+        queryKey: ['transactions', user?.id, JSON.stringify(filters)],
+        queryFn: () => financesApi.list(user?.id, filters),
         enabled: !!user,
     });
 

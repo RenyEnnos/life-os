@@ -3,7 +3,8 @@ import { Habit } from "@/features/habits/types";
 import { MagicCard } from "@/shared/ui/premium/MagicCard";
 import { ShimmerButton } from "@/shared/ui/premium/ShimmerButton";
 import { AnimatedCircularProgressBar } from "@/shared/ui/premium/AnimatedCircularProgressBar";
-import { Check, Flame, Trophy } from "lucide-react";
+import * as LucideIcons from "lucide-react";
+import { Check, Flame, Trophy, Edit2, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/shared/lib/cn";
 
@@ -12,6 +13,9 @@ interface HabitCardProps {
     isCompleted: boolean;
     streak: number;
     onToggle: () => void;
+    onEdit?: (habit: Habit) => void;
+    onDelete?: (id: string) => void;
+    currentValue?: number;
 }
 
 export const HabitCard = memo(({
@@ -19,17 +23,46 @@ export const HabitCard = memo(({
     isCompleted,
     streak,
     onToggle,
+    onEdit,
+    onDelete,
+    currentValue = 0,
 }: HabitCardProps) => {
+    const IconComponent = habit.icon ? (LucideIcons as any)[habit.icon] : null;
+    const progress = habit.type === 'quantified' 
+        ? Math.min(100, (currentValue / (habit.target_value || 1)) * 100)
+        : (isCompleted ? 100 : 0);
+
     return (
         <MagicCard
             className={cn(
                 "relative flex w-full flex-col justify-between overflow-hidden p-6 transition-all duration-300",
                 isCompleted ? "border-primary/50 bg-primary/5" : "border-white/10"
             )}
-            gradientColor={isCompleted ? "#262626" : "#262626"}
+            gradientColor={habit.color || (isCompleted ? "#262626" : "#262626")}
         >
+            <div className="absolute top-4 right-4 flex gap-2 z-10">
+                {onEdit && (
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onEdit(habit); }}
+                        className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-white transition-colors"
+                        title="Editar"
+                    >
+                        <Edit2 size={14} />
+                    </button>
+                )}
+                {onDelete && (
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onDelete(habit.id); }}
+                        className="p-1.5 rounded-full bg-white/5 hover:bg-red-500/20 text-muted-foreground hover:text-red-500 transition-colors"
+                        title="Excluir"
+                    >
+                        <Trash2 size={14} />
+                    </button>
+                )}
+            </div>
+
             <div className="flex w-full items-start justify-between">
-                <div className="flex flex-col space-y-2">
+                <div className="flex flex-col space-y-2 pr-12">
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -49,13 +82,19 @@ export const HabitCard = memo(({
                     <p className="line-clamp-2 text-sm text-muted-foreground">
                         {habit.description || "Sem descrição"}
                     </p>
+                    
+                    {habit.type === 'quantified' && (
+                        <div className="text-xs font-mono text-primary mt-1">
+                            {currentValue} / {habit.target_value} {habit.unit}
+                        </div>
+                    )}
                 </div>
 
                 <div className="relative h-16 w-16 shrink-0">
                     <AnimatedCircularProgressBar
                         max={100}
-                        value={isCompleted ? 100 : 0}
-                        gaugePrimaryColor="rgb(34 197 94)" // green-500
+                        value={progress}
+                        gaugePrimaryColor={habit.color || "rgb(34 197 94)"}
                         gaugeSecondaryColor="rgba(255, 255, 255, 0.1)"
                         className="h-full w-full"
                     />
@@ -68,16 +107,16 @@ export const HabitCard = memo(({
                                     animate={{ scale: 1, rotate: 0 }}
                                     exit={{ scale: 0, rotate: 45 }}
                                 >
-                                    <Trophy className="h-6 w-6 text-green-500 fill-green-500/20" />
+                                    <Trophy className="h-6 w-6" style={{ color: habit.color || "rgb(34 197 94)" }} />
                                 </motion.div>
                             ) : (
                                 <motion.div
-                                    key="circle"
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    exit={{ scale: 0 }}
+                                    key="icon"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="text-muted-foreground"
                                 >
-                                    {/* Optional icon or empty center */}
+                                    {IconComponent && <IconComponent size={24} style={{ color: habit.color }} />}
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -93,7 +132,9 @@ export const HabitCard = memo(({
                     <span className={cn(
                         "text-sm font-bold",
                         isCompleted ? "text-green-500" : "text-white/60"
-                    )}>
+                    )}
+                    style={{ color: isCompleted ? (habit.color || undefined) : undefined }}
+                    >
                         {isCompleted ? "CONCLUÍDO" : "PENDENTE"}
                     </span>
                 </div>
@@ -105,8 +146,8 @@ export const HabitCard = memo(({
                             ? "bg-green-500/20 hover:bg-green-500/30"
                             : ""
                     )}
-                    background={isCompleted ? "rgba(34, 197, 94, 0.2)" : undefined}
-                    shimmerColor={isCompleted ? "#22c55e" : "#ffffff"}
+                    background={isCompleted ? (habit.color ? `${habit.color}33` : "rgba(34, 197, 94, 0.2)") : undefined}
+                    shimmerColor={habit.color || (isCompleted ? "#22c55e" : "#ffffff")}
                     onClick={(e) => {
                         e.stopPropagation();
                         onToggle();
@@ -118,7 +159,7 @@ export const HabitCard = memo(({
                                 <Check className="h-4 w-4" /> REVERTER
                             </>
                         ) : (
-                            "COMPLETAR"
+                            habit.type === 'quantified' ? "+ REGISTRAR" : "COMPLETAR"
                         )}
                     </span>
                 </ShimmerButton>
@@ -132,7 +173,8 @@ export const HabitCard = memo(({
                         animate={{ opacity: 0 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.5 }}
-                        className="pointer-events-none absolute inset-0 bg-green-500/20"
+                        className="pointer-events-none absolute inset-0"
+                        style={{ backgroundColor: habit.color || "rgb(34 197 94)", opacity: 0.1 }}
                     />
                 )}
             </AnimatePresence>

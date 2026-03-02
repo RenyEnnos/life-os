@@ -4,21 +4,20 @@ import { useOnboardingStore } from '@/shared/stores/onboardingStore';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 
 export function OnboardingManager() {
-    const { user, loading } = useAuth();
-    const { hasCompletedOnboarding, completeOnboarding } = useOnboardingStore();
+    const { user, loading, hasCompletedOnboarding: remoteCompleted } = useAuth();
+    const { hasCompletedOnboarding: localCompleted } = useOnboardingStore();
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
-        // Render only if user is logged in, not loading, and hasn't completed onboarding
-        if (!loading && user && !hasCompletedOnboarding) {
+        // Render only if user is logged in, not loading, and hasn't completed onboarding either locally or remotely
+        if (!loading && user && !remoteCompleted && !localCompleted) {
             setIsOpen(true);
         } else {
             setIsOpen(false);
         }
-    }, [user, loading, hasCompletedOnboarding]);
+    }, [user, loading, remoteCompleted, localCompleted]);
 
     const handleClose = () => {
-        completeOnboarding();
         setIsOpen(false);
     };
 

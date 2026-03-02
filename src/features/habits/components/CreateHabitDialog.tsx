@@ -1,17 +1,17 @@
 import { X } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { CreateHabitForm } from './CreateHabitForm';
+import { Habit } from '../types';
 
 interface CreateHabitDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: { title: string; description?: string; routine: 'morning' | 'afternoon' | 'evening' | 'any'; type: 'binary' | 'numeric'; goal: number }) => void;
+    onSubmit: (data: Partial<Habit>) => void;
+    initialData?: Habit;
 }
 
-export function CreateHabitDialog({ isOpen, onClose, onSubmit }: CreateHabitDialogProps) {
+export function CreateHabitDialog({ isOpen, onClose, onSubmit, initialData }: CreateHabitDialogProps) {
     if (!isOpen) return null;
-
-
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -24,9 +24,12 @@ export function CreateHabitDialog({ isOpen, onClose, onSubmit }: CreateHabitDial
                 </button>
 
                 <div className="p-6">
-                    <h2 className="text-2xl font-bold text-primary font-mono mb-6">NOVO HÁBITO</h2>
+                    <h2 className="text-2xl font-bold text-primary font-mono mb-6">
+                        {initialData ? 'EDITAR HÁBITO' : 'NOVO HÁBITO'}
+                    </h2>
 
                     <CreateHabitForm
+                        initialData={initialData}
                         onSubmit={(data) => {
                             onSubmit(data);
                             onClose();

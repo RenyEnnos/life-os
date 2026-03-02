@@ -9,6 +9,7 @@ import type { Habit, HabitLog } from '../../types';
 vi.mock('../../api/habits.api', () => ({
     habitsApi: {
         list: vi.fn(),
+        getPaginated: vi.fn(),
         create: vi.fn(),
         getLogs: vi.fn(),
         log: vi.fn(),
@@ -34,7 +35,7 @@ describe('useHabits', () => {
     it('fetches habits for the user', async () => {
         const habitsData = [{ id: '1', name: 'Drink Water' }] as unknown as Habit[];
         const mockedHabitsApi = vi.mocked(habitsApi, true);
-        mockedHabitsApi.list.mockResolvedValue(habitsData);
+        mockedHabitsApi.getPaginated.mockResolvedValue(habitsData);
         mockedHabitsApi.getLogs.mockResolvedValue([] as any);
 
         const { result } = renderHook(() => useHabits(), { wrapper });
@@ -42,6 +43,6 @@ describe('useHabits', () => {
         await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         expect(result.current.habits).toEqual(habitsData);
-        expect(habitsApi.list).toHaveBeenCalledWith('user-123');
+        expect(habitsApi.getPaginated).toHaveBeenCalledWith(1, 50);
     });
 });

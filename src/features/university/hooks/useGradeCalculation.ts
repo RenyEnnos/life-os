@@ -34,8 +34,22 @@ export function useGradeCalculation(assignments: Assignment[]) {
         return Math.round((completed / courseAssignments.length) * 100);
     };
 
+    // Calculate overall GPA across all courses
+    const calculateGlobalGPA = (): number => {
+        const uniqueCourseIds = Array.from(new Set(assignments.map(a => a.course_id)));
+        const courseGrades = uniqueCourseIds
+            .map(id => calculateCourseGrade(id))
+            .filter((grade): grade is number => grade !== null);
+
+        if (courseGrades.length === 0) return 0;
+
+        const total = courseGrades.reduce((sum, g) => sum + g, 0);
+        return Math.round((total / courseGrades.length) * 10) / 10;
+    };
+
     return {
         calculateCourseGrade,
-        calculateProgress
+        calculateProgress,
+        calculateGlobalGPA
     };
 }

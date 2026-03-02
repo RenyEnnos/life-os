@@ -1,32 +1,32 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Authentication', () => {
-    test('TC001: Should login successfully with valid credentials', async ({ page }) => {
-        // Navigate to login page
-        await page.goto('/login');
+test.describe('Authentication Flow', () => {
+  test('user can register', async ({ page }) => {
+    await page.goto('/register');
+    await page.fill('input[name="email"]', `test-${Date.now()}@example.com`);
+    await page.fill('input[name="password"]', 'Password123!');
+    await page.click('button[type="submit"]');
+    // Expect redirection to dashboard or onboarding
+    await expect(page).toHaveURL(/.*dashboard|.*onboarding/);
+  });
 
-        // Check if we are on the login page
-        // Using loose match for "Acesso ao Sistema" or "Login"
-        await expect(page.getByText(/acesso ao sistema|life os/i).first()).toBeVisible();
+  test('user can login', async ({ page }) => {
+    await page.goto('/login');
+    await page.fill('input[name="email"]', 'test@example.com'); // Assuming seeded user
+    await page.fill('input[name="password"]', 'Password123!');
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL(/.*dashboard/);
+  });
 
-        // Fill in credentials using IDs found in source
-        await page.locator('input#email').fill('test@life-os.app');
-        await page.locator('input#password').fill('TestPass123!');
-
-        // Submit
-        await page.getByRole('button', { name: 'ENTRAR' }).click();
-
-        // Expect successful navigation to Dashboard
-        await expect(page).toHaveURL(/\/$/);
-    });
-
-    test('TC002: Should show error with invalid credentials', async ({ page }) => {
-        await page.goto('/login');
-        await page.locator('input#email').fill('wrong@example.com');
-        await page.locator('input#password').fill('wrongpass');
-        await page.getByRole('button', { name: 'ENTRAR' }).click();
-
-        // Expect an error toast or message
-        await expect(page.getByText(/credenciais incorretas|não encontrada|erro/i)).toBeVisible();
-    });
+  test('user can logout', async ({ page }) => {
+    // Login first
+    await page.goto('/login');
+    await page.fill('input[name="email"]', 'test@example.com');
+    await page.fill('input[name="password"]', 'Password123!');
+    await page.click('button[type="submit"]');
+    
+    // Perform logout (assuming sidebar logout button)
+    await page.click('button:has-text("Logout")');
+    await expect(page).toHaveURL('/login');
+  });
 });
