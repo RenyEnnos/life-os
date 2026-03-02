@@ -19,16 +19,14 @@ A unified, gamified, and AI-powered personal productivity system that reduces co
 - **Onboarding**: 5-step interactive flow with database persistence.
 - **Dashboard**: 3-zone Bento Grid layout (Now/Today/Context) with reusable Widget framework.
 - **Security Features**: Helmet, Rate Limiting, XSS Sanitization, Anti-CSRF.
+- **PWA**: Full offline support and installability.
 
-### Active
+### Active (Milestone 3: UX Evolution)
 
-- [ ] **Habits**: Heatmap, streaks, analytics, quantified habits.
-- [ ] **Tasks**: Kanban board, Quick Capture with AI parsing.
-- [ ] **Finances**: Transaction tracking, AI categorization, visual charts.
-- [ ] **University**: Course management, grade calculator, What-If simulator.
-- [ ] **AI Assistant**: Chat interface for insights, planning, and action execution.
-- [ ] **Journal**: Daily reflections and mood tracking.
-- [ ] **Gamification**: Points, levels, streaks, and badges.
+- [ ] **Gems Integration**: Tremor (Dashboards), React Hook Form (Forms), dnd-kit (Interactivity).
+- [ ] **UI Consolidation**: Unified User Hub (Merging Profile/Settings).
+- [ ] **Hybrid Task Views**: Toggleable List/Kanban for daily tasks.
+- [ ] **Juicy UX**: Advanced micro-interactions with Framer Motion and context-aware Confetti.
 
 ### Out of Scope
 
@@ -41,7 +39,11 @@ A unified, gamified, and AI-powered personal productivity system that reduces co
 - **Tech Stack**: Modern web stack focusing on "Feature-Sliced Design".
 - **AI Integration**: Heavily relies on Groq and Google Generative AI for "Quick Capture" and data analysis.
 - **Environment**: Deployed on Vercel, using Supabase for DB and Auth.
-- **Architecture**: Modular domain structure (src/features/).
+- **Advanced Tooling**:
+  - **Google Stitch**: UI/UX prototyping and screen generation.
+  - **Context7**: Real-time documentation and library ID resolution.
+  - **TestSprite**: Automated E2E and backend testing suite.
+  - **Jules**: Large-scale refactoring and dependency optimization.
 
 ## Constraints
 
@@ -49,6 +51,7 @@ A unified, gamified, and AI-powered personal productivity system that reduces co
 - **Accessibility**: WCAG 2.1 Level AA.
 - **Offline**: PWA support (Vite PWA plugin).
 - **Security**: Strict CSP and rate limiting for auth flows.
+- **Testing**: 100% coverage on new features via TestSprite.
 
 ## Key Decisions
 
@@ -60,6 +63,8 @@ A unified, gamified, and AI-powered personal productivity system that reduces co
 | Supabase Auth Migration | Higher security and easier management than custom JWT | ✓ Good |
 | Database-backed Onboarding | Ensure continuity across devices and sessions | ✓ Good |
 | Widget Framework | Consistent UI/UX for all dashboard items with unified status handling | ✓ Good |
+| **Gems Integration** | Use industry standards (Tremor, RHF) to reduce boilerplate and elevate UI | ⟳ Planned |
+| **Tool-Driven Dev** | Mandatory use of Stitch (UI), Context7 (Docs), and TestSprite (QA) | ⟳ Planned |
 
 ---
-*Last updated: 2026-02-26 after Phase 2*
+*Last updated: 2026-03-02 after Milestone 2 Completion*

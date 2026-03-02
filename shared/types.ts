@@ -59,6 +59,7 @@ export interface Task {
   completed: boolean
   status: TaskStatus
   tags: string[]
+  position?: string
   created_at: string
   updated_at: string
 }

@@ -9,6 +9,14 @@ export function OnboardingManager() {
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
+        const skipOnboarding = localStorage.getItem('skip_onboarding') === 'true' || 
+                              import.meta.env.VITE_SKIP_ONBOARDING === 'true';
+        
+        if (skipOnboarding) {
+            setIsOpen(false);
+            return;
+        }
+
         // Render only if user is logged in, not loading, and hasn't completed onboarding either locally or remotely
         if (!loading && user && !remoteCompleted && !localCompleted) {
             setIsOpen(true);

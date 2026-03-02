@@ -1,12 +1,14 @@
 import * as React from "react"
 import { cn } from "@/shared/lib/cn"
 
-export type InputProps = React.InputHTMLAttributes<HTMLInputElement>
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  error?: string;
+}
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, ...props }, ref) => {
+  ({ className, type, error, ...props }, ref) => {
     return (
-      <div className="relative w-full">
+      <div className="relative w-full space-y-1">
         <input
           type={type}
           className={cn(
@@ -14,33 +16,47 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             "file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-600",
             "focus-visible:outline-none focus-visible:border-white/15 focus-visible:bg-white/7 focus-visible:ring-1 focus-visible:ring-white/20",
             "disabled:cursor-not-allowed disabled:opacity-50",
+            error && "border-destructive/50 focus-visible:border-destructive/60 focus-visible:ring-destructive/20",
             className
           )}
           ref={ref}
           {...props}
         />
+        {error && (
+          <p className="text-[10px] font-mono uppercase tracking-wider text-destructive/80 ml-1">
+            {error}
+          </p>
+        )}
       </div>
     )
   }
 )
 Input.displayName = "Input"
 
-export type TextAreaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>
+export interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  error?: string;
+}
 
 const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, error, ...props }, ref) => {
     return (
-      <div className="relative w-full">
+      <div className="relative w-full space-y-1">
         <textarea
           className={cn(
             "flex min-h-[80px] w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-zinc-100 backdrop-blur-xl transition-all",
             "placeholder:text-zinc-600 focus-visible:outline-none focus-visible:border-white/15 focus-visible:bg-white/7 focus-visible:ring-1 focus-visible:ring-white/20",
             "disabled:cursor-not-allowed disabled:opacity-50",
+            error && "border-destructive/50 focus-visible:border-destructive/60 focus-visible:ring-destructive/20",
             className
           )}
           ref={ref}
           {...props}
         />
+        {error && (
+          <p className="text-[10px] font-mono uppercase tracking-wider text-destructive/80 ml-1">
+            {error}
+          </p>
+        )}
       </div>
     )
   }

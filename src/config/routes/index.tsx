@@ -26,12 +26,27 @@ const SettingsPage = lazy(() => import('@/features/settings'));
 const DesignSystemPreview = lazy(() => import('@/features/design-system/Preview'));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-    const { user, loading } = useAuth();
+    const { user, loading, error } = useAuth();
 
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
                 <Loader text="CHECKING ACCESS..." />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 text-center">
+                <h2 className="text-xl font-semibold text-red-500 mb-2">AUTH ERROR</h2>
+                <p className="text-zinc-400 mb-4">{error}</p>
+                <button 
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-primary text-black rounded-lg font-medium"
+                >
+                    RETRY
+                </button>
             </div>
         );
     }
@@ -45,43 +60,105 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 export function AppRoutes() {
     return (
-        <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <Loader text="INITIALIZING SYSTEM..." />
-            </div>
-        }>
-            <Routes>
-                {/* Public Routes */}
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={
+                <Suspense fallback={<Loader text="LOADING LOGIN..." />}>
+                    <LoginPage />
+                </Suspense>
+            } />
+            <Route path="/register" element={
+                <Suspense fallback={<Loader text="LOADING REGISTER..." />}>
+                    <RegisterPage />
+                </Suspense>
+            } />
+            <Route path="/reset-password" element={
+                <Suspense fallback={<Loader text="LOADING..." />}>
+                    <ResetPasswordPage />
+                </Suspense>
+            } />
 
-                {/* Protected Routes */}
-                <Route element={
-                    <ProtectedRoute>
-                        <AppLayout />
-                    </ProtectedRoute>
-                }>
-                    <Route path="/" element={<DashboardPage />} />
-                    <Route path="/habits" element={<HabitsPage />} />
-                    <Route path="/tasks" element={<TasksPage />} />
-                    <Route path="/calendar" element={<CalendarPage />} />
-                    <Route path="/journal" element={<JournalPage />} />
-                    <Route path="/health" element={<HealthPage />} />
-                    <Route path="/finances" element={<FinancesPage />} />
-                    <Route path="/projects" element={<ProjectsPage />} />
-                    <Route path="/ai-assistant" element={<AiAssistantPage />} />
-                    <Route path="/focus" element={<FocusPage />} />
-                    <Route path="/gamification" element={<GamificationPage />} />
+            {/* Protected Routes */}
+            <Route element={
+                <ProtectedRoute>
+                    <AppLayout />
+                </ProtectedRoute>
+            }>
+                <Route path="/" element={
+                    <Suspense fallback={<Loader text="LOADING DASHBOARD..." />}>
+                        <DashboardPage />
+                    </Suspense>
+                } />
+                <Route path="/habits" element={
+                    <Suspense fallback={<Loader text="LOADING HABITS..." />}>
+                        <HabitsPage />
+                    </Suspense>
+                } />
+                <Route path="/tasks" element={
+                    <Suspense fallback={<Loader text="LOADING TASKS..." />}>
+                        <TasksPage />
+                    </Suspense>
+                } />
+                <Route path="/calendar" element={
+                    <Suspense fallback={<Loader text="LOADING CALENDAR..." />}>
+                        <CalendarPage />
+                    </Suspense>
+                } />
+                <Route path="/journal" element={
+                    <Suspense fallback={<Loader text="LOADING JOURNAL..." />}>
+                        <JournalPage />
+                    </Suspense>
+                } />
+                <Route path="/health" element={
+                    <Suspense fallback={<Loader text="LOADING HEALTH..." />}>
+                        <HealthPage />
+                    </Suspense>
+                } />
+                <Route path="/finances" element={
+                    <Suspense fallback={<Loader text="LOADING FINANCES..." />}>
+                        <FinancesPage />
+                    </Suspense>
+                } />
+                <Route path="/projects" element={
+                    <Suspense fallback={<Loader text="LOADING PROJECTS..." />}>
+                        <ProjectsPage />
+                    </Suspense>
+                } />
+                <Route path="/ai-assistant" element={
+                    <Suspense fallback={<Loader text="LOADING AI..." />}>
+                        <AiAssistantPage />
+                    </Suspense>
+                } />
+                <Route path="/focus" element={
+                    <Suspense fallback={<Loader text="LOADING FOCUS..." />}>
+                        <FocusPage />
+                    </Suspense>
+                } />
+                <Route path="/gamification" element={
+                    <Suspense fallback={<Loader text="LOADING PROGRESS..." />}>
+                        <GamificationPage />
+                    </Suspense>
+                } />
 
-                    <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/design" element={<DesignSystemPreview />} />
-                    <Route path="/university" element={<UniversityPage />} />
-                    <Route path="/profile" element={<Navigate to="/settings" replace />} />
-                </Route>
+                <Route path="/settings" element={
+                    <Suspense fallback={<Loader text="LOADING SETTINGS..." />}>
+                        <SettingsPage />
+                    </Suspense>
+                } />
+                <Route path="/design" element={
+                    <Suspense fallback={<Loader text="LOADING DESIGN..." />}>
+                        <DesignSystemPreview />
+                    </Suspense>
+                } />
+                <Route path="/university" element={
+                    <Suspense fallback={<Loader text="LOADING ACADEMIC..." />}>
+                        <UniversityPage />
+                    </Suspense>
+                } />
+                <Route path="/profile" element={<Navigate to="/settings" replace />} />
+            </Route>
 
-                <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-        </Suspense>
+            <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
     );
 }

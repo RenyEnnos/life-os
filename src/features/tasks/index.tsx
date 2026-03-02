@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { addDays, format, isBefore, isSameDay, startOfWeek } from 'date-fns';
+import { motion, AnimatePresence } from 'framer-motion';
 import Modal from '@/shared/ui/Modal';
 import { Loader } from '@/shared/ui/Loader';
 import { useTasks } from './hooks/useTasks';
@@ -9,25 +10,28 @@ import { cn } from '@/shared/lib/cn';
 import type { Task } from '@/shared/types';
 import { KanbanBoard } from './components/KanbanBoard';
 import { LayoutGrid, List } from 'lucide-react';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { generateKeyBetween } from 'fractional-indexing';
+import { TaskItem } from './components/TaskItem';
 
 type Filter = 'all' | 'active' | 'completed';
 type ViewMode = 'list' | 'kanban';
 
 const WEEK_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-function getPriorityColor(priority?: Task['priority']) {
-    if (priority === 'high') return 'bg-red-500/80';
-    if (priority === 'medium') return 'bg-yellow-500/80';
-    if (priority === 'low') return 'bg-blue-500/80';
-    return 'bg-zinc-500/50';
-}
-
-function formatDue(task: Task, today: Date) {
-    if (!task.due_date) return 'No due date';
-    const due = new Date(task.due_date);
-    if (Number.isNaN(due.getTime())) return 'No due date';
-    if (isSameDay(due, today)) return `Due ${format(due, 'HH:mm')}`;
-    return `Due ${format(due, 'eee, HH:mm')}`;
-}
 
 function normalizeDate(value?: string | null) {
     if (!value) return null;
@@ -42,8 +46,26 @@ export default function TasksPage() {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const [filter, setFilter] = useState<Filter>('all');
-    const [viewMode, setViewMode] = useState<ViewMode>('kanban');
+    const [viewMode, setViewMode] = useState<ViewMode>('kanban'); // Restored Kanban as default
     const [newTaskTitle, setNewTaskTitle] = useState('');
+    
+    // Sensors for DND
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 10,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    // Debug loading state
+    useEffect(() => {
+        console.log('[TasksPage] Status:', { isLoading, tasksCount: tasks?.length, hasUser: !!tasks });
+    }, [isLoading, tasks]);
+    
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
     const [plan, setPlan] = useState<Record<string, string[]> | null>(null);
     const [isPlanning, setIsPlanning] = useState(false);
@@ -107,39 +129,24 @@ export default function TasksPage() {
         if (filter === 'active') list = list.filter((t) => !t.completed);
         if (filter === 'completed') list = list.filter((t) => t.completed);
 
-        return list.slice().sort((a, b) => {
-            if (a.completed !== b.completed) return a.completed ? 1 : -1;
-
-            const aDue = normalizeDate(a.due_date);
-            const bDue = normalizeDate(b.due_date);
-
-            if (aDue && bDue && aDue.getTime() !== bDue.getTime()) {
-                return aDue.getTime() - bDue.getTime();
-            }
-            if (aDue && !bDue) return -1;
-            if (!aDue && bDue) return 1;
-
-            const priorityOrder = { high: 0, medium: 1, low: 2 } as const;
-            const aPriority = priorityOrder[(a.priority ?? 'low') as keyof typeof priorityOrder] ?? 3;
-            const bPriority = priorityOrder[(b.priority ?? 'low') as keyof typeof priorityOrder] ?? 3;
-            if (aPriority !== bPriority) return aPriority - bPriority;
-
-            return a.title.localeCompare(b.title);
-        });
+        return list;
     }, [filter, tasks]);
 
     const handleCreateTask = useCallback(async () => {
         const title = newTaskTitle.trim();
         if (!title) return;
         try {
-            await createTask.mutateAsync({ title, completed: false });
+            const lastTask = tasks[tasks.length - 1];
+            const position = generateKeyBetween(lastTask?.position || null, null);
+
+            await createTask.mutateAsync({ title, completed: false, position });
             setNewTaskTitle('');
             showToast('Tarefa criada.', 'success');
         } catch (error) {
             console.error(error);
             showToast('Não foi possível criar a tarefa.', 'error');
         }
-    }, [createTask, newTaskTitle, showToast]);
+    }, [createTask, newTaskTitle, showToast, tasks]);
 
     const handleToggle = useCallback((task: Task) => {
         updateTask.mutate({
@@ -160,6 +167,36 @@ export default function TasksPage() {
             setConfirmDelete(null);
         }
     }, [confirmDelete, deleteTask, showToast]);
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+
+        const oldIndex = filteredTasks.findIndex((t) => t.id === active.id);
+        const newIndex = filteredTasks.findIndex((t) => t.id === over.id);
+
+        if (oldIndex !== -1 && newIndex !== -1) {
+            const newOrder = arrayMove(filteredTasks, oldIndex, newIndex);
+            const taskToMove = newOrder[newIndex];
+            const beforeTask = newOrder[newIndex - 1];
+            const afterTask = newOrder[newIndex + 1];
+
+            const newPosition = generateKeyBetween(
+                beforeTask?.position || null,
+                afterTask?.position || null
+            );
+
+            try {
+                await updateTask.mutateAsync({
+                    id: taskToMove.id,
+                    updates: { position: newPosition },
+                });
+            } catch (error) {
+                console.error('[handleDragEnd] Error updating position:', error);
+                showToast('Erro ao reordenar tarefa.', 'error');
+            }
+        }
+    };
 
     const handleGeneratePlan = useCallback(async () => {
         if (!tasks?.length) return;
@@ -183,63 +220,6 @@ export default function TasksPage() {
         }
     }, [generatePlan, showToast, tasks]);
 
-    const renderTask = (task: Task) => {
-        const dueLabel = formatDue(task, today);
-        const tag = task.tags?.[0] || task.priority || 'Task';
-
-        return (
-            <div
-                key={task.id}
-                className={cn(
-                    "group flex items-center gap-4 p-4 border border-transparent hover:bg-white/5 hover:border-white/10 transition-all duration-300 cursor-pointer",
-                    task.completed && "opacity-60"
-                )}
-            >
-                <label className="relative flex items-center justify-center cursor-pointer">
-                    <input
-                        type="checkbox"
-                        className="task-checkbox peer h-5 w-5 appearance-none rounded-sm border border-white/15 bg-transparent checked:bg-primary checked:border-primary transition-all"
-                        checked={!!task.completed}
-                        onChange={() => handleToggle(task)}
-                        disabled={updateTask.isPending}
-                        aria-label={`Mark "${task.title}" as ${task.completed ? 'incomplete' : 'complete'}`}
-                    />
-                    <span aria-hidden="true" className="material-symbols-outlined absolute pointer-events-none opacity-0 peer-checked:opacity-100 text-white text-[16px]">check</span>
-                </label>
-
-                <div className="flex flex-col flex-1 min-w-0">
-                    <span className={cn(
-                        "text-zinc-200 text-sm font-normal transition-colors truncate",
-                        task.completed && "line-through text-zinc-500",
-                        !task.completed && "group-hover:text-white"
-                    )}>
-                        {task.title}
-                    </span>
-                    <div className="flex items-center gap-2 mt-0.5 text-xs text-zinc-500 flex-wrap">
-                        <span
-                            className={cn("w-1.5 h-1.5 rounded-full", getPriorityColor(task.priority))}
-                            title={`Priority: ${task.priority || 'none'}`}
-                            aria-label={`Priority: ${task.priority || 'none'}`}
-                        />
-                        <span className="text-[10px] uppercase tracking-wider">{tag}</span>
-                        <span className="text-zinc-700 text-[10px]">•</span>
-                        <span className="text-zinc-600">{dueLabel}</span>
-                    </div>
-                </div>
-
-                <button
-                    type="button"
-                    className={cn("opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity hover:text-white", deleteTask.isPending ? "text-zinc-500 cursor-not-allowed" : "text-zinc-600")}
-                    onClick={() => setConfirmDelete(task.id)}
-                    aria-label={`Delete task: ${task.title}`}
-                    disabled={deleteTask.isPending}
-                >
-                    <span className="material-symbols-outlined text-[18px]">{deleteTask.isPending ? 'hourglass_top' : 'more_horiz'}</span>
-                </button>
-            </div>
-        );
-    };
-
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
@@ -250,10 +230,7 @@ export default function TasksPage() {
 
     return (
         <div className="dashboard-shell relative h-full w-full overflow-hidden">
-            
-
             <div className="relative flex h-screen w-full overflow-hidden z-10">
-                {/* Sidebar Navigation removed - using global AppLayout Sidebar */}
                 <main className="flex-1 h-full overflow-y-auto relative p-4 lg:p-10 flex flex-col gap-8 custom-scrollbar">
                     <div className="w-full flex flex-col gap-6 animate-enter">
                         <div className="flex items-end justify-between px-2">
@@ -360,103 +337,132 @@ export default function TasksPage() {
                                 </div>
                             </div>
 
-                    <div className="flex flex-col z-10 h-full min-h-[500px]">
-                        {viewMode === 'list' ? (
-                            <div ref={scrollContainerRef} className="flex flex-col divide-y divide-white/10 overflow-y-auto pr-2 custom-scrollbar max-h-[600px]">
-                                {filteredTasks.map(renderTask)}
-                                {isFetchingNextPage && (
-                                    <div className="flex items-center justify-center py-4">
-                                        <Loader text="" />
-                                    </div>
-                                )}
-                                {!filteredTasks.length && !isFetchingNextPage && (
-                                    <div className="text-sm text-zinc-500 py-6 text-center">
-                                        Nenhuma tarefa encontrada para este filtro.
-                                    </div>
+                            <div className="flex flex-col z-10 h-full min-h-[500px]">
+                                {viewMode === 'list' ? (
+                                    <DndContext
+                                        sensors={sensors}
+                                        collisionDetection={closestCenter}
+                                        onDragEnd={handleDragEnd}
+                                    >
+                                        <SortableContext
+                                            items={filteredTasks.map((t) => t.id)}
+                                            strategy={verticalListSortingStrategy}
+                                        >
+                                            <div ref={scrollContainerRef} className="flex flex-col divide-y divide-white/10 overflow-y-auto pr-2 custom-scrollbar max-h-[600px]">
+                                                <AnimatePresence mode="popLayout" initial={false}>
+                                                    {filteredTasks.map((task) => (
+                                                        <motion.div
+                                                            key={task.id}
+                                                            layout
+                                                            initial={{ opacity: 0, y: 10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, scale: 0.95 }}
+                                                            transition={{ duration: 0.2 }}
+                                                        >
+                                                            <TaskItem
+                                                                id={task.id}
+                                                                task={task}
+                                                                onToggle={() => handleToggle(task)}
+                                                                onDelete={() => setConfirmDelete(task.id)}
+                                                            />
+                                                        </motion.div>
+                                                    ))}
+                                                </AnimatePresence>
+                                                {isFetchingNextPage && (
+                                                    <div className="flex items-center justify-center py-4">
+                                                        <Loader text="" />
+                                                    </div>
+                                                )}
+                                                {!filteredTasks.length && !isFetchingNextPage && (
+                                                    <div className="text-sm text-zinc-500 py-6 text-center">
+                                                        Nenhuma tarefa encontrada para este filtro.
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </SortableContext>
+                                    </DndContext>
+                                ) : (
+                                    <KanbanBoard />
                                 )}
                             </div>
-                        ) : (
-                            <KanbanBoard />
-                        )}
-                    </div>
                             <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/20 to-transparent pointer-events-none rounded-b-3xl" />
                         </div>
 
                         {viewMode === 'list' && (
-                        <div className="flex flex-col gap-6 lg:w-1/3">
-                            <div className="glass-card flex-1 min-h-[220px] rounded-3xl bg-glass-surface backdrop-blur-xl border border-white/5 p-6 relative overflow-hidden flex flex-col justify-between animate-enter animate-enter-delay-2">
-                                <div className="flex justify-between items-start z-10">
-                                    <span className="text-xs text-zinc-500 uppercase tracking-widest font-semibold">Focus State</span>
-                                    <span className="flex h-3 w-3 relative">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-500 opacity-75" />
-                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500" />
-                                    </span>
-                                </div>
-                                <div className="absolute inset-0 flex items-center justify-center opacity-40 pointer-events-none">
-                                    <div className="flex items-center justify-center gap-[3px] h-16 transform scale-y-75">
-                                        {Array.from({ length: 10 }).map((_, idx) => (
-                                            <div
-                                                key={idx}
-                                                className={cn(
-                                                    "w-1 bg-indigo-400/80 rounded-full",
-                                                    idx % 2 === 0 ? "animate-[pulse_1s_ease-in-out_infinite]" : "animate-[pulse_1.3s_ease-in-out_infinite_0.1s]"
-                                                )}
-                                                style={{ height: `${6 + (idx % 5) * 3}px` }}
-                                            />
-                                        ))}
+                            <div className="flex flex-col gap-6 lg:w-1/3">
+                                <div className="glass-card flex-1 min-h-[220px] rounded-3xl bg-glass-surface backdrop-blur-xl border border-white/5 p-6 relative overflow-hidden flex flex-col justify-between animate-enter animate-enter-delay-2">
+                                    <div className="flex justify-between items-start z-10">
+                                        <span className="text-xs text-zinc-500 uppercase tracking-widest font-semibold">Focus State</span>
+                                        <span className="flex h-3 w-3 relative">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-500 opacity-75" />
+                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500" />
+                                        </span>
                                     </div>
-                                </div>
-                                <div className="z-10 mt-auto">
-                                    <p className="text-lg font-light text-white leading-tight">
-                                        {stats.completionRate >= 70 ? 'Neural Resonance' : 'Momentum Building'}
-                                    </p>
-                                    <p className="text-zinc-500 text-xs mt-1">
-                                        {stats.overdue > 0
-                                            ? `${stats.overdue} overdue • ${stats.todayCount} today`
-                                            : `Active: ${stats.active} • Completion ${stats.completionRate}%`}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="glass-card flex-1 min-h-[220px] rounded-3xl bg-glass-surface backdrop-blur-xl border border-white/5 p-6 flex flex-col justify-between animate-enter animate-enter-delay-3">
-                                <div className="flex justify-between items-start">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-xs text-zinc-500 uppercase tracking-widest font-semibold">Velocity</span>
-                                        <h4 className="text-2xl font-light text-white tracking-tighter">
-                                            {stats.total ? `${Math.max(1, Math.round(stats.completed / 7))} ` : '0 '}
-                                            <span className="text-sm text-zinc-500 font-normal">tasks/day</span>
-                                        </h4>
-                                    </div>
-                                    <span className="material-symbols-outlined text-zinc-600">trending_up</span>
-                                </div>
-                                <div className="h-24 w-full flex items-end gap-2 mt-4">
-                                    {weeklyVelocity.counts.map((count, idx) => {
-                                        const height = `${(count / weeklyVelocity.max) * 90 + 10}%`;
-                                        const isToday = idx === (new Date().getDay() + 6) % 7; // match labels starting Monday
-                                        return (
-                                            <div key={idx} className="group relative flex-1 h-full flex items-end">
+                                    <div className="absolute inset-0 flex items-center justify-center opacity-40 pointer-events-none">
+                                        <div className="flex items-center justify-center gap-[3px] h-16 transform scale-y-75">
+                                            {Array.from({ length: 10 }).map((_, idx) => (
                                                 <div
+                                                    key={idx}
                                                     className={cn(
-                                                        "w-full rounded-sm transition-colors",
-                                                        isToday ? "bg-primary/80 hover:bg-primary shadow-[0_0_15px_rgba(48,140,232,0.3)]" : "bg-zinc-800/50 hover:bg-zinc-700/50"
+                                                        "w-1 bg-indigo-400/80 rounded-full",
+                                                        idx % 2 === 0 ? "animate-[pulse_1s_ease-in-out_infinite]" : "animate-[pulse_1.3s_ease-in-out_infinite_0.1s]"
                                                     )}
-                                                    style={{ height }}
+                                                    style={{ height: `${6 + (idx % 5) * 3}px` }}
                                                 />
-                                                <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    {count}
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="z-10 mt-auto">
+                                        <p className="text-lg font-light text-white leading-tight">
+                                            {stats.completionRate >= 70 ? 'Neural Resonance' : 'Momentum Building'}
+                                        </p>
+                                        <p className="text-zinc-500 text-xs mt-1">
+                                            {stats.overdue > 0
+                                                ? `${stats.overdue} overdue • ${stats.todayCount} today`
+                                                : `Active: ${stats.active} • Completion ${stats.completionRate}%`}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="glass-card flex-1 min-h-[220px] rounded-3xl bg-glass-surface backdrop-blur-xl border border-white/5 p-6 flex flex-col justify-between animate-enter animate-enter-delay-3">
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-xs text-zinc-500 uppercase tracking-widest font-semibold">Velocity</span>
+                                            <h4 className="text-2xl font-light text-white tracking-tighter">
+                                                {stats.total ? `${Math.max(1, Math.round(stats.completed / 7))} ` : '0 '}
+                                                <span className="text-sm text-zinc-500 font-normal">tasks/day</span>
+                                            </h4>
+                                        </div>
+                                        <span className="material-symbols-outlined text-zinc-600">trending_up</span>
+                                    </div>
+                                    <div className="h-24 w-full flex items-end gap-2 mt-4">
+                                        {weeklyVelocity.counts.map((count, idx) => {
+                                            const height = `${(count / weeklyVelocity.max) * 90 + 10}%`;
+                                            const isToday = idx === (new Date().getDay() + 6) % 7; // match labels starting Monday
+                                            return (
+                                                <div key={idx} className="group relative flex-1 h-full flex items-end">
+                                                    <div
+                                                        className={cn(
+                                                            "w-full rounded-sm transition-colors",
+                                                            isToday ? "bg-primary/80 hover:bg-primary shadow-[0_0_15px_rgba(48,140,232,0.3)]" : "bg-zinc-800/50 hover:bg-zinc-700/50"
+                                                        )}
+                                                        style={{ height }}
+                                                    />
+                                                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        {count}
+                                                    </div>
+                                                    <div className={cn(
+                                                        "absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-zinc-400",
+                                                        isToday && "text-white font-medium"
+                                                    )}>
+                                                        {WEEK_LABELS[idx]}
+                                                    </div>
                                                 </div>
-                                                <div className={cn(
-                                                    "absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-zinc-400",
-                                                    isToday && "text-white font-medium"
-                                                )}>
-                                                    {WEEK_LABELS[idx]}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         )}
                     </div>
                 </main>

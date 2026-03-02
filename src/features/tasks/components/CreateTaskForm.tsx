@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/shared/ui/Button';
-import { Input } from '@/shared/ui/Input';
+import { Input, TextArea } from '@/shared/ui/Input';
 import { useAI } from '@/features/ai-assistant/hooks/useAI';
 import { Tag } from '@/shared/ui/Tag';
 import { X, Zap } from 'lucide-react';
+import { taskSchema, type TaskFormData } from '@/shared/schemas/tasks';
 import type { Task, EnergyLevel, TimeBlock } from '@/shared/types';
 
 interface CreateTaskFormProps {
@@ -12,13 +15,28 @@ interface CreateTaskFormProps {
 }
 
 export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [dueDate, setDueDate] = useState('');
-    const [tags, setTags] = useState<string[]>([]);
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        watch,
+        formState: { errors, isSubmitting },
+    } = useForm<TaskFormData>({
+        resolver: zodResolver(taskSchema),
+        defaultValues: {
+            title: '',
+            description: '',
+            due_date: '',
+            tags: [],
+            energyLevel: 'any',
+            timeBlock: 'any',
+        }
+    });
+
+    const tags = watch('tags') || [];
+    const title = watch('title');
+    const description = watch('description');
     const [newTag, setNewTag] = useState('');
-    const [energyLevel, setEnergyLevel] = useState<EnergyLevel>('any');
-    const [timeBlock, setTimeBlock] = useState<TimeBlock>('any');
 
     const { generateTags } = useAI();
     const [isGeneratingTags, setIsGeneratingTags] = useState(false);
@@ -33,7 +51,7 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                 force: true
             });
             if (result.tags) {
-                setTags(prev => Array.from(new Set([...prev, ...result.tags!])));
+                setValue('tags', Array.from(new Set([...tags, ...result.tags!])));
             } else {
                 const derived = [title, description]
                     .join(' ')
@@ -41,7 +59,9 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                     .split(/\W+/)
                     .filter(Boolean)
                     .slice(0, 3);
-                if (derived.length) setTags(prev => Array.from(new Set([...prev, ...derived])));
+                if (derived.length) {
+                    setValue('tags', Array.from(new Set([...tags, ...derived])));
+                }
             }
         } catch (error) {
             console.error('Failed to generate tags', error);
@@ -52,36 +72,36 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
 
     const addTag = () => {
         if (newTag && !tags.includes(newTag)) {
-            setTags([...tags, newTag]);
+            setValue('tags', [...tags, newTag]);
             setNewTag('');
         }
     };
 
     const removeTag = (tagToRemove: string) => {
-        setTags(tags.filter(tag => tag !== tagToRemove));
+        setValue('tags', tags.filter(tag => tag !== tagToRemove));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        const payload = {
-            title,
-            description,
-            due_date: dueDate ? new Date(dueDate).toISOString() : undefined,
+    const onFormSubmit = (data: TaskFormData) => {
+        const payload: Partial<Task> = {
+            title: data.title,
+            description: data.description,
+            due_date: data.due_date ? new Date(data.due_date).toISOString() : undefined,
             completed: false,
-            tags
+            tags: data.tags,
+            energy_level: data.energyLevel as EnergyLevel,
+            time_block: data.timeBlock as TimeBlock,
         };
         onSubmit(payload);
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
             <div className="space-y-2">
                 <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Título</label>
                 <Input
                     type="text"
-                    required
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    {...register('title')}
+                    error={errors.title?.message}
                     placeholder="Ex: Pagar conta de luz"
                     className="bg-surface/50 focus:bg-surface transition-colors"
                 />
@@ -89,11 +109,11 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
 
             <div className="space-y-2">
                 <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Descrição (Opcional)</label>
-                <textarea
-                    className="flex min-h-[80px] w-full rounded-md border border-input bg-surface/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono focus:bg-surface transition-colors"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                <TextArea
+                    {...register('description')}
                     placeholder="Detalhes..."
+                    error={errors.description?.message}
+                    className="bg-surface/50 focus:bg-surface transition-colors"
                 />
             </div>
 
@@ -101,8 +121,8 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                 <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Data de Vencimento</label>
                 <Input
                     type="date"
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
+                    {...register('due_date')}
+                    error={errors.due_date?.message}
                     className="bg-surface/50 focus:bg-surface transition-colors"
                 />
             </div>
@@ -114,8 +134,7 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                         Energia
                     </label>
                     <select
-                        value={energyLevel}
-                        onChange={(e) => setEnergyLevel(e.target.value as EnergyLevel)}
+                        {...register('energyLevel')}
                         className="w-full bg-surface/50 border border-border rounded-md p-2 text-sm font-mono text-foreground focus:bg-surface focus:border-primary focus:outline-none transition-colors"
                     >
                         <option value="any">Qualquer</option>
@@ -129,8 +148,7 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                         Período
                     </label>
                     <select
-                        value={timeBlock}
-                        onChange={(e) => setTimeBlock(e.target.value as TimeBlock)}
+                        {...register('timeBlock')}
                         className="w-full bg-surface/50 border border-border rounded-md p-2 text-sm font-mono text-foreground focus:bg-surface focus:border-primary focus:outline-none transition-colors"
                     >
                         <option value="any">Qualquer</option>
@@ -199,10 +217,11 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                 <Button type="button" variant="ghost" onClick={onCancel} className="flex-1">
                     CANCELAR
                 </Button>
-                <Button type="submit" className="flex-1">
-                    CRIAR
+                <Button type="submit" disabled={isSubmitting} className="flex-1">
+                    {isSubmitting ? 'CRIANDO...' : 'CRIAR'}
                 </Button>
             </div>
         </form>
     );
 }
+

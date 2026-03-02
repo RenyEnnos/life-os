@@ -13,6 +13,11 @@
 - [x] **Phase 9: Journaling & AI Reflection** - Create reflective tools with AI-generated summaries. (completed 2026-03-02)
 - [x] **Phase 10: Performance Optimization & PWA** - Ensure high performance and offline capability. (completed 2026-03-02)
 - [x] **Phase 11: Security Hardening & Polish** - Final security audits and accessibility refinements. (completed 2026-03-02)
+- [ ] **Phase 12: Premium Dashboards with Tremor** - Refactor all charts and summary cards for a consistent SaaS aesthetic. (Milestone 3)
+- [ ] **Phase 13: Robust Forms & Validation (RHF + Zod)** - Standardize state management and validation for all user inputs. (Milestone 3)
+- [ ] **Phase 14: Hybrid Interactivity & Advanced DND** - Implement toggleable Task views and sortable lists. (Milestone 3)
+- [ ] **Phase 15: Unified User Hub** - Consolidate fragmented profile and settings interfaces into a single destination. (Milestone 3)
+- [ ] **Phase 16: Juicy UX & Sensory Feedback** - Polish the experience with advanced animations and celebratory effects. (Milestone 3)
 
 ## Phase Details
 
@@ -25,10 +30,7 @@
   2. User can log in and remain authenticated across browser sessions.
   3. User can securely reset a forgotten password via an email link.
   4. User can log out and be redirected to a public landing page.
-**Plans**: 3 plans
-- [x] 01-01-PLAN.md — Scaffolding & Supabase Setup
-- [x] 01-02-PLAN.md — Auth UI & Backend Migration
-- [x] 01-03-PLAN.md — Onboarding System
+**Plans**: 3 plans (Completed)
 
 ### Phase 2: Core Infrastructure & Dashboard Layout
 **Goal**: Implement the primary user interface structure and widget system.
@@ -38,9 +40,7 @@
   1. User can view the 3-zone layout (Now/Today/Context) on the main dashboard.
   2. Dynamic widgets for Habits and Tasks are visible with "empty state" handling.
   3. Layout is responsive across mobile, tablet, and desktop views.
-**Plans**: 2 plans
-- [x] 02-01-PLAN.md — Dashboard Infrastructure & Widgets
-- [x] 02-02-PLAN.md — 3-Zone Layout & Orchestration
+**Plans**: 2 plans (Completed)
 
 ### Phase 3: Habit Tracking System
 **Goal**: Enable users to build and monitor daily habits with visual feedback.
@@ -51,7 +51,7 @@
   2. Completing a habit triggers an optimistic UI update with immediate visual feedback.
   3. User can view a habit heatmap showing their consistency over the last 30 days.
   4. Streaks and completion rates update accurately in real-time.
-**Plans**: 3 plans (03-01, 03-02, 03-03) - Completed.
+**Plans**: 3 plans (Completed)
 
 ### Phase 4: Task Management (Kanban)
 **Goal**: Provide a flexible task organization system using a Kanban interface.
@@ -62,7 +62,7 @@
   2. User can drag-and-drop tasks between "Todo", "In Progress", and "Done" columns.
   3. Task state persists correctly after a page reload.
   4. User can filter tasks by priority or due date without noticeable lag.
-**Plans**: 3 plans (04-01, 04-02, 04-03) - Completed.
+**Plans**: 3 plans (Completed)
 
 ### Phase 5: Financial Management
 **Goal**: Allow users to track their financial health and spending patterns.
@@ -73,7 +73,7 @@
   2. Dashboard displays accurate summary cards for current balance and daily spending.
   3. User can view an interactive chart showing expense trends over time.
   4. Transaction history can be sorted by amount and filtered by date range.
-**Plans**: 3 plans (05-01, 05-02, 05-03) - Completed.
+**Plans**: 3 plans (Completed)
 
 ### Phase 6: University & Academic Management
 **Goal**: Centralize academic tracking and provide predictive grade analysis.
@@ -84,7 +84,7 @@
   2. Individual course averages and overall GPA are calculated automatically.
   3. "What-If" simulator accurately predicts required grades for a specified GPA target.
   4. Assignment deadlines appear in the "Now" or "Today" dashboard zones.
-**Plans**: 3 plans (06-01, 06-02, 06-03) - Completed.
+**Plans**: 3 plans (Completed)
 
 ### Phase 7: AI Assistant & Quick Capture
 **Goal**: Integrate AI to reduce cognitive load via natural language input and smart insights.
@@ -95,7 +95,7 @@
   2. AI correctly suggests categories for newly logged financial transactions.
   3. Floating AI chat interface responds to user productivity questions within 2 seconds.
   4. AI can provide context-aware insights based on current dashboard state.
-**Plans**: 3 plans (07-01, 07-02, 07-03) - Completed.
+**Plans**: 3 plans (Completed)
 
 ### Phase 8: Gamification Engine
 **Goal**: Increase user retention and engagement through rewards and leveling.
@@ -105,7 +105,7 @@
   1. Completing tasks and habits awards XP visible in the user's progress bar.
   2. Reaching XP milestones triggers a "Level Up" animation and state change.
   3. User can view a gallery of earned badges for long-term consistency milestones.
-**Plans**: 4 plans (08-01, 08-02, 08-03, 08-04) - Completed.
+**Plans**: 4 plans (Completed)
 
 ### Phase 9: Journaling & AI Reflection
 **Goal**: Support mental health and self-improvement through reflection and AI analysis.
@@ -115,7 +115,7 @@
   1. User can save a daily journal entry with a mood selection.
   2. AI generates a weekly summary of mood trends and productivity correlations.
   3. Journal entries are private and securely stored with encryption-at-rest.
-**Plans**: 4 plans (09-01, 09-02, 09-03, 09-04) - Completed.
+**Plans**: 4 plans (Completed)
 
 ### Phase 10: Performance Optimization & PWA
 **Goal**: Ensure the application is fast, reliable, and accessible offline.
@@ -125,7 +125,7 @@
   1. Application achieves a Lighthouse performance score of 90 or higher.
   2. App is installable as a PWA on mobile and desktop devices.
   3. Core features (Habits/Tasks) work offline with synchronization upon reconnection.
-**Plans**: 3 plans (10-01, 10-02, 10-03) - Completed.
+**Plans**: 3 plans (Completed)
 
 ### Phase 11: Security Hardening & Polish
 **Goal**: Finalize the application with professional-grade security and accessibility.
@@ -135,7 +135,57 @@
   1. UI meets WCAG 2.1 Level AA accessibility standards.
   2. Security audit confirms zero high-risk vulnerabilities and strict CSP implementation.
   3. Rate limiting is active on all sensitive API endpoints.
-**Plans**: 3 plans (11-01, 11-02, 11-03) - Completed.
+**Plans**: 3 plans (Completed)
+
+### Phase 12: Premium Dashboards with Tremor
+**Goal**: Elevate the visual quality of data visualization across the app.
+**Depends on**: Phase 5, Phase 3
+**Requirements**: GEMS-01
+**Success Criteria**:
+  1. All finance charts (Area, Bar) are replaced with Tremor components.
+  2. Dashboard KPI cards use Tremor's Card and Metric components with status indicators.
+  3. Habit contribution graph is refactored using Tremor's Tracker or similar specialized components.
+**Plans**: 3 plans
+
+### Phase 13: Robust Forms & Validation (RHF + Zod)
+**Goal**: Standardize form management for reliability and developer velocity.
+**Depends on**: Phase 1, Phase 11
+**Requirements**: GEMS-02
+**Success Criteria**:
+  1. All forms use React Hook Form for state management.
+  2. Validation is strictly enforced using Zod schemas with localized error messages.
+  3. Form submission states (isSubmitting, isValid) are visually indicated.
+**Plans**: 3 plans
+
+### Phase 14: Hybrid Interactivity & Advanced DND
+**Goal**: Provide flexible task organization with modern interactivity.
+**Depends on**: Phase 4, Phase 13
+**Requirements**: GEMS-03
+**Success Criteria**:
+  1. User can toggle between Kanban and Sortable List views for tasks.
+  2. Task reordering within a list persists correctly in the database.
+  3. Drag-and-drop interactions are smooth and provide tactile visual feedback.
+**Plans**: 3 plans
+
+### Phase 15: Unified User Hub
+**Goal**: Resolve UI fragmentation and improve navigation consistency.
+**Depends on**: Phase 1, Phase 2
+**Requirements**: GEMS-04
+**Success Criteria**:
+  1. Fragmented profile and settings screens are merged into a single "User Hub".
+  2. Navigation between account settings, preferences, and profile data is seamless.
+  3. Redundant menu items are removed, and UI layout is simplified.
+**Plans**: 2 plans
+
+### Phase 16: Juicy UX & Sensory Feedback
+**Goal**: Maximize user delight and reward perception.
+**Depends on**: Phase 8, Phase 12, Phase 14
+**Requirements**: GEMS-05, GEMS-06
+**Success Criteria**:
+  1. Completing habits/tasks triggers contextual confetti bursts from the component.
+  2. Micro-animations (pulses, springs) are applied to all interactive success states.
+  3. Navigation transitions and layout changes use Framer Motion's AnimatePresence.
+**Plans**: 3 plans
 
 ## Progress Table
 
@@ -152,3 +202,8 @@
 | 9. Journaling & Reflection | 4/4 | Complete   | 2026-03-02 |
 | 10. Performance & PWA | 3/3 | Complete   | 2026-03-02 |
 | 11. Security & Polish | 3/3 | Complete   | 2026-03-02 |
+| 12. Premium Dashboards | 0/3 | Pending    | - |
+| 13. Robust Forms | 0/3 | Pending    | - |
+| 14. Hybrid Interactivity | 0/3 | Pending    | - |
+| 15. Unified User Hub | 0/2 | Pending    | - |
+| 16. Juicy UX | 0/3 | Pending    | - |

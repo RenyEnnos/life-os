@@ -18,12 +18,20 @@ export function useTasks() {
         hasNextPage,
         isFetchingNextPage,
     } = useInfiniteQuery<Task[]>({
-        queryKey: ['tasks', user?.id, 'infinite'],
+        queryKey: ['tasks', user?.id || 'anonymous', 'infinite'],
         queryFn: async ({ pageParam }) => {
-            const pageNum = typeof pageParam === 'number' ? pageParam : 1;
-            return tasksApi.getPaginated(pageNum, PAGE_SIZE);
+            try {
+                const pageNum = typeof pageParam === 'number' ? pageParam : 1;
+                console.log(`[useTasks] Fetching page ${pageNum}...`);
+                const result = await tasksApi.getPaginated(pageNum, PAGE_SIZE);
+                console.log(`[useTasks] Fetch successful: ${result.length} tasks`);
+                return result;
+            } catch (error) {
+                console.error('[useTasks] Fetch error:', error);
+                throw error;
+            }
         },
-        enabled: !!user,
+        enabled: !!user?.id,
         initialPageParam: 1,
         getNextPageParam: (lastPage, allPages) => {
             if (lastPage.length < PAGE_SIZE) {
@@ -33,7 +41,11 @@ export function useTasks() {
         },
     });
 
-    const tasks = infiniteData?.pages.flatMap((page) => page) ?? [];
+    const tasks = (infiniteData?.pages.flatMap((page) => page) ?? []).sort((a, b) => {
+        const posA = a.position || '';
+        const posB = b.position || '';
+        return posA.localeCompare(posB);
+    });
 
     const createTask = useMutation({
         mutationFn: tasksApi.create,

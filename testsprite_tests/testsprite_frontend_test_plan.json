@@ -1,1020 +1,2584 @@
 [
   {
     "id": "TC001",
-    "title": "Email/password signup creates account and seeds initial data",
-    "description": "Verify user can sign up with email and password, receives success response, is authenticated, and onboarding seed (if applicable) is not created until onboarding completes.",
-    "category": "functional",
+    "title": "Complete onboarding successfully and land on Tasks",
+    "description": "Verifies a logged-in user can complete the onboarding flow and is redirected to Tasks at the end.",
+    "category": "Onboarding",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to Register page"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Enter valid new email, strong password, and required profile fields"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Submit registration form"
-      },
-      {
-        "type": "assertion",
-        "description": "API returns success and a user id; client receives auth session/token"
-      },
-      {
-        "type": "assertion",
-        "description": "User is redirected to onboarding flow (if first-time), and protected dashboard routes are accessible for this session"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
       {
         "type": "action",
-        "description": "Attempt to access dashboard without completing onboarding (if workflow requires onboarding first)"
+        "description": "Click on the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "If onboarding is mandatory, app shows onboarding flow and does not show seeded dashboard content until onboarding completes"
+        "description": "Verify URL contains \"/onboarding\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Step 1\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Fill a required field in Step 1 with \"Test Value\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Next\" button"
       }
     ]
   },
   {
     "id": "TC002",
-    "title": "Login success and session persistence after refresh",
-    "description": "Verify successful login using email/password, session persists across page refresh, and protected resources accessible after refresh.",
-    "category": "security",
+    "title": "Finish remaining onboarding steps and verify completion confirmation",
+    "description": "Verifies the user can proceed through subsequent onboarding steps and sees a completion confirmation.",
+    "category": "Onboarding",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to Login page"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Enter valid existing email and password and submit"
-      },
-      {
-        "type": "assertion",
-        "description": "API returns auth session; client stores session according to spec (cookie/local storage)"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Reload the browser/tab"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "User remains authenticated; dashboard and API requests succeed without re-login"
+        "description": "Verify URL contains \"/onboarding\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Next\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Next\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Complete\" is visible"
       }
     ]
   },
   {
     "id": "TC003",
-    "title": "Password recovery workflow sends reset and allows new password",
-    "description": "Verify password recovery flow initiates reset email (token-based), token validates, allows choosing new password, and login with new password succeeds.",
-    "category": "functional",
+    "title": "Onboarding completion redirects user to Tasks",
+    "description": "Verifies that after completing onboarding, the user is redirected to the Tasks page.",
+    "category": "Onboarding",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to Password Recovery page and submit existing user's email"
-      },
-      {
-        "type": "assertion",
-        "description": "Server returns success; email delivery event is recorded (mocked email service) with reset token/link"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Open reset link (token) in browser, enter new valid password, and submit"
-      },
-      {
-        "type": "assertion",
-        "description": "API accepts token, updates password, invalidates token, and responds success"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Attempt to login with new password"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Login succeeds using the new password; old password fails"
+        "description": "Verify URL contains \"/onboarding\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Finish\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Onboarding complete\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/tasks\""
       }
     ]
   },
   {
     "id": "TC004",
-    "title": "Protected routes block unauthenticated access",
-    "description": "Verify unauthenticated users cannot access protected API endpoints or UI routes and are redirected to login.",
-    "category": "security",
+    "title": "Validation blocks Next when a required field is blank",
+    "description": "Verifies required-field validation appears and prevents moving to the next onboarding step.",
+    "category": "Onboarding",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Open dashboard route in new browser session with no auth token"
-      },
-      {
-        "type": "assertion",
-        "description": "UI redirects to login page and/or shows a message"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Call protected API endpoints (habits, tasks) without auth token"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Server returns 401/403 for protected endpoints"
+        "description": "Verify URL contains \"/onboarding\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Next\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/onboarding\""
       }
     ]
   },
   {
     "id": "TC005",
-    "title": "Complete 5-step onboarding seeds initial habits/projects/preferences",
-    "description": "Verify completing the onboarding wizard stores user preferences, creates initial habits/projects, and redirects to Dashboard with seeded data.",
-    "category": "functional",
+    "title": "Fix validation error and proceed to the next step",
+    "description": "Verifies that after a validation error, entering a value allows the user to proceed.",
+    "category": "Onboarding",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Login as new user and proceed through the 5-step onboarding flow, providing valid inputs on each step"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Submit final step of onboarding"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "API stores onboarding preferences and seeds initial habits/projects in DB"
+        "description": "Verify URL contains \"/onboarding\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Next\" button"
       },
       {
         "type": "assertion",
-        "description": "User is redirected to Dashboard and sees seeded habits and projects in respective widgets"
+        "description": "Verify text \"required\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Fill the highlighted required field with \"Fixed Value\""
       }
     ]
   },
   {
     "id": "TC006",
-    "title": "Cancel onboarding midway returns to appropriate screen",
-    "description": "Verify cancelling onboarding from any step either returns user to Dashboard (if allowed) or exits to sign-in for unauthenticated users per spec.",
-    "category": "functional",
+    "title": "Resume onboarding by navigating directly to /onboarding while authenticated",
+    "description": "Verifies an authenticated user can access the onboarding route and sees the first step content.",
+    "category": "Onboarding",
     "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Start onboarding flow, fill first two steps, then click Cancel"
-      },
-      {
-        "type": "assertion",
-        "description": "If spec allows canceling, user is redirected to Dashboard without seeding incomplete data"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Verify backend has not created partial habits/projects from incomplete onboarding"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /onboarding"
       },
       {
         "type": "assertion",
-        "description": "If cancellation for unauthenticated users should sign out, the app returns to login"
+        "description": "Verify URL contains \"/onboarding\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Step 1\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Next\" is visible"
       }
     ]
   },
   {
     "id": "TC007",
-    "title": "Dashboard loads Now / Today / Context zones with widgets and meets performance",
-    "description": "Verify Dashboard renders three zones, widgets populate with correct data, and load times meet performance targets.",
-    "category": "performance",
-    "priority": "High",
+    "title": "Onboarding step remains on current step after validation error",
+    "description": "Verifies that a user cannot advance to the next step when validation fails and remains on the same step.",
+    "category": "Onboarding",
+    "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Login as user with typical dataset and navigate to Dashboard"
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Now, Today, and Context zones are present, and primary widgets (habits, tasks, finance summaries) render"
+        "description": "Verify URL contains \"/onboarding\""
       },
       {
         "type": "assertion",
-        "description": "Measured load time for initial dashboard data is within target (e.g., <200ms for main queries, UI <50ms interactive)"
+        "description": "Verify text \"Step 1\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Next\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Step 1\" is visible"
       }
     ]
   },
   {
     "id": "TC008",
-    "title": "Quick Capture parses natural language, shows preview, and creates item",
-    "description": "Verify Quick Capture opens from Dashboard, sends text input to Quick Capture AI endpoint, displays parsed preview (type, title, metadata), and creates task/habit/journal entry upon user confirmation.",
-    "category": "integration",
+    "title": "Update identity avatar and bio and see persisted changes",
+    "description": "Verifies a user can update avatar and bio in Identity tab, save successfully, and see the updated information displayed.",
+    "category": "Unified User Hub",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Open Quick Capture from Dashboard FAB and enter natural language like 'Tomorrow 9am: Prepare slides for CS class #project:Thesis priority high'"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Submit to parse endpoint"
-      },
-      {
-        "type": "assertion",
-        "description": "AI Quick Capture endpoint returns structured output with type (task), title, due date, project tag and priority"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Confirm creation from preview"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "New task is created in UI and persisted in backend with matching fields"
+        "description": "Verify URL contains \"/settings\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Identity\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Update the avatar to a different available avatar option"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Updated bio for UI test\" into the bio field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Success\" is visible"
       }
     ]
   },
   {
     "id": "TC009",
-    "title": "Create habit via UI and verify backend persistence",
-    "description": "Verify creating a new habit stores it in DB, appears in lists and dashboard, and default properties are correct.",
-    "category": "functional",
+    "title": "Save identity changes shows updated avatar and bio on the page",
+    "description": "Verifies that after saving identity updates, the new avatar and bio are shown in the Identity tab UI.",
+    "category": "Unified User Hub",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to Habits page and open Create Habit modal/form"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Fill valid habit name, schedule (daily), start date, and optional tags then submit"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "UI shows new habit in list and dashboard widget"
+        "description": "Verify URL contains \"/settings\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Identity\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Bio check: persisted\" into the bio field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
       },
       {
         "type": "assertion",
-        "description": "Backend habit record exists with matching properties"
+        "description": "Verify text \"Bio check: persisted\" is visible"
       }
     ]
   },
   {
     "id": "TC010",
-    "title": "Edit and delete habit updates UI and backend correctly",
-    "description": "Verify editing habit fields updates both UI and backend, and deleting habit removes it and associated logs per spec.",
-    "category": "functional",
-    "priority": "High",
+    "title": "Navigate across settings tabs and return without losing unsaved state",
+    "description": "Verifies tab navigation works between Identity, Security, and Preferences and the user can return to a tab and still interact with its fields.",
+    "category": "Unified User Hub",
+    "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Select an existing habit and open edit dialog, change name and schedule"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Submit changes"
-      },
-      {
-        "type": "assertion",
-        "description": "UI reflects updated name/schedule and backend record updated"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Delete the same habit and confirm deletion"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "Habit no longer appears in UI and is removed from database; linked habit_logs are removed or archived per spec"
+        "description": "Verify URL contains \"/settings\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Identity\" tab"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Identity\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Security\" tab"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Security\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Preferences\" tab"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Preferences\" is visible"
       }
     ]
   },
   {
     "id": "TC011",
-    "title": "Mark habit complete uses optimistic update and rolls back on failure",
-    "description": "Verify marking a habit complete updates UI immediately (optimistic), sends backend request, persists on success, and rolls back with error notification if server fails.",
-    "category": "error handling",
+    "title": "Change password successfully from Security tab",
+    "description": "Verifies the user can enter a valid new password and confirmation, save, and see a success toast.",
+    "category": "Unified User Hub",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "On Habit widget, click completion checkbox for today's habit"
-      },
-      {
-        "type": "assertion",
-        "description": "UI immediately shows completed state and streak/heatmap updates optimistically"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Simulate successful backend response"
-      },
-      {
-        "type": "assertion",
-        "description": "State persists and habit_log is created in backend"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Repeat action but simulate server 500 for backend save"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "UI rolls back to previous state, shows error toast with retry option, and backend has no new habit_log"
+        "description": "Verify URL contains \"/settings\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Security\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Type \"NewPassword!234\" into the New password field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"NewPassword!234\" into the Confirm password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Success\" is visible"
       }
     ]
   },
   {
     "id": "TC012",
-    "title": "Streak and heatmap analytics reflect habit logs correctly",
-    "description": "Verify streak calculations and heatmap aggregates match the habit_logs data, including edge cases around missed days and multiple completions in a day.",
-    "category": "functional",
-    "priority": "Medium",
+    "title": "Password confirmation mismatch shows inline error",
+    "description": "Verifies that mismatched new password and confirmation prevents save and shows a visible mismatch error message.",
+    "category": "Unified User Hub",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Seed backend with a series of habit_log entries representing various patterns: continuous days, missed days, and duplicate logs in same day"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Open Habit analytics/heatmap for that habit"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "Displayed streak value matches computed longest/active streak from logs and heatmap shows correct activity counts per day"
+        "description": "Verify URL contains \"/settings\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Security\" tab"
+      },
+      {
+        "type": "action",
+        "description": "Type \"NewPassword!234\" into the New password field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"DifferentPassword!234\" into the Confirm password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
       },
       {
         "type": "assertion",
-        "description": "Edge case: duplicate logs on same day are deduplicated if spec requires, and streak calculations account for single-day completion only"
+        "description": "Verify text \"match\" is visible"
       }
     ]
   },
   {
     "id": "TC013",
-    "title": "Task CRUD operations persist and reflect in UI",
-    "description": "Verify tasks can be created, read, updated, and deleted with fields like priority, due date, and project grouping correctly saved.",
-    "category": "functional",
-    "priority": "High",
+    "title": "View XP and level progress in User Hub",
+    "description": "Verifies XP and level progress information is visible in the settings hub UI.",
+    "category": "Unified User Hub",
+    "priority": "Low",
     "steps": [
       {
         "type": "action",
-        "description": "Open Task create modal, enter title, description, priority, due date and project, then submit"
-      },
-      {
-        "type": "assertion",
-        "description": "New task appears in task list and project grouping; backend contains task record with fields"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Edit task to change priority and due date"
-      },
-      {
-        "type": "assertion",
-        "description": "UI and backend reflect updated values"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Delete task"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "Task is removed from UI and backend"
+        "description": "Verify URL contains \"/settings\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"XP\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Level\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"progress\" is visible"
       }
     ]
   },
   {
     "id": "TC014",
-    "title": "Kanban drag-and-drop updates task status and persists",
-    "description": "Verify dragging a task between columns updates its status in UI and backend, including boundary checks for invalid drops.",
-    "category": "integration",
+    "title": "Create a task from List view and verify it appears in the Todo list",
+    "description": "Verifies a user can toggle views, create a task with valid inputs, and see it appear in the Todo list.",
+    "category": "Hybrid Task Management",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Open Project Kanban board with tasks in 'Todo' column"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Drag a task from 'Todo' to 'In Progress' and drop"
-      },
-      {
-        "type": "assertion",
-        "description": "UI shows task in 'In Progress' and server task.status updated accordingly"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Attempt invalid drop (e.g., drop into a disabled column or outside board)"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "UI prevents invalid drop; task remains in original column and no backend change occurs"
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click the toggle to switch to \"List\" view"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Create Task\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Create Task\" is visible"
       }
     ]
   },
   {
     "id": "TC015",
-    "title": "Quick Capture AI parsing handles ambiguous task phrases and provides edit preview",
-    "description": "Verify Quick Capture parsing of ambiguous natural language returns structured candidate results with confidence, and user can edit fields before creating.",
-    "category": "functional",
-    "priority": "Medium",
+    "title": "Submit a new task with title and description and verify it shows in the Todo column (Kanban)",
+    "description": "Verifies creating a task from the task creation form results in a visible new card in the Kanban Todo column.",
+    "category": "Hybrid Task Management",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Open Quick Capture and enter ambiguous phrase like 'Read chapter 5 next week for Biology class priority medium'"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Submit to AI parse endpoint"
-      },
-      {
-        "type": "assertion",
-        "description": "Parse result includes suggested type (task), suggested due date range, project/class suggestion, and confidence metadata"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Manually edit the previewed due date and title, then confirm create"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Created task reflects manual edits and persists to backend"
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click the toggle to switch to \"Kanban\" view"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Create Task\" button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"E2E Task Title\" into the Title field"
       }
     ]
   },
   {
     "id": "TC016",
-    "title": "Journal create/edit/list with mood metadata persisted",
-    "description": "Verify user can create daily journal entries with mood tag, edit entries, and list/view history with correct metadata.",
-    "category": "functional",
-    "priority": "Medium",
+    "title": "Create task form RHF validation: blank title shows inline error and does not create task",
+    "description": "Verifies the create task form prevents submission without a title and shows an inline validation message.",
+    "category": "Hybrid Task Management",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Open Journal Editor, create entry with title, content, and mood selection (e.g., 'happy') and save"
-      },
-      {
-        "type": "assertion",
-        "description": "Entry appears in Journal list with date and mood badge; backend entry includes mood metadata"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Open the created entry, edit content and change mood, then save"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Updated content and mood display in UI and are persisted"
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click the toggle to switch to \"List\" view"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Create Task\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Submit\" button"
       }
     ]
   },
   {
     "id": "TC017",
-    "title": "Focus Timer start/stop links session to task and awards XP on completion",
-    "description": "Verify Focus Mode timer can be started/stopped, optionally linked to a task, session completion records session, awards XP and updates streaks.",
-    "category": "functional",
-    "priority": "High",
+    "title": "Switch between List and Kanban views without losing access to Create Task action",
+    "description": "Verifies toggling views keeps core actions available and the page renders the expected view headers.",
+    "category": "Hybrid Task Management",
+    "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Open Focus Timer component, select an existing task to link, start timer"
-      },
-      {
-        "type": "assertion",
-        "description": "Timer counts down; UI shows linked task context"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Simulate completing a session and stopping timer"
-      },
-      {
-        "type": "assertion",
-        "description": "Focus session is recorded in backend, user receives XP increment, and linked task shows updated session association"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Start timer with 'reduced-motion' accessibility preference enabled"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Timer respects reduced-motion preference (minimal animations)"
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click the toggle to switch to \"List\" view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Create Task\" button is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the toggle to switch to \"Kanban\" view"
       }
     ]
   },
   {
     "id": "TC018",
-    "title": "Calendar event CRUD, timezone handling, and month/week navigation",
-    "description": "Verify user can create, edit, delete events, navigate month/week, and events render correctly across timezones.",
-    "category": "functional",
+    "title": "Finances dashboard shows key charts and allows date filter update",
+    "description": "Verifies the cash flow and category charts are visible and update after changing the date filter.",
+    "category": "Premium Dashboards (Finances & Visualizations)",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Open Calendar month view and create an event with start/end datetime in user's timezone"
-      },
-      {
-        "type": "assertion",
-        "description": "Event displays on correct day/time in month view and backend stores timezone-aware datetime"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Switch to week view and navigate to event's week"
-      },
-      {
-        "type": "assertion",
-        "description": "Event displays in correct slot; editing start time updates backend and UI"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Change user timezone preference and refresh calendar"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "Event times adjust to new timezone correctly (per spec: normalized or shown converted) and persisted values remain consistent"
+        "description": "Verify URL contains \"/finances\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Cash Flow\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Spending by Category\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Last 30 days\" from the date filter dropdown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Last 30 days\" is visible"
       }
     ]
   },
   {
     "id": "TC019",
-    "title": "Google Calendar integration syncs events bi-directionally (mocked)",
-    "description": "Verify Google Calendar integration sync pushes created events to Google and imports remote events; handle token refresh and partial failures.",
-    "category": "integration",
-    "priority": "Medium",
+    "title": "Add transaction with AI category suggestion and verify it appears in table",
+    "description": "Verifies adding a transaction with AI-suggested category results in a visible new row in the transactions table.",
+    "category": "Premium Dashboards (Finances & Visualizations)",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Enable Google Calendar integration (mock OAuth grant) for test account"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Create event in Life OS calendar and trigger sync"
-      },
-      {
-        "type": "assertion",
-        "description": "Mock Google API receives event creation call and mock Google calendar shows event"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Create event in mocked Google calendar and trigger import sync in Life OS"
-      },
-      {
-        "type": "assertion",
-        "description": "Imported event appears in Life OS calendar with correct fields; conflicts handled per spec (e.g., last-write or prompt)"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
       {
         "type": "action",
-        "description": "Simulate expired Google token and trigger sync"
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "Integration attempts token refresh; if refresh fails, user is notified and resync does not corrupt local events"
+        "description": "Verify URL contains \"/finances\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Add Transaction\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Add Transaction\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"25.50\" into the amount field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Coffee test\" into the description field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Suggest Category\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Suggested\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Coffee test\" is visible"
       }
     ]
   },
   {
     "id": "TC020",
-    "title": "AI Assistant chat suggests actions and confirmed actions execute",
-    "description": "Verify AI chat assistant returns suggestions (e.g., create task/habit), presents UI to confirm suggested action, and on confirmation action is created and persisted.",
-    "category": "integration",
+    "title": "AI category suggestion fails and user saves transaction with manual category",
+    "description": "Verifies the UI shows an error toast on suggestion failure and allows manual category selection before saving.",
+    "category": "Premium Dashboards (Finances & Visualizations)",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Open AI Assistant FAB and send prompt like 'Summarize my priorities and create tasks for top 3 items'"
-      },
-      {
-        "type": "assertion",
-        "description": "AI responds with summary and suggested actionable items with UI affordances to accept each suggestion"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Confirm one suggested action to create a task"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "Task is created with fields derived from suggestion and persisted in backend; chat shows confirmation and history in session"
+        "description": "Verify URL contains \"/finances\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Add Transaction\" button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"12.00\" into the amount field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"AI fail path test\" into the description field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Suggest Category\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Category suggestion failed\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Groceries\" from the category dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"AI fail path test\" is visible"
       }
     ]
   },
   {
     "id": "TC021",
-    "title": "Quick Capture AI parsing endpoint handles malformed or ambiguous input gracefully",
-    "description": "Verify the Quick Capture parsing endpoint returns helpful fallback or error responses for malformed input and UI allows user-driven correction.",
-    "category": "error handling",
+    "title": "Summary cards display balance and daily spend values",
+    "description": "Verifies the finances summary cards show the balance and daily spend values on the dashboard.",
+    "category": "Premium Dashboards (Finances & Visualizations)",
     "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Open Quick Capture and submit gibberish or malformed text"
-      },
-      {
-        "type": "assertion",
-        "description": "AI parse endpoint returns an error or low-confidence response with suggested clarification prompts"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "UI presents editable preview and suggested clarifying questions; user corrects fields manually and creates item"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "Created item persists correctly despite initial low-confidence parse"
+        "description": "Verify URL contains \"/finances\""
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the summary cards section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Balance\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Daily spend\" is visible"
       }
     ]
   },
   {
     "id": "TC022",
-    "title": "Gamification XP, levels and badge awarding reflect user actions",
-    "description": "Verify XP increments for defined actions (habit complete, focus session, task complete), level thresholds trigger UI changes, and badge awards display and persist.",
-    "category": "functional",
+    "title": "Date filter change preserves chart visibility and does not break dashboard rendering",
+    "description": "Verifies charts remain visible and the dashboard continues to render after changing the date filter multiple times.",
+    "category": "Premium Dashboards (Finances & Visualizations)",
     "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Note initial XP, complete a habit, finish a Focus session, and mark a task as done"
-      },
-      {
-        "type": "assertion",
-        "description": "XP increases by expected amounts per action and backend gamification records update"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Trigger XP to cross a level threshold"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "Level-up UI displays, any associated rewards/badges awarded and persisted in user profile"
+        "description": "Verify URL contains \"/finances\""
+      },
+      {
+        "type": "action",
+        "description": "Select \"This month\" from the date filter dropdown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Cash Flow\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Select \"This year\" from the date filter dropdown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Spending by Category\" is visible"
       }
     ]
   },
   {
     "id": "TC023",
-    "title": "Add financial transaction and accept AI-assisted categorization",
-    "description": "Verify creating a transaction triggers AI categorization suggestions, user can accept/override, and finance summary/card updates accordingly.",
-    "category": "functional",
+    "title": "Add transaction validation prevents saving with missing required fields",
+    "description": "Verifies the transaction form shows a visible validation message when trying to save without required inputs.",
+    "category": "Premium Dashboards (Finances & Visualizations)",
     "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Open Finances dashboard and create a new transaction (merchant, amount, date)"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Allow transaction to be processed by AI categorization service (mocked) which returns a suggested category"
-      },
-      {
-        "type": "assertion",
-        "description": "UI shows suggestion; user accepts suggestion"
-      },
-      {
-        "type": "assertion",
-        "description": "Transaction saved with accepted category; summary cards/charts update to reflect categorized amount"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Create another transaction and manually override AI suggestion to a different category"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "Backend stores overridden category and AI suggestion is recorded as history (if spec requires)"
+        "description": "Verify URL contains \"/finances\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Add Transaction\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Amount is required\" is visible"
       }
     ]
   },
   {
     "id": "TC024",
-    "title": "University course and assignment CRUD plus grade calculator What-If simulator",
-    "description": "Verify courses and assignments can be managed, grade calculations compute correctly, and What-If simulator projects final grades when adjusting future scores.",
-    "category": "functional",
-    "priority": "Medium",
+    "title": "Create a new habit and confirm it appears in the list",
+    "description": "Verifies that a user can create a habit with required fields and the new habit is shown in the habit list.",
+    "category": "Habits",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Create a course with grading components (assignments, weights) and add several assignment records with earned scores"
-      },
-      {
-        "type": "assertion",
-        "description": "Overall grade is calculated correctly using the weighting formula and matches expected math"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Open What-If simulator and propose hypothetical scores for remaining assignments"
-      },
-      {
-        "type": "assertion",
-        "description": "Simulator projects expected final grade accurately; UI shows required future scores to hit target grade"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Edit an assignment score and delete an assignment"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "Calculations update accordingly in UI and backend"
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Habits\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/habits\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Create Habit\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Create Habit\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Read 10 pages\" into the \"Title\" field"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Daily\" from the \"Frequency\" dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Morning\" from the \"Time of day\" dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Read 10 pages\" is visible"
       }
     ]
   },
   {
     "id": "TC025",
-    "title": "Profile settings update (theme, avatar) persists across sessions",
-    "description": "Verify user can update profile fields and preferences (theme light/dark), avatar, and preference persists after refresh and new sessions.",
-    "category": "functional",
-    "priority": "Medium",
+    "title": "Create habit validation: blank title shows inline error and does not create habit",
+    "description": "Verifies inline validation prevents creating a habit when the title is missing.",
+    "category": "Habits",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Open Settings/Profile page and change theme preference to dark and update display name"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Upload or choose an avatar from allowed sources and save settings"
-      },
-      {
-        "type": "assertion",
-        "description": "UI immediately reflects theme and profile changes"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Refresh page and log out then log back in"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "Theme preference and profile updates persist and are applied across sessions"
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Habits\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/habits\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Create Habit\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Create Habit\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click into the \"Title\" field"
+      },
+      {
+        "type": "action",
+        "description": "Press \"Tab\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Title is required\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Create Habit\" is visible"
       }
     ]
   },
   {
     "id": "TC026",
-    "title": "Accessibility: keyboard navigation, ARIA labels and reduced-motion compliance",
-    "description": "Verify key UI components have ARIA attributes, full keyboard navigability, color contrast meets WCAG 2.1 AA, and reduced-motion preference affects animations.",
-    "category": "accessibility",
+    "title": "Edit an existing habit target value and verify habit card reflects changes",
+    "description": "Verifies editing a habit updates the visible target value on the habit card after saving.",
+    "category": "Habits",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Using keyboard only, navigate to primary interactive elements: Nav, Dashboard widgets, Habit checkbox, Quick Capture FAB, Kanban board and Modals"
-      },
-      {
-        "type": "assertion",
-        "description": "All interactive elements are reachable via keyboard with visible focus state and operable controls"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Inspect Button, Modal and Toast components for ARIA roles and labels"
-      },
-      {
-        "type": "assertion",
-        "description": "ARIA attributes are present and reasonable (role, aria-label, aria-modal) per component guidelines"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Enable reduced-motion user preference and trigger animations (open modal, drag/drop, timer)"
-      },
-      {
-        "type": "assertion",
-        "description": "Animations are minimized or disabled according to reduced-motion settings"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
       {
         "type": "action",
-        "description": "Run contrast checks on primary UI text/background combinations"
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "Color contrast ratios meet WCAG 2.1 AA thresholds"
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Habits\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/habits\""
+      },
+      {
+        "type": "action",
+        "description": "Click the first habit in the habit list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Edit Habit\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"5\" into the \"Target\" (or \"Target value\") field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Target\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"5\" is visible"
       }
     ]
   },
   {
     "id": "TC027",
-    "title": "Backend habits API endpoints handle CRUD with auth enforcement",
-    "description": "Verify API endpoints for habits enforce authentication, validate payloads with Zod-like rules, and return appropriate errors for invalid requests.",
-    "category": "integration",
-    "priority": "High",
+    "title": "Edit habit updates visible analytics section for the selected habit",
+    "description": "Verifies that after editing and saving a habit, the analytics area remains visible and reflects the updated habit context.",
+    "category": "Habits",
+    "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Call GET /habits without auth token"
-      },
-      {
-        "type": "assertion",
-        "description": "Server returns 401"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Call POST /habits with malformed payload (missing required fields)"
-      },
-      {
-        "type": "assertion",
-        "description": "Server returns 400 with validation error details"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Call POST /habits with valid payload and auth token"
-      },
-      {
-        "type": "assertion",
-        "description": "Server returns 201 with created habit object and persisted record in DB"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
       {
         "type": "action",
-        "description": "Call DELETE /habits/:id with valid auth"
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "Server returns 200 and habit no longer present in DB"
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Habits\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/habits\""
+      },
+      {
+        "type": "action",
+        "description": "Click the first habit in the habit list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Heatmap\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"3\" into the \"Target\" (or \"Target value\") field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Heatmap\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Streak\" is visible"
       }
     ]
   },
   {
     "id": "TC028",
-    "title": "Task endpoint handles concurrent updates and resolves race conditions",
-    "description": "Verify server and client handle concurrent edits or drag-drop updates to a task (e.g., status change and priority change simultaneously) using optimistic UI and conflict resolution.",
-    "category": "integration",
-    "priority": "Medium",
+    "title": "Habit list and analytics sections load on Habits page",
+    "description": "Verifies the Habits page shows the habit list and the analytics widgets expected for tracking.",
+    "category": "Habits",
+    "priority": "Low",
     "steps": [
       {
         "type": "action",
-        "description": "Simulate two clients fetching the same task, client A changes status via drag-drop while client B changes priority and submits shortly after"
-      },
-      {
-        "type": "assertion",
-        "description": "Server update ordering is deterministic; both clients get final consistent state (either last-write-wins or server merge per spec)"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Client A used optimistic update; server responds with revision that conflicts with client A cached state"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "Client A reconciles local state with server response and UI shows consistent values, offering conflict notice if required"
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Habits\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/habits\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Habits\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Heatmap\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Streak\" is visible"
       }
     ]
   },
   {
     "id": "TC029",
-    "title": "UI shows error toast and retry option on server save failure (optimistic rollback)",
-    "description": "Verify when a save operation fails (e.g., update habit/task), UI rolls back optimistic change, shows dismissible error toast with retry, and retry attempts re-send the request.",
-    "category": "error handling",
+    "title": "Quick Capture creates a task from AI-parsed preview and shows it in Tasks",
+    "description": "Verifies that a user can open the AI Assistant, send a structured quick-capture message, confirm the parsed preview, and see the new task in the task list.",
+    "category": "AI Assistant (Quick Capture & Chat)",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Perform an action that uses optimistic update (e.g., mark habit complete or edit task) and simulate server returning 500"
-      },
-      {
-        "type": "assertion",
-        "description": "UI rolls back to prior state and an error toast appears with a retry button"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Click Retry on error toast and simulate server success"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Operation succeeds, state persists to backend, and error toast is dismissed"
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click the floating action button (FAB) for the AI Assistant"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Chat\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Create task: Buy milk tomorrow\" into the chat message input"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Send\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Preview\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Confirm\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Buy milk\" is visible"
       }
     ]
   },
   {
     "id": "TC030",
-    "title": "Performance baseline: AI responses, data queries and Lighthouse target",
-    "description": "Verify AI assistant and Quick Capture responses meet SLA (<2s baseline in mocked environment), primary data queries return <200ms, and Lighthouse score targets are approached in CI environment.",
-    "category": "performance",
-    "priority": "Medium",
+    "title": "AI chat freeform query returns suggested actions and user executes 'create task' action",
+    "description": "Verifies that an AI response can suggest actions and the user can execute one action to create a task successfully.",
+    "category": "AI Assistant (Quick Capture & Chat)",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Trigger Quick Capture parse and AI Assistant response in controlled test environment and measure response times"
-      },
-      {
-        "type": "assertion",
-        "description": "AI responses return within SLA (<2s) when backend mocks are within spec"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Execute representative backend queries for dashboard, habits, and tasks and measure query times"
-      },
-      {
-        "type": "assertion",
-        "description": "Database/API queries return within target (<200ms) for typical dataset"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Run Lighthouse CI on a production-like build"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Performance score meets target (e.g., >90) or documentation lists acceptable deviations"
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click the floating action button (FAB) for the AI Assistant"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"chat message input\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"I need to plan groceries for tomorrow. What should I do?\" into the chat message input"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Send\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Suggested actions\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the suggested action that creates a task"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Preview\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Confirm\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"grocer\" is visible"
       }
     ]
   },
   {
     "id": "TC031",
-    "title": "Large dataset handling for habits and tasks (stress test)",
-    "description": "Verify UI and backend handle large numbers of items (e.g., 10k tasks/habits) with pagination or virtualization, and analytics compute without blocking main thread.",
-    "category": "performance",
-    "priority": "Low",
+    "title": "AI Assistant can be opened from a different page and remains usable",
+    "description": "Verifies the AI Assistant FAB is accessible from another feature page and the chat modal opens correctly.",
+    "category": "AI Assistant (Quick Capture & Chat)",
+    "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Seed backend with large dataset: thousands of habit_logs and tasks"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Open Habit list, Task board, and Analytics pages"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "UI remains responsive (no main-thread freeze); lists use virtualization or pagination and initial render times are within acceptable limits"
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Habits\" in the main navigation"
       },
       {
         "type": "assertion",
-        "description": "Aggregated analytics finish within acceptable time and charts render correctly without excessive memory usage"
+        "description": "Verify URL contains \"/habits\""
+      },
+      {
+        "type": "action",
+        "description": "Click the floating action button (FAB) for the AI Assistant"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Chat\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Close\" button on the chat modal"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"chat modal\" is not visible"
       }
     ]
   },
   {
     "id": "TC032",
-    "title": "Session expiry and logout invalidates tokens and blocks API access",
-    "description": "Verify that when a session expires or user logs out, tokens are invalidated, protected endpoints return 401, and UI redirects to login.",
-    "category": "security",
-    "priority": "High",
+    "title": "Sending an empty chat message is blocked",
+    "description": "Verifies the chat does not send when the message input is empty and provides visible feedback.",
+    "category": "AI Assistant (Quick Capture & Chat)",
+    "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Login and note auth token; then simulate token expiry on server side"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Attempt to perform a protected action (create habit or task)"
-      },
-      {
-        "type": "assertion",
-        "description": "API returns 401; client detects expiry and redirects to login or prompts re-authentication"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
       },
       {
         "type": "action",
-        "description": "Login again, then use Logout control"
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Client clears stored session; protected routes are blocked and API returns 401 for calls using old token"
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click the floating action button (FAB) for the AI Assistant"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"chat message input\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Send\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Type a message\" is visible"
       }
     ]
   },
   {
     "id": "TC033",
-    "title": "Offline scenario: optimistic actions synchronize on reconnection",
-    "description": "Verify app handles offline mode: user can mark habit complete (optimistic), the UI queues requests, and on reconnect queued actions are sent and persisted; conflicts handled appropriately.",
-    "category": "error handling",
+    "title": "Canceling the AI parsed preview does not create a task",
+    "description": "Verifies that dismissing/canceling the confirmation step prevents task creation.",
+    "category": "AI Assistant (Quick Capture & Chat)",
     "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Simulate network offline (browser offline mode), mark a habit complete"
-      },
-      {
-        "type": "assertion",
-        "description": "UI shows optimistic completion and indicates pending sync"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Bring network back online"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Queued request is sent to backend, server persists habit_log, pending indicator clears, and any conflict resolution occurs per spec"
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click the floating action button (FAB) for the AI Assistant"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Create task: Do not create me\" into the chat message input"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Send\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Preview\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Cancel\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Do not create me\" is not visible"
       }
     ]
   },
   {
     "id": "TC034",
-    "title": "Toast/notification components display and dismiss reliably across flows",
-    "description": "Verify system toasts appear on success/error/actions, can be dismissed, and do not obscure critical UI elements; toasts queued or rate-limited per design.",
-    "category": "ui",
+    "title": "Chat modal can be closed with Escape without losing page context",
+    "description": "Verifies that the chat modal closes via keyboard and the user remains on the same page.",
+    "category": "AI Assistant (Quick Capture & Chat)",
     "priority": "Low",
     "steps": [
       {
         "type": "action",
-        "description": "Trigger multiple actions that produce toasts in quick succession (create habit, create task, error on save)"
-      },
-      {
-        "type": "assertion",
-        "description": "Toasts appear with consistent styling, do not overlap critical controls, and each contains correct text"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Dismiss a toast manually and trigger automatic expiration for another"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Dismissed toast disappears immediately; automatically expiring toast disappears after timeout; no memory leaks or stuck overlays remain"
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click the floating action button (FAB) for the AI Assistant"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"chat modal\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Press \"Escape\" key"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"chat modal\" is not visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/tasks\""
       }
     ]
   },
   {
     "id": "TC035",
-    "title": "Design system components responsive behaviour across breakpoints",
-    "description": "Verify shared components (Button, Card, Modal, Toast) render correctly at multiple viewport sizes, adhere to design tokens, and maintain accessibility attributes.",
-    "category": "ui",
+    "title": "Open University module and view course cards with current averages",
+    "description": "Verifies the University module can be opened from the main navigation and displays course cards with visible average grades.",
+    "category": "University (Courses & Assignments)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"University\" in the sidebar navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"University\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an element \"Course\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC036",
+    "title": "Open a course card to view assignments and grade totals",
+    "description": "Verifies a user can open a course from the University module and see an assignment list plus visible grade totals.",
+    "category": "University (Courses & Assignments)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"University\" in the sidebar navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible course card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Assignments\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Total\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC037",
+    "title": "Add an assignment with grade and weight and see course average update",
+    "description": "Verifies adding a valid assignment recalculates the course average displayed on the course page.",
+    "category": "University (Courses & Assignments)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"University\" in the sidebar navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible course card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Average\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Add Assignment\" button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Midterm\" into the assignment name/title field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"85\" into the grade field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"30\" into the weight field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Midterm\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Average\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC038",
+    "title": "Use What-If simulator to calculate projected final grade",
+    "description": "Verifies the What-If simulator accepts a hypothetical grade and shows a projected final grade after calculation.",
+    "category": "University (Courses & Assignments)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"University\" in the sidebar navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"What-If\" or \"What-If Simulator\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"What-If\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"92\" into the hypothetical grade field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Calculate\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Projected\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC039",
+    "title": "What-If simulator: calculate with blank input shows validation error",
+    "description": "Verifies the What-If simulator prevents calculation when required hypothetical grade input is blank and displays an error.",
+    "category": "University (Courses & Assignments)",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"University\" in the sidebar navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"What-If\" or \"What-If Simulator\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Calculate\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC040",
+    "title": "Add assignment with missing required fields shows validation and does not create assignment",
+    "description": "Verifies validation errors appear when saving an assignment with missing required fields and that no new assignment is added to the list.",
+    "category": "University (Courses & Assignments)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"University\" in the sidebar navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible course card"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Add Assignment\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Assignments\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC041",
+    "title": "Assignment grade field rejects non-numeric input (validation)",
+    "description": "Verifies the grade input enforces numeric validation and shows a visible error for invalid characters.",
+    "category": "University (Courses & Assignments)",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"University\" in the sidebar navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible course card"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Add Assignment\" button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Quiz 1\" into the assignment name/title field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"eighty\" into the grade field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"valid\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC042",
+    "title": "Assignment weight field rejects out-of-range values (validation)",
+    "description": "Verifies the weight input prevents invalid ranges (e.g., > 100) and displays a visible validation error.",
+    "category": "University (Courses & Assignments)",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"University\" in the sidebar navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible course card"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Add Assignment\" button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Final Exam\" into the assignment name/title field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"95\" into the grade field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"150\" into the weight field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"must be\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC043",
+    "title": "Create a new journal entry and see it in the list with timestamp",
+    "description": "Verifies a user can create and save a journal entry and then sees it appear in the entries list with a timestamp.",
+    "category": "Journal",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Journal\" in the sidebar"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"Journal\""
+      }
+    ]
+  },
+  {
+    "id": "TC044",
+    "title": "Save a journal entry after writing content",
+    "description": "Verifies the New Entry flow allows writing content and saving successfully.",
+    "category": "Journal",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Journal\" in the sidebar"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"New Entry\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"New Entry\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC045",
+    "title": "Write content and save; verify entry appears with timestamp",
+    "description": "Verifies that saving a journal entry persists it and shows it in the list along with a visible timestamp.",
+    "category": "Journal",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Journal\" in the sidebar"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"New Entry\" button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Today I feel focused and made progress on my priorities.\" into the journal content field"
+      }
+    ]
+  },
+  {
+    "id": "TC046",
+    "title": "Complete end-to-end happy path save and confirm the new entry is visible",
+    "description": "Verifies the full happy path: create entry, save, and confirm the new entry is visible in the journal list.",
+    "category": "Journal",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Journal\" in the sidebar"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"New Entry\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      }
+    ]
+  },
+  {
+    "id": "TC047",
+    "title": "Attempt to save an empty journal entry shows validation error",
+    "description": "Verifies saving with empty content shows the validation error \"Content required\".",
+    "category": "Journal",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Journal\" in the sidebar"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"New Entry\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      }
+    ]
+  },
+  {
+    "id": "TC048",
+    "title": "Empty entry is not saved after validation error",
+    "description": "Verifies that after attempting to save empty content and seeing the error, no new entry is added to the journal list.",
+    "category": "Journal",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Journal\" in the sidebar"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"New Entry\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Content required\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC049",
+    "title": "Fix validation by adding content after error, then save successfully",
+    "description": "Verifies a user can recover from the \"Content required\" error by typing content and saving, resulting in a visible entry.",
+    "category": "Journal",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Journal\" in the sidebar"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"New Entry\" button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Added content after validation error.\" into the journal content field"
+      }
+    ]
+  },
+  {
+    "id": "TC050",
+    "title": "Habit completion awards points and updates streak, reflected in Settings XP/Level",
+    "description": "Verifies completing a habit increases points and streak immediately and the updated XP/level is visible in Settings.",
+    "category": "Gamification (Points, Levels, Streaks)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/habits\" or \"/tasks\" or \"/settings\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Habits\" in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the first visible habit action that marks it as completed for today (for example, \"Complete\" or a checkmark button)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Streak\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC051",
+    "title": "After habit completion, Settings shows updated XP and level progress",
+    "description": "Verifies the XP/level progress shown in Settings reflects a recently completed habit.",
+    "category": "Gamification (Points, Levels, Streaks)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Settings\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Habits\" in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the first visible habit action that marks it as completed for today (for example, \"Complete\" or a checkmark button)"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Settings\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"XP\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC052",
+    "title": "Task completion triggers celebration feedback and awards points",
+    "description": "Verifies completing a task results in visible celebration feedback (e.g., confetti message) and a visible points/XP update indicator.",
+    "category": "Gamification (Points, Levels, Streaks)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Tasks\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Tasks\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the first visible task completion control (for example, a checkbox or \"Mark complete\" button)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"XP\" is visible or Verify text \"Points\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC053",
+    "title": "Task completion increases visible level progress indicator",
+    "description": "Verifies level progress bar or level indicator changes after completing a task.",
+    "category": "Gamification (Points, Levels, Streaks)",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Tasks\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Level\" is visible or Verify text \"XP\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the first visible task completion control (for example, a checkbox or \"Mark complete\" button)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Level\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC054",
+    "title": "Habit completion does not double-award points when clicking complete twice",
+    "description": "Verifies attempting to complete the same habit twice does not show a second award indicator or duplicate completion state.",
+    "category": "Gamification (Points, Levels, Streaks)",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Habits\" in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the first visible habit action that marks it as completed for today (for example, \"Complete\" or a checkmark button)"
+      },
+      {
+        "type": "action",
+        "description": "Click the same habit completion control again"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Completed\" is visible or Verify element \"Completed\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC055",
+    "title": "Gamification indicators are visible in Settings (XP/Level section present)",
+    "description": "Verifies Settings consistently surfaces XP and level progress UI elements for the logged-in user.",
+    "category": "Gamification (Points, Levels, Streaks)",
     "priority": "Low",
     "steps": [
       {
         "type": "action",
-        "description": "Render shared components at desktop, tablet, and mobile viewport sizes"
-      },
-      {
-        "type": "assertion",
-        "description": "Buttons have expected hit area, cards reflow content as per token rules, modals center and cover background, and toasts position adaptively"
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Inspect components for correct usage of design tokens (spacing, colors, typography) and ARIA attributes"
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Settings\" in the main navigation"
       },
       {
         "type": "assertion",
-        "description": "Components use design tokens and include necessary accessibility attributes"
+        "description": "Verify text \"XP\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Level\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"progress\" is visible"
       }
     ]
   }
