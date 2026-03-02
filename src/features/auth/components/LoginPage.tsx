@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
+import { loginSchema, type LoginFormData } from '@/shared/schemas/auth';
 
 import { MagneticButton } from '@/shared/ui/MagneticButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
+import { Input } from '@/shared/ui/Input';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft, AlertCircle } from 'lucide-react';
 import { motion, useMotionValue, useTransform, useSpring, Variants } from 'framer-motion';
 
 export default function LoginPage() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [error, setError] = useState<React.ReactNode>(null);
     const [successMessage, setSuccessMessage] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -17,6 +19,21 @@ export default function LoginPage() {
     const { login, resetPassword, user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        watch,
+    } = useForm<LoginFormData>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            email: '',
+            password: '',
+        }
+    });
+
+    const recoveryEmail = watch('email');
 
     // 3D Tilt Effect Logic
     const x = useMotionValue(0);
@@ -59,32 +76,15 @@ export default function LoginPage() {
             userAgent: navigator.userAgent
         };
         console.log('[AUTH_LOG]', JSON.stringify(logEntry));
-        // Em um cenário real, enviaríamos isso para um endpoint de log
-        // await apiClient.post('/api/logs/auth', logEntry);
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        const emailClean = email.trim().toLowerCase();
-        const passwordClean = password;
-
-        // Client-side validation to avoid unnecessary API calls
-        if (!emailClean || !emailClean.includes('@')) {
-            setError('Por favor, insira um e-mail válido.');
-            return;
-        }
-        if (!passwordClean || passwordClean.length < 6) {
-            setError('A senha deve ter pelo menos 6 caracteres.');
-            return;
-        }
-
+    const onSubmit = async (data: LoginFormData) => {
         try {
             setError(null);
             setSuccessMessage('');
             setIsSubmitting(true);
-            await login({ email: emailClean, password: passwordClean });
-            logAuthAttempt('SUCCESS', email);
+            await login({ email: data.email.trim().toLowerCase(), password: data.password });
+            logAuthAttempt('SUCCESS', data.email);
             navigate('/');
         } catch (err: any) {
             console.error('Login Error:', err);
@@ -107,7 +107,7 @@ export default function LoginPage() {
             }
 
             setError(userFriendlyError);
-            logAuthAttempt(logStatus, email);
+            logAuthAttempt(logStatus, data.email);
         } finally {
             setIsSubmitting(false);
         }
@@ -115,7 +115,7 @@ export default function LoginPage() {
 
     const handleRecovery = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email) {
+        if (!recoveryEmail) {
             setError('Por favor, informe seu e-mail.');
             return;
         }
@@ -123,13 +123,13 @@ export default function LoginPage() {
             setError('');
             setSuccessMessage('');
             setIsSubmitting(true);
-            await resetPassword(email);
+            await resetPassword(recoveryEmail);
             setSuccessMessage('Link de recuperação enviado! Verifique seu e-mail.');
-            logAuthAttempt('RECOVERY_REQUESTED', email);
+            logAuthAttempt('RECOVERY_REQUESTED', recoveryEmail);
         } catch (err) {
             console.error(err);
             setError('Erro ao enviar link. Tente novamente.');
-            logAuthAttempt('RECOVERY_FAILED', email);
+            logAuthAttempt('RECOVERY_FAILED', recoveryEmail);
         } finally {
             setIsSubmitting(false);
         }
@@ -221,15 +221,14 @@ export default function LoginPage() {
                                     </p>
                                     <label htmlFor="recovery-email" className="text-sm font-mono text-gray-400 ml-1">Email</label>
                                     <div className="relative">
-                                        <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
-                                        <input
+                                        <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-500 z-10" />
+                                        <Input
                                             id="recovery-email"
                                             type="email"
-                                            required
-                                            className="w-full rounded-md pl-10 pr-3 py-3 text-white font-mono bg-white/5 border border-white/10 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 placeholder:text-zinc-500"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
+                                            className="pl-10"
+                                            {...register('email')}
                                             placeholder="seu@email.com"
+                                            error={errors.email?.message}
                                         />
                                     </div>
                                 </motion.div>
@@ -251,20 +250,19 @@ export default function LoginPage() {
                                 </motion.div>
                             </form>
                         ) : (
-                            <form onSubmit={handleSubmit} className="space-y-4">
+                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                                 <motion.div variants={itemVariants} className="space-y-2">
                                     <label htmlFor="email" className="text-sm font-mono text-gray-400 ml-1">Email</label>
                                     <div className="relative">
-                                        <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
-                                        <input
+                                        <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-500 z-10" />
+                                        <Input
                                             id="email"
                                             type="email"
-                                            required
                                             data-testid="login-email-input"
-                                            className="w-full rounded-md pl-10 pr-3 py-3 text-white font-mono bg-white/5 border border-white/10 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 placeholder:text-zinc-500"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
+                                            className="pl-10"
+                                            {...register('email')}
                                             placeholder="seu@email.com"
+                                            error={errors.email?.message}
                                         />
                                     </div>
                                 </motion.div>
@@ -280,22 +278,21 @@ export default function LoginPage() {
                                         </button>
                                     </div>
                                     <div className="relative">
-                                        <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
-                                        <input
+                                        <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-500 z-10" />
+                                        <Input
                                             id="password"
                                             type={showPassword ? "text" : "password"}
-                                            required
                                             data-testid="login-password-input"
-                                            className="w-full rounded-md pl-10 pr-10 py-3 text-white font-mono bg-white/5 border border-white/10 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 placeholder:text-zinc-500"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
+                                            className="pl-10 pr-10"
+                                            {...register('password')}
                                             placeholder="••••••••"
+                                            error={errors.password?.message}
                                         />
                                         <button
                                             type="button"
                                             aria-label={showPassword ? "ocultar senha" : "exibir senha"}
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-3 text-gray-500 hover:text-gray-300 transition-colors"
+                                            className="absolute right-3 top-3 text-gray-500 hover:text-gray-300 transition-colors z-10"
                                         >
                                             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                         </button>
