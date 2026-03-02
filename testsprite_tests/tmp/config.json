@@ -3,15 +3,18 @@
   "type": "frontend",
   "scope": "codebase",
   "localEndpoint": "http://localhost:5173",
+  "loginUser": "pedrogoulart9036@gmail.com",
+  "loginPassword": "Pady5s0!",
   "executionArgs": {
-    "projectName": "life-os",
-    "projectPath": "c:\\Users\\pedro\\Documents\\life-os",
+    "projectName": "LIfe0S",
+    "projectPath": "/home/pedro/Projetos de codificação/LIfe0S",
     "testIds": [],
-    "additionalInstruction": "",
+    "additionalInstruction": "Test the new Milestone 3 features:\n1. Tremor charts in /finances and /habits.\n2. Form validation in /login and /register (React Hook Form + Zod).\n3. Task reordering in /tasks (dnd-kit).\n4. Navigation to the new Unified User Hub at /settings.\n5. Visual feedback (confetti/animations) on task/habit completion.",
+    "serverMode": "development",
     "envs": {
-      "API_KEY": "sk-user-EuTtrqrsm__Etjp6PSPTkjHxHeFlOyygYKUxrpc0857PM7TyJUOMLGtmyX4y-O1nbYx7GtkAb831PTjlYbwfbUsR2H3KXiYem4d53YzsXWJKJYcC3D7PfeQ2X984QatmC9o"
+      "API_KEY": "sk-user-8fLFNkGrLsIwNPi84iTHlENT7PR04FGn1LHMQFDGXOnr_0emEYpJEmeRpB_GpAm1WWhceVQy1mrD0NK1Gysc50plRMqsRJv10QJMub2mYd6E3XXyK1wwPOwYXflDM_-MjJM"
     }
   },
-  "serverPort": 56042,
-  "proxy": "http://ddcfd46b-2bbb-423f-b236-3759b3ac817b:dHeievlj4TzkVy8xXLoi4Ff9kW4L6MWN@tun.testsprite.com:8080"
+  "serverPort": 42267,
+  "proxy": "http://c4cd5fc5-155e-47ed-9867-5bfa5f96e07f:LkMeEWoo5slgs8uA2fxx2TT45IZmTSkw@tun.testsprite.com:8080"
 }

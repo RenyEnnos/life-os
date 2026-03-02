@@ -1,24 +1,38 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
+import { registerSchema, type RegisterFormData } from '@/shared/schemas/auth';
 import { Button } from '@/shared/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
+import { Input } from '@/shared/ui/Input';
 import { motion, useMotionValue, useTransform, useSpring, Variants } from 'framer-motion';
 import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { cn } from '@/shared/lib/cn';
 
 export default function RegisterPage() {
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState<React.ReactNode>(null);
     const [loading, setLoading] = useState(false);
-    const { register, user, loading: authLoading } = useAuth();
+    const { register: registerUser, user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<RegisterFormData>({
+        resolver: zodResolver(registerSchema),
+        defaultValues: {
+            firstName: '',
+            lastName: '',
+            email: '',
+            password: '',
+            confirmPassword: '',
+        }
+    });
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     // Redirect if already logged in
     useEffect(() => {
@@ -52,29 +66,14 @@ export default function RegisterPage() {
         y.set(0);
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const onSubmit = async (data: RegisterFormData) => {
         setError(null);
-
-        // Client-side validation
-        if (!firstName.trim() || !lastName.trim()) {
-            return setError('Por favor, preencha nome e sobrenome.');
-        }
-        if (!email.trim()) {
-            return setError('O e-mail é obrigatório.');
-        }
-        if (password.length < 6) {
-            return setError('A senha deve ter no mínimo 6 caracteres.');
-        }
-        if (password !== confirmPassword) {
-            return setError('As senhas não conferem');
-        }
 
         try {
             setLoading(true);
-            const normalizedEmail = email.trim().toLowerCase();
-            const normalizedName = `${firstName} ${lastName}`.trim();
-            await register({ email: normalizedEmail, password, name: normalizedName });
+            const normalizedEmail = data.email.trim().toLowerCase();
+            const normalizedName = `${data.firstName} ${data.lastName}`.trim();
+            await registerUser({ email: normalizedEmail, password: data.password, name: normalizedName });
             
             // Supabase sends a confirmation email by default
             setError(
@@ -166,43 +165,31 @@ export default function RegisterPage() {
                                 {error}
                             </motion.div>
                         )}
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <motion.div variants={itemVariants} className="space-y-2">
                                     <label className="text-sm font-mono dark:text-gray-300 text-gray-700 font-medium ml-1">Nome</label>
                                     <div className="relative group">
-                                        <User className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors" />
-                                        <input
+                                        <User className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors z-10" />
+                                        <Input
                                             type="text"
-                                            required
-                                            className={cn(
-                                                "w-full rounded-md pl-10 pr-3 py-3 font-mono input-premium focus:outline-none transition-all duration-200",
-                                                "dark:bg-white/5 dark:text-gray-100 dark:border-white/10 dark:placeholder:text-zinc-500",
-                                                "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 border shadow-sm",
-                                                "focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
-                                            )}
-                                            value={firstName}
-                                            onChange={(e) => setFirstName(e.target.value)}
+                                            className="pl-10"
+                                            {...register('firstName')}
                                             placeholder="Nome"
+                                            error={errors.firstName?.message}
                                         />
                                     </div>
                                 </motion.div>
                                 <motion.div variants={itemVariants} className="space-y-2">
                                     <label className="text-sm font-mono dark:text-gray-300 text-gray-700 font-medium ml-1">Sobrenome</label>
                                     <div className="relative group">
-                                        <User className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors" />
-                                        <input
+                                        <User className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors z-10" />
+                                        <Input
                                             type="text"
-                                            required
-                                            className={cn(
-                                                "w-full rounded-md pl-10 pr-3 py-3 font-mono input-premium focus:outline-none transition-all duration-200",
-                                                "dark:bg-white/5 dark:text-gray-100 dark:border-white/10 dark:placeholder:text-zinc-500",
-                                                "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 border shadow-sm",
-                                                "focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
-                                            )}
-                                            value={lastName}
-                                            onChange={(e) => setLastName(e.target.value)}
+                                            className="pl-10"
+                                            {...register('lastName')}
                                             placeholder="Sobrenome"
+                                            error={errors.lastName?.message}
                                         />
                                     </div>
                                 </motion.div>
@@ -210,43 +197,31 @@ export default function RegisterPage() {
                             <motion.div variants={itemVariants} className="space-y-2">
                                 <label className="text-sm font-mono dark:text-gray-300 text-gray-700 font-medium ml-1">Email</label>
                                 <div className="relative group">
-                                    <Mail className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors" />
-                                    <input
+                                    <Mail className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors z-10" />
+                                    <Input
                                         type="email"
-                                        required
-                                        className={cn(
-                                            "w-full rounded-md pl-10 pr-3 py-3 font-mono input-premium focus:outline-none transition-all duration-200",
-                                            "dark:bg-white/5 dark:text-gray-100 dark:border-white/10 dark:placeholder:text-zinc-500",
-                                            "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 border shadow-sm",
-                                            "focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
-                                        )}
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="pl-10"
+                                        {...register('email')}
                                         placeholder="seu@email.com"
+                                        error={errors.email?.message}
                                     />
                                 </div>
                             </motion.div>
                             <motion.div variants={itemVariants} className="space-y-2">
                                 <label className="text-sm font-mono dark:text-gray-300 text-gray-700 font-medium ml-1">Senha</label>
                                 <div className="relative group">
-                                    <Lock className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors" />
-                                    <input
+                                    <Lock className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors z-10" />
+                                    <Input
                                         type={showPassword ? "text" : "password"}
-                                        required
-                                        className={cn(
-                                            "w-full rounded-md pl-10 pr-10 py-3 font-mono input-premium focus:outline-none transition-all duration-200",
-                                            "dark:bg-white/5 dark:text-gray-100 dark:border-white/10 dark:placeholder:text-zinc-500",
-                                            "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 border shadow-sm",
-                                            "focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
-                                        )}
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="pl-10 pr-10"
+                                        {...register('password')}
                                         placeholder="••••••••"
+                                        error={errors.password?.message}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                                        className="absolute right-3 top-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors z-10"
                                     >
                                         {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                     </button>
@@ -255,24 +230,18 @@ export default function RegisterPage() {
                             <motion.div variants={itemVariants} className="space-y-2">
                                 <label className="text-sm font-mono dark:text-gray-300 text-gray-700 font-medium ml-1">Confirmar Senha</label>
                                 <div className="relative group">
-                                    <Lock className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors" />
-                                    <input
+                                    <Lock className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors z-10" />
+                                    <Input
                                         type={showConfirmPassword ? "text" : "password"}
-                                        required
-                                        className={cn(
-                                            "w-full rounded-md pl-10 pr-10 py-3 font-mono input-premium focus:outline-none transition-all duration-200",
-                                            "dark:bg-white/5 dark:text-gray-100 dark:border-white/10 dark:placeholder:text-zinc-500",
-                                            "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 border shadow-sm",
-                                            "focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
-                                        )}
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        className="pl-10 pr-10"
+                                        {...register('confirmPassword')}
                                         placeholder="••••••••"
+                                        error={errors.confirmPassword?.message}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-3 top-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                                        className="absolute right-3 top-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors z-10"
                                     >
                                         {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                     </button>

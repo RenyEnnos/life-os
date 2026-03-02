@@ -2,20 +2,9 @@ import { useRef, useMemo } from 'react';
 import { Button } from '@/shared/ui/Button';
 import { DollarSign, Trash2, PieChart as PieChartIcon, TrendingUp } from 'lucide-react';
 import { clsx } from 'clsx';
-import {
-    PieChart,
-    Pie,
-    Cell,
-    Tooltip,
-    ResponsiveContainer,
-    Legend,
-    AreaChart,
-    Area,
-    XAxis
-} from 'recharts';
 import type { Transaction, FinanceSummary } from '@/shared/types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BentoCard } from '@/shared/ui/BentoCard';
+import { Card, AreaChart, DonutChart, Title, Text, Flex, Grid } from "@tremor/react";
 
 interface FinanceChartsProps {
     transactions: Transaction[] | undefined;
@@ -23,20 +12,20 @@ interface FinanceChartsProps {
     onDeleteTransaction: (id: string) => void;
 }
 
+const valueFormatter = (number: number) => 
+  `R$ ${Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2 }).format(number).toString()}`;
+
 export function FinanceCharts({ transactions, summary, onDeleteTransaction }: FinanceChartsProps) {
     const listRef = useRef<HTMLDivElement>(null);
-    const COLORS = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
 
     const pieData = summary?.byCategory ? Object.entries(summary.byCategory).map(([name, value]) => ({
         name,
         value
     })) : [];
 
-    // Calculate Balance History
     const balanceHistoryData = useMemo(() => {
         if (!transactions || transactions.length === 0) return [];
 
-        // Sort transactions by date ascending
         const sorted = [...transactions].sort((a, b) =>
             new Date(a.date).getTime() - new Date(b.date).getTime()
         );
@@ -48,134 +37,73 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
             else runningBalance -= amount;
 
             return {
-                name: new Date(t.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-                value: runningBalance
+                date: new Date(t.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                "Saldo": runningBalance
             };
         });
     }, [transactions]);
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {/* Balance History Chart (New) */}
-            <BentoCard
-                title="Fluxo de Caixa"
-                icon={TrendingUp}
-                className="lg:col-span-2 xl:col-span-2 h-[300px]"
-            >
-                <div className="h-full w-full pt-4">
-                    {balanceHistoryData.length > 0 ? (
-                        <div className="w-full h-full">
-                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={balanceHistoryData}>
-                                    <defs>
-                                        <linearGradient id="gradient-balance" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.4} />
-                                            <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <XAxis
-                                        dataKey="name"
-                                        stroke="#52525b"
-                                        fontSize={10}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        dy={10}
-                                    />
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: '#18181b',
-                                            border: '1px solid #27272a',
-                                            borderRadius: '8px',
-                                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.5)',
-                                        }}
-                                        itemStyle={{ color: '#fff', fontSize: '12px' }}
-                                        labelStyle={{ display: 'none' }}
-                                        cursor={{ stroke: '#8b5cf6', strokeWidth: 1, strokeDasharray: '4 4' }}
-                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                        formatter={(value: any) => typeof value === 'number' ? `R$ ${value.toFixed(2)}` : ''}
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="value"
-                                        stroke="#8b5cf6"
-                                        strokeWidth={2}
-                                        fill="url(#gradient-balance)"
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
-                    ) : (
-                        <div className="h-full flex items-center justify-center text-muted-foreground font-mono text-sm">
-                            Dados insuficientes
-                        </div>
-                    )}
-                </div>
-            </BentoCard>
+        <Grid numItemsLg={3} className="gap-6 mt-6">
+            {/* Balance History Chart */}
+            <Card className="lg:col-span-2">
+                <Flex justifyContent="start" className="space-x-2">
+                    <TrendingUp className="text-zinc-400" size={20} />
+                    <Title>Fluxo de Caixa</Title>
+                </Flex>
+                <Text className="mt-2 text-zinc-400">Evolução do saldo ao longo do tempo</Text>
+                {balanceHistoryData.length > 0 ? (
+                    <AreaChart
+                        className="h-72 mt-8"
+                        data={balanceHistoryData}
+                        index="date"
+                        categories={["Saldo"]}
+                        colors={["indigo"]}
+                        valueFormatter={valueFormatter}
+                        showLegend={false}
+                        yAxisWidth={80}
+                    />
+                ) : (
+                    <div className="h-72 flex items-center justify-center text-zinc-500 font-mono text-sm">
+                        Dados insuficientes
+                    </div>
+                )}
+            </Card>
 
-            {/* Expenses Chart */}
-            <BentoCard
-                title="Gastos por Categoria"
-                icon={PieChartIcon}
-                className="h-[300px]"
-            >
-                <div className="h-full w-full pt-4 relative">
-                    {!pieData.length ? (
-                        <div className="h-full flex items-center justify-center text-muted-foreground font-mono text-sm pb-8">
-                            Dados insuficientes
-                        </div>
-                    ) : (
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie
-                                    data={pieData}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={40}
-                                    outerRadius={70}
-                                    paddingAngle={4}
-                                    dataKey="value"
-                                    stroke="none"
-                                    isAnimationActive={true}
-                                    animationDuration={1500}
-                                    animationEasing="ease-out"
-                                >
-                                    {pieData.map((entry: { name: string; value: number }, index: number) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip
-                                    contentStyle={{
-                                        backgroundColor: '#18181b', // zinc-900
-                                        border: '1px solid #27272a', // zinc-800
-                                        borderRadius: '8px',
-                                        boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
-                                    }}
-                                    itemStyle={{ color: '#fff', fontSize: '12px' }}
-                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                    formatter={(value: any) => typeof value === 'number' ? `R$ ${value.toFixed(2)}` : ''}
-                                />
-                                <Legend
-                                    layout="horizontal"
-                                    verticalAlign="bottom"
-                                    
-                                    wrapperStyle={{ fontSize: '10px', color: '#a1a1aa', paddingTop: '0px' }}
-                                    iconType="circle"
-                                />
-                            </PieChart>
-                        </ResponsiveContainer>
-                    )}
-                </div>
-            </BentoCard>
+            {/* Expenses Donut Chart */}
+            <Card>
+                <Flex justifyContent="start" className="space-x-2">
+                    <PieChartIcon className="text-zinc-400" size={20} />
+                    <Title>Gastos por Categoria</Title>
+                </Flex>
+                <Text className="mt-2 text-zinc-400">Distribuição de despesas</Text>
+                {pieData.length > 0 ? (
+                    <div className="mt-8">
+                        <DonutChart
+                            className="h-72"
+                            data={pieData}
+                            category="value"
+                            index="name"
+                            valueFormatter={valueFormatter}
+                            colors={["violet", "indigo", "rose", "cyan", "amber", "teal"]}
+                        />
+                    </div>
+                ) : (
+                    <div className="h-72 flex items-center justify-center text-zinc-500 font-mono text-sm">
+                        Dados insuficientes
+                    </div>
+                )}
+            </Card>
 
             {/* Transactions List */}
-            <BentoCard
-                title="Últimas Transações"
-                icon={DollarSign}
-                className="lg:col-span-2 xl:col-span-3 min-h-[300px]"
-            >
-                <div className="pt-4  pb-2">
+            <Card className="lg:col-span-3">
+                <Flex justifyContent="start" className="space-x-2">
+                    <DollarSign className="text-zinc-400" size={20} />
+                    <Title>Últimas Transações</Title>
+                </Flex>
+                <div className="mt-6">
                     {!transactions?.length ? (
-                        <div className="text-center py-10 text-muted-foreground font-mono text-sm">
+                        <div className="text-center py-10 text-zinc-500 font-mono text-sm">
                             Nenhuma transação encontrada.
                         </div>
                     ) : (
@@ -199,7 +127,7 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
                                             )} />
                                             <div>
                                                 <div className="font-medium text-white">{t.description}</div>
-                                                <div className="text-xs text-gray-500 font-mono flex gap-2">
+                                                <div className="text-xs text-zinc-500 font-mono flex gap-2">
                                                     <span>{new Date(t.date).toLocaleDateString('pt-BR')}</span>
                                                     <span className="text-zinc-600">•</span>
                                                     <span className="uppercase tracking-wider text-[10px]">{t.category}</span>
@@ -217,7 +145,7 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                                                className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
                                                 onClick={() => onDeleteTransaction(t.id)}
                                                 aria-label="Excluir transação"
                                             >
@@ -230,7 +158,7 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
                         </div>
                     )}
                 </div>
-            </BentoCard>
-        </div>
+            </Card>
+        </Grid>
     );
 }

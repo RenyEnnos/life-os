@@ -27,7 +27,7 @@ router.get('/transactions', authenticateToken, async (req: AuthRequest, res: Res
 })
 
 import { validate } from '../middleware/validate'
-import { createTransactionSchema, updateTransactionSchema } from '@/shared/schemas/finance'
+import { createTransactionSchema, updateTransactionSchema } from '@/shared/schemas/finances'
 
 // ...
 

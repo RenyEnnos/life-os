@@ -61,8 +61,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [setAuth, setProfile, setLoading, setError, signOut]);
 
+  const authValues = useAuth();
+
   return (
-    <AuthContext.Provider value={null}>
+    <AuthContext.Provider value={authValues}>
       {children}
     </AuthContext.Provider>
   );

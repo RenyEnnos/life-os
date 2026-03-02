@@ -28,11 +28,11 @@ export function KanbanColumn({ title, status, tasks, onToggle, onDelete, classNa
 
             <div className="flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar min-h-[100px]">
                 <SortableContext 
-                    items={tasks.map(t => t.id)} 
+                    items={tasks.filter(t => !!t?.id).map(t => t.id)} 
                     strategy={verticalListSortingStrategy}
                 >
-                    {tasks.length > 0 ? (
-                        tasks.map((task) => (
+                    {tasks.filter(t => !!t?.id).length > 0 ? (
+                        tasks.filter(t => !!t?.id).map((task) => (
                             <SortableTaskItem
                                 key={task.id}
                                 id={task.id}

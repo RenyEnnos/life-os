@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useEffect, useRef } from "react";
 import { Habit } from "@/features/habits/types";
 import { MagicCard } from "@/shared/ui/premium/MagicCard";
 import { ShimmerButton } from "@/shared/ui/premium/ShimmerButton";
@@ -7,6 +7,7 @@ import * as LucideIcons from "lucide-react";
 import { Check, Flame, Trophy, Edit2, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/shared/lib/cn";
+import { Confetti } from "@/shared/ui/premium/Confetti";
 
 interface HabitCardProps {
     habit: Habit;
@@ -27,6 +28,29 @@ export const HabitCard = memo(({
     onDelete,
     currentValue = 0,
 }: HabitCardProps) => {
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const prevCompleted = useRef(isCompleted);
+
+    useEffect(() => {
+        if (!prevCompleted.current && isCompleted && buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            const x = (rect.left + rect.width / 2) / window.innerWidth;
+            const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+            Confetti({
+                particleCount: 40,
+                spread: 70,
+                origin: { x, y },
+                colors: [habit.color || "#22c55e", "#ffffff", "#ffd700"],
+                ticks: 200,
+                gravity: 1.2,
+                decay: 0.94,
+                startVelocity: 30,
+            });
+        }
+        prevCompleted.current = isCompleted;
+    }, [isCompleted, habit.color]);
+
     const IconComponent = habit.icon ? (LucideIcons as any)[habit.icon] : null;
     const progress = habit.type === 'quantified' 
         ? Math.min(100, (currentValue / (habit.target_value || 1)) * 100)
@@ -140,6 +164,7 @@ export const HabitCard = memo(({
                 </div>
 
                 <ShimmerButton
+                    ref={buttonRef}
                     className={cn(
                         "h-10 px-6 transition-all duration-300",
                         isCompleted

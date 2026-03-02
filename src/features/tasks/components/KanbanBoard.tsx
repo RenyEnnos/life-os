@@ -37,7 +37,7 @@ export function KanbanBoard() {
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 8,
+                distance: 10, // Increased distance for better stability
             },
         }),
         useSensor(KeyboardSensor, {
@@ -52,7 +52,10 @@ export function KanbanBoard() {
             'done': []
         };
 
-        tasks?.forEach((task) => {
+        // Filter out tasks without IDs to prevent dnd-kit hangs
+        const validTasks = (tasks || []).filter(t => !!t?.id);
+
+        validTasks.forEach((task) => {
             const status = task.status || (task.completed ? 'done' : 'todo');
             if (result[status]) {
                 result[status].push(task);
@@ -66,7 +69,7 @@ export function KanbanBoard() {
 
     const handleDragStart = (event: DragStartEvent) => {
         const { active } = event;
-        const task = tasks.find(t => t.id === active.id);
+        const task = (tasks || []).find(t => t.id === active.id);
         if (task) setActiveTask(task);
     };
 
@@ -85,13 +88,13 @@ export function KanbanBoard() {
             newStatus = overId as TaskStatus;
         } else {
             // Dropped over another task, find its column
-            const overTask = tasks.find(t => t.id === overId);
+            const overTask = (tasks || []).find(t => t.id === overId);
             if (overTask) {
                 newStatus = (overTask.status || (overTask.completed ? 'done' : 'todo')) as TaskStatus;
             }
         }
 
-        const task = tasks.find(t => t.id === taskId);
+        const task = (tasks || []).find(t => t.id === taskId);
         const currentStatus = (task?.status || (task?.completed ? 'done' : 'todo')) as TaskStatus;
 
         if (newStatus && newStatus !== currentStatus) {

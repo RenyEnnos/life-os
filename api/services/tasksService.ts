@@ -4,7 +4,7 @@ import type { BaseRepo } from '../repositories/factory'
 import { rewardsService } from './rewardsService'
 import { invalidate } from './aiCache'
 
-type Task = { id: string; user_id: string; title: string; description?: string; due_date?: string; completed?: boolean; tags?: string[] }
+type Task = { id: string; user_id: string; title: string; description?: string; due_date?: string; completed?: boolean; tags?: string[]; position?: string }
 
 class TasksServiceImpl {
   private repo: BaseRepo<Task>
@@ -25,7 +25,8 @@ class TasksServiceImpl {
         .from('tasks')
         .select('*')
         .eq('user_id', userId)
-        .order('created_at', { ascending: true })
+        .is('deleted_at', null)
+        .order('position', { ascending: true })
         .range(from, to)
 
       // Apply completed filter if provided
@@ -48,7 +49,8 @@ class TasksServiceImpl {
         .from('tasks')
         .select('*')
         .eq('user_id', userId)
-        .order('created_at', { ascending: true })
+        .is('deleted_at', null)
+        .order('position', { ascending: true })
 
       if (error) throw error
 
@@ -56,8 +58,16 @@ class TasksServiceImpl {
       return (data || []).filter((t) => typeof t.due_date === 'string' && t.due_date.startsWith(today))
     }
 
-    // Default: return all tasks (backward compatible)
-    return this.repo.list(userId)
+    // Default: return all tasks ordered by position
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('user_id', userId)
+      .is('deleted_at', null)
+      .order('position', { ascending: true })
+
+    if (error) throw error
+    return data
   }
   async create(userId: string, payload: Partial<Task>) {
     if (!payload?.title) throw new Error('Title is required')
