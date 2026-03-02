@@ -1,13 +1,35 @@
 import React, { useState } from 'react';
 import { useFinances } from '../hooks/useFinances';
+import { useBudgets } from '../hooks/useBudgets';
 import { FinanceSummaryCards } from '../components/FinanceSummaryCards';
 import { FinanceCharts } from '../components/FinanceCharts';
+import { FinanceFilterBar } from '../components/FinanceFilterBar';
 import { TransactionModal } from '../components/TransactionModal';
+import { BudgetProgressCard } from '../components/BudgetProgressCard';
 import { Plus } from 'lucide-react';
 
 export const FinancesPage = () => {
-  const { transactions, summary, isLoading, createTransaction, deleteTransaction } = useFinances();
+  const [filters, setFilters] = useState<Record<string, string>>({
+    type: '',
+    category: '',
+    startDate: '',
+    endDate: ''
+  });
+  
+  const { transactions, summary, isLoading: isFinancesLoading, createTransaction, deleteTransaction } = useFinances(filters);
+  const { budgetStatus, isLoading: isBudgetsLoading } = useBudgets();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleClearFilters = () => {
+    setFilters({
+      type: '',
+      category: '',
+      startDate: '',
+      endDate: ''
+    });
+  };
+
+  const isLoading = isFinancesLoading || isBudgetsLoading;
 
   return (
     <div className="min-h-screen bg-oled text-white font-display selection:bg-primary/30">
@@ -30,23 +52,38 @@ export const FinancesPage = () => {
             </div>
           </header>
 
-          {isLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
-          ) : (
-            <div className="space-y-8">
-              {/* Stats Summary Cards */}
-              <FinanceSummaryCards summary={summary} />
+          <div className="space-y-8">
+            <FinanceFilterBar 
+              filters={filters} 
+              onFilterChange={setFilters} 
+              onClear={handleClearFilters} 
+            />
 
-              {/* Charts and Transactions */}
-              <FinanceCharts 
-                transactions={transactions} 
-                summary={summary}
-                onDeleteTransaction={(id) => deleteTransaction.mutate(id)}
-              />
-            </div>
-          )}
+            {isLoading ? (
+              <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="lg:col-span-8 space-y-8">
+                  {/* Stats Summary Cards */}
+                  <FinanceSummaryCards summary={summary} />
+
+                  {/* Charts and Transactions */}
+                  <FinanceCharts 
+                    transactions={transactions} 
+                    summary={summary}
+                    onDeleteTransaction={(id) => deleteTransaction.mutate(id)}
+                  />
+                </div>
+
+                <div className="lg:col-span-4 space-y-8">
+                  {/* Budget Progress Card */}
+                  <BudgetProgressCard budgets={budgetStatus} isLoading={isBudgetsLoading} />
+                </div>
+              </div>
+            )}
+          </div>
         </main>
       </div>
 
