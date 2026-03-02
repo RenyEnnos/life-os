@@ -35,8 +35,15 @@ router.post('/chat', authenticateToken, async (req: AuthRequest, res: Response):
   }
 
   const { message, context, mode } = parsed.data
+  const force = req.query.force === 'true'
 
   try {
+    const allowed = await aiService.checkLimit(req.user!.id, 'chat', force)
+    if (!allowed) {
+      res.status(429).json({ error: 'Daily chat limit reached', code: 'RATE_LIMIT' })
+      return
+    }
+
     const aiResponse = await aiManager.execute(mode ?? 'speed', {
       systemPrompt: context?.trim().length ? context : 'You are the Neural Nexus copilot. Respond concisely.',
       userPrompt: message,
@@ -186,6 +193,32 @@ router.post('/parse-task', authenticateToken, async (req: AuthRequest, res: Resp
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Failed to parse task'
     res.status(500).json({ error: msg, code: 'PARSE_TASK_ERROR' })
+  }
+})
+
+/**
+ * Universal parse entity from natural language
+ * POST /api/ai/parse-entity
+ */
+router.post('/parse-entity', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  const schema = z.object({
+    input: z.string().min(1)
+  })
+  const parsed = schema.safeParse(req.body || {})
+  if (!parsed.success) {
+    res.status(400).json({ error: 'input required', code: 'INVALID_PARSE_REQUEST' })
+    return
+  }
+
+  const { input } = parsed.data
+  const force = req.query.force === 'true'
+
+  try {
+    const entity = await aiService.parseEntity(req.user!.id, input, { force })
+    res.json(entity)
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Failed to parse entity'
+    res.status(500).json({ error: msg, code: 'PARSE_ENTITY_ERROR' })
   }
 })
 

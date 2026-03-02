@@ -47,26 +47,28 @@ export const Widget = ({
         )}
         <div className="flex-1">
           {isLoading ? (
-        <div className="space-y-3">
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-20 w-full" />
-          <div className="flex gap-2">
-            <Skeleton className="h-8 w-8 rounded-full" />
-            <Skeleton className="h-8 w-8 rounded-full" />
-          </div>
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-20 w-full" />
+              <div className="flex gap-2">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-8 w-8 rounded-full" />
+              </div>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center h-full py-8 text-center text-destructive opacity-80">
+              <AlertCircle className="h-8 w-8 mb-2" />
+              <p className="text-xs font-mono uppercase tracking-tighter">{error}</p>
+            </div>
+          ) : isEmpty ? (
+            <div className="flex flex-col items-center justify-center h-full py-12 text-center opacity-40">
+              <p className="text-[10px] font-mono uppercase tracking-widest">{emptyMessage}</p>
+            </div>
+          ) : (
+            children
+          )}
         </div>
-      ) : error ? (
-        <div className="flex flex-col items-center justify-center h-full py-8 text-center text-destructive opacity-80">
-          <AlertCircle className="h-8 w-8 mb-2" />
-          <p className="text-xs font-mono uppercase tracking-tighter">{error}</p>
-        </div>
-      ) : isEmpty ? (
-        <div className="flex flex-col items-center justify-center h-full py-12 text-center opacity-40">
-          <p className="text-[10px] font-mono uppercase tracking-widest">{emptyMessage}</p>
-        </div>
-      ) : (
-        children
-      )}
+      </div>
     </BentoCard>
   );
 };

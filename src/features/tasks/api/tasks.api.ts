@@ -37,6 +37,10 @@ function validateTaskData(task: Partial<Task>, requireTitle = true): void {
     if (task.description !== undefined && task.description !== null && typeof task.description !== 'string') {
         throw new Error('Descrição deve ser uma string');
     }
+
+    if (task.status !== undefined && !['todo', 'in-progress', 'done'].includes(task.status)) {
+        throw new Error('Status da tarefa inválido');
+    }
 }
 
 /**
@@ -109,5 +113,30 @@ export const tasksApi = {
         validateTaskId(id);
 
         await apiClient.delete(`/api/tasks/${id}`);
+    },
+
+    /**
+     * Get suggested schedule for tasks
+     * @param date - Optional date to get suggestions for
+     * @param bufferTime - Optional buffer time in minutes between tasks
+     * @throws {ApiError} If fetch fails
+     */
+    getSuggestedSchedule: async (date?: string, bufferTime?: number): Promise<Task[]> => {
+        const params = new URLSearchParams();
+        if (date) params.set('date', date);
+        if (bufferTime !== undefined) params.set('bufferTime', bufferTime.toString());
+        const query = params.toString();
+        const data = await apiClient.get<Task[]>(`/api/tasks/schedule/suggest${query ? `?${query}` : ''}`);
+        return data;
+    },
+
+    /**
+     * Apply a suggested schedule to tasks
+     * @param schedule - Schedule data to apply (Task[] from getSuggestedSchedule)
+     * @throws {ApiError} If apply fails
+     */
+    applySchedule: async (schedule: Task[]): Promise<Task[]> => {
+        const data = await apiClient.post<Task[]>('/api/tasks/schedule/apply', { schedule });
+        return data;
     }
 };

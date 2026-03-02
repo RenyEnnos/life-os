@@ -22,7 +22,8 @@ export const UserLevelStatus: React.FC<UserLevelStatusProps> = ({
     );
   }
 
-  const { level, current_xp, xp_to_next_level } = userXP;
+  const { level, current_xp } = userXP;
+  const xp_to_next_level = (userXP as any).xp_to_next_level || (userXP as any).next_level_xp || 1000;
   
   // Calculate progress percentage
   // Assuming current_xp is XP in current level and xp_to_next_level is total needed for this level

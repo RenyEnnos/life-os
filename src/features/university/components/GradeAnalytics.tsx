@@ -1,55 +1,121 @@
 import React from 'react';
+import { useUniversity } from '../hooks/useUniversity';
+import { useGradeCalculation } from '../hooks/useGradeCalculation';
+import { TrendingUp, Award, BarChart3, AlertCircle } from 'lucide-react';
+import { cn } from '@/shared/lib/cn';
 
 export const GradeAnalytics = () => {
+    const { assignments, courses, isLoading } = useUniversity();
+    const { calculateGlobalGPA, calculateCourseGrade } = useGradeCalculation(assignments);
+
+    const gpa = calculateGlobalGPA();
+    
+    // Performance label based on GPA
+    const getPerformanceInfo = (val: number) => {
+        if (val >= 9.0) return { label: 'Excelente', color: 'text-emerald-400', bg: 'bg-emerald-500/10' };
+        if (val >= 7.5) return { label: 'Bom', color: 'text-primary', bg: 'bg-primary/10' };
+        if (val >= 6.0) return { label: 'Satisfatório', color: 'text-yellow-400', bg: 'bg-yellow-500/10' };
+        return { label: 'Atenção', color: 'text-red-400', bg: 'bg-red-500/10' };
+    };
+
+    const performance = getPerformanceInfo(gpa);
+
+    if (isLoading) {
+        return <div className="space-y-6 animate-pulse">
+            <div className="h-48 bg-zinc-900/50 rounded-2xl" />
+            <div className="h-64 bg-zinc-900/50 rounded-2xl" />
+        </div>;
+    }
+
     return (
         <section className="space-y-6">
-            <div className="glass-panel p-6 rounded-lg text-center flex flex-col items-center justify-center min-h-[220px]">
-                <p className="text-zinc-400 text-sm font-medium">Current GPA</p>
-                <h2 className="text-6xl font-bold text-white mt-2">3.8</h2>
-                <div className="flex items-center gap-1 text-emerald-400 text-xs mt-2">
-                    <span className="material-symbols-outlined text-sm">trending_up</span>
-                    <span>+0.2 from last term</span>
+            {/* GPA Card */}
+            <div className="glass-panel p-8 rounded-3xl text-center flex flex-col items-center justify-center min-h-[220px] relative overflow-hidden shadow-2xl border-white/5 bg-zinc-950/40">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <Award size={80} className="text-primary" />
+                </div>
+                
+                <p className="text-zinc-500 text-xs font-mono uppercase tracking-[0.2em] mb-4">Média Global (GPA)</p>
+                <h2 className="text-7xl font-black text-white tracking-tighter drop-shadow-lg">
+                    {gpa > 0 ? gpa.toFixed(1) : '—'}
+                </h2>
+                
+                <div className={cn(
+                    "flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest mt-6 border border-white/5",
+                    performance.color,
+                    performance.bg
+                )}>
+                    {gpa > 0 ? (
+                        <>
+                            <TrendingUp size={12} />
+                            <span>{performance.label}</span>
+                        </>
+                    ) : (
+                        <span>Nenhuma nota registrada</span>
+                    )}
                 </div>
             </div>
 
-            <div className="glass-panel p-6 rounded-lg">
+            {/* Course Averages Panel */}
+            <div className="glass-panel p-6 rounded-3xl border-white/5 bg-zinc-950/40">
                 <div className="flex items-center justify-between mb-6">
-                    <h4 className="text-sm font-bold text-white">Grade Analytics</h4>
-                    <span className="material-symbols-outlined text-zinc-500 text-sm">more_horiz</span>
-                </div>
-                {/* Simple CSS Chart Placeholder */}
-                <div className="h-32 flex items-end justify-between gap-2 px-2">
-                    <div className="w-full bg-primary/20 rounded-t-lg relative group" style={{ height: '60%' }}>
-                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-zinc-800 text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">3.2</div>
-                    </div>
-                    <div className="w-full bg-primary/40 rounded-t-lg relative group" style={{ height: '75%' }}>
-                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-zinc-800 text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">3.5</div>
-                    </div>
-                    <div className="w-full bg-primary/60 rounded-t-lg relative group" style={{ height: '85%' }}>
-                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-zinc-800 text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">3.6</div>
-                    </div>
-                    <div className="w-full bg-primary rounded-t-lg relative group" style={{ height: '95%' }}>
-                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-zinc-800 text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">3.8</div>
+                    <div className="flex items-center gap-2">
+                        <BarChart3 className="text-primary" size={18} />
+                        <h4 className="text-sm font-bold text-white uppercase tracking-wider">Desempenho por Matéria</h4>
                     </div>
                 </div>
-                <div className="flex justify-between mt-4 text-[10px] text-zinc-500 font-bold uppercase">
-                    <span>Fall 23</span>
-                    <span>Spr 24</span>
-                    <span>Fall 24</span>
-                    <span>Spr 25</span>
+
+                <div className="space-y-5">
+                    {!courses?.length ? (
+                        <div className="py-8 text-center text-zinc-600 text-xs italic">
+                            Adicione matérias para ver estatísticas
+                        </div>
+                    ) : (
+                        courses.slice(0, 5).map(course => {
+                            const grade = calculateCourseGrade(course.id);
+                            return (
+                                <div key={course.id} className="space-y-2 group">
+                                    <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider">
+                                        <span className="text-zinc-400 group-hover:text-white transition-colors truncate max-w-[140px]">{course.name}</span>
+                                        <span className={cn(
+                                            "font-mono",
+                                            grade && grade >= 7 ? "text-emerald-400" : "text-primary"
+                                        )}>
+                                            {grade ? grade.toFixed(1) : '—'}
+                                        </span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden border border-white/5 p-[1px]">
+                                        <div 
+                                            className="h-full bg-primary rounded-full transition-all duration-1000 ease-out"
+                                            style={{ 
+                                                width: `${grade ? (grade / 10) * 100 : 0}%`,
+                                                backgroundColor: course.color || '#3b82f6'
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            );
+                        })
+                    )}
                 </div>
+
+                {courses.length > 5 && (
+                    <button className="w-full text-center text-zinc-600 text-[10px] font-bold uppercase mt-6 hover:text-primary transition-colors">
+                        Ver todas as {courses.length} matérias
+                    </button>
+                )}
             </div>
 
-            {/* Upcoming Events Card */}
-            <div className="glass-panel p-4 rounded-lg bg-primary/5">
-                <div className="flex items-center gap-3">
-                    <div className="size-8 rounded-full bg-primary/20 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-primary text-sm">notifications_active</span>
-                    </div>
-                    <div>
-                        <p className="text-xs font-bold text-white">Advising Meeting</p>
-                        <p className="text-zinc-500 text-[10px]">Tomorrow, 2:00 PM</p>
-                    </div>
+            {/* Advice/Action Card */}
+            <div className="glass-panel p-4 rounded-2xl bg-primary/5 border border-primary/10 flex items-center gap-4 group hover:bg-primary/10 transition-all cursor-help">
+                <div className="size-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary shadow-inner">
+                    <AlertCircle size={20} />
+                </div>
+                <div>
+                    <p className="text-xs font-bold text-white group-hover:text-primary transition-colors">Dica Acadêmica</p>
+                    <p className="text-zinc-500 text-[10px] leading-relaxed">
+                        Mantenha uma média acima de 8.5 para se qualificar para programas de intercâmbio.
+                    </p>
                 </div>
             </div>
         </section>

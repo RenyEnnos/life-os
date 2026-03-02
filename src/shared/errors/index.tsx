@@ -3,52 +3,24 @@
  * Enhanced error tracking with context and analytics integration
  */
 
+import { AppError, type ErrorContext } from './AppError';
 import { trackEvent, AnalyticsEvents } from '@/shared/analytics';
-
-interface ErrorContext {
-  component?: string;
-  action?: string;
-  userId?: string;
-  metadata?: Record<string, unknown>;
-}
 
 interface ErrorReport {
   message: string;
-  stack?: string;
   name: string;
+  stack?: string;
   timestamp: string;
   url: string;
   userAgent: string;
-  context: ErrorContext;
+  context: {
+    component: string;
+    action: string;
+    userId?: string;
+    metadata: Record<string, unknown>;
+  };
 }
 
-/**
- * Custom error class with context
- */
-export class AppError extends Error {
-  context: ErrorContext;
-  code?: string;
-
-  constructor(
-    message: string,
-    context: ErrorContext = {},
-    code?: string
-  ) {
-    super(message);
-    this.name = 'AppError';
-    this.context = context;
-    this.code = code;
-
-    // Capture stack trace
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, AppError);
-    }
-  }
-}
-
-/**
- * Capture and report an error
- */
 export function captureError(error: Error | AppError | unknown, context?: ErrorContext) {
   const errorReport: ErrorReport = {
     message: error instanceof Error ? error.message : String(error),

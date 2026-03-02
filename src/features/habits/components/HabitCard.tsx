@@ -3,7 +3,8 @@ import { Habit } from "@/features/habits/types";
 import { MagicCard } from "@/shared/ui/premium/MagicCard";
 import { ShimmerButton } from "@/shared/ui/premium/ShimmerButton";
 import { AnimatedCircularProgressBar } from "@/shared/ui/premium/AnimatedCircularProgressBar";
-import { Check, Flame, Trophy, Edit2, Trash2, * as LucideIcons } from "lucide-react";
+import * as LucideIcons from "lucide-react";
+import { Check, Flame, Trophy, Edit2, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/shared/lib/cn";
 

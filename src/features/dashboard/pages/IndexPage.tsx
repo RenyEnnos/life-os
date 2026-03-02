@@ -4,6 +4,8 @@ import { BentoCard } from '@/shared/ui/BentoCard';
 import { HabitWidget } from '@/features/dashboard/widgets/HabitWidget';
 import { TaskWidget } from '@/features/dashboard/widgets/TaskWidget';
 import { HealthWidget } from '@/features/dashboard/widgets/HealthWidget';
+import { SynapseWidget } from '@/features/dashboard/widgets/SynapseWidget';
+import { UniversityWidget } from '@/features/university/components/UniversityWidget';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { Rocket, Target, Zap, Clock } from 'lucide-react';
 
@@ -46,18 +48,18 @@ export const IndexPage = () => {
             >
               <div className="flex flex-col justify-between h-full py-4">
                 <div>
-                  <h3 className="text-2xl font-bold text-white mb-2">Finish Phase 2 Implementation</h3>
-                  <p className="text-sm text-zinc-400">Next milestone: Habits System (Phase 3)</p>
+                  <h3 className="text-2xl font-bold text-white mb-2">Finalizar Implementação GSD</h3>
+                  <p className="text-sm text-zinc-400">Próximo Marco: Motor de Gamificação (Fase 8)</p>
                 </div>
                 
                 <div className="mt-8 grid grid-cols-2 gap-4">
                   <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                    <p className="text-[10px] font-mono text-zinc-500 uppercase mb-1">Time Elapsed</p>
-                    <p className="text-xl font-bold text-white">4.2h</p>
+                    <p className="text-[10px] font-mono text-zinc-500 uppercase mb-1">Tempo Decorrido</p>
+                    <p className="text-xl font-bold text-white">6.2h</p>
                   </div>
                   <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                    <p className="text-[10px] font-mono text-zinc-500 uppercase mb-1">Daily XP</p>
-                    <p className="text-xl font-bold text-primary">+850</p>
+                    <p className="text-[10px] font-mono text-zinc-500 uppercase mb-1">XP Diário</p>
+                    <p className="text-xl font-bold text-primary">+1450</p>
                   </div>
                 </div>
               </div>
@@ -70,15 +72,7 @@ export const IndexPage = () => {
             {/* ZONE 3: CONTEXT (Health & Insights) */}
             <HealthWidget />
             
-            <BentoCard 
-              className="col-span-1 row-span-1" 
-              title="Next Event" 
-              icon={Clock}
-            >
-              <div className="flex items-center justify-center h-full">
-                <p className="text-xs text-zinc-500 font-mono italic">No upcoming events</p>
-              </div>
-            </BentoCard>
+            <UniversityWidget />
           </BentoGrid>
         </section>
 
@@ -89,17 +83,13 @@ export const IndexPage = () => {
             <h2 className="text-[10px] font-bold uppercase tracking-[0.2em]">AI Intelligence Layer</h2>
           </div>
           
-          <BentoGrid className="auto-rows-[120px]">
+          <BentoGrid className="auto-rows-[180px]">
              <BentoCard className="col-span-1 md:col-span-2" title="Finance Overview">
                 <div className="flex items-center justify-center h-full opacity-30">
-                  <p className="text-[10px] font-mono uppercase tracking-widest">Connect Wallet (Phase 5)</p>
+                  <p className="text-[10px] font-mono uppercase tracking-widest text-primary">Relatórios Consolidados</p>
                 </div>
              </BentoCard>
-             <BentoCard className="col-span-1 md:col-span-2" title="AI Recommendations">
-                <div className="flex items-center justify-center h-full opacity-30">
-                  <p className="text-[10px] font-mono uppercase tracking-widest">Awaiting Data (Phase 7)</p>
-                </div>
-             </BentoCard>
+             <SynapseWidget />
           </BentoGrid>
         </section>
       </div>

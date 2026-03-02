@@ -303,6 +303,10 @@ export function OnboardingFlow() {
         </div>
 
         <div className="mt-8 flex gap-4">
+          <Button variant="outline" onClick={handleComplete} className="flex-1">
+             Pular
+          </Button>
+          
           {currentStep > 0 && (
             <Button variant="outline" onClick={prevStep} className="flex-1">
               <ArrowLeft className="mr-2" size={16} /> Voltar

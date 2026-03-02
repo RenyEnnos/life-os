@@ -1,23 +1,12 @@
 import { getAuthToken } from './authToken';
 import { handleFetchError } from '../lib/errorHandler';
+export { ApiError } from './ApiError';
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
 export interface FetchOptions extends RequestInit {
   method?: HttpMethod
   timeoutMs?: number
-}
-
-export class ApiError extends Error {
-  status: number;
-  details?: unknown;
-
-  constructor(message: string, status: number, details?: unknown) {
-    super(message);
-    this.name = 'ApiError';
-    this.status = status;
-    this.details = details;
-  }
 }
 
 export async function fetchJSON<T = unknown>(url: string, options: FetchOptions = {}): Promise<T> {

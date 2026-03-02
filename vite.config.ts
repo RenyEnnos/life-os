@@ -16,25 +16,46 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.svg', 'robots.txt', 'apple-touch-icon.png', 'icon-192.svg', 'icon-512.svg'],
       manifest: {
         name: 'Life OS',
         short_name: 'LifeOS',
         description: 'Your Life Operating System',
-        theme_color: '#ffffff',
+        theme_color: '#050505',
         start_url: '/',
         display: 'standalone',
-        background_color: '#ffffff',
+        background_color: '#050505',
         icons: [
           {
-            src: '/android-chrome-192x192.png',
+            src: 'icon-192.svg',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
           },
           {
-            src: '/android-chrome-512x512.png',
+            src: 'icon-512.svg',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
+          }
+        ]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
           }
         ]
       }

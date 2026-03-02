@@ -109,6 +109,24 @@ const limiter = rateLimit({
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 })
 
+// Strict Rate limiting for Auth: 5 attempts per 15 minutes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') ? 10000 : 5,
+  message: 'Too many authentication attempts, please try again after 15 minutes',
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+// AI Rate limiting: 50 requests per hour
+const aiLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') ? 10000 : 50,
+  message: 'Daily AI usage limit reached (IP-based). Try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
 // Apply rate limiting to all requests
 app.use(limiter)
 
@@ -118,13 +136,15 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 /**
  * API Routes
  */
+app.use('/api/auth/login', authLimiter)
+app.use('/api/auth/register', authLimiter)
 app.use('/api/auth', authRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/habits', habitsRoutes)
 app.use('/api/tasks', tasksRoutes)
 app.use('/api/finances', financesRoutes)
 app.use('/api/health', healthRoutes)
-app.use('/api/ai', aiRoutes)
+app.use('/api/ai', aiLimiter, aiRoutes)
 app.use('/api/rewards', rewardsRoutes)
 app.use('/api/export', exportRoutes)
 app.use('/api/journal', journalRoutes)

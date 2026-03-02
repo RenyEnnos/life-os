@@ -7,6 +7,9 @@ import { GlobalModalOrchestrator } from '@/shared/components/GlobalModalOrchestr
 import { useRealtime } from '@/shared/hooks/useRealtime';
 import { SanctuaryOverlay } from '@/shared/ui/sanctuary/SanctuaryOverlay';
 import { useSanctuaryStore } from '@/shared/stores/sanctuaryStore';
+import { FloatingNexus } from '@/features/ai-assistant/components/FloatingNexus';
+import { LevelUpModal } from '@/features/rewards/components/LevelUpModal';
+import { useLevelTracker } from '@/features/rewards/hooks/useLevelTracker';
 
 const MemoizedSanctuaryOverlay = memo(SanctuaryOverlay);
 
@@ -43,6 +46,7 @@ export function AppLayout() {
     }, []);
 
     const { isActive, enter, exit } = useSanctuaryStore();
+    const { showLevelUp, newLevel, dismissLevelUp } = useLevelTracker();
 
     useEffect(() => {
         const handleGlobalKeyDown = (e: KeyboardEvent) => {
@@ -106,6 +110,12 @@ export function AppLayout() {
             </main>
 
             <MemoizedSanctuaryOverlay />
+            <FloatingNexus />
+            <LevelUpModal 
+                isOpen={showLevelUp} 
+                level={newLevel || 0} 
+                onClose={dismissLevelUp} 
+            />
         </div>
     );
 }

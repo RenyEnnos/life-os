@@ -1,5 +1,5 @@
 // Re-export shared Task type for consistency
-export type { Task } from '@/shared/types';
+export type { Task, TaskStatus } from '@/shared/types';
 
 // Extended Task type with feature-specific fields if needed
 export interface TaskWithExtras {
@@ -7,7 +7,9 @@ export interface TaskWithExtras {
     user_id: string;
     title: string;
     description?: string;
+    /** @deprecated Use status === 'done' instead */
     completed: boolean;
+    status: import('@/shared/types').TaskStatus;
     due_date?: string;
     priority?: 'low' | 'medium' | 'high';
     tags?: string[];

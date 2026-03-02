@@ -3,7 +3,8 @@
  * Provides consistent error handling, logging, and transformation across the application
  */
 
-import { ApiError } from '../api/http'
+import { ApiError } from '../api/ApiError'
+import { AppError } from '../errors/AppError'
 import {
   getApiErrorMessage,
   isNetworkError,
@@ -44,13 +45,17 @@ export interface ErrorResult {
   severity: ErrorSeverity
   userMessage: string
   shouldRetry: boolean
-  originalError: Error | ApiError
+  originalError: Error | ApiError | AppError
 }
 
 /**
  * Parse error and determine its category
  */
-function categorizeError(error: Error | ApiError): ErrorCategory {
+function categorizeError(error: Error | ApiError | AppError): ErrorCategory {
+  if (error instanceof AppError && error.category !== ErrorCategory.UNKNOWN) {
+    return error.category
+  }
+
   // Check for abort/timeout errors first
   const errWithName = error as { name?: string }
   if (errWithName?.name === 'AbortError') {
@@ -84,7 +89,11 @@ function categorizeError(error: Error | ApiError): ErrorCategory {
 /**
  * Determine error severity based on category and status code
  */
-function determineSeverity(error: Error | ApiError, category: ErrorCategory): ErrorSeverity {
+function determineSeverity(error: Error | ApiError | AppError, category: ErrorCategory): ErrorSeverity {
+  if (error instanceof AppError && error.severity) {
+    return error.severity
+  }
+
   if (error instanceof ApiError) {
     if (error.status >= 500) {
       return ErrorSeverity.HIGH
@@ -110,7 +119,7 @@ function determineSeverity(error: Error | ApiError, category: ErrorCategory): Er
 /**
  * Determine if error is retryable
  */
-function isRetryable(error: Error | ApiError, category: ErrorCategory): boolean {
+function isRetryable(error: Error | ApiError | AppError, category: ErrorCategory): boolean {
   if (category === ErrorCategory.NETWORK) {
     return true
   }
@@ -126,10 +135,12 @@ function isRetryable(error: Error | ApiError, category: ErrorCategory): boolean 
 /**
  * Log error based on severity and category
  */
-function logError(url: string, error: Error | ApiError, category: ErrorCategory, severity: ErrorSeverity): void {
+function logError(url: string, error: Error | ApiError | AppError, category: ErrorCategory, severity: ErrorSeverity): void {
   const context = `[ErrorHandler] ${category.toUpperCase()} on ${url}`
 
-  if (error instanceof ApiError) {
+  if (error instanceof AppError) {
+    console.error(`${context}:`, error.message, error.context, error.code || '')
+  } else if (error instanceof ApiError) {
     // Log 4xx as warnings to avoid console noise
     if (error.status < 500 && error.status >= 400) {
       console.warn(`${context}:`, error.message, error.details || '')
@@ -157,10 +168,10 @@ function logError(url: string, error: Error | ApiError, category: ErrorCategory,
  */
 export function handleError(url: string, error: unknown): ErrorResult {
   // Ensure we have an Error object
-  let normalizedError: Error | ApiError
+  let normalizedError: Error | ApiError | AppError
 
   if (error instanceof Error) {
-    normalizedError = error
+    normalizedError = error as Error | ApiError | AppError
   } else {
     // For plain objects with name property (like AbortError), create an Error with that name
     const errObj = error as { name?: string; message?: string }

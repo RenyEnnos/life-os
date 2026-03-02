@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect } from 'react';
 import { supabase } from '@/shared/lib/supabase';
 import { useAuthStore } from '@/shared/stores/authStore';
 
-const AuthContext = createContext<null>(null);
+export const AuthContext = createContext<any>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { setAuth, setProfile, setLoading, setError, signOut } = useAuthStore();

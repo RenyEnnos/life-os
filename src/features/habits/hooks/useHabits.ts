@@ -1,6 +1,8 @@
 import { useInfiniteQuery, useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { habitsApi } from '../api/habits.api';
+import { rewardsApi } from '@/features/rewards/api/rewards.api';
+import { XP_REWARDS } from '@/shared/constants/gamification';
 import { Habit } from '../types';
 
 const PAGE_SIZE = 50;
@@ -47,8 +49,12 @@ export function useHabits() {
     });
 
     const logHabit = useMutation({
-        mutationFn: ({ id, value, date }: { id: string; value: number; date: string }) =>
-            habitsApi.log(user!.id, id, value, date),
+        mutationFn: async ({ id, value, date }: { id: string; value: number; date: string }) => {
+            const response = await habitsApi.log(user!.id, id, value, date);
+            // Award XP for logging a habit
+            await rewardsApi.addXp(XP_REWARDS.HABIT_LOG);
+            return response;
+        },
         onMutate: async ({ id, value, date }) => {
             // Cancel any outgoing refetches to avoid overwriting optimistic update
             await queryClient.cancelQueries({ queryKey: ['habit-logs', user?.id] });
@@ -108,6 +114,7 @@ export function useHabits() {
             queryClient.invalidateQueries({ queryKey: ['habit-logs', user?.id] });
             queryClient.invalidateQueries({ queryKey: ['habits'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+            queryClient.invalidateQueries({ queryKey: ['life-score'] });
         },
     });
 

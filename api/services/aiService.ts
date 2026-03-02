@@ -30,6 +30,30 @@ const TaskParseSchema = z.object({
   time_block: z.enum(['morning', 'afternoon', 'evening', 'any']).optional()
 })
 
+const HabitParseSchema = z.object({
+  name: z.string(),
+  frequency: z.string().optional(),
+  target_value: z.number().optional(),
+  unit: z.string().optional(),
+  reminder_time: z.string().optional(),
+  tags: z.array(z.string()).optional()
+})
+
+const TransactionParseSchema = z.object({
+  type: z.enum(['income', 'expense']),
+  amount: z.number(),
+  description: z.string(),
+  transaction_date: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  category: z.string().optional()
+})
+
+const UniversalEntitySchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('task'), data: TaskParseSchema }),
+  z.object({ type: z.literal('habit'), data: HabitParseSchema }),
+  z.object({ type: z.literal('transaction'), data: TransactionParseSchema })
+])
+
 export const aiService = {
   async checkLimit(userId: string, feature: string, force = false): Promise<boolean> {
     const today = new Date().toISOString().split('T')[0]
@@ -303,6 +327,63 @@ export const aiService = {
     } catch {
       await this.logUsage(userId, 'parseTask', false, { errorMessage: 'JSON/Schema error', tokens: response?.tokens, ms: response?.ms })
       return { title: naturalInput }
+    }
+  },
+
+  async parseEntity(userId: string, naturalInput: string, opts?: { force?: boolean }) {
+    if (!naturalInput) throw new Error('natural input required')
+    const allowed = await this.checkLimit(userId, 'parseEntity', !!opts?.force)
+    if (!allowed) throw new Error('Daily AI limit reached for this feature.')
+
+    const systemPrompt = `You are a productivity assistant specialized in Portuguese (Brazil). 
+    Your task is to parse a natural language input into one of three entities: task, habit, or transaction.
+
+    Rules:
+    1. If it's a TASK: Extract title, description, due date (ISO format), priority (low/medium/high), tags, energy level (high/low/any), and time block (morning/afternoon/evening/any).
+    2. If it's a HABIT (recurring behavior): Extract name, frequency (daily, weekly, monthly), target_value (number), unit (e.g., 'km', 'litros', 'vezes'), reminder_time (HH:mm), and tags.
+    3. If it's a TRANSACTION (finance): Extract type (income/expense), amount (number), description, transaction_date (ISO format), tags, and category.
+
+    Return a JSON object with a "type" field ('task', 'habit', or 'transaction') and a "data" field containing the structured entity.
+    
+    Example:
+    "Gastei 50 reais com pizza" -> { "type": "transaction", "data": { "type": "expense", "amount": 50, "description": "Pizza", "category": "Food" } }
+    "Correr 5km todo dia às 7h" -> { "type": "habit", "data": { "name": "Correr", "frequency": "daily", "target_value": 5, "unit": "km", "reminder_time": "07:00" } }
+    "Email John amanhã" -> { "type": "task", "data": { "title": "Email John", "due_date": "2024-..." } }
+    `
+
+    const cached = await getCached(userId, 'parseEntity', { naturalInput })
+    if (cached) { await this.logUsage(userId, 'parseEntity', true); return cached }
+
+    let response;
+    try {
+      response = await aiManager.execute('speed', {
+        systemPrompt,
+        userPrompt: naturalInput,
+        jsonMode: true
+      });
+    } catch (e) { console.error(e); }
+
+    if (!response || !response.text) {
+      await this.logUsage(userId, 'parseEntity', true)
+      return { type: 'task', data: { title: naturalInput } }
+    }
+
+    try {
+      const parsed = JSON.parse(response.text)
+      const result = UniversalEntitySchema.safeParse(parsed)
+
+      if (!result.success) {
+        await this.logUsage(userId, 'parseEntity', false, { errorMessage: 'Schema validation failed', tokens: response.tokens, ms: response.ms })
+        return { type: 'task', data: { title: naturalInput } }
+      }
+
+      const entity = result.data
+      await setCache(userId, 'parseEntity', { naturalInput }, entity)
+      await this.logUsage(userId, 'parseEntity', true, { tokens: response.tokens, ms: response.ms })
+      return entity
+    } catch {
+      await this.logUsage(userId, 'parseEntity', false, { errorMessage: 'JSON/Schema error', tokens: response?.tokens, ms: response?.ms })
+      return { type: 'task', data: { title: naturalInput } }
     }
   }
 }
