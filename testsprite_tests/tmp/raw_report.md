@@ -14,8 +14,15 @@
 
 #### Test TC001 Complete onboarding successfully and land on Tasks
 - **Test Code:** [TC001_Complete_onboarding_successfully_and_land_on_Tasks.py](./TC001_Complete_onboarding_successfully_and_land_on_Tasks.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/3883b35d-f282-48c3-a7a1-b3a4f94c2607/4fb77345-3384-47ec-b6fa-ccba8288de70
-- **Status:** ✅ Passed
+- **Test Error:** TEST FAILURE
+
+ASSERTIONS:
+- Onboarding presented as a modal on the root URL ('/') rather than a distinct '/onboarding' route, preventing URL-based verification.
+- After submitting onboarding steps the app either rendered a blank page (0 interactive elements) or returned to the onboarding modal; final redirect to the Tasks page was not observed.
+- Click attempts on the onboarding 'Continuar' button encountered stale/non-interactable element issues and did not consistently advance to a Tasks page.
+- The Tasks (Tarefas) UI did not load and the Tarefas page content could not be validated after completing the onboarding flow.
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/dc165c71-91a6-4feb-8a3e-9877b911e4b9/eccbe2ee-303d-46fe-a326-91afeca17676
+- **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
@@ -24,12 +31,11 @@
 - **Test Error:** TEST FAILURE
 
 ASSERTIONS:
-- Login page not found on /login: the page rendered with 0 interactive elements and no login form fields (email/username, password) or login button.
-- Application showed a blank SPA screen indicating the frontend did not render any UI components required for the test.
-- Login could not be performed, so the onboarding flow (expected /onboarding) could not be reached or verified.
-- Milestone 3 features (Tremor, RHF, Lexorank, User Hub) could not be inspected because the application did not load the UI.
-
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/3883b35d-f282-48c3-a7a1-b3a4f94c2607/0992f839-5cee-4188-a34e-136633cc9ccf
+- Submit button not found or not interactable after two click attempts
+- Login form became empty/blank and 0 interactive elements were present after interactions
+- SPA did not render or remain on the onboarding page; URL did not change to contain "/onboarding"
+- Unable to verify 'Complete' text because the onboarding flow could not be reached
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/dc165c71-91a6-4feb-8a3e-9877b911e4b9/bc9b2e6f-6d1e-430c-b36f-f15fbf72f2ca
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
@@ -39,11 +45,12 @@ ASSERTIONS:
 - **Test Error:** TEST FAILURE
 
 ASSERTIONS:
-- Login page at /login loaded but the page content is blank and no interactive elements are present.
-- Email/username and password input fields and the 'Log in' button were not found on the page.
-- Onboarding flow could not be started because login cannot be performed due to missing UI elements.
-- Redirect to the Tasks page could not be verified because prerequisite steps (login and onboarding) could not be completed.
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/3883b35d-f282-48c3-a7a1-b3a4f94c2607/214e75dd-a03c-4ba5-84e3-cddfcd4bcee1
+- Login button not clickable: ENTRAR click attempts failed or the element became stale/uninteractable after two attempts.
+- Login page did not maintain interactive elements: current page reports 0 interactive elements (blank/SPA not rendered).
+- Unable to reach the /onboarding page because login could not be completed due to the above failures.
+- Cannot verify post-onboarding redirect to /tasks because onboarding cannot be started/completed from this state.
+- The application exhibits inconsistent rendering on navigation to /login?skip_onboarding=true which blocks automated validation.
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/dc165c71-91a6-4feb-8a3e-9877b911e4b9/81c65c25-1003-409f-a414-1fdd303672fb
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
@@ -53,11 +60,11 @@ ASSERTIONS:
 - **Test Error:** TEST FAILURE
 
 ASSERTIONS:
-- Onboarding route '/onboarding' not present — current URL is http://localhost:5173/.
-- Required-field validation was not observed — no 'required' message visible after attempts to advance without filling the name field.
-- Attempts to trigger validation failed because the onboarding flow is presented as an in-page modal and interactions targeted the 'Pular' button or used stale/uninteractable element indexes.
-- Continue/advance interaction could not be completed — clicks were either stale or clicked the wrong control, preventing verification of validation behavior.
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/3883b35d-f282-48c3-a7a1-b3a4f94c2607/bd6b505e-ebb6-47de-875e-f1f5d0979108
+- Onboarding required-field validation could not be verified because the SPA intermittently failed to render; the page showed 0 interactive elements on the final check.
+- Attempts to activate the onboarding 'Continuar' control (clicks and keyboard activation) did not produce the 'required' validation message due to stale or non-interactable elements.
+- Multiple navigations to /login?skip_onboarding=true produced inconsistent UI rendering, preventing reliable reproduction of the onboarding flow.
+- The validation text 'required' was not found in any onboarding modal instance during the session.
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/dc165c71-91a6-4feb-8a3e-9877b911e4b9/26bd8681-ee45-477e-91b0-7e984a39db1e
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
@@ -67,17 +74,25 @@ ASSERTIONS:
 - **Test Error:** TEST FAILURE
 
 ASSERTIONS:
-- Login page did not render any interactive elements (0 inputs or buttons), preventing login form access.
-- SPA appears blank/white on /login; expected login UI components are missing.
-- Onboarding flow cannot be reached because authentication cannot be performed.
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/3883b35d-f282-48c3-a7a1-b3a4f94c2607/b4c51872-775f-4a87-8d4e-7c7e90e20a2a
+- Current page contains 0 interactive elements (blank screen) after repeated attempts, preventing interaction with the login form or onboarding. 
+- Onboarding page was not reached after multiple login attempts; the URL remains http://localhost:5173/login?skip_onboarding=true. 
+- Multiple submit clicks failed due to stale or non-interactable elements (stale indexes observed during attempts), preventing form submission. 
+- Repeated waits and retries did not stabilize the SPA rendering; the page alternates between rendered and blank states, blocking completion of the validation flow.
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/dc165c71-91a6-4feb-8a3e-9877b911e4b9/2b78a0ed-d63f-458c-8e23-829bbe1906b6
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
 #### Test TC008 Update identity avatar and bio and see persisted changes
 - **Test Code:** [TC008_Update_identity_avatar_and_bio_and_see_persisted_changes.py](./TC008_Update_identity_avatar_and_bio_and_see_persisted_changes.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/3883b35d-f282-48c3-a7a1-b3a4f94c2607/01e46824-2d83-48fb-bc8c-7797e2030740
+- **Test Error:** TEST FAILURE
+
+ASSERTIONS:
+- Sign in button not interactable on the login page (click attempts returned interactability errors).
+- Login could not be submitted because the page became blank / SPA unmounted after input (0 interactive elements visible).
+- Settings page was not reached and URL '/settings' could not be verified because login did not complete.
+- Identity tab, avatar update, bio update, and save operations could not be tested due to inability to log in.
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/dc165c71-91a6-4feb-8a3e-9877b911e4b9/2451b7a6-4285-4bf9-9c4c-1e9493977ce1
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
@@ -87,18 +102,28 @@ ASSERTIONS:
 - **Test Error:** TEST FAILURE
 
 ASSERTIONS:
-- Login form not found on /login: the page displays a blank screen with 0 interactive elements.
-- Email and password input fields are not present, so credentials cannot be entered.
-- Cannot reach settings or Identity tab because the application UI did not render after navigating to /login.
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/3883b35d-f282-48c3-a7a1-b3a4f94c2607/3dd5eac2-b5bd-466c-a53c-0837fb54da0f
+- Onboarding modal titled 'Como devemos te chamar?' is visible and blocks access to the application and cannot be dismissed, preventing progress.
+- Current URL is 'http://localhost:5173/' and the '/settings' page could not be reached after login.
+- Multiple attempts to dismiss the onboarding modal (clicking 'Pular'/'Continuar') resulted in stale/uninteractable elements or did not remove the modal.
+- The Identity tab and bio/avatar UI could not be accessed, so identity updates could not be saved or verified.
+- Test cannot proceed because the onboarding modal blocks required UI interactions.
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/dc165c71-91a6-4feb-8a3e-9877b911e4b9/4cea7780-1b85-4c10-8dfa-22266dc8775f
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
 #### Test TC011 Change password successfully from Security tab
 - **Test Code:** [TC011_Change_password_successfully_from_Security_tab.py](./TC011_Change_password_successfully_from_Security_tab.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/3883b35d-f282-48c3-a7a1-b3a4f94c2607/1aa6e9f8-0cf7-402e-9d53-8b28f088aed3
-- **Status:** ✅ Passed
+- **Test Error:** TEST FAILURE
+
+ASSERTIONS:
+- Login page at '/login?skip_onboarding=true' did not render interactive elements; page shows 0 interactive elements.
+- Onboarding modal could not be dismissed; 'Pular' clicks, Escape key, and 'Continuar' click attempts did not close it.
+- Settings page could not be reached because the onboarding modal blocked the Settings/gear button; current URL does not contain '/settings'.
+- Multiple interaction attempts produced stale/uninteractable element errors on clickable elements (clicks on indexes failed and elements became non-interactable).
+- Re-navigating to '/login?skip_onboarding=true' resulted in a blank page and the SPA appears not to be loading in this environment.
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/dc165c71-91a6-4feb-8a3e-9877b911e4b9/903974a3-1c30-4e56-bb36-5353287e2992
+- **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
@@ -107,12 +132,10 @@ ASSERTIONS:
 - **Test Error:** TEST FAILURE
 
 ASSERTIONS:
-- ASSERTION: Onboarding modal blocked access to Settings and could not be reliably dismissed; multiple attempts to click 'Pular'/'Continuar' failed or resulted in the modal reappearing.
-- ASSERTION: Unable to reach /settings or open the Security tab after login because the modal prevented interaction with the sidebar/settings button.
-- ASSERTION: The Security form could not be accessed, so entering mismatched new and confirm passwords and verifying a mismatch error message could not be performed.
-- ASSERTION: Intermittent blank page / stale-element errors occurred (0 interactive elements observed at times), preventing stable automated interaction with the UI.
-- ASSERTION: Test steps remain incomplete: 6 steps not executed (open Settings/verify URL, click Security tab, fill New password, fill Confirm password, click Save, verify 'match' message).
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/3883b35d-f282-48c3-a7a1-b3a4f94c2607/237d65c9-3712-4788-9f7b-f49331b50fd7
+- Settings page did not open: current URL does not contain '/settings'.
+- 'Security' (Segurança) tab is not present on the current settings/onboarding UI, so the password-change workflow cannot be accessed.
+- 'New password', 'Confirm password', and 'Save' controls were not found on the visible UI to attempt the mismatched-password validation test.
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/dc165c71-91a6-4feb-8a3e-9877b911e4b9/d06e642d-e7fe-473c-93be-76a68feab1e4
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
@@ -122,18 +145,27 @@ ASSERTIONS:
 - **Test Error:** TEST FAILURE
 
 ASSERTIONS:
-- Login page at /login did not render — page contains 0 interactive elements and blank screenshot.
-- SPA UI elements (email, password, "Log in" button) are missing and cannot be interacted with.
-- Root URL / and /login both returned blank pages, preventing the test from proceeding.
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/3883b35d-f282-48c3-a7a1-b3a4f94c2607/d0ee9b9b-4dd7-4175-b378-03a96c5ea937
+- Login form not present on page after navigation to '/login?skip_onboarding=true'.
+- Page shows 0 interactive elements and a blank screenshot, indicating the SPA did not render.
+- Clicking the 'ENTRAR' (Log in) button failed because the element was not interactable or the element index became stale before interaction.
+- Waiting for the page to render did not restore interactive elements; the SPA remains unresponsive.
+
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/dc165c71-91a6-4feb-8a3e-9877b911e4b9/d6d6795b-0b81-4399-aa07-50646887f25b
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
 #### Test TC015 Submit a new task with title and description and verify it shows in the Todo column (Kanban)
 - **Test Code:** [TC015_Submit_a_new_task_with_title_and_description_and_verify_it_shows_in_the_Todo_column_Kanban.py](./TC015_Submit_a_new_task_with_title_and_description_and_verify_it_shows_in_the_Todo_column_Kanban.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/3883b35d-f282-48c3-a7a1-b3a4f94c2607/7a544a84-e18b-4005-b528-328c35bb0cc2
-- **Status:** ✅ Passed
+- **Test Error:** TEST FAILURE
+
+ASSERTIONS:
+- POST button not found on /v1/split-tunnel/config page; no UI controls available to submit a POST request to update the split-tunnel config.
+- The page displays only the GET response JSON (e.g., {"success":true,"config":{"enabled":false,"mode":"exclude","apps":[]}}), indicating only read output is shown in the UI.
+- No interactive elements exist to set mode to 'exclude' and add 'com.example.mail' to the apps list via the UI, so the required update cannot be performed.
+- Unable to verify persistence because there is no mechanism on the page to perform the POST update and then re-fetch configuration via the UI.
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/dc165c71-91a6-4feb-8a3e-9877b911e4b9/c31d6c6b-7273-4c9d-b6da-4fe604b25adc
+- **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
 
@@ -142,10 +174,11 @@ ASSERTIONS:
 - **Test Error:** TEST FAILURE
 
 ASSERTIONS:
-- Login button not interactable on page after entering credentials, preventing authentication.
-- Page contains 0 interactive elements after navigation/interactions, indicating the SPA UI did not render or became blank.
-- Create Task form could not be reached because the login step could not be completed due to the UI issue.
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/3883b35d-f282-48c3-a7a1-b3a4f94c2607/c76a24ca-49c5-43bc-a215-9d3e2f151069
+- Onboarding modal remains visible and blocks access to the Tasks UI after multiple dismissal attempts.
+- 'Continuar' (onboarding continue) button clicks failed or are not interactable, preventing dismissal of the overlay.
+- Create Task controls (List view toggle, Create Task button, form) could not be accessed because the onboarding overlay blocks the page.
+- The create-task validation could not be verified because the form could not be reached.
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/dc165c71-91a6-4feb-8a3e-9877b911e4b9/d323b517-3d78-4993-af69-4cb5b0249d9e
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
@@ -155,12 +188,10 @@ ASSERTIONS:
 - **Test Error:** TEST FAILURE
 
 ASSERTIONS:
-- Login page did not render interactive elements after multiple waits; page currently contains 0 interactive elements and is blank.
-- Sign in button was not interactable; multiple click attempts on different element indexes failed or became stale (login could not be submitted).
-- Login step could not be completed with provided credentials, preventing navigation to the /finances page.
-- 'Cash Flow' and 'Spending by Category' charts could not be verified because the application did not initialize and no dashboard UI was reachable.
-- The SPA appears unresponsive or failed initialization despite repeated waits, preventing further automated testing.
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/3883b35d-f282-48c3-a7a1-b3a4f94c2607/eb77f725-ae45-48b6-8cb1-19e0ad954fdb
+- Login redirected to a blank page: after submitting the login form the app rendered a white/empty page with 0 interactive elements and the finances/dashboard page did not load.
+- Submit button became unclickable/stale on retry: the second attempt to click the 'ENTRAR' button failed because the element was not interactable or its index was stale, preventing completion of the login flow.
+- No navigation or interactive UI elements were available after login to proceed to the finances page or perform the required verifications.
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/dc165c71-91a6-4feb-8a3e-9877b911e4b9/1299f7bb-1881-4a15-9593-85bdc54ef9e8
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
@@ -170,11 +201,11 @@ ASSERTIONS:
 - **Test Error:** TEST FAILURE
 
 ASSERTIONS:
-- Onboarding modal is blocking the Finances page and prevents interaction with the Add Transaction form.
-- Add Transaction form fields ('Valor'/'Descrição' or 'Amount'/'Description') and action buttons ('Sugerir Categoria'/'Suggest Category', 'Salvar'/'Save') were not found or accessible on the page.
-- Multiple attempts to dismiss the onboarding modal using different interactive element indexes produced stale/non-interactable errors, preventing reliable UI interaction.
-- Transactions list displays 'Nenhuma transação encontrada.' indicating no new transaction row (e.g., 'Coffee test') is present.
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/3883b35d-f282-48c3-a7a1-b3a4f94c2607/9942a6b0-4428-436f-9f96-9757996193f4
+- Onboarding modal could not be dismissed; 'Pular' button clicks did not close the modal and the modal remains visible.
+- The onboarding modal blocks interaction with the Finances UI, preventing access to the Add Transaction control.
+- Multiple attempts to dismiss the onboarding modal were made and all failed, preventing continuation of the transaction creation flow.
+- The transaction creation and verification steps could not be executed because the UI is blocked by the persistent onboarding modal.
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/dc165c71-91a6-4feb-8a3e-9877b911e4b9/660852fd-e47d-4244-9d8e-20e3eab4d53d
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
@@ -184,10 +215,11 @@ ASSERTIONS:
 - **Test Error:** TEST FAILURE
 
 ASSERTIONS:
-- Blank page displayed after application load; no interactive elements were present, preventing further UI interaction.
-- Onboarding dismissal and 'Finanças' navigation attempts failed or became stale, blocking access to the finances UI required for the test.
-- Required UI elements for the scenario (Add Transaction button, Suggest Category button, category dropdown) were not available due to the page not rendering.
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/3883b35d-f282-48c3-a7a1-b3a4f94c2607/fedbc18c-aeda-4c3d-a0e7-a9bf283ea5dc
+- Login flow did not complete after two sign-in attempts and the application did not navigate to the /finances page.
+- Sign in interaction failed on the second attempt (click on the sign-in button was not possible / element became non-interactable).
+- The SPA rendering is unstable: the page intermittently showed 0 interactive elements or blank UI during the test, blocking progress.
+- Unable to reach the finances UI, therefore the transaction creation and category suggestion failure flow could not be executed or validated.
+- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/dc165c71-91a6-4feb-8a3e-9877b911e4b9/41d1fe98-5826-4d95-ae5a-9ee85b018f6d
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
@@ -195,7 +227,7 @@ ASSERTIONS:
 
 ## 3️⃣ Coverage & Matching Metrics
 
-- **20.00** of tests passed
+- **0.00** of tests passed
 
 | Requirement        | Total Tests | ✅ Passed | ❌ Failed  |
 |--------------------|-------------|-----------|------------|
