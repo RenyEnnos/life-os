@@ -33,7 +33,7 @@ export const primaryNav: NavItem[] = [
 ];
 
 export const secondaryNav: NavItem[] = [
-  { label: 'Configurações', path: '/settings', icon: Settings },
+  { label: 'User Hub', path: '/settings', icon: Settings },
 ];
 
 // Compact list for the mobile dock
