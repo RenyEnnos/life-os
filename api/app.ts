@@ -29,7 +29,11 @@ import calendarRoutes from './routes/calendar'
 import symbiosisRoutes from './routes/symbiosis'
 import synapseRoutes from './routes/synapse'
 import budgetRoutes from './routes/budgets'
-import onboardingRoutes from './onboarding'
+import onboardingRoutes from './routes/onboarding'
+import contextRoutes from './routes/context'
+import mediaRoutes from './routes/media'
+import financeCategoriesRoutes from './routes/financeCategories'
+import universityRoutes from './routes/university'
 
 // for esm mode
 
@@ -173,15 +177,10 @@ app.use('/api/resonance', resonanceRoutes)
 app.use('/api/calendar', calendarRoutes)
 app.use('/api/symbiosis', symbiosisRoutes)
 app.use('/api/synapse', synapseRoutes)
-
-import contextRoutes from './routes/context'
 app.use('/api/context', contextRoutes)
-import mediaRoutes from './routes/media'
 app.use('/api/media', mediaRoutes)
 app.use('/api/budgets', budgetRoutes)
-import financeCategoriesRoutes from './routes/financeCategories'
 app.use('/api/finance-categories', financeCategoriesRoutes)
-import universityRoutes from './routes/university'
 app.use('/api/university', universityRoutes)
 app.use('/api/onboarding', onboardingRoutes)
 
