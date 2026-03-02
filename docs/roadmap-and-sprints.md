@@ -1,5 +1,9 @@
 # Roadmap & Sprints - Life OS
 
+> **STATUS ATUAL (02/03/2026)**: 
+> - Sprints 1 a 5: **CONCLUÍDAS** (Implementação base, Core features, Saúde/Finanças, Gamificação e IA).
+> - Fases 4 a 11 do PR #69: **EM REVISÃO / AJUSTES FINAIS** (Corrigindo feedbacks de segurança, auth e PWA).
+
 Este documento serve como o plano mestre de execução para o desenvolvimento do Life OS, orquestrado pelo **Planner Multi-Agente**.
 
 ## 🤖 Agentes Especialistas
