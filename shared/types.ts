@@ -46,6 +46,8 @@ export interface HabitLog {
   created_at: string
 }
 
+export type TaskStatus = 'todo' | 'in-progress' | 'done'
+
 export interface Task {
   id: string
   user_id: string
@@ -53,7 +55,9 @@ export interface Task {
   title: string
   description?: string
   due_date?: string
+  /** @deprecated Use status === 'done' instead */
   completed: boolean
+  status: TaskStatus
   tags: string[]
   created_at: string
   updated_at: string
@@ -148,6 +152,9 @@ export interface LifeScore {
   score: number
   trend: 'up' | 'down' | 'stable'
   statusText: string
+  current_xp: number
+  level: number
+  xp_to_next_level: number
 }
 
 export interface AILog {
