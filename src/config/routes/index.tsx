@@ -28,10 +28,16 @@ const DesignSystemPreview = lazy(() => import('@/features/design-system/Preview'
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { user, loading, error } = useAuth();
 
+    useEffect(() => {
+        if (!loading && !user?.id) {
+            console.log('[ProtectedRoute] No user found, redirecting to /login');
+        }
+    }, [loading, user]);
+
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <Loader text="CHECKING ACCESS..." />
+            <div id="auth-loading" className="min-h-screen flex items-center justify-center bg-background">
+                <Loader text="AUTHENTICATING..." />
             </div>
         );
     }

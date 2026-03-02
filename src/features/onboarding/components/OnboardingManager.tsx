@@ -9,8 +9,10 @@ export function OnboardingManager() {
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
         const skipOnboarding = localStorage.getItem('skip_onboarding') === 'true' || 
-                              import.meta.env.VITE_SKIP_ONBOARDING === 'true';
+                              import.meta.env.VITE_SKIP_ONBOARDING === 'true' ||
+                              urlParams.get('skip_onboarding') === 'true';
         
         if (skipOnboarding) {
             setIsOpen(false);

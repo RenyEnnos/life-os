@@ -140,23 +140,23 @@ export default function LoginPage() {
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.2
+                staggerChildren: 0.05, // Faster stagger
+                delayChildren: 0.1 // Shorter delay
             }
         }
     };
 
     const itemVariants: Variants = {
-        hidden: { y: 20, opacity: 0 },
+        hidden: { y: 10, opacity: 0 },
         visible: {
             y: 0,
             opacity: 1,
-            transition: { type: 'spring', stiffness: 100 }
+            transition: { type: 'spring', stiffness: 120 }
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 animated-gradient-bg overflow-hidden relative perspective-1000">
+        <div data-testid="login-page-container" className="min-h-screen flex items-center justify-center p-4 animated-gradient-bg overflow-hidden relative perspective-1000">
             {/* Decorative background elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[100px] animate-pulse" />
@@ -207,6 +207,7 @@ export default function LoginPage() {
                             <motion.div
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
+                                data-testid="login-success-message"
                                 className="bg-green-500/10 text-green-400 text-sm p-3 rounded mb-4 font-mono border border-green-500/20"
                             >
                                 {successMessage}
@@ -214,7 +215,7 @@ export default function LoginPage() {
                         )}
 
                         {isRecovering ? (
-                            <form onSubmit={handleRecovery} className="space-y-4">
+                            <form onSubmit={handleRecovery} data-testid="recovery-form" className="space-y-4">
                                 <motion.div variants={itemVariants} className="space-y-2">
                                     <p className="text-sm text-gray-400 mb-4">
                                         Digite seu e-mail para receber um link de recuperação de senha.
@@ -225,6 +226,7 @@ export default function LoginPage() {
                                         <Input
                                             id="recovery-email"
                                             type="email"
+                                            data-testid="recovery-email-input"
                                             className="pl-10"
                                             {...register('email')}
                                             placeholder="seu@email.com"
@@ -235,6 +237,7 @@ export default function LoginPage() {
                                 <motion.div variants={itemVariants} className="pt-2 flex flex-col gap-3">
                                     <MagneticButton
                                         type="submit"
+                                        data-testid="recovery-submit-button"
                                         className="w-full h-12 text-lg font-bold tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/40 bg-primary text-black rounded-md"
                                         disabled={isSubmitting}
                                     >
@@ -242,6 +245,7 @@ export default function LoginPage() {
                                     </MagneticButton>
                                     <button
                                         type="button"
+                                        data-testid="back-to-login-button"
                                         onClick={() => { setIsRecovering(false); setError(''); setSuccessMessage(''); }}
                                         className="text-sm text-gray-400 hover:text-white flex items-center justify-center gap-2 transition-colors"
                                     >
@@ -250,7 +254,7 @@ export default function LoginPage() {
                                 </motion.div>
                             </form>
                         ) : (
-                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                            <form onSubmit={handleSubmit(onSubmit)} data-testid="login-form" className="space-y-4">
                                 <motion.div variants={itemVariants} className="space-y-2">
                                     <label htmlFor="email" className="text-sm font-mono text-gray-400 ml-1">Email</label>
                                     <div className="relative">

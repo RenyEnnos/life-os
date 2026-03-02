@@ -9,12 +9,12 @@
     "projectName": "LIfe0S",
     "projectPath": "/home/pedro/Projetos de codificação/LIfe0S",
     "testIds": [],
-    "additionalInstruction": "Test the new Milestone 3 features:\n1. Tremor charts in /finances and /habits.\n2. Form validation in /login and /register (React Hook Form + Zod).\n3. Task reordering in /tasks (dnd-kit).\n4. Navigation to the new Unified User Hub at /settings.\n5. Visual feedback (confetti/animations) on task/habit completion.",
-    "serverMode": "development",
+    "additionalInstruction": "Production mode test run.\n1. Use skip_onboarding flag.\n2. Verify all Milestone 3 features (Tremor, RHF, Lexorank, User Hub).\n3. Ensure no blank screens.",
+    "serverMode": "production",
     "envs": {
       "API_KEY": "sk-user-8fLFNkGrLsIwNPi84iTHlENT7PR04FGn1LHMQFDGXOnr_0emEYpJEmeRpB_GpAm1WWhceVQy1mrD0NK1Gysc50plRMqsRJv10QJMub2mYd6E3XXyK1wwPOwYXflDM_-MjJM"
     }
   },
-  "serverPort": 42267,
-  "proxy": "http://c4cd5fc5-155e-47ed-9867-5bfa5f96e07f:LkMeEWoo5slgs8uA2fxx2TT45IZmTSkw@tun.testsprite.com:8080"
+  "serverPort": 38389,
+  "proxy": "http://e7497044-e5fa-4992-bebd-64cbc69cc05d:1zMsVaRyO8YhTGjBUlpQsYEvrSGeQLta@tun.testsprite.com:8080"
 }
