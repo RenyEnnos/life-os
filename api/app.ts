@@ -29,7 +29,7 @@ import calendarRoutes from './routes/calendar'
 import symbiosisRoutes from './routes/symbiosis'
 import synapseRoutes from './routes/synapse'
 import budgetRoutes from './routes/budgets'
-import onboardingRoutes from './routes/onboarding'
+import onboardingRoutes from './onboarding'
 
 // for esm mode
 
@@ -48,30 +48,8 @@ app.set('trust proxy', 1)
 // Security Headers
 app.use(helmet())
 
-// Rate Limiting
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Too many requests from this IP, please try again after 15 minutes' }
-})
-
-const passwordResetLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 5, // Limit each IP to 5 requests per hour
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Too many password reset attempts, please try again after an hour' }
-})
-
-// Apply general auth limit to all auth routes
-app.use('/api/auth/login', authLimiter)
-app.use('/api/auth/register', authLimiter)
-app.use('/api/auth/forgot-password', passwordResetLimiter)
-app.use('/api/auth/reset-password', passwordResetLimiter)
-
 const isProduction = process.env.NODE_ENV === 'production'
+const isDevOrTest = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
 
 // CORS allowlist for common localhost/preview origins plus env overrides
 const defaultOrigins = isProduction ? [] : [
@@ -123,35 +101,46 @@ app.use(cors({
 }))
 app.use(cookieParser())
 
-// Rate limiting: 100 requests per 15 minutes
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') ? 10000 : 100,
-  message: 'Too many requests from this IP, please try again after 15 minutes',
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+// --- Rate Limiting Configuration ---
+
+// Global limiter: 100 requests per 15 minutes
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: isDevOrTest ? 10000 : 100,
+  message: { error: 'Too many requests from this IP, please try again after 15 minutes' },
+  standardHeaders: true,
+  legacyHeaders: false,
 })
 
-// Strict Rate limiting for Auth: 5 attempts per 15 minutes
+// Auth limiter: 5 attempts per 15 minutes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') ? 10000 : 5,
-  message: 'Too many authentication attempts, please try again after 15 minutes',
+  max: isDevOrTest ? 10000 : 5,
+  message: { error: 'Too many authentication attempts, please try again after 15 minutes' },
   standardHeaders: true,
   legacyHeaders: false,
 })
 
-// AI Rate limiting: 50 requests per hour
+// Password reset limiter: 5 requests per hour
+const passwordResetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: isDevOrTest ? 10000 : 5,
+  message: { error: 'Too many password reset attempts, please try again after an hour' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+// AI limiter: 50 requests per hour
 const aiLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') ? 10000 : 50,
-  message: 'Daily AI usage limit reached (IP-based). Try again later.',
+  windowMs: 60 * 60 * 1000,
+  max: isDevOrTest ? 10000 : 50,
+  message: { error: 'Daily AI usage limit reached (IP-based). Try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
 })
 
-// Apply rate limiting to all requests
-app.use(limiter)
+// Apply global rate limiting to all requests
+app.use(globalLimiter)
 
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
@@ -159,8 +148,13 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 /**
  * API Routes
  */
+
+// Apply strict limiters to sensitive auth routes BEFORE the general auth routes
 app.use('/api/auth/login', authLimiter)
 app.use('/api/auth/register', authLimiter)
+app.use('/api/auth/forgot-password', passwordResetLimiter)
+app.use('/api/auth/reset-password', passwordResetLimiter)
+
 app.use('/api/auth', authRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/habits', habitsRoutes)
@@ -179,6 +173,7 @@ app.use('/api/resonance', resonanceRoutes)
 app.use('/api/calendar', calendarRoutes)
 app.use('/api/symbiosis', symbiosisRoutes)
 app.use('/api/synapse', synapseRoutes)
+
 import contextRoutes from './routes/context'
 app.use('/api/context', contextRoutes)
 import mediaRoutes from './routes/media'
