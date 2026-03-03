@@ -4,9 +4,22 @@ import { Button } from '@/shared/ui/Button';
 
 export const CalendarPage = () => {
   const [view, setView] = useState('week');
+  const [currentDate, setCurrentDate] = useState(new Date(2024, 7, 13)); // Default to Tuesday Aug 13, 2024
   
   const handleAddEvent = () => {
     console.log('New Event clicked');
+  };
+
+  const nextMonth = () => {
+    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+  
+  const prevMonth = () => {
+    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
+
+  const handleEventClick = (eventId: string) => {
+    console.log('Event clicked:', eventId);
   };
 
   const viewTabs = [
@@ -105,8 +118,11 @@ export const CalendarPage = () => {
                   </div>
                   {/* Grid Cells & Events */}
                   {/* Tuesday 13th Events */}
-                  <div className="relative col-start-3 row-start-2 row-span-2 p-2">
-                    <div className="absolute inset-1.5 bg-primary/20 border-l-4 border-primary rounded-xl p-3 flex flex-col gap-1 active-glow">
+                  <div 
+                    className="relative col-start-3 row-start-2 row-span-2 p-2 cursor-pointer group/event"
+                    onClick={() => handleEventClick('tue-deep-work')}
+                  >
+                    <div className="absolute inset-1.5 bg-primary/20 border-l-4 border-primary rounded-xl p-3 flex flex-col gap-1 active-glow group-hover/event:bg-primary/30 transition-all">
                       <span className="text-xs font-bold text-primary uppercase">09:00 - 11:00</span>
                       <span className="text-sm font-bold text-white">Deep Work</span>
                       <div className="flex -space-x-2 mt-auto">
@@ -114,28 +130,40 @@ export const CalendarPage = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="relative col-start-3 row-start-7 row-span-1 p-2">
-                    <div className="absolute inset-1.5 bg-emerald-500/20 border-l-4 border-emerald-500 rounded-xl p-3 flex flex-col gap-1">
+                  <div 
+                    className="relative col-start-3 row-start-7 row-span-1 p-2 cursor-pointer group/event"
+                    onClick={() => handleEventClick('tue-team-sync')}
+                  >
+                    <div className="absolute inset-1.5 bg-emerald-500/20 border-l-4 border-emerald-500 rounded-xl p-3 flex flex-col gap-1 group-hover/event:bg-emerald-500/30 transition-all">
                       <span className="text-xs font-bold text-emerald-500 uppercase">14:00 - 15:00</span>
                       <span className="text-sm font-bold text-white">Team Sync</span>
                     </div>
                   </div>
-                  <div className="relative col-start-3 row-start-11 row-span-2 p-2">
-                    <div className="absolute inset-1.5 bg-purple-500/20 border-l-4 border-purple-500 rounded-xl p-3 flex flex-col gap-1">
+                  <div 
+                    className="relative col-start-3 row-start-11 row-span-2 p-2 cursor-pointer group/event"
+                    onClick={() => handleEventClick('tue-gym')}
+                  >
+                    <div className="absolute inset-1.5 bg-purple-500/20 border-l-4 border-purple-500 rounded-xl p-3 flex flex-col gap-1 group-hover/event:bg-purple-500/30 transition-all">
                       <span className="text-xs font-bold text-purple-400 uppercase">18:00 - 19:30</span>
                       <span className="text-sm font-bold text-white">Gym Session</span>
                     </div>
                   </div>
                   {/* Monday 12th Event */}
-                  <div className="relative col-start-2 row-start-11 row-span-2 p-2">
-                    <div className="absolute inset-1.5 bg-purple-500/10 border-l-4 border-purple-500/40 rounded-xl p-3 flex flex-col gap-1">
+                  <div 
+                    className="relative col-start-2 row-start-11 row-span-2 p-2 cursor-pointer group/event"
+                    onClick={() => handleEventClick('mon-gym')}
+                  >
+                    <div className="absolute inset-1.5 bg-purple-500/10 border-l-4 border-purple-500/40 rounded-xl p-3 flex flex-col gap-1 group-hover/event:bg-purple-500/20 transition-all">
                       <span className="text-xs font-bold text-purple-400/60 uppercase">18:00 - 19:30</span>
                       <span className="text-sm font-bold text-white/50">Gym Session</span>
                     </div>
                   </div>
                   {/* Thursday 15th Event */}
-                  <div className="relative col-start-5 row-start-2 row-span-2 p-2">
-                    <div className="absolute inset-1.5 bg-primary/10 border-l-4 border-primary/40 rounded-xl p-3 flex flex-col gap-1">
+                  <div 
+                    className="relative col-start-5 row-start-2 row-span-2 p-2 cursor-pointer group/event"
+                    onClick={() => handleEventClick('thu-deep-work')}
+                  >
+                    <div className="absolute inset-1.5 bg-primary/10 border-l-4 border-primary/40 rounded-xl p-3 flex flex-col gap-1 group-hover/event:bg-primary/20 transition-all">
                       <span className="text-xs font-bold text-primary/60 uppercase">09:00 - 11:00</span>
                       <span className="text-sm font-bold text-white/50">Deep Work</span>
                     </div>
@@ -166,14 +194,26 @@ export const CalendarPage = () => {
               {/* CalendarPicker mini */}
               <div className="glass-surface rounded-2xl p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-sm">August 2024</h3>
+                  <h3 className="font-bold text-sm">
+                    {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+                  </h3>
                   <div className="flex gap-2">
-                    <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={prevMonth}
+                      className="w-8 h-8 rounded-lg"
+                    >
                       <span className="material-symbols-outlined text-sm">chevron_left</span>
-                    </button>
-                    <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5">
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={nextMonth}
+                      className="w-8 h-8 rounded-lg"
+                    >
                       <span className="material-symbols-outlined text-sm">chevron_right</span>
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 <div className="grid grid-cols-7 gap-y-2 text-center">
@@ -223,9 +263,12 @@ export const CalendarPage = () => {
                       <p className="text-xs font-medium">Zoom Meeting</p>
                     </div>
                   </div>
-                  <button className="w-full bg-primary text-white rounded-xl py-3 text-sm font-bold active-glow">
+                  <Button 
+                    className="w-full rounded-xl py-3 text-sm font-bold"
+                    onClick={() => console.log('Joining call...')}
+                  >
                     Join Call
-                  </button>
+                  </Button>
                 </div>
               </div>
               {/* Category Summary */}
