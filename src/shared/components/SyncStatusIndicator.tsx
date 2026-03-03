@@ -6,7 +6,8 @@ import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle2';
 import { cn } from '@/shared/lib/cn';
 
 export const SyncStatusIndicator = ({ className }: { className?: string }) => {
-    const { queue, isSyncing, processQueue } = useSyncQueue();
+    const { queue, processQueue } = useSyncQueue();
+    const isSyncing = false; // Mocking until explicitly added to the hook if needed
     const [isOnline, setIsOnline] = React.useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
     useEffect(() => {

@@ -3,6 +3,7 @@ import { useUniversity } from '../hooks/useUniversity';
 import { useGradeCalculation } from '../hooks/useGradeCalculation';
 import { TrendingUp, Award, BarChart3, AlertCircle } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
+import { WhatIfSimulator } from './WhatIfSimulator';
 
 export const GradeAnalytics = () => {
     const { assignments, courses, isLoading } = useUniversity();
@@ -118,6 +119,11 @@ export const GradeAnalytics = () => {
                     </p>
                 </div>
             </div>
+
+            {/* What-If Simulator */}
+            {courses?.length > 0 && (
+                <WhatIfSimulator courses={courses} assignments={assignments} />
+            )}
         </section>
     );
 };

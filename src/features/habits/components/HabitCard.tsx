@@ -32,24 +32,8 @@ export const HabitCard = memo(({
     const prevCompleted = useRef(isCompleted);
 
     useEffect(() => {
-        if (!prevCompleted.current && isCompleted && buttonRef.current) {
-            const rect = buttonRef.current.getBoundingClientRect();
-            const x = (rect.left + rect.width / 2) / window.innerWidth;
-            const y = (rect.top + rect.height / 2) / window.innerHeight;
-
-            Confetti({
-                particleCount: 40,
-                spread: 70,
-                origin: { x, y },
-                colors: [habit.color || "#22c55e", "#ffffff", "#ffd700"],
-                ticks: 200,
-                gravity: 1.2,
-                decay: 0.94,
-                startVelocity: 30,
-            });
-        }
         prevCompleted.current = isCompleted;
-    }, [isCompleted, habit.color]);
+    }, [isCompleted]);
 
     const IconComponent = habit.icon ? (LucideIcons as any)[habit.icon] : null;
     const progress = habit.type === 'quantified' 
@@ -175,6 +159,29 @@ export const HabitCard = memo(({
                     shimmerColor={habit.color || (isCompleted ? "#22c55e" : "#ffffff")}
                     onClick={(e) => {
                         e.stopPropagation();
+                        
+                        if (!isCompleted) {
+                            let x = e.clientX / window.innerWidth;
+                            let y = e.clientY / window.innerHeight;
+                            
+                            if (e.clientX === 0 && e.clientY === 0 && buttonRef.current) {
+                                const rect = buttonRef.current.getBoundingClientRect();
+                                x = (rect.left + rect.width / 2) / window.innerWidth;
+                                y = (rect.top + rect.height / 2) / window.innerHeight;
+                            }
+
+                            Confetti({
+                                particleCount: 40,
+                                spread: 70,
+                                origin: { x, y },
+                                colors: [habit.color || "#22c55e", "#ffffff", "#ffd700"],
+                                ticks: 200,
+                                gravity: 1.2,
+                                decay: 0.94,
+                                startVelocity: 30,
+                            });
+                        }
+                        
                         onToggle();
                     }}
                 >

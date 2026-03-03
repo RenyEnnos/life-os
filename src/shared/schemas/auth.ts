@@ -19,3 +19,13 @@ export const registerSchema = z.object({
 });
 
 export type RegisterFormData = z.infer<typeof registerSchema>;
+
+export const profileUpdateSchema = z.object({
+  name: z.string().min(2, 'O nome deve ter pelo menos 2 caracteres').optional(),
+  nickname: z.string().min(2, 'O apelido deve ter pelo menos 2 caracteres').optional(),
+  avatar_url: z.string().url('URL inválida').optional(),
+  preferences: z.record(z.unknown()).optional(),
+  theme: z.enum(['light', 'dark']).optional(),
+}).strict();
+
+export type ProfileUpdateFormData = z.infer<typeof profileUpdateSchema>;

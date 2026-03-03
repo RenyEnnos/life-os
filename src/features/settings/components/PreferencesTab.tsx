@@ -4,14 +4,14 @@ import { useAuth } from '@/features/auth/contexts/AuthContext';
 type PreferenceKey = 'emailNotifications' | 'publicProfile' | 'autoFocus';
 
 export default function PreferencesTab() {
-    const { user } = useAuth();
+    const { user, profile: userProfile } = useAuth() as any;
     const [toggles, setToggles] = useState<Record<PreferenceKey, boolean>>({
         emailNotifications: true,
         publicProfile: false,
         autoFocus: true,
     });
 
-    const [fullName, setFullName] = useState(user?.name || 'Alex Morgan');
+    const [fullName, setFullName] = useState(userProfile?.nickname || userProfile?.full_name || 'Alex Morgan');
     const [username, setUsername] = useState(user?.email?.split('@')[0] || 'alexm');
     const [bio, setBio] = useState('Product Designer focusing on minimal interfaces and deep work productivity.');
 

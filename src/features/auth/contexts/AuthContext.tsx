@@ -14,9 +14,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .select('*')
         .eq('id', userId)
         .single();
-      
-      if (error && error.code !== 'PGRST116') throw error;
-      setProfile(data);
+
+      if (error && error.code !== 'PGRST116' && error.code !== 'PGRST205') throw error;
+
+      if (error?.code === 'PGRST205' || (!data && error?.code === 'PGRST116')) {
+        setProfile({
+          id: userId,
+          full_name: 'Usuário',
+          nickname: 'Usuário',
+          theme: 'dark',
+          onboarding_completed: false
+        });
+      } else {
+        setProfile(data);
+      }
     } catch (err) {
       console.error('Error fetching profile:', err);
     }

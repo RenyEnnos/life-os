@@ -183,6 +183,7 @@ describe('Gamification flow integration', () => {
         life_score: 75,
         attributes: { body: 10, mind: 15, spirit: 8, output: 12 },
         updated_at: '2024-01-15T00:00:00Z',
+        xp_to_next_level: 100,
       } as LifeScore
 
       vi.mocked(rewardsApi.getUserScore).mockResolvedValue(mockUserXPData)

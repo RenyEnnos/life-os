@@ -58,8 +58,12 @@ export function GlobalModalOrchestrator() {
         type: 'binary' | 'numeric';
         goal: number;
     }) => {
+        const payload = {
+            ...data,
+            type: (data.type === 'numeric' ? 'quantified' : 'binary') as 'quantified' | 'binary',
+        };
         try {
-            await createHabit.mutateAsync(data);
+            await createHabit.mutateAsync(payload);
             closeModal();
         } catch (error) {
             console.error("Failed to save ritual via orchestrator", error);

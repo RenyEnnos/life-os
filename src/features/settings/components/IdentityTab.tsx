@@ -15,8 +15,9 @@ export default function IdentityTab() {
     const [isEditingBio, setIsEditingBio] = useState(false);
     const [isEditingAvatar, setIsEditingAvatar] = useState(false);
 
-    const fullName = userProfile?.name || user?.name || "User";
-    const email = userProfile?.email || user?.email || "";
+    const profileData = userProfile as any;
+    const fullName = profileData?.nickname || profileData?.full_name || user?.user_metadata?.full_name || "User";
+    const email = profileData?.email || user?.email || "";
     const username = email ? email.split('@')[0] : "user";
 
     const stats = useMemo(() => ({

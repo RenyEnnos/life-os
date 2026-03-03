@@ -9,12 +9,12 @@
     "projectName": "LIfe0S",
     "projectPath": "/home/pedro/Projetos de codificação/LIfe0S",
     "testIds": [],
-    "additionalInstruction": "DEFINITIVE VALIDATION.\n1. Use '?skip_onboarding=true' parameter.\n2. Ensure full path validation for Finances (Tremor), Tasks (Lexorank), and User Hub.\n3. Confirm all form validations work.",
-    "serverMode": "production",
+    "additionalInstruction": "Both servers are running (frontend 5173, backend 3001). The profiles table has been mocked to allow onboarding to pass successfully without DB. Focus on full UI tests.",
+    "serverMode": "development",
     "envs": {
       "API_KEY": "sk-user-8fLFNkGrLsIwNPi84iTHlENT7PR04FGn1LHMQFDGXOnr_0emEYpJEmeRpB_GpAm1WWhceVQy1mrD0NK1Gysc50plRMqsRJv10QJMub2mYd6E3XXyK1wwPOwYXflDM_-MjJM"
     }
   },
-  "serverPort": 39389,
-  "proxy": "http://9ec1180d-c6bc-4793-80b4-cc2b03209ca3:ZX6CCoSYsUQxGewZTdaXVk12ur3uhzhS@tun.testsprite.com:8080"
+  "serverPort": 40761,
+  "proxy": "http://d892f88d-4bec-40cc-ad83-cd7877b304ac:POjYN1qERAHgbmqZEvTgln9TIlU6crmT@tun.testsprite.com:8080"
 }

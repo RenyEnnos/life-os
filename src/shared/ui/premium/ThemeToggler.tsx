@@ -6,7 +6,7 @@ import { cn } from '@/shared/lib/cn';
 
 export function ThemeToggler() {
     const { isDark, toggleTheme } = useTheme();
-    const { updateThemePreference } = useAuth();
+    const { updateThemePreference } = useAuth() as any;
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {

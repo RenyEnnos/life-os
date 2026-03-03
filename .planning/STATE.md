@@ -1,36 +1,34 @@
 # Project State: Life OS
 
-**Milestone**: 3 - UX & Gems Evolution
-**Phase**: 16 - Juicy UX & Sensory Feedback
+**Milestone**: 4 - Functional Reality & Total Test Coverage
+**Phase**: 17 - Eradicate Mocks (University & Context)
 **Status**: Planning
 
 ## Current Context
 
-We have successfully consolidated the UI into the Unified User Hub (Phase 15), implemented premium dashboards (Phase 12), robust forms (Phase 13), and advanced reordering (Phase 14). Phase 16 is the final polish of this milestone, focusing on "Juicy UX" — adding micro-interactions, spring animations, and celebratory feedback to maximize user delight and engagement.
+We have successfully completed Milestone 3 (UX & Gems Evolution), achieving a high-quality frontend experience. However, an analysis of the codebase revealed residual "dummy data", "TODO: mock", and hardcoded API fallbacks, specifically in the University, Habits (HabitDoctor), and Context Gateway modules. Additionally, the automated E2E tests via TestSprite encountered timeout/stability issues. Milestone 4 focuses on ensuring 100% of the application is powered by real database/API logic and passes the test suite reliably.
 
 ## Focus Areas
 
-- [x] **Data Visualization**: Tremor integration complete.
-- [x] **Data Integrity**: RHF + Zod integration complete.
-- [x] **Interactivity**: Sortable lists and hybrid task views complete.
-- [x] **UI Consolidation**: Unified User Hub complete.
-- [ ] **Sensory Feedback**: Implementing Framer Motion and Canvas Confetti celebrations.
+- [ ] **Data Authenticity**: Replace mock calculations in University module with real Supabase aggregations.
+- [ ] **Live APIs**: Ensure `ContextGateway` uses live APIs (Weather/Crypto) without falling back to hardcoded mocks.
+- [ ] **Habit Doctor**: Implement the real AI analysis pipeline for habit diagnostics.
+- [ ] **Test Resilience**: Guarantee 100% pass rate on TestSprite by resolving timeouts and rendering instabilities.
 
 ## Active Task List
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Phase 16: Juicy UX | Planning | Mapping high-impact interaction points. |
+| Phase 17: Eradicate Mocks | Planning | Mapping hardcoded logic in University and ContextGateway. |
+| Phase 18: Habit Doctor | Pending | |
+| Phase 19: TestSprite 100% | Pending | |
 
 ## Completed Phases
 
 | Phase | Date | Notes |
 |-------|------|-------|
 | 1-11 | 2026-03-02 | Core features and foundation. |
-| 12. Premium Dashboards | 2026-03-02 | Migrated charts to Tremor. |
-| 13. Robust Forms | 2026-03-02 | RHF + Zod migration. |
-| 14. Hybrid Interactivity | 2026-03-02 | Lexorank reordering. |
-| 15. Unified User Hub | 2026-03-02 | Consolidated Profile/Settings. |
+| 12-16 | 2026-03-02 | UX Evolution, Tremor, RHF, DND, User Hub. |
 
 ---
 *Last updated: 2026-03-02*

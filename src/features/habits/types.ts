@@ -1,6 +1,6 @@
 import { Habit as SharedHabit } from '@/shared/types';
 
-export interface Habit extends SharedHabit {
+export interface Habit extends Omit<SharedHabit, 'title'> {
     // Frontend specific aliases or optional props
     title?: string; // Support for title (sometimes used interchangeably with name)
     active?: boolean;

@@ -21,12 +21,12 @@ A unified, gamified, and AI-powered personal productivity system that reduces co
 - **Security Features**: Helmet, Rate Limiting, XSS Sanitization, Anti-CSRF.
 - **PWA**: Full offline support and installability.
 
-### Active (Milestone 3: UX Evolution)
+### Active (Milestone 4: Functional Reality)
 
-- [ ] **Gems Integration**: Tremor (Dashboards), React Hook Form (Forms), dnd-kit (Interactivity).
-- [ ] **UI Consolidation**: Unified User Hub (Merging Profile/Settings).
-- [ ] **Hybrid Task Views**: Toggleable List/Kanban for daily tasks.
-- [ ] **Juicy UX**: Advanced micro-interactions with Framer Motion and context-aware Confetti.
+- [ ] **Data Authenticity**: Remove all remaining mocks (HabitDoctor, University simulators, ContextGateway).
+- [ ] **Backend Hardening**: Ensure 100% real database transactions for all features.
+- [ ] **Testing Resilience**: Fix TestSprite timeout and connectivity issues, achieving 100% pass rate in production mode.
+- [ ] **AI Materialization**: Ensure all AI responses (Groq/Google) are live and correctly formatted, replacing any static JSON fallbacks.
 
 ### Out of Scope
 

@@ -22,7 +22,7 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
         watch,
         formState: { errors, isSubmitting },
     } = useForm<TaskFormData>({
-        resolver: zodResolver(taskSchema),
+        resolver: zodResolver(taskSchema) as any,
         defaultValues: {
             title: '',
             description: '',

@@ -15,9 +15,12 @@
 - [x] **Phase 11: Security Hardening & Polish** - Final security audits and accessibility refinements. (completed 2026-03-02)
 - [ ] **Phase 12: Premium Dashboards with Tremor** - Refactor all charts and summary cards for a consistent SaaS aesthetic. (Milestone 3)
 - [ ] **Phase 13: Robust Forms & Validation (RHF + Zod)** - Standardize state management and validation for all user inputs. (Milestone 3)
-- [ ] **Phase 14: Hybrid Interactivity & Advanced DND** - Implement toggleable Task views and sortable lists. (Milestone 3)
-- [ ] **Phase 15: Unified User Hub** - Consolidate fragmented profile and settings interfaces into a single destination. (Milestone 3)
-- [ ] **Phase 16: Juicy UX & Sensory Feedback** - Polish the experience with advanced animations and celebratory effects. (Milestone 3)
+- [x] **Phase 14: Hybrid Interactivity & Advanced DND** - Implement toggleable Task views and sortable lists. (completed 2026-03-02)
+- [x] **Phase 15: Unified User Hub** - Consolidate fragmented profile and settings interfaces into a single destination. (completed 2026-03-02)
+- [x] **Phase 16: Juicy UX & Sensory Feedback** - Polish the experience with advanced animations and celebratory effects. (completed 2026-03-02)
+- [ ] **Phase 17: Eradicate Mocks (University & Context)** - Replace all hardcoded 'dummy data' and 'TODO' mocks with real DB/API logic. (Milestone 4)
+- [ ] **Phase 18: Habit Doctor Realization** - Connect the Habit Doctor feature to real AI/Backend endpoints. (Milestone 4)
+- [ ] **Phase 19: TestSprite Bulletproofing** - Resolve timeout/connectivity issues to guarantee a 100% E2E test pass rate. (Milestone 4)
 
 ## Phase Details
 

@@ -76,6 +76,13 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **GEMS-05**: Enhance micro-interactions (completion bursts, page transitions) with **Framer Motion**.
 - [ ] **GEMS-06**: Implement contextual **Canvas Confetti** rewards for habit and task completion.
 
+## Milestone 4: Functional Reality & Total Test Coverage (REAL)
+
+- [ ] **REAL-01**: Refactor University module (`CourseCard`, `WhatIfSimulator`) to use real database aggregations instead of mock calculations.
+- [ ] **REAL-02**: Remove development mocks from `ContextGateway` and ensure live API connectivity for context widgets.
+- [ ] **REAL-03**: Implement real backend logic for `HabitDoctor` in the habits feature.
+- [ ] **REAL-04**: Achieve 100% test pass rate in TestSprite E2E suite by ensuring stable environment setups and robust error handling.
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.

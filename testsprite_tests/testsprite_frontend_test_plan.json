@@ -1,50 +1,42 @@
 [
   {
     "id": "TC001",
-    "title": "Complete onboarding successfully and land on Tasks",
-    "description": "Verifies a logged-in user can complete the onboarding flow and is redirected to Tasks at the end.",
-    "category": "Onboarding",
+    "title": "Request password reset shows confirmation message",
+    "description": "Verifies submitting the reset password form displays a visible confirmation message.",
+    "category": "User Authentication",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click on the \"Log in\" button"
+        "description": "Navigate to /reset-password"
       },
       {
         "type": "assertion",
-        "description": "Verify URL contains \"/onboarding\""
+        "description": "Verify URL contains \"/reset-password\""
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Click the submit button"
       },
       {
         "type": "assertion",
-        "description": "Verify text \"Step 1\" is visible"
+        "description": "Verify text \"confirmation\" is visible"
       },
       {
-        "type": "action",
-        "description": "Fill a required field in Step 1 with \"Test Value\""
-      },
-      {
-        "type": "action",
-        "description": "Click on the \"Next\" button"
+        "type": "assertion",
+        "description": "Verify text \"email\" is visible"
       }
     ]
   },
   {
     "id": "TC002",
-    "title": "Finish remaining onboarding steps and verify completion confirmation",
-    "description": "Verifies the user can proceed through subsequent onboarding steps and sees a completion confirmation.",
-    "category": "Onboarding",
+    "title": "Open Dashboard and verify the 3-zone layout is visible",
+    "description": "Verifies an authenticated user can reach the dashboard and see the Now/Today/Context zones and widgets.",
+    "category": "Dashboard",
     "priority": "High",
     "steps": [
       {
@@ -53,7 +45,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -65,27 +57,27 @@
       },
       {
         "type": "assertion",
-        "description": "Verify URL contains \"/onboarding\""
-      },
-      {
-        "type": "action",
-        "description": "Click on the \"Next\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click on the \"Next\" button"
+        "description": "Verify URL contains \"/\""
       },
       {
         "type": "assertion",
-        "description": "Verify text \"Complete\" is visible"
+        "description": "Verify text \"Now\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Today\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Context\" is visible"
       }
     ]
   },
   {
     "id": "TC003",
-    "title": "Onboarding completion redirects user to Tasks",
-    "description": "Verifies that after completing onboarding, the user is redirected to the Tasks page.",
-    "category": "Onboarding",
+    "title": "From Dashboard, open Habits via a widget item",
+    "description": "Verifies a user can navigate from the dashboard to the Habits page by clicking a Habits widget item.",
+    "category": "Dashboard",
     "priority": "High",
     "steps": [
       {
@@ -94,7 +86,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -106,15 +98,85 @@
       },
       {
         "type": "assertion",
-        "description": "Verify URL contains \"/onboarding\""
+        "description": "Verify URL contains \"/\""
       },
       {
         "type": "action",
-        "description": "Click on the \"Finish\" button"
+        "description": "Click on a visible item inside the Habits widget"
       },
       {
         "type": "assertion",
-        "description": "Verify text \"Onboarding complete\" is visible"
+        "description": "Verify URL contains \"/habits\""
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "From Dashboard, open Habits via the main navigation entry (if present)",
+    "description": "Verifies navigation to Habits works even if the user uses a Habits entry point from the dashboard page layout.",
+    "category": "Dashboard",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Habits\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/habits\""
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "From Dashboard, open Tasks via the Tasks widget",
+    "description": "Verifies a user can navigate from the dashboard to the Tasks page by clicking the Tasks widget entry point.",
+    "category": "Dashboard",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the Tasks widget"
       },
       {
         "type": "assertion",
@@ -123,92 +185,10 @@
     ]
   },
   {
-    "id": "TC004",
-    "title": "Validation blocks Next when a required field is blank",
-    "description": "Verifies required-field validation appears and prevents moving to the next onboarding step.",
-    "category": "Onboarding",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click on the \"Log in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/onboarding\""
-      },
-      {
-        "type": "action",
-        "description": "Click on the \"Next\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"required\" is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/onboarding\""
-      }
-    ]
-  },
-  {
-    "id": "TC005",
-    "title": "Fix validation error and proceed to the next step",
-    "description": "Verifies that after a validation error, entering a value allows the user to proceed.",
-    "category": "Onboarding",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click on the \"Log in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/onboarding\""
-      },
-      {
-        "type": "action",
-        "description": "Click on the \"Next\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"required\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Fill the highlighted required field with \"Fixed Value\""
-      }
-    ]
-  },
-  {
     "id": "TC006",
-    "title": "Resume onboarding by navigating directly to /onboarding while authenticated",
-    "description": "Verifies an authenticated user can access the onboarding route and sees the first step content.",
-    "category": "Onboarding",
+    "title": "Dashboard widgets render with visible content placeholders",
+    "description": "Verifies the dashboard shows visible widget content (not an empty/blank state) across the three zones.",
+    "category": "Dashboard",
     "priority": "Medium",
     "steps": [
       {
@@ -217,7 +197,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -228,28 +208,24 @@
         "description": "Click on the \"Log in\" button"
       },
       {
-        "type": "action",
-        "description": "Navigate to /onboarding"
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
       },
       {
         "type": "assertion",
-        "description": "Verify URL contains \"/onboarding\""
+        "description": "Verify element \"dashboard\" is visible"
       },
       {
         "type": "assertion",
-        "description": "Verify text \"Step 1\" is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify element \"Next\" is visible"
+        "description": "Verify element \"widgets\" is visible"
       }
     ]
   },
   {
     "id": "TC007",
-    "title": "Onboarding step remains on current step after validation error",
-    "description": "Verifies that a user cannot advance to the next step when validation fails and remains on the same step.",
-    "category": "Onboarding",
+    "title": "Dashboard remains accessible after navigating away and returning via a click",
+    "description": "Verifies a user can leave the dashboard to another feature and return to the dashboard using in-app navigation.",
+    "category": "Dashboard",
     "priority": "Medium",
     "steps": [
       {
@@ -258,7 +234,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -270,27 +246,31 @@
       },
       {
         "type": "assertion",
-        "description": "Verify URL contains \"/onboarding\""
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Step 1\" is visible"
+        "description": "Verify URL contains \"/\""
       },
       {
         "type": "action",
-        "description": "Click on the \"Next\" button"
+        "description": "Click on \"Tasks\""
       },
       {
         "type": "assertion",
-        "description": "Verify text \"Step 1\" is visible"
+        "description": "Verify URL contains \"/tasks\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Dashboard\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
       }
     ]
   },
   {
     "id": "TC008",
-    "title": "Update identity avatar and bio and see persisted changes",
-    "description": "Verifies a user can update avatar and bio in Identity tab, save successfully, and see the updated information displayed.",
-    "category": "Unified User Hub",
+    "title": "Invalid login prevents reaching the Dashboard",
+    "description": "Verifies the dashboard is not reachable when login fails using invalid credentials.",
+    "category": "Dashboard",
     "priority": "High",
     "steps": [
       {
@@ -299,243 +279,31 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"nonexistent.user@example.com\" into the email field"
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+        "description": "Type \"WrongPassword123!\" into the password field"
       },
       {
         "type": "action",
-        "description": "Click the \"Sign in\" button"
+        "description": "Click on the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Verify URL contains \"/settings\""
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Identity\" tab"
-      },
-      {
-        "type": "action",
-        "description": "Update the avatar to a different available avatar option"
-      },
-      {
-        "type": "action",
-        "description": "Type \"Updated bio for UI test\" into the bio field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
+        "description": "Verify URL contains \"/login\""
       },
       {
         "type": "assertion",
-        "description": "Verify text \"Success\" is visible"
+        "description": "Verify text \"Invalid\" is visible"
       }
     ]
   },
   {
     "id": "TC009",
-    "title": "Save identity changes shows updated avatar and bio on the page",
-    "description": "Verifies that after saving identity updates, the new avatar and bio are shown in the Identity tab UI.",
-    "category": "Unified User Hub",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Sign in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/settings\""
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Identity\" tab"
-      },
-      {
-        "type": "action",
-        "description": "Type \"Bio check: persisted\" into the bio field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Bio check: persisted\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC010",
-    "title": "Navigate across settings tabs and return without losing unsaved state",
-    "description": "Verifies tab navigation works between Identity, Security, and Preferences and the user can return to a tab and still interact with its fields.",
-    "category": "Unified User Hub",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Sign in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/settings\""
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Identity\" tab"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Identity\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Security\" tab"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Security\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Preferences\" tab"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Preferences\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC011",
-    "title": "Change password successfully from Security tab",
-    "description": "Verifies the user can enter a valid new password and confirmation, save, and see a success toast.",
-    "category": "Unified User Hub",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Sign in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/settings\""
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Security\" tab"
-      },
-      {
-        "type": "action",
-        "description": "Type \"NewPassword!234\" into the New password field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"NewPassword!234\" into the Confirm password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Success\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC012",
-    "title": "Password confirmation mismatch shows inline error",
-    "description": "Verifies that mismatched new password and confirmation prevents save and shows a visible mismatch error message.",
-    "category": "Unified User Hub",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Sign in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/settings\""
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Security\" tab"
-      },
-      {
-        "type": "action",
-        "description": "Type \"NewPassword!234\" into the New password field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"DifferentPassword!234\" into the Confirm password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"match\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC013",
-    "title": "View XP and level progress in User Hub",
-    "description": "Verifies XP and level progress information is visible in the settings hub UI.",
-    "category": "Unified User Hub",
+    "title": "Dashboard loads successfully after login and shows an overview header",
+    "description": "Verifies the dashboard page provides a recognizable overview heading/label after authentication.",
+    "category": "Dashboard",
     "priority": "Low",
     "steps": [
       {
@@ -544,7 +312,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -552,31 +320,23 @@
       },
       {
         "type": "action",
-        "description": "Click the \"Sign in\" button"
+        "description": "Click on the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Verify URL contains \"/settings\""
+        "description": "Verify URL contains \"/\""
       },
       {
         "type": "assertion",
-        "description": "Verify text \"XP\" is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Level\" is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify element \"progress\" is visible"
+        "description": "Verify page title contains \"Dashboard\""
       }
     ]
   },
   {
-    "id": "TC014",
-    "title": "Create a task from List view and verify it appears in the Todo list",
-    "description": "Verifies a user can toggle views, create a task with valid inputs, and see it appear in the Todo list.",
-    "category": "Hybrid Task Management",
+    "id": "TC010",
+    "title": "Create a new habit and verify it appears in the habits list",
+    "description": "Verifies a user can create a habit and see it listed on the Habit Tracker page.",
+    "category": "Habit Tracker",
     "priority": "High",
     "steps": [
       {
@@ -585,7 +345,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -597,240 +357,27 @@
       },
       {
         "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
+        "description": "Verify URL contains \"/\""
       },
       {
         "type": "action",
-        "description": "Click the toggle to switch to \"List\" view"
+        "description": "Click on \"Habits\" in the main navigation"
       },
       {
         "type": "action",
-        "description": "Click the \"Create Task\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Create Task\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC015",
-    "title": "Submit a new task with title and description and verify it shows in the Todo column (Kanban)",
-    "description": "Verifies creating a task from the task creation form results in a visible new card in the Kanban Todo column.",
-    "category": "Hybrid Task Management",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
+        "description": "Click the \"Create new habit\" button"
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"Daily Walk\" into the habit title field"
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+        "description": "Select \"Daily\" from the frequency dropdown"
       },
       {
         "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
-      },
-      {
-        "type": "action",
-        "description": "Click the toggle to switch to \"Kanban\" view"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Create Task\" button"
-      },
-      {
-        "type": "action",
-        "description": "Type \"E2E Task Title\" into the Title field"
-      }
-    ]
-  },
-  {
-    "id": "TC016",
-    "title": "Create task form RHF validation: blank title shows inline error and does not create task",
-    "description": "Verifies the create task form prevents submission without a title and shows an inline validation message.",
-    "category": "Hybrid Task Management",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
-      },
-      {
-        "type": "action",
-        "description": "Click the toggle to switch to \"List\" view"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Create Task\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Submit\" button"
-      }
-    ]
-  },
-  {
-    "id": "TC017",
-    "title": "Switch between List and Kanban views without losing access to Create Task action",
-    "description": "Verifies toggling views keeps core actions available and the page renders the expected view headers.",
-    "category": "Hybrid Task Management",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
-      },
-      {
-        "type": "action",
-        "description": "Click the toggle to switch to \"List\" view"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify element \"Create Task\" button is visible"
-      },
-      {
-        "type": "action",
-        "description": "Click the toggle to switch to \"Kanban\" view"
-      }
-    ]
-  },
-  {
-    "id": "TC018",
-    "title": "Finances dashboard shows key charts and allows date filter update",
-    "description": "Verifies the cash flow and category charts are visible and update after changing the date filter.",
-    "category": "Premium Dashboards (Finances & Visualizations)",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Sign in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/finances\""
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Cash Flow\" is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Spending by Category\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Select \"Last 30 days\" from the date filter dropdown"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Last 30 days\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC019",
-    "title": "Add transaction with AI category suggestion and verify it appears in table",
-    "description": "Verifies adding a transaction with AI-suggested category results in a visible new row in the transactions table.",
-    "category": "Premium Dashboards (Finances & Visualizations)",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Sign in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/finances\""
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Add Transaction\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Add Transaction\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Type \"25.50\" into the amount field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"Coffee test\" into the description field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Suggest Category\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Suggested\" is visible"
+        "description": "Select \"Morning\" from the time of day dropdown"
       },
       {
         "type": "action",
@@ -838,15 +385,15 @@
       },
       {
         "type": "assertion",
-        "description": "Verify text \"Coffee test\" is visible"
+        "description": "Verify text \"Daily Walk\" is visible"
       }
     ]
   },
   {
-    "id": "TC020",
-    "title": "AI category suggestion fails and user saves transaction with manual category",
-    "description": "Verifies the UI shows an error toast on suggestion failure and allows manual category selection before saving.",
-    "category": "Premium Dashboards (Finances & Visualizations)",
+    "id": "TC011",
+    "title": "Mark an existing habit complete and verify completion state updates",
+    "description": "Verifies a user can mark a habit as complete for the day and see the UI reflect completion.",
+    "category": "Habit Tracker",
     "priority": "High",
     "steps": [
       {
@@ -855,7 +402,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -863,195 +410,7 @@
       },
       {
         "type": "action",
-        "description": "Click the \"Sign in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/finances\""
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Add Transaction\" button"
-      },
-      {
-        "type": "action",
-        "description": "Type \"12.00\" into the amount field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"AI fail path test\" into the description field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Suggest Category\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Category suggestion failed\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Select \"Groceries\" from the category dropdown"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"AI fail path test\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC021",
-    "title": "Summary cards display balance and daily spend values",
-    "description": "Verifies the finances summary cards show the balance and daily spend values on the dashboard.",
-    "category": "Premium Dashboards (Finances & Visualizations)",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Sign in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/finances\""
-      },
-      {
-        "type": "action",
-        "description": "Scroll to the summary cards section"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Balance\" is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Daily spend\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC022",
-    "title": "Date filter change preserves chart visibility and does not break dashboard rendering",
-    "description": "Verifies charts remain visible and the dashboard continues to render after changing the date filter multiple times.",
-    "category": "Premium Dashboards (Finances & Visualizations)",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Sign in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/finances\""
-      },
-      {
-        "type": "action",
-        "description": "Select \"This month\" from the date filter dropdown"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Cash Flow\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Select \"This year\" from the date filter dropdown"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Spending by Category\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC023",
-    "title": "Add transaction validation prevents saving with missing required fields",
-    "description": "Verifies the transaction form shows a visible validation message when trying to save without required inputs.",
-    "category": "Premium Dashboards (Finances & Visualizations)",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Sign in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/finances\""
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Add Transaction\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Amount is required\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC024",
-    "title": "Create a new habit and confirm it appears in the list",
-    "description": "Verifies that a user can create a habit with required fields and the new habit is shown in the habit list.",
-    "category": "Habits",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Sign in\" button"
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
@@ -1063,43 +422,23 @@
       },
       {
         "type": "assertion",
-        "description": "Verify URL contains \"/habits\""
+        "description": "Verify page title contains \"Habits\""
       },
       {
         "type": "action",
-        "description": "Click the \"Create Habit\" button"
+        "description": "Click the completion checkbox next to the first habit in the list"
       },
       {
         "type": "assertion",
-        "description": "Verify text \"Create Habit\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Type \"Read 10 pages\" into the \"Title\" field"
-      },
-      {
-        "type": "action",
-        "description": "Select \"Daily\" from the \"Frequency\" dropdown"
-      },
-      {
-        "type": "action",
-        "description": "Select \"Morning\" from the \"Time of day\" dropdown"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Read 10 pages\" is visible"
+        "description": "Verify text \"Completed\" is visible"
       }
     ]
   },
   {
-    "id": "TC025",
-    "title": "Create habit validation: blank title shows inline error and does not create habit",
-    "description": "Verifies inline validation prevents creating a habit when the title is missing.",
-    "category": "Habits",
+    "id": "TC012",
+    "title": "Create habit validation: missing title shows an error",
+    "description": "Verifies the habit creation form enforces a required title and shows a visible validation message.",
+    "category": "Habit Tracker",
     "priority": "High",
     "steps": [
       {
@@ -1108,7 +447,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -1116,7 +455,7 @@
       },
       {
         "type": "action",
-        "description": "Click the \"Sign in\" button"
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
@@ -1127,24 +466,8 @@
         "description": "Click on \"Habits\" in the main navigation"
       },
       {
-        "type": "assertion",
-        "description": "Verify URL contains \"/habits\""
-      },
-      {
         "type": "action",
-        "description": "Click the \"Create Habit\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Create Habit\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Click into the \"Title\" field"
-      },
-      {
-        "type": "action",
-        "description": "Press \"Tab\""
+        "description": "Click the \"Create new habit\" button"
       },
       {
         "type": "action",
@@ -1153,18 +476,14 @@
       {
         "type": "assertion",
         "description": "Verify text \"Title is required\" is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Create Habit\" is visible"
       }
     ]
   },
   {
-    "id": "TC026",
-    "title": "Edit an existing habit target value and verify habit card reflects changes",
-    "description": "Verifies editing a habit updates the visible target value on the habit card after saving.",
-    "category": "Habits",
+    "id": "TC013",
+    "title": "Delete a habit and confirm it is removed from the list",
+    "description": "Verifies a user can delete a habit with confirmation and it no longer appears in the habits list.",
+    "category": "Habit Tracker",
     "priority": "High",
     "steps": [
       {
@@ -1173,178 +492,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Sign in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/\""
-      },
-      {
-        "type": "action",
-        "description": "Click on \"Habits\" in the main navigation"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/habits\""
-      },
-      {
-        "type": "action",
-        "description": "Click the first habit in the habit list"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Edit Habit\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Fill \"5\" into the \"Target\" (or \"Target value\") field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Target\" is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"5\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC027",
-    "title": "Edit habit updates visible analytics section for the selected habit",
-    "description": "Verifies that after editing and saving a habit, the analytics area remains visible and reflects the updated habit context.",
-    "category": "Habits",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Sign in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/\""
-      },
-      {
-        "type": "action",
-        "description": "Click on \"Habits\" in the main navigation"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/habits\""
-      },
-      {
-        "type": "action",
-        "description": "Click the first habit in the habit list"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify element \"Heatmap\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Fill \"3\" into the \"Target\" (or \"Target value\") field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify element \"Heatmap\" is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify element \"Streak\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC028",
-    "title": "Habit list and analytics sections load on Habits page",
-    "description": "Verifies the Habits page shows the habit list and the analytics widgets expected for tracking.",
-    "category": "Habits",
-    "priority": "Low",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Sign in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/\""
-      },
-      {
-        "type": "action",
-        "description": "Click on \"Habits\" in the main navigation"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/habits\""
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Habits\" is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify element \"Heatmap\" is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify element \"Streak\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC029",
-    "title": "Quick Capture creates a task from AI-parsed preview and shows it in Tasks",
-    "description": "Verifies that a user can open the AI Assistant, send a structured quick-capture message, confirm the parsed preview, and see the new task in the task list.",
-    "category": "AI Assistant (Quick Capture & Chat)",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -1356,27 +504,19 @@
       },
       {
         "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
+        "description": "Verify URL contains \"/\""
       },
       {
         "type": "action",
-        "description": "Click the floating action button (FAB) for the AI Assistant"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Chat\" is visible"
+        "description": "Click on \"Habits\" in the main navigation"
       },
       {
         "type": "action",
-        "description": "Type \"Create task: Buy milk tomorrow\" into the chat message input"
+        "description": "Click on the first habit in the list"
       },
       {
         "type": "action",
-        "description": "Click the \"Send\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Preview\" is visible"
+        "description": "Click the \"Delete\" button"
       },
       {
         "type": "action",
@@ -1384,80 +524,15 @@
       },
       {
         "type": "assertion",
-        "description": "Verify text \"Buy milk\" is visible"
+        "description": "Verify text \"Habit deleted\" is visible"
       }
     ]
   },
   {
-    "id": "TC030",
-    "title": "AI chat freeform query returns suggested actions and user executes 'create task' action",
-    "description": "Verifies that an AI response can suggest actions and the user can execute one action to create a task successfully.",
-    "category": "AI Assistant (Quick Capture & Chat)",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
-      },
-      {
-        "type": "action",
-        "description": "Click the floating action button (FAB) for the AI Assistant"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify element \"chat message input\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Type \"I need to plan groceries for tomorrow. What should I do?\" into the chat message input"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Send\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Suggested actions\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Click the suggested action that creates a task"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Preview\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Confirm\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"grocer\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC031",
-    "title": "AI Assistant can be opened from a different page and remains usable",
-    "description": "Verifies the AI Assistant FAB is accessible from another feature page and the chat modal opens correctly.",
-    "category": "AI Assistant (Quick Capture & Chat)",
+    "id": "TC014",
+    "title": "Edit habit details and verify updated values are shown",
+    "description": "Verifies a user can edit an existing habit and see the updated details reflected in the UI.",
+    "category": "Habit Tracker",
     "priority": "Medium",
     "steps": [
       {
@@ -1466,7 +541,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -1478,39 +553,39 @@
       },
       {
         "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
+        "description": "Verify URL contains \"/\""
       },
       {
         "type": "action",
         "description": "Click on \"Habits\" in the main navigation"
       },
       {
-        "type": "assertion",
-        "description": "Verify URL contains \"/habits\""
+        "type": "action",
+        "description": "Click on the first habit in the list"
       },
       {
         "type": "action",
-        "description": "Click the floating action button (FAB) for the AI Assistant"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Chat\" is visible"
+        "description": "Click the \"Edit\" button"
       },
       {
         "type": "action",
-        "description": "Click the \"Close\" button on the chat modal"
+        "description": "Type \"Updated Habit Title\" into the habit title field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
       },
       {
         "type": "assertion",
-        "description": "Verify element \"chat modal\" is not visible"
+        "description": "Verify text \"Updated Habit Title\" is visible"
       }
     ]
   },
   {
-    "id": "TC032",
-    "title": "Sending an empty chat message is blocked",
-    "description": "Verifies the chat does not send when the message input is empty and provides visible feedback.",
-    "category": "AI Assistant (Quick Capture & Chat)",
+    "id": "TC015",
+    "title": "View habit streaks and statistics section is visible for a selected habit",
+    "description": "Verifies habit streaks/statistics are accessible and visible from a habit details view.",
+    "category": "Habit Tracker",
     "priority": "Medium",
     "steps": [
       {
@@ -1519,7 +594,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -1531,31 +606,31 @@
       },
       {
         "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
+        "description": "Verify URL contains \"/\""
       },
       {
         "type": "action",
-        "description": "Click the floating action button (FAB) for the AI Assistant"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify element \"chat message input\" is visible"
+        "description": "Click on \"Habits\" in the main navigation"
       },
       {
         "type": "action",
-        "description": "Click the \"Send\" button"
+        "description": "Click on the first habit in the list"
       },
       {
         "type": "assertion",
-        "description": "Verify text \"Type a message\" is visible"
+        "description": "Verify text \"Streak\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Statistics\" is visible"
       }
     ]
   },
   {
-    "id": "TC033",
-    "title": "Canceling the AI parsed preview does not create a task",
-    "description": "Verifies that dismissing/canceling the confirmation step prevents task creation.",
-    "category": "AI Assistant (Quick Capture & Chat)",
+    "id": "TC016",
+    "title": "Cancel habit deletion from confirmation dialog keeps the habit",
+    "description": "Verifies canceling a delete confirmation does not remove the habit from the list.",
+    "category": "Habit Tracker",
     "priority": "Medium",
     "steps": [
       {
@@ -1564,7 +639,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -1576,23 +651,19 @@
       },
       {
         "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
+        "description": "Verify URL contains \"/\""
       },
       {
         "type": "action",
-        "description": "Click the floating action button (FAB) for the AI Assistant"
+        "description": "Click on \"Habits\" in the main navigation"
       },
       {
         "type": "action",
-        "description": "Type \"Create task: Do not create me\" into the chat message input"
+        "description": "Click on the first habit in the list"
       },
       {
         "type": "action",
-        "description": "Click the \"Send\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Preview\" is visible"
+        "description": "Click the \"Delete\" button"
       },
       {
         "type": "action",
@@ -1600,15 +671,15 @@
       },
       {
         "type": "assertion",
-        "description": "Verify text \"Do not create me\" is not visible"
+        "description": "Verify element \"Habits list\" is visible"
       }
     ]
   },
   {
-    "id": "TC034",
-    "title": "Chat modal can be closed with Escape without losing page context",
-    "description": "Verifies that the chat modal closes via keyboard and the user remains on the same page.",
-    "category": "AI Assistant (Quick Capture & Chat)",
+    "id": "TC017",
+    "title": "Mark a habit complete twice does not duplicate completion indication",
+    "description": "Verifies clicking the completion checkbox again does not create a second completion state and the UI remains consistent.",
+    "category": "Habit Tracker",
     "priority": "Low",
     "steps": [
       {
@@ -1617,56 +688,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
-      },
-      {
-        "type": "action",
-        "description": "Click the floating action button (FAB) for the AI Assistant"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify element \"chat modal\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Press \"Escape\" key"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify element \"chat modal\" is not visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
-      }
-    ]
-  },
-  {
-    "id": "TC035",
-    "title": "Open University module and view course cards with current averages",
-    "description": "Verifies the University module can be opened from the main navigation and displays course cards with visible average grades.",
-    "category": "University (Courses & Assignments)",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -1682,702 +704,31 @@
       },
       {
         "type": "action",
-        "description": "Click on \"University\" in the sidebar navigation"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"University\" is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify an element \"Course\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC036",
-    "title": "Open a course card to view assignments and grade totals",
-    "description": "Verifies a user can open a course from the University module and see an assignment list plus visible grade totals.",
-    "category": "University (Courses & Assignments)",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click on \"University\" in the sidebar navigation"
-      },
-      {
-        "type": "action",
-        "description": "Click on the first visible course card"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Assignments\" is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Total\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC037",
-    "title": "Add an assignment with grade and weight and see course average update",
-    "description": "Verifies adding a valid assignment recalculates the course average displayed on the course page.",
-    "category": "University (Courses & Assignments)",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click on \"University\" in the sidebar navigation"
-      },
-      {
-        "type": "action",
-        "description": "Click on the first visible course card"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Average\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Add Assignment\" button"
-      },
-      {
-        "type": "action",
-        "description": "Type \"Midterm\" into the assignment name/title field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"85\" into the grade field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"30\" into the weight field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Midterm\" is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Average\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC038",
-    "title": "Use What-If simulator to calculate projected final grade",
-    "description": "Verifies the What-If simulator accepts a hypothetical grade and shows a projected final grade after calculation.",
-    "category": "University (Courses & Assignments)",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click on \"University\" in the sidebar navigation"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"What-If\" or \"What-If Simulator\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"What-If\" is visible"
-      },
-      {
-        "type": "action",
-        "description": "Type \"92\" into the hypothetical grade field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Calculate\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Projected\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC039",
-    "title": "What-If simulator: calculate with blank input shows validation error",
-    "description": "Verifies the What-If simulator prevents calculation when required hypothetical grade input is blank and displays an error.",
-    "category": "University (Courses & Assignments)",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click on \"University\" in the sidebar navigation"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"What-If\" or \"What-If Simulator\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Calculate\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"required\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC040",
-    "title": "Add assignment with missing required fields shows validation and does not create assignment",
-    "description": "Verifies validation errors appear when saving an assignment with missing required fields and that no new assignment is added to the list.",
-    "category": "University (Courses & Assignments)",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click on \"University\" in the sidebar navigation"
-      },
-      {
-        "type": "action",
-        "description": "Click on the first visible course card"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Add Assignment\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"required\" is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Assignments\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC041",
-    "title": "Assignment grade field rejects non-numeric input (validation)",
-    "description": "Verifies the grade input enforces numeric validation and shows a visible error for invalid characters.",
-    "category": "University (Courses & Assignments)",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click on \"University\" in the sidebar navigation"
-      },
-      {
-        "type": "action",
-        "description": "Click on the first visible course card"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Add Assignment\" button"
-      },
-      {
-        "type": "action",
-        "description": "Type \"Quiz 1\" into the assignment name/title field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"eighty\" into the grade field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"valid\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC042",
-    "title": "Assignment weight field rejects out-of-range values (validation)",
-    "description": "Verifies the weight input prevents invalid ranges (e.g., > 100) and displays a visible validation error.",
-    "category": "University (Courses & Assignments)",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click on \"University\" in the sidebar navigation"
-      },
-      {
-        "type": "action",
-        "description": "Click on the first visible course card"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Add Assignment\" button"
-      },
-      {
-        "type": "action",
-        "description": "Type \"Final Exam\" into the assignment name/title field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"95\" into the grade field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"150\" into the weight field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"must be\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC043",
-    "title": "Create a new journal entry and see it in the list with timestamp",
-    "description": "Verifies a user can create and save a journal entry and then sees it appear in the entries list with a timestamp.",
-    "category": "Journal",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
-      },
-      {
-        "type": "action",
-        "description": "Click \"Journal\" in the sidebar"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify page title contains \"Journal\""
-      }
-    ]
-  },
-  {
-    "id": "TC044",
-    "title": "Save a journal entry after writing content",
-    "description": "Verifies the New Entry flow allows writing content and saving successfully.",
-    "category": "Journal",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
-      },
-      {
-        "type": "action",
-        "description": "Click \"Journal\" in the sidebar"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"New Entry\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"New Entry\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC045",
-    "title": "Write content and save; verify entry appears with timestamp",
-    "description": "Verifies that saving a journal entry persists it and shows it in the list along with a visible timestamp.",
-    "category": "Journal",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
-      },
-      {
-        "type": "action",
-        "description": "Click \"Journal\" in the sidebar"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"New Entry\" button"
-      },
-      {
-        "type": "action",
-        "description": "Type \"Today I feel focused and made progress on my priorities.\" into the journal content field"
-      }
-    ]
-  },
-  {
-    "id": "TC046",
-    "title": "Complete end-to-end happy path save and confirm the new entry is visible",
-    "description": "Verifies the full happy path: create entry, save, and confirm the new entry is visible in the journal list.",
-    "category": "Journal",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
-      },
-      {
-        "type": "action",
-        "description": "Click \"Journal\" in the sidebar"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"New Entry\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
-      }
-    ]
-  },
-  {
-    "id": "TC047",
-    "title": "Attempt to save an empty journal entry shows validation error",
-    "description": "Verifies saving with empty content shows the validation error \"Content required\".",
-    "category": "Journal",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
-      },
-      {
-        "type": "action",
-        "description": "Click \"Journal\" in the sidebar"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"New Entry\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
-      }
-    ]
-  },
-  {
-    "id": "TC048",
-    "title": "Empty entry is not saved after validation error",
-    "description": "Verifies that after attempting to save empty content and seeing the error, no new entry is added to the journal list.",
-    "category": "Journal",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
-      },
-      {
-        "type": "action",
-        "description": "Click \"Journal\" in the sidebar"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"New Entry\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify text \"Content required\" is visible"
-      }
-    ]
-  },
-  {
-    "id": "TC049",
-    "title": "Fix validation by adding content after error, then save successfully",
-    "description": "Verifies a user can recover from the \"Content required\" error by typing content and saving, resulting in a visible entry.",
-    "category": "Journal",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/tasks\""
-      },
-      {
-        "type": "action",
-        "description": "Click \"Journal\" in the sidebar"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"New Entry\" button"
-      },
-      {
-        "type": "action",
-        "description": "Type \"Added content after validation error.\" into the journal content field"
-      }
-    ]
-  },
-  {
-    "id": "TC050",
-    "title": "Habit completion awards points and updates streak, reflected in Settings XP/Level",
-    "description": "Verifies completing a habit increases points and streak immediately and the updated XP/level is visible in Settings.",
-    "category": "Gamification (Points, Levels, Streaks)",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
-      },
-      {
-        "type": "action",
-        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Sign in\" or \"Log in\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/habits\" or \"/tasks\" or \"/settings\""
-      },
-      {
-        "type": "action",
         "description": "Click on \"Habits\" in the main navigation"
       },
       {
         "type": "action",
-        "description": "Click the first visible habit action that marks it as completed for today (for example, \"Complete\" or a checkmark button)"
+        "description": "Click the completion checkbox next to the first habit in the list"
       },
       {
         "type": "assertion",
-        "description": "Verify text \"Streak\" is visible"
+        "description": "Verify text \"Completed\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the completion checkbox next to the first habit in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Completed\" is visible"
       }
     ]
   },
   {
-    "id": "TC051",
-    "title": "After habit completion, Settings shows updated XP and level progress",
-    "description": "Verifies the XP/level progress shown in Settings reflects a recently completed habit.",
-    "category": "Gamification (Points, Levels, Streaks)",
+    "id": "TC018",
+    "title": "View events list by selecting a date in the calendar month view",
+    "description": "Verifies a user can open the calendar, select a date, and see the events list update for the selected date.",
+    "category": "Calendar",
     "priority": "High",
     "steps": [
       {
@@ -2386,7 +737,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -2394,35 +745,72 @@
       },
       {
         "type": "action",
-        "description": "Click the \"Sign in\" or \"Log in\" button"
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Verify element \"Settings\" is visible"
+        "description": "Verify URL contains \"/\""
       },
       {
         "type": "action",
-        "description": "Click on \"Habits\" in the main navigation"
-      },
-      {
-        "type": "action",
-        "description": "Click the first visible habit action that marks it as completed for today (for example, \"Complete\" or a checkmark button)"
-      },
-      {
-        "type": "action",
-        "description": "Click on \"Settings\" in the main navigation"
+        "description": "Click the \"Calendar\" item in the main navigation"
       },
       {
         "type": "assertion",
-        "description": "Verify text \"XP\" is visible"
+        "description": "Verify URL contains \"/calendar\""
+      },
+      {
+        "type": "action",
+        "description": "Click on a date cell in the month calendar grid"
       }
     ]
   },
   {
-    "id": "TC052",
-    "title": "Task completion triggers celebration feedback and awards points",
-    "description": "Verifies completing a task results in visible celebration feedback (e.g., confetti message) and a visible points/XP update indicator.",
-    "category": "Gamification (Points, Levels, Streaks)",
+    "id": "TC019",
+    "title": "Selecting a date shows an events section for that date (empty state acceptable)",
+    "description": "Verifies that selecting a date reveals an events list area for that date, even if no events exist.",
+    "category": "Calendar",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Calendar\" item in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Month\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on a date cell in the month calendar grid"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Navigate to next month using the Next control",
+    "description": "Verifies that clicking the Next month control updates the displayed month view.",
+    "category": "Calendar",
     "priority": "High",
     "steps": [
       {
@@ -2431,7 +819,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -2439,31 +827,31 @@
       },
       {
         "type": "action",
-        "description": "Click the \"Sign in\" or \"Log in\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click on \"Tasks\" in the main navigation"
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Verify text \"Tasks\" is visible"
+        "description": "Verify URL contains \"/\""
       },
       {
         "type": "action",
-        "description": "Click the first visible task completion control (for example, a checkbox or \"Mark complete\" button)"
+        "description": "Click the \"Calendar\" item in the main navigation"
       },
       {
         "type": "assertion",
-        "description": "Verify text \"XP\" is visible or Verify text \"Points\" is visible"
+        "description": "Verify element \"Next\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Next\" month control"
       }
     ]
   },
   {
-    "id": "TC053",
-    "title": "Task completion increases visible level progress indicator",
-    "description": "Verifies level progress bar or level indicator changes after completing a task.",
-    "category": "Gamification (Points, Levels, Streaks)",
+    "id": "TC021",
+    "title": "Navigate to next month keeps calendar functional for date selection",
+    "description": "Verifies that after moving to the next month, the user can still select a date in the new month view.",
+    "category": "Calendar",
     "priority": "Medium",
     "steps": [
       {
@@ -2472,7 +860,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -2480,31 +868,121 @@
       },
       {
         "type": "action",
-        "description": "Click the \"Sign in\" or \"Log in\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click on \"Tasks\" in the main navigation"
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Verify text \"Level\" is visible or Verify text \"XP\" is visible"
+        "description": "Verify URL contains \"/\""
       },
       {
         "type": "action",
-        "description": "Click the first visible task completion control (for example, a checkbox or \"Mark complete\" button)"
+        "description": "Click the \"Calendar\" item in the main navigation"
       },
       {
-        "type": "assertion",
-        "description": "Verify text \"Level\" is visible"
+        "type": "action",
+        "description": "Click the \"Next\" month control"
+      },
+      {
+        "type": "action",
+        "description": "Click on a date cell in the month calendar grid"
       }
     ]
   },
   {
-    "id": "TC054",
-    "title": "Habit completion does not double-award points when clicking complete twice",
-    "description": "Verifies attempting to complete the same habit twice does not show a second award indicator or duplicate completion state.",
-    "category": "Gamification (Points, Levels, Streaks)",
+    "id": "TC022",
+    "title": "Attempt to create an event with end date/time before start shows validation error",
+    "description": "Verifies the create event form blocks saving when the end is before the start and shows a visible validation message.",
+    "category": "Calendar",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Calendar\" item in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Create event\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Create event\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"Test Event\" into the \"Title\" field"
+      }
+    ]
+  },
+  {
+    "id": "TC023",
+    "title": "Create event validation: end before start prevents event from appearing in the selected date list",
+    "description": "Verifies that after the invalid save attempt, the event does not appear in the events list for that date.",
+    "category": "Calendar",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Calendar\" item in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Create event\" button"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"Invalid Date Event\" into the \"Title\" field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      }
+    ]
+  },
+  {
+    "id": "TC024",
+    "title": "Calendar renders a navigable month view after login",
+    "description": "Verifies the calendar page loads successfully and shows core UI needed for navigation and date interaction.",
+    "category": "Calendar",
     "priority": "Medium",
     "steps": [
       {
@@ -2513,7 +991,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -2521,31 +999,31 @@
       },
       {
         "type": "action",
-        "description": "Click the \"Sign in\" or \"Log in\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click on \"Habits\" in the main navigation"
-      },
-      {
-        "type": "action",
-        "description": "Click the first visible habit action that marks it as completed for today (for example, \"Complete\" or a checkmark button)"
-      },
-      {
-        "type": "action",
-        "description": "Click the same habit completion control again"
+        "description": "Click the \"Log in\" button"
       },
       {
         "type": "assertion",
-        "description": "Verify text \"Completed\" is visible or Verify element \"Completed\" is visible"
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Calendar\" item in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/calendar\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Next\" is visible"
       }
     ]
   },
   {
-    "id": "TC055",
-    "title": "Gamification indicators are visible in Settings (XP/Level section present)",
-    "description": "Verifies Settings consistently surfaces XP and level progress UI elements for the logged-in user.",
-    "category": "Gamification (Points, Levels, Streaks)",
+    "id": "TC025",
+    "title": "Monthly/weekly calendar view control is visible (view toggle presence)",
+    "description": "Verifies the calendar offers a visible control indicating a monthly/weekly view option exists.",
+    "category": "Calendar",
     "priority": "Low",
     "steps": [
       {
@@ -2554,7 +1032,7 @@
       },
       {
         "type": "action",
-        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
       },
       {
         "type": "action",
@@ -2562,11 +1040,1888 @@
       },
       {
         "type": "action",
-        "description": "Click the \"Sign in\" or \"Log in\" button"
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
       },
       {
         "type": "action",
-        "description": "Click on \"Settings\" in the main navigation"
+        "description": "Click the \"Calendar\" item in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Monthly\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Weekly\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC026",
+    "title": "Create a new journal entry and verify it appears in the list",
+    "description": "Verifies a user can create a new journal entry and see it listed afterward.",
+    "category": "Journal",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Journal\" in the app navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/journal\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"New entry\" button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"E2E Test Entry - Create flow\" into the entry content field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"E2E Test Entry - Create flow\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC027",
+    "title": "Attempt to save a new journal entry with empty content and verify validation error",
+    "description": "Verifies the journal entry form prevents saving when content is empty and shows a required-field message.",
+    "category": "Journal",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Journal\" in the app navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/journal\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"New entry\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC028",
+    "title": "Cancel creating a new journal entry and verify no new entry is added",
+    "description": "Verifies a user can abandon creation of a new entry without saving and returns to the list without adding content.",
+    "category": "Journal",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Journal\" in the app navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/journal\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"New entry\" button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"E2E Test Entry - Should not save\" into the entry content field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Cancel\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/journal\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"E2E Test Entry - Should not save\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC029",
+    "title": "Verify journal entries list loads and is viewable",
+    "description": "Verifies the journal page renders the entries list area for a logged-in user.",
+    "category": "Journal",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Journal\" in the app navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/journal\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Journal entries list\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"New entry\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC030",
+    "title": "Ensure Save is disabled or blocked until journal content is provided (UI guard)",
+    "description": "Verifies the UI prevents saving a new entry before content is entered (disabled Save or visible prompt).",
+    "category": "Journal",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Journal\" in the app navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/journal\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"New entry\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Save\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC031",
+    "title": "Log a valid health metric entry and see it appear in list and chart",
+    "description": "Verifies a user can log a valid health metric and the new entry is visible in the metric list and reflected in the chart.",
+    "category": "Health Tracking",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Health\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/health"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Log health data\""
+      },
+      {
+        "type": "action",
+        "description": "Select \"Sleep\" from the metric type dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Type \"7\" into the value field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"2026-02-20\" into the date field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Sleep\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"7\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC032",
+    "title": "Open Health page and view the health metrics dashboard",
+    "description": "Verifies the health metrics dashboard loads and key health metrics content is visible.",
+    "category": "Health Tracking",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Health\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/health"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Health\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Health metrics\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC033",
+    "title": "View sleep trend chart with historical values rendered",
+    "description": "Verifies the sleep trend chart is visible and shows historical values on the Health page.",
+    "category": "Health Tracking",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Health\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/health"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the sleep trend chart section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Sleep\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Sleep trend chart\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Chart\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC034",
+    "title": "Validation error for non-numeric value in a numeric metric",
+    "description": "Verifies the form shows a validation error when a non-numeric value is entered for a numeric metric and Save is attempted.",
+    "category": "Health Tracking",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Health\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/health"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Log health data\""
+      },
+      {
+        "type": "action",
+        "description": "Select \"Water\" from the metric type dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Type \"abc\" into the value field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"must be a number\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC035",
+    "title": "Cancel logging a health entry without saving",
+    "description": "Verifies a user can open the log entry form and cancel/close it without creating a new entry.",
+    "category": "Health Tracking",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Health\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/health"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Log health data\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Log health\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Cancel\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Log health\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC036",
+    "title": "Required-field validation when attempting to save an empty health entry",
+    "description": "Verifies required-field errors appear when trying to save without filling mandatory fields.",
+    "category": "Health Tracking",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Health\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/health"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Log health data\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC037",
+    "title": "Log a mood entry and verify it appears in the metric list",
+    "description": "Verifies logging a non-numeric style metric (mood) results in a visible entry in the metric list.",
+    "category": "Health Tracking",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Health\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/health"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Log health data\""
+      },
+      {
+        "type": "action",
+        "description": "Select \"Mood\" from the metric type dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Good\" from the mood dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Type \"2026-02-20\" into the date field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Mood\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Good\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC038",
+    "title": "Add a new transaction and verify it appears in the transaction table",
+    "description": "Verifies a user can create an income/expense transaction and see it listed in the table (accepting AI category if presented).",
+    "category": "Financial Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Finances\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/finances\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Transaction table\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Add transaction\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Add transaction\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"25.50\" into the amount field"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Expense\" from the transaction type dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Type \"2026-02-21\" into the date field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Coffee\" into the description field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Accept\" for the suggested category (if visible)"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Save\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Coffee\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC039",
+    "title": "Verify financial overview cards and charts are visible on Finances page",
+    "description": "Verifies the finances landing page shows key summary cards and at least one chart/report visualization.",
+    "category": "Financial Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Finances\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/finances\"},{"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Financial overview\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Transaction table\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Financial chart\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC040",
+    "title": "Validation: prevent saving when amount is non-numeric",
+    "description": "Verifies amount field validation blocks saving a transaction when amount is not a number.",
+    "category": "Financial Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Finances\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/finances\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Add transaction\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Add transaction\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"abc\" into the amount field"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Expense\" from the transaction type dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Type \"2026-02-21\" into the date field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Invalid amount test\" into the description field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Save\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Amount\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Invalid\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC041",
+    "title": "Validation: prevent saving when amount is negative (if not allowed)",
+    "description": "Verifies the UI shows a validation error and does not create a transaction when a negative amount is entered.",
+    "category": "Financial Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Finances\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/finances\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Add transaction\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Add transaction\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"-10\" into the amount field"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Expense\" from the transaction type dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Type \"2026-02-21\" into the date field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Negative amount test\" into the description field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Save\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Amount\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"must\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC042",
+    "title": "Cancel add transaction and verify no new transaction is created",
+    "description": "Verifies a user can dismiss the add transaction form and no new record appears in the transaction list.",
+    "category": "Financial Management",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Finances\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/finances\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Add transaction\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Add transaction\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"12\" into the amount field"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Income\" from the transaction type dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Type \"2026-02-21\" into the date field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Should not save\" into the description field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Cancel\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Transaction table\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Should not save\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC043",
+    "title": "Set a financial goal and verify it is displayed",
+    "description": "Verifies a user can create a financial goal from the finances page and see it listed/visible afterwards.",
+    "category": "Financial Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Finances\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/finances\""
+      },
+      {
+        "type": "action",
+        "description": "Scroll to \"Financial goals\" section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Financial goals\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Add goal\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Add goal\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Emergency Fund\" into the goal name field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"500\" into the goal amount field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Save\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Emergency Fund\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC044",
+    "title": "Create a new project successfully and see it in the project list",
+    "description": "Verifies a user can create a project with valid details and it appears in the project list.",
+    "category": "Project Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Sign in\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Projects\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/projects\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Create a new project\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC045",
+    "title": "Create a project with name and details and verify it shows in the list",
+    "description": "Verifies that saving a newly created project returns to the list where the new project is visible.",
+    "category": "Project Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Sign in\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Projects\" in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Create a new project\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Project name\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"E2E Project Alpha\" into the project name field"
+      }
+    ]
+  },
+  {
+    "id": "TC046",
+    "title": "Save a newly created project and verify it appears in the project list",
+    "description": "Verifies that clicking Save creates the project and the list displays it.",
+    "category": "Project Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Sign in\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Projects\" in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Create a new project\""
+      },
+      {
+        "type": "action",
+        "description": "Type \"E2E Project Beta\" into the project name field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Save\""
+      }
+    ]
+  },
+  {
+    "id": "TC047",
+    "title": "Attempt to create a project without a name and verify validation error",
+    "description": "Verifies the project creation form prevents saving when the project name is missing and shows an error message.",
+    "category": "Project Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Sign in\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Projects\" in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Create a new project\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Save\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Project name is required\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC048",
+    "title": "Cancel project creation and verify user returns to project list without creating",
+    "description": "Verifies that a user can back out of project creation and does not see a new project added implicitly.",
+    "category": "Project Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Sign in\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Projects\" in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Create a new project\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Cancel\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Create a new project\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC049",
+    "title": "AI Assistant chat: send a message and see AI response in history",
+    "description": "Verifies a user can send a chat message and see an AI response appear in the conversation history.",
+    "category": "AI Assistant",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email or username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"AI Assistant\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/ai-assistant\""
+      },
+      {
+        "type": "action",
+        "description": "Type \"What are 3 ways to stay focused for 25 minutes?\" into the chat message input field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Send\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"What are 3 ways to stay focused for 25 minutes?\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC050",
+    "title": "Start, pause, resume, and complete a focus session and verify it is recorded in history",
+    "description": "Verifies a user can run a full focus session lifecycle and that completion creates a visible history entry.",
+    "category": "Focus Timer",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Focus\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/focus\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start a focus session\""
+      }
+    ]
+  },
+  {
+    "id": "TC051",
+    "title": "Pause an active focus session and verify paused state is visible",
+    "description": "Verifies pausing an active session updates the UI to show a paused state.",
+    "category": "Focus Timer",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Focus\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/focus\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start a focus session\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Pause\""
+      }
+    ]
+  },
+  {
+    "id": "TC052",
+    "title": "Resume a paused focus session and verify running state is visible",
+    "description": "Verifies resuming after pause returns the timer to a running state.",
+    "category": "Focus Timer",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Focus\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/focus\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start a focus session\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Pause\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Resume\""
+      }
+    ]
+  },
+  {
+    "id": "TC053",
+    "title": "Complete an active focus session and verify a completion indicator is shown",
+    "description": "Verifies completing a session ends the session and shows a visible completion state/message.",
+    "category": "Focus Timer",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Focus\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/focus\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start a focus session\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Complete\""
+      }
+    ]
+  },
+  {
+    "id": "TC054",
+    "title": "View focus history after completing a session",
+    "description": "Verifies focus history is accessible and shows at least one recorded session after completion.",
+    "category": "Focus Timer",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Focus\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/focus\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start a focus session\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Complete\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"View focus history\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Focus History\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC055",
+    "title": "Attempt to start a new focus session while one is running shows an already-active warning",
+    "description": "Verifies the UI prevents starting another session when a session is already active and shows a warning message.",
+    "category": "Focus Timer",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Focus\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/focus\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start a focus session\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Start a focus session\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"session is already active\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC056",
+    "title": "Verify focus history section is visible on the Focus page",
+    "description": "Verifies the Focus page exposes a visible focus history area for users to review past sessions.",
+    "category": "Focus Timer",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Focus\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/focus\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Focus History\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC057",
+    "title": "View achievements list and XP progress on Gamification page",
+    "description": "Verifies that a logged-in user can access Gamification and see achievements plus XP/level progress.",
+    "category": "Gamification",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Gamification\" item in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/gamification\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Achievements\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC058",
+    "title": "Open an achievement detail modal from the achievements list",
+    "description": "Verifies that clicking an achievement opens its detail modal.",
+    "category": "Gamification",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Gamification\" item in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Achievements\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the first achievement in the achievements list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Achievement details\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC059",
+    "title": "Close achievement detail modal",
+    "description": "Verifies that the achievement detail modal can be dismissed.",
+    "category": "Gamification",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Gamification\" item in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the first achievement in the achievements list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Achievement details\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Close\" button on the achievement detail modal"
+      }
+    ]
+  },
+  {
+    "id": "TC060",
+    "title": "View leaderboard with ranked users and points",
+    "description": "Verifies that the leaderboard opens and shows ranking information.",
+    "category": "Gamification",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Gamification\" item in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Leaderboard\" tab or button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Leaderboard\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Points\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC061",
+    "title": "Leaderboard loading state is shown while fetching rankings",
+    "description": "Verifies that a loading indicator appears when opening the leaderboard (if loading is not instantaneous).",
+    "category": "Gamification",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Gamification\" item in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Leaderboard\" tab or button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Loading\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC062",
+    "title": "Gamification page displays XP and level progress section",
+    "description": "Verifies that XP and level progress is visible on the Gamification page.",
+    "category": "Gamification",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Gamification\" item in the main navigation"
       },
       {
         "type": "assertion",
@@ -2575,10 +2930,612 @@
       {
         "type": "assertion",
         "description": "Verify text \"Level\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC063",
+    "title": "Open Settings page from an authenticated session",
+    "description": "Verifies that a logged-in user can reach and view the Settings page.",
+    "category": "Settings",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
       },
       {
         "type": "assertion",
-        "description": "Verify element \"progress\" is visible"
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Settings\" in the primary navigation menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/settings\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Settings\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC064",
+    "title": "Change theme setting and save successfully",
+    "description": "Verifies that changing the theme and saving applies the updated theme preference.",
+    "category": "Settings",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Settings\" in the primary navigation menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Theme\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Select a different option from the Theme dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Save\" button"
+      }
+    ]
+  },
+  {
+    "id": "TC065",
+    "title": "Verify theme update is applied after saving",
+    "description": "Verifies that the UI reflects the new theme after the user saves theme changes.",
+    "category": "Settings",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Settings\" in the primary navigation menu"
+      },
+      {
+        "type": "action",
+        "description": "Select a different option from the Theme dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Saved\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC066",
+    "title": "Change language preference and save successfully",
+    "description": "Verifies that changing the language and saving updates the UI language.",
+    "category": "Settings",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Settings\" in the primary navigation menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Language\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Select a different option from the Language dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Save\" button"
+      }
+    ]
+  },
+  {
+    "id": "TC067",
+    "title": "Verify UI language changes after saving",
+    "description": "Verifies that at least one visible label changes to the selected language after save.",
+    "category": "Settings",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Settings\" in the primary navigation menu"
+      },
+      {
+        "type": "action",
+        "description": "Select a different option from the Language dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Paramètres\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC068",
+    "title": "Update profile information and save successfully",
+    "description": "Verifies that a user can edit profile fields and save without validation errors.",
+    "category": "Settings",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Settings\" in the primary navigation menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Profile\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"Test User\" into the Display name field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Save\" button"
+      }
+    ]
+  },
+  {
+    "id": "TC069",
+    "title": "Profile update shows validation error and highlights fields",
+    "description": "Verifies that invalid profile input triggers a server-side validation error message and indicates the invalid field.",
+    "category": "Settings",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Settings\" in the primary navigation menu"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"invalid-email\" into the Email field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Invalid email\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Email field error message\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC070",
+    "title": "Save with required profile field cleared shows inline error",
+    "description": "Verifies that clearing a required profile field and saving prevents success and shows an inline error state.",
+    "category": "Settings",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Settings\" in the primary navigation menu"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"\" into the Display name field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Required\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC071",
+    "title": "Create a new course and confirm it appears in the courses list",
+    "description": "Verifies a user can create a course from the University page and see it listed afterward.",
+    "category": "University",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"University\" in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Create course\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Create course\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC072",
+    "title": "Save a newly created course with valid details",
+    "description": "Verifies the course creation form accepts valid input and returns to the list view.",
+    "category": "University",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"University\" in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Create course\" button"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"Test Course - Intro to Biology\" into the course name field"
+      }
+    ]
+  },
+  {
+    "id": "TC073",
+    "title": "Create course end-to-end and verify it is visible in the list",
+    "description": "Verifies full course creation flow including saving and confirming the new course row is visible.",
+    "category": "University",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"University\" in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Create course\" button"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"Test Course - Calculus I\" into the course name field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Test Course - Calculus I\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC074",
+    "title": "Run the What-If simulator and verify a predicted final grade is shown",
+    "description": "Verifies the What-If simulator accepts hypothetical grades and displays a prediction result.",
+    "category": "University",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"University\" in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"What-If\" simulator button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"What-If\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"90\" into the hypothetical grade field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Run\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Predicted\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC075",
+    "title": "What-If simulator handles empty inputs gracefully",
+    "description": "Verifies the What-If simulator shows a visible validation message or prevents running when required inputs are empty.",
+    "category": "University",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"University\" in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"What-If\" simulator button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Run\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC076",
+    "title": "Course creation validation: required fields empty shows error",
+    "description": "Verifies the Create course form blocks saving and shows visible validation errors when required fields are missing.",
+    "category": "University",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"University\" in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Create course\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
       }
     ]
   }

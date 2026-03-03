@@ -45,7 +45,7 @@ export function HabitWidget() {
                 {/* Quick Log */}
                 <div className="flex flex-col gap-2 flex-1 overflow-y-auto pr-1 custom-scrollbar">
                     {sortedHabits.map(habit => {
-                        const isNumeric = habit.type === 'numeric' || habit.type === ('quantified' as any);
+                        const isNumeric = habit.type === 'quantified' || (habit as any).type === 'numeric';
                         const today = new Date().toISOString().split('T')[0];
                         const currentProgress = (habit as any).progress || 0;
                         const targetValue = (habit as any).target_value || (habit as any).goal || 1;
@@ -73,7 +73,7 @@ export function HabitWidget() {
                                         <span className="text-xs font-bold">{(habit as any).streak_current || 0}</span>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-sm text-zinc-300 group-hover:text-white transition-colors">{resolveHabitTitle(habit)}</span>
+                                        <span className="text-sm text-zinc-300 group-hover:text-white transition-colors">{resolveHabitTitle(habit as any)}</span>
                                         <div className="flex items-center gap-2">
                                             <span className="text-[10px] text-zinc-600 uppercase tracking-wider">{attribute || 'Geral'}</span>
                                             {isNumeric && (

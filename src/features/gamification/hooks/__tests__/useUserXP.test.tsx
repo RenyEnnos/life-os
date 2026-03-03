@@ -48,6 +48,7 @@ describe('useUserXP', () => {
             life_score: 75,
             attributes: { strength: 10, intelligence: 15 },
             updated_at: '2024-01-01T00:00:00Z',
+          xp_to_next_level: 100,
         } as LifeScore;
 
         const mockedRewardsApi = vi.mocked(rewardsApi, true);
@@ -70,6 +71,7 @@ describe('useUserXP', () => {
             life_score: 60,
             attributes: {},
             updated_at: '2024-01-01T00:00:00Z',
+          xp_to_next_level: 100,
         } as LifeScore;
 
         const mockedRewardsApi = vi.mocked(rewardsApi, true);
@@ -110,6 +112,7 @@ describe('useUserXP', () => {
             life_score: 80,
             attributes: { agility: 12 },
             updated_at: '2024-01-01T00:00:00Z',
+          xp_to_next_level: 100,
         } as LifeScore;
 
         const mockedRewardsApi = vi.mocked(rewardsApi, true);
@@ -155,6 +158,7 @@ describe('useUserXP', () => {
             life_score: 55,
             attributes: {},
             updated_at: '2024-01-01T00:00:00Z',
+          xp_to_next_level: 100,
         } as LifeScore;
 
         const secondUserXPData = {
@@ -165,6 +169,7 @@ describe('useUserXP', () => {
             life_score: 60,
             attributes: {},
             updated_at: '2024-01-01T01:00:00Z',
+          xp_to_next_level: 100,
         } as LifeScore;
 
         const mockedRewardsApi = vi.mocked(rewardsApi, true);

@@ -26,6 +26,7 @@ const mockUserXP: LifeScore = {
     user_id: 'user1',
     level: 5,
     current_xp: 4500,
+    xp_to_next_level: 1000,
     next_level_xp: 5000,
     life_score: 75,
     attributes: {},

@@ -24,7 +24,7 @@ const TestComponent = () => {
     <div>
       <div data-testid="loading-state">{loading ? 'Loading' : 'Loaded'}</div>
       <div data-testid="user-email">{user?.email || 'No User'}</div>
-      <div data-testid="user-name">{user?.name || 'No Name'}</div>
+      <div data-testid="user-name">{(user as any)?.name || 'No Name'}</div>
       <button onClick={() => login({ email: 'test@example.com', password: 'password123' })}>
         Login
       </button>

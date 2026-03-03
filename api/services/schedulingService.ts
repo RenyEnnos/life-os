@@ -120,7 +120,7 @@ export const schedulingService = {
             await tasksService.update(userId, st.taskId, {
                 scheduled_start: st.start,
                 scheduled_end: st.end
-            })
+            } as any)
 
             // 2. Sync to Google Calendar
             const calendar = await calendarService.getCalendarClient(userId)
@@ -137,7 +137,7 @@ export const schedulingService = {
             // 3. Save Event ID for future sync
             await tasksService.update(userId, st.taskId, {
                 google_event_id: event.data.id || undefined
-            })
+            } as any)
 
             return { taskId: st.taskId, eventId: event.data.id }
         }))

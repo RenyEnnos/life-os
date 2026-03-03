@@ -360,7 +360,6 @@ export default function TasksPage() {
                                                             transition={{ duration: 0.2 }}
                                                         >
                                                             <TaskItem
-                                                                id={task.id}
                                                                 task={task}
                                                                 onToggle={() => handleToggle(task)}
                                                                 onDelete={() => setConfirmDelete(task.id)}

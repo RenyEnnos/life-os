@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Calculator, Sparkles, AlertCircle } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
-import { Course } from '../types';
+import { Course, Assignment } from '../types';
 import { clsx } from 'clsx';
 import { NeonGradientCard } from '@/shared/ui/premium/NeonGradientCard';
 
 interface WhatIfSimulatorProps {
     courses: Course[];
+    assignments: Assignment[];
 }
 
-export function WhatIfSimulator({ courses }: WhatIfSimulatorProps) {
+export function WhatIfSimulator({ courses, assignments }: WhatIfSimulatorProps) {
     const [selectedCourseId, setSelectedCourseId] = useState<string>(courses[0]?.id || '');
     const [targetGrade, setTargetGrade] = useState<number>(7.0);
     const [result, setResult] = useState<{ required: number; difficulty: 'easy' | 'medium' | 'hard' | 'impossible' } | null>(null);
@@ -18,15 +19,33 @@ export function WhatIfSimulator({ courses }: WhatIfSimulatorProps) {
         const course = courses.find(c => c.id === selectedCourseId);
         if (!course) return;
 
-        const currentGrade = course.grade || 0;
-        // Mock assumption: 40% of grade is remaining
-        const remainingWeight = 0.4;
-        const currentWeight = 0.6;
+        const courseAssignments = assignments.filter(a => a.course_id === selectedCourseId);
+        
+        let totalWeight = 0;
+        let completedWeight = 0;
 
-        const alreadyAchieved = currentGrade * currentWeight;
+        courseAssignments.forEach(a => {
+            totalWeight += a.weight;
+            if (a.status === 'graded') {
+                completedWeight += a.weight;
+            }
+        });
+
+        const currentGrade = course.grade || 0;
+        
+        // Normalize weights dynamically based on actual assignments
+        const normalizedTotal = totalWeight > 0 ? totalWeight : 1;
+        const currentWeightPct = completedWeight / normalizedTotal;
+        const remainingWeightPct = 1 - currentWeightPct;
+
+        // If no assignments or all are graded, use fallback to avoid division by zero
+        const effectiveRemainingWeight = remainingWeightPct > 0 ? remainingWeightPct : 0.4;
+        const effectiveCurrentWeight = currentWeightPct > 0 ? currentWeightPct : 0.6;
+
+        const alreadyAchieved = currentGrade * effectiveCurrentWeight;
         const neededTotal = targetGrade;
         const neededFromRemaining = neededTotal - alreadyAchieved;
-        const requiredScore = neededFromRemaining / remainingWeight;
+        const requiredScore = neededFromRemaining / effectiveRemainingWeight;
 
         let difficulty: 'easy' | 'medium' | 'hard' | 'impossible' = 'medium';
         if (requiredScore > 10) difficulty = 'impossible';
