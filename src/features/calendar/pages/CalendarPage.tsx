@@ -1,6 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Tabs from '@/shared/ui/Tabs';
+import { Button } from '@/shared/ui/Button';
 
 export const CalendarPage = () => {
+  const [view, setView] = useState('week');
+  
+  const handleAddEvent = () => {
+    console.log('New Event clicked');
+  };
+
+  const viewTabs = [
+    { id: 'day', label: 'Day' },
+    { id: 'week', label: 'Week' },
+    { id: 'month', label: 'Month' },
+  ];
+
   return (
     <div className="min-h-screen bg-oled text-white font-display selection:bg-primary/30">
 
@@ -15,15 +29,20 @@ export const CalendarPage = () => {
             </div>
             <div className="flex items-center gap-6">
               {/* SegmentedButtons */}
-              <div className="flex h-11 items-center glass-surface rounded-full p-1.5 w-64">
-                <button className="flex-1 h-full flex items-center justify-center rounded-full text-sm font-medium text-gray-500">Day</button>
-                <button className="flex-1 h-full flex items-center justify-center rounded-full bg-primary/20 text-primary active-glow text-sm font-bold">Week</button>
-                <button className="flex-1 h-full flex items-center justify-center rounded-full text-sm font-medium text-gray-500">Month</button>
-              </div>
-              <button className="flex items-center gap-2 bg-primary px-6 h-11 rounded-full text-white text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-primary/20">
+              <Tabs 
+                tabs={viewTabs} 
+                value={view} 
+                onChange={setView} 
+                variant="segmented" 
+                className="w-64 h-11" 
+              />
+              <Button 
+                onClick={handleAddEvent}
+                className="rounded-full px-6 h-11"
+              >
                 <span className="material-symbols-outlined text-lg">add</span>
                 <span>New Event</span>
-              </button>
+              </Button>
             </div>
           </header>
           {/* Calendar Container */}
