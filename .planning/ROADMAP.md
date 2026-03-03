@@ -21,6 +21,7 @@
 - [ ] **Phase 17: Eradicate Mocks (University & Context)** - Replace all hardcoded 'dummy data' and 'TODO' mocks with real DB/API logic. (Milestone 4)
 - [ ] **Phase 18: Habit Doctor Realization** - Connect the Habit Doctor feature to real AI/Backend endpoints. (Milestone 4)
 - [ ] **Phase 19: TestSprite Bulletproofing** - Resolve timeout/connectivity issues to guarantee a 100% E2E test pass rate. (Milestone 4)
+- [ ] **Phase 20: Fix Frontend Integration Bugs** - Address critical Supabase Auth triggers, token desync issues, and missing error boundaries. (Milestone 5)
 
 ## Phase Details
 
@@ -189,6 +190,16 @@
   2. Micro-animations (pulses, springs) are applied to all interactive success states.
   3. Navigation transitions and layout changes use Framer Motion's AnimatePresence.
 **Plans**: 3 plans
+
+### Phase 20: Fix Frontend Integration Bugs
+**Goal**: Ensure complete application usability by resolving critical blocking bugs identified in testing.
+**Depends on**: Phase 1
+**Requirements**: FIX-01, FIX-02, FIX-03
+**Success Criteria**:
+  1. New users can successfully register and their profiles are created accurately via Supabase triggers.
+  2. The `auth_token` is successfully synchronized to `localStorage`, allowing the internal HTTP client to successfully fetch data from the internal backend without 401 errors.
+  3. Sections relying on the backend (like `/tasks` and `/university`) display loading spinners correctly but fail gracefully with an Error Boundary/fallback UI instead of locking into an infinite loop on API failures.
+**Plans**: 0 plans
 
 ## Progress Table
 
