@@ -199,7 +199,7 @@
   1. New users can successfully register and their profiles are created accurately via Supabase triggers.
   2. The `auth_token` is successfully synchronized to `localStorage`, allowing the internal HTTP client to successfully fetch data from the internal backend without 401 errors.
   3. Sections relying on the backend (like `/tasks` and `/university`) display loading spinners correctly but fail gracefully with an Error Boundary/fallback UI instead of locking into an infinite loop on API failures.
-**Plans**: 0 plans
+**Plans**: 1 plan (Completed event-fixes-phase-2)
 
 ## Progress Table
 
@@ -221,3 +221,4 @@
 | 14. Hybrid Interactivity | 0/3 | Pending    | - |
 | 15. Unified User Hub | 0/2 | Pending    | - |
 | 16. Juicy UX | 0/3 | Pending    | - |
+| 20. Fix Frontend Integration Bugs | 1/1 | In Progress | 2026-03-04 |
