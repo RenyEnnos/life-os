@@ -4,6 +4,15 @@ depends_on: [01-token-sync-PLAN.md]
 files_modified: [supabase/migrations/20260303_fix_auth_trigger.sql, src/features/auth/hooks/useUserCleanup.ts]
 requirements: [FIX-01]
 autonomous: true
+must_haves:
+  truths:
+    - Supabase auth.users triggers successfully create public.profiles.
+    - Broken users (without profiles) are automatically handled/cleaned up.
+  artifacts:
+    - supabase/migrations/20260303_fix_auth_trigger.sql
+    - src/features/auth/hooks/useUserCleanup.ts
+  key_links:
+    - auth.users -> public.profiles
 ---
 
 # Plan: Fix Auth Trigger and User Cleanup
@@ -33,6 +42,9 @@ Repair the Supabase registration flow by fixing the `handle_new_user` trigger an
 </automated>
 - Verify a profile is created when a user record is inserted manually.
 </verify>
+<done>
+- Database trigger creates a valid profile entry for every new auth user.
+</done>
 </task>
 
 <task id="TASK-02" title="Implement User Orphan Cleanup">
@@ -48,6 +60,9 @@ Repair the Supabase registration flow by fixing the `handle_new_user` trigger an
 </automated>
 - Verify hook signs out if profile is missing.
 </verify>
+<done>
+- Frontend prevents access and signs out if session is missing its profile counterpart.
+</done>
 </task>
 
 ## Verification Plan
@@ -55,7 +70,3 @@ Repair the Supabase registration flow by fixing the `handle_new_user` trigger an
 ### Manual Verification
 - Attempt a clean registration via UI and verify success.
 - Check user record in Supabase Dashboard.
-
-## must_haves
-- [ ] Profiles table record created automatically on signup.
-- [ ] Users without profiles are handled safely (no lockout).

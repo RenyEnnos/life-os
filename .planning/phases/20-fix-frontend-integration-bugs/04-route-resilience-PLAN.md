@@ -1,9 +1,20 @@
 ---
 wave: 3
 depends_on: [02-ui-resilience-PLAN.md]
-files_modified: [src/features/tasks/components/TasksPage.tsx, src/features/university/components/UniversityPage.tsx, src/app/providers/QueryProvider.tsx]
+files_modified: [src/features/tasks/components/TasksPage.tsx, src/features/university/components/UniversityPage.tsx, src/app/providers/QueryProvider.tsx, src/shared/ui/SessionExpiredModal.tsx]
 requirements: [FIX-03]
 autonomous: true
+must_haves:
+  truths:
+    - ErrorBoundaries protect critical routes.
+    - Global network error handling is active.
+    - Expired sessions show a blocking modal instead of redirect.
+  artifacts:
+    - src/app/providers/QueryProvider.tsx
+    - src/shared/ui/SessionExpiredModal.tsx
+  key_links:
+    - QueryProvider -> Toast
+    - AuthContext -> SessionExpiredModal
 ---
 
 # Plan: Route Resilience Implementation
@@ -12,24 +23,30 @@ Apply Error Boundaries and global network error handling to the application.
 
 ## User Review Required
 
-- None
+- Review SessionExpiredModal design: Centered overlay, blurred background, "Fazer Login" button.
 
 ## Proposed Changes
 
-<task id="TASK-01" title="Global Query Error Handler">
+<task id="TASK-01" title="Global Query Error Handler and Session Modal">
 <files>
 - src/app/providers/QueryProvider.tsx
+- src/shared/ui/SessionExpiredModal.tsx
 </files>
 <action>
-- Update `src/app/providers/QueryProvider.tsx`.
-- Configure `QueryCache` and `MutationCache` with global `onError` for unified Toast notifications on 401/Network errors.
+- Create `src/shared/ui/SessionExpiredModal.tsx`.
+- Configure `QueryCache` and `MutationCache` in `QueryProvider` to show toast notifications on error.
+- Implement session expiration detection that triggers `SessionExpiredModal`.
 </action>
 <verify>
 <automated>
 - npm test -- src/app/providers/__tests__/QueryProvider.test.tsx
 </automated>
 - Verify exactly one toast is shown for multiple concurrent failures.
+- Verify SessionExpiredModal is triggered on 401.
 </verify>
+<done>
+- Global errors trigger toasts and session expiry triggers the blocking modal.
+</done>
 </task>
 
 <task id="TASK-02" title="Apply ErrorBoundaries to Critical Routes">
@@ -38,14 +55,17 @@ Apply Error Boundaries and global network error handling to the application.
 - src/features/university/components/UniversityPage.tsx
 </files>
 <action>
-- Wrap `TasksPage` and `UniversityPage` with the new `ErrorBoundary`.
+- Wrap `TasksPage` and `UniversityPage` with `ErrorBoundary`.
 </action>
 <verify>
 <automated>
-- npx playwright test tests/e2e/resilience.spec.ts
+- npm test -- src/features/tasks/components/__tests__/TasksPage.test.tsx
 </automated>
-- Verify the "Loading" state is shown first, followed by the `FallbackUI` if fetch fails.
+- Verify component displays fallback on fetch failure.
 </verify>
+<done>
+- Tasks and University pages are protected by Error Boundaries.
+</done>
 </task>
 
 ## Verification Plan
@@ -53,7 +73,3 @@ Apply Error Boundaries and global network error handling to the application.
 ### Manual Verification
 - Manually break the VITE_API_URL and visit `/tasks`.
 - Verify the error message and "Retry" button.
-
-## must_haves
-- [ ] ErrorBoundaries prevent infinite spinners on Tasks and University pages.
-- [ ] Global network errors trigger a unified toast notification.

@@ -4,6 +4,13 @@ depends_on: []
 files_modified: [src/features/auth/contexts/AuthContext.tsx]
 requirements: [FIX-02]
 autonomous: true
+must_haves:
+  truths:
+    - Supabase session access_token is synced to localStorage['auth_token'].
+  artifacts:
+    - src/features/auth/contexts/AuthContext.tsx (Updated)
+  key_links:
+    - AuthContext.tsx -> localStorage['auth_token']
 ---
 
 # Plan: Token Synchronization Infrastructure
@@ -35,6 +42,9 @@ Implement automatic synchronization between Supabase Auth session and the local 
 - Verify `localStorage.getItem('auth_token')` is updated when session changes.
 - Verify `apiClient` includes the token in the `Authorization` header after sync.
 </verify>
+<done>
+- localStorage['auth_token'] is updated correctly on auth state changes.
+</done>
 </task>
 
 ## Verification Plan
@@ -42,7 +52,3 @@ Implement automatic synchronization between Supabase Auth session and the local 
 ### Manual Verification
 - Log in and check `localStorage` in DevTools.
 - Verify Dashboard widgets (calling :3001) no longer return 401.
-
-## must_haves
-- [ ] Supabase session access_token is synced to localStorage['auth_token'].
-- [ ] Token sync happens on initial load and session changes.
