@@ -27,6 +27,7 @@ Implement reusable Error Boundary and Fallback UI components to handle API failu
 <task id="TASK-01" title="Create FallbackUI Component">
 <files>
 - src/shared/ui/FallbackUI.tsx
+- src/shared/ui/__tests__/FallbackUI.test.tsx
 </files>
 <action>
 - Create `src/shared/ui/FallbackUI.tsx` following the "Premium SaaS" aesthetic.
@@ -46,6 +47,7 @@ Implement reusable Error Boundary and Fallback UI components to handle API failu
 <task id="TASK-02" title="Create Global ErrorBoundary">
 <files>
 - src/shared/ui/ErrorBoundary.tsx
+- src/shared/ui/__tests__/ErrorBoundary.test.tsx
 </files>
 <action>
 - Create `src/shared/ui/ErrorBoundary.tsx` using `react-error-boundary`.

@@ -29,6 +29,7 @@ Implement automatic synchronization between Supabase Auth session and the local 
 <task id="TASK-01" title="Add setAuthToken to AuthContext">
 <files>
 - src/features/auth/contexts/AuthContext.tsx
+- src/features/auth/contexts/__tests__/AuthContext.test.tsx
 </files>
 <action>
 - Import `setAuthToken` from `@/shared/api/authToken`.
