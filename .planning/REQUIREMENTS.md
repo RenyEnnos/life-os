@@ -83,6 +83,12 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **REAL-03**: Implement real backend logic for `HabitDoctor` in the habits feature.
 - [ ] **REAL-04**: Achieve 100% test pass rate in TestSprite E2E suite by ensuring stable environment setups and robust error handling.
 
+## Milestone 5: Fix Frontend Integration Bugs (FIX)
+
+- [ ] **FIX-01**: Fix the database trigger that prevents new user registration on the `/register` route (AuthApiError 500).
+- [ ] **FIX-02**: Sync the Supabase session token to `localStorage` (`auth_token`) so the internal HTTP client can authenticate requests to `localhost:3001` (resolving 401 Unauthorized errors).
+- [ ] **FIX-03**: Implement `ErrorBoundary` and fallback mechanisms on routes like `/tasks` and `/university` to handle API fetch failures without getting stuck in infinite loading states.
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
