@@ -6,7 +6,7 @@ interface OnboardingModalProps {
     onClose: () => void;
 }
 
-export function OnboardingModal({ isOpen }: OnboardingModalProps) {
+export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
     if (!isOpen) return null;
 
     return (
@@ -14,7 +14,7 @@ export function OnboardingModal({ isOpen }: OnboardingModalProps) {
             <Card className="w-full max-w-2xl p-0 overflow-hidden border-primary/50 shadow-[0_0_50px_rgba(var(--primary-rgb),0.15)] bg-background">
                 <div className="p-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-50" />
                 <div className="max-h-[90vh] overflow-y-auto custom-scrollbar">
-                    <OnboardingFlow />
+                    <OnboardingFlow onClose={onClose} />
                 </div>
             </Card>
         </div>

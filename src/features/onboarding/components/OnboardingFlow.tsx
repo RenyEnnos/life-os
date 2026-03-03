@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ArrowRight, ArrowLeft, User, Target, Zap, Palette, Rocket } from 'lucide-react';
 import { useOnboardingStore, OnboardingFormData } from '@/shared/stores/onboardingStore';
+import { useAuthStore } from '@/shared/stores/authStore';
 import { supabase } from '@/shared/lib/supabase';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { cn } from '@/shared/lib/cn';
 import { AnimatedGradientText } from '@/shared/ui/premium/AnimatedGradientText';
-import { ShimmerButton } from '@/shared/ui/premium/ShimmerButton';
 
 const steps = [
   { id: 0, title: 'Perfil', icon: User },
@@ -18,8 +18,13 @@ const steps = [
   { id: 4, title: 'Finalização', icon: Rocket },
 ];
 
-export function OnboardingFlow() {
+interface OnboardingFlowProps {
+  onClose?: () => void;
+}
+
+export function OnboardingFlow({ onClose }: OnboardingFlowProps) {
   const { currentStep, formData, setStep, updateFormData, completeOnboarding } = useOnboardingStore();
+  const { setProfile, profile } = useAuthStore();
   const [direction, setDirection] = useState(0);
 
   const nextStep = () => {
@@ -43,26 +48,39 @@ export function OnboardingFlow() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) return;
 
+      const updatedProfile = {
+        id: session.user.id,
+        full_name: formData.fullName,
+        nickname: formData.nickname,
+        goals: formData.goals,
+        focus_areas: formData.focusAreas,
+        theme: formData.theme,
+        onboarding_completed: true,
+        updated_at: new Date().toISOString(),
+      };
+
       const { error } = await supabase
         .from('profiles' as any)
         // @ts-ignore
-        .upsert({
-          id: session.user.id,
-          full_name: formData.fullName,
-          nickname: formData.nickname,
-          goals: formData.goals,
-          focus_areas: formData.focusAreas,
-          theme: formData.theme,
-          onboarding_completed: true,
-          updated_at: new Date().toISOString(),
-        });
+        .upsert(updatedProfile);
 
       if (error) {
         console.warn('Ignoring profile upsert error (table may be missing):', error);
       }
+
+      setProfile({ ...profile, ...updatedProfile });
+
+      if (formData.theme) {
+        document.documentElement.classList.remove('light', 'dark');
+        document.documentElement.classList.add(formData.theme);
+        localStorage.setItem('theme', formData.theme);
+      }
+
       completeOnboarding();
+      if (onClose) onClose();
     } catch (err) {
       console.error('Failed to complete onboarding:', err);
+      if (onClose) onClose();
     }
   };
 
@@ -317,9 +335,9 @@ export function OnboardingFlow() {
           )}
 
           {currentStep === steps.length - 1 ? (
-            <ShimmerButton onClick={nextStep} className="flex-1">
-              INICIALIZAR SISTEMA
-            </ShimmerButton>
+            <Button onClick={nextStep} className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
+              INICIALIZAR SISTEMA <Rocket className="ml-2" size={16} />
+            </Button>
           ) : (
             <Button
               onClick={nextStep}
