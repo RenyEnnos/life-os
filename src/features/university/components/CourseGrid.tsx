@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useUniversity } from '../hooks/useUniversity';
+import { useGradeCalculation } from '../hooks/useGradeCalculation';
 import { CreateCourseModal } from './CreateCourseModal';
+import { CourseCard } from './CourseCard';
 import { Plus, BookOpen, Calendar, GraduationCap } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 
 export const CourseGrid = () => {
-    const { courses, addCourse, isLoading } = useUniversity();
+    const { courses, assignments, addCourse, removeCourse, isLoading } = useUniversity();
+    const { calculateProgress } = useGradeCalculation(assignments);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     if (isLoading) {
@@ -45,38 +48,12 @@ export const CourseGrid = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {courses.map(course => (
-                        <div key={course.id} className="glass-panel p-5 rounded-2xl flex gap-5 group hover:border-primary/30 transition-all duration-300">
-                            <div 
-                                className="size-24 rounded-2xl flex items-center justify-center relative overflow-hidden shrink-0 shadow-lg"
-                                style={{ backgroundColor: `${course.color}20` }}
-                            >
-                                <div 
-                                    className="absolute inset-0 opacity-20"
-                                    style={{ backgroundColor: course.color }}
-                                />
-                                <BookOpen className="relative z-10" size={32} style={{ color: course.color }} />
-                            </div>
-                            <div className="flex-1 flex flex-col justify-between py-1">
-                                <div>
-                                    <h4 className="text-lg font-bold text-white group-hover:text-primary transition-colors line-clamp-1">{course.name}</h4>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <span className="text-primary font-mono text-sm font-bold">
-                                            {course.grade ? `Média: ${course.grade.toFixed(1)}` : 'Sem nota'}
-                                        </span>
-                                        {course.professor && (
-                                            <>
-                                                <span className="text-zinc-700">•</span>
-                                                <span className="text-zinc-500 text-xs truncate max-w-[120px]">{course.professor}</span>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2 text-zinc-500 text-[10px] font-mono uppercase tracking-wider">
-                                    <Calendar size={12} className="text-zinc-600" />
-                                    <span>{course.schedule || 'Horário não definido'}</span>
-                                </div>
-                            </div>
-                        </div>
+                        <CourseCard 
+                            key={course.id} 
+                            course={course} 
+                            progress={calculateProgress(course.id)}
+                            onDelete={removeCourse}
+                        />
                     ))}
                 </div>
             )}

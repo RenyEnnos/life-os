@@ -9,15 +9,13 @@ import { AnimatedCircularProgressBar } from '@/shared/ui/premium/AnimatedCircula
 
 interface CourseCardProps {
     course: Course;
+    progress: number;
     onClick?: () => void;
     onDelete?: (id: string) => void;
 }
 
-export function CourseCard({ course, onClick, onDelete }: CourseCardProps) {
+export function CourseCard({ course, progress, onClick, onDelete }: CourseCardProps) {
     const cardRef = useRef<HTMLDivElement>(null);
-
-    // Mock progress calculation
-    const progress = 75;
 
     return (
         <div ref={cardRef} className="h-full relative group">
