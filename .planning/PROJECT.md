@@ -20,13 +20,13 @@ A unified, gamified, and AI-powered personal productivity system that reduces co
 - **Dashboard**: 3-zone Bento Grid layout (Now/Today/Context) with reusable Widget framework.
 - **Security Features**: Helmet, Rate Limiting, XSS Sanitization, Anti-CSRF.
 - **PWA**: Full offline support and installability.
+- **Data Authenticity**: Real database connections (Milestone 4).
 
-### Active (Milestone 4: Functional Reality)
+### Active (Milestone 5: Fix Frontend Integration Bugs)
 
-- [ ] **Data Authenticity**: Remove all remaining mocks (HabitDoctor, University simulators, ContextGateway).
-- [ ] **Backend Hardening**: Ensure 100% real database transactions for all features.
-- [ ] **Testing Resilience**: Fix TestSprite timeout and connectivity issues, achieving 100% pass rate in production mode.
-- [ ] **AI Materialization**: Ensure all AI responses (Groq/Google) are live and correctly formatted, replacing any static JSON fallbacks.
+- [ ] **Supabase Auth Trigger**: Fix the database trigger that prevents new user registration (AuthApiError 500).
+- [ ] **Token Synchronization**: Sync Supabase session token to `localStorage` ('auth_token') so that `src/shared/api/http.ts` can properly authenticate requests to the backend (fixing the 401s).
+- [ ] **Error Boundaries**: Implement fallbacks and Error Boundaries on routes like `/tasks` and `/university` to prevent infinite loading spinners on failed fetches.
 
 ### Out of Scope
 
