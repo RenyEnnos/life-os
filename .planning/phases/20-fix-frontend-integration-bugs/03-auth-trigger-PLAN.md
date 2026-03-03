@@ -19,26 +19,43 @@ Repair the Supabase registration flow by fixing the `handle_new_user` trigger an
 
 ## Proposed Changes
 
-### Supabase Infrastructure
+<task id="TASK-01" title="Create handle_new_user Trigger">
+<files>
+- supabase/migrations/20260303_fix_auth_trigger.sql
+</files>
+<action>
+- Create migration script for `handle_new_user()` function using `security definer`.
+- Ensure it inserts into `public.profiles` on `auth.users` insertion.
+</action>
+<verify>
+<automated>
+- supabase db test -- supabase/tests/auth_trigger.test.sql
+</automated>
+- Verify a profile is created when a user record is inserted manually.
+</verify>
+</task>
 
-#### [TASK-01] Create/Update handle_new_user Trigger
-- Write SQL migration in `supabase/migrations/20260303_fix_auth_trigger.sql`.
-- Implement `handle_new_user()` function using `security definer`.
-- Ensure it inserts into `public.profiles` correctly on `auth.users` insertion.
-
-### Auth Logic
-
-#### [TASK-02] Implement User Orphan Cleanup
-- Create `useUserCleanup.ts` in `src/features/auth/hooks/`.
-- Logic to detect a logged-in user with no `profile` record.
-- Automatically sign out and potentially call an RPC to delete the 'broken' auth user if the trigger fails.
+<task id="TASK-02" title="Implement User Orphan Cleanup">
+<files>
+- src/features/auth/hooks/useUserCleanup.ts
+</files>
+<action>
+- Logic to detect a logged-in user with no `profile` record and clean up/sign out.
+</action>
+<verify>
+<automated>
+- npm test -- src/features/auth/hooks/__tests__/useUserCleanup.test.ts
+</automated>
+- Verify hook signs out if profile is missing.
+</verify>
+</task>
 
 ## Verification Plan
-
-### Automated Tests
-- Run registration flow and check `profiles` table for new records.
-- Simulate trigger failure and verify cleanup logic triggers.
 
 ### Manual Verification
 - Attempt a clean registration via UI and verify success.
 - Check user record in Supabase Dashboard.
+
+## must_haves
+- [ ] Profiles table record created automatically on signup.
+- [ ] Users without profiles are handled safely (no lockout).

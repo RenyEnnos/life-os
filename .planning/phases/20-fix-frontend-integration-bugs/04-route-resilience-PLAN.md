@@ -16,25 +16,44 @@ Apply Error Boundaries and global network error handling to the application.
 
 ## Proposed Changes
 
-### Application Shell
-
-#### [TASK-01] Global Query Error Handler
+<task id="TASK-01" title="Global Query Error Handler">
+<files>
+- src/app/providers/QueryProvider.tsx
+</files>
+<action>
 - Update `src/app/providers/QueryProvider.tsx`.
-- Configure `QueryCache` and `MutationCache` with global `onError` to trigger Toast notifications for 401/Network errors.
-- Ensure the toast is unified/debounced to avoid multiple popups for a single failure event.
+- Configure `QueryCache` and `MutationCache` with global `onError` for unified Toast notifications on 401/Network errors.
+</action>
+<verify>
+<automated>
+- npm test -- src/app/providers/__tests__/QueryProvider.test.tsx
+</automated>
+- Verify exactly one toast is shown for multiple concurrent failures.
+</verify>
+</task>
 
-### Feature Routes
-
-#### [TASK-02] Apply ErrorBoundaries to Critical Routes
+<task id="TASK-02" title="Apply ErrorBoundaries to Critical Routes">
+<files>
+- src/features/tasks/components/TasksPage.tsx
+- src/features/university/components/UniversityPage.tsx
+</files>
+<action>
 - Wrap `TasksPage` and `UniversityPage` with the new `ErrorBoundary`.
-- Verify the "Loading" state is shown first, followed by the `FallbackUI` if the fetch fails.
+</action>
+<verify>
+<automated>
+- npx playwright test tests/e2e/resilience.spec.ts
+</automated>
+- Verify the "Loading" state is shown first, followed by the `FallbackUI` if fetch fails.
+</verify>
+</task>
 
 ## Verification Plan
-
-### Automated Tests
-- Mock fetch failure for `useTasks` hook and verify `TasksPage` shows `FallbackUI`.
-- Mock network error and verify exactly one toast is shown for multiple concurrent failures.
 
 ### Manual Verification
 - Manually break the VITE_API_URL and visit `/tasks`.
 - Verify the error message and "Retry" button.
+
+## must_haves
+- [ ] ErrorBoundaries prevent infinite spinners on Tasks and University pages.
+- [ ] Global network errors trigger a unified toast notification.
