@@ -2,12 +2,12 @@ import { z } from 'zod';
 
 const transactionSchemaBase = z.object({
     type: z.enum(['income', 'expense']),
-    amount: z.number().positive('Amount must be positive'),
-    description: z.string().min(1, 'Description is required'),
-    category: z.string().min(1, 'Category is required'),
-    // Retrocompat: accept either `transaction_date` (old clients) or `date` (table column)
-    transaction_date: z.string().datetime().optional(),
-    date: z.string().datetime().optional(),
+    amount: z.number().positive('Valor deve ser positivo'),
+    description: z.string().min(1, 'Descrição é obrigatória'),
+    category: z.string().min(1, 'Categoria é obrigatória'),
+    // Support multiple date field names and formats
+    date: z.string().min(1, 'Data é obrigatória'),
+    transaction_date: z.string().optional(),
     tags: z.array(z.string()).optional(),
 });
 

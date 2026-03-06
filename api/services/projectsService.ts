@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase'
-import type { Project } from '../../shared/types'
+import type { Project } from '@/shared/types'
 
 export const projectsService = {
   async list(userId: string, query: { status?: 'active'|'inactive'; limit?: number }) {
@@ -97,8 +97,29 @@ export const projectsService = {
   },
 
   async updateSwot(userId: string, swotId: string, payload: Record<string, unknown>) {
-    // RLS handles permission check via project_id join, but we can double check if needed.
-    // For simplicity rely on RLS policies defined in migration.
+    // First verify the user owns the project that contains this SWOT entry
+    const { data: swotEntry } = await supabase
+      .from('swot_entries')
+      .select('project_id')
+      .eq('id', swotId)
+      .single()
+    
+    if (!swotEntry) {
+      throw new Error('SWOT entry not found')
+    }
+    
+    // Verify user owns the project
+    const { data: project } = await supabase
+      .from('projects')
+      .select('id')
+      .eq('id', swotEntry.project_id)
+      .eq('user_id', userId)
+      .single()
+    
+    if (!project) {
+      throw new Error('Access denied: You do not own this project')
+    }
+    
     const { data, error } = await supabase
       .from('swot_entries')
       .update(payload)
@@ -111,6 +132,29 @@ export const projectsService = {
   },
 
   async removeSwot(userId: string, swotId: string) {
+    // First verify the user owns the project that contains this SWOT entry
+    const { data: swotEntry } = await supabase
+      .from('swot_entries')
+      .select('project_id')
+      .eq('id', swotId)
+      .single()
+    
+    if (!swotEntry) {
+      throw new Error('SWOT entry not found')
+    }
+    
+    // Verify user owns the project
+    const { data: project } = await supabase
+      .from('projects')
+      .select('id')
+      .eq('id', swotEntry.project_id)
+      .eq('user_id', userId)
+      .single()
+    
+    if (!project) {
+      throw new Error('Access denied: You do not own this project')
+    }
+    
     const { error } = await supabase
       .from('swot_entries')
       .delete()

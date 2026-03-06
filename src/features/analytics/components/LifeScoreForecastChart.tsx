@@ -6,16 +6,9 @@ import {
     YAxis,
     CartesianGrid,
     Tooltip,
-    ResponsiveContainer,
-    AreaChart,
-    Area
+    ResponsiveContainer
 } from 'recharts';
-import { useAuth } from '@/features/auth/contexts/AuthContext';
-import { getUserXP } from '@/features/gamification/api/xpService';
-import { XPHistoryEntry } from '@/features/gamification/api/types';
-import { format, subDays, addDays, startOfDay } from 'date-fns';
 import { useLifeScoreForecast, ForecastDataPoint } from '../hooks/useLifeScoreForecast';
-import { motion } from 'framer-motion';
 import TrendingUp from 'lucide-react/dist/esm/icons/trending-up';
 
 export const LifeScoreForecastChart = () => {

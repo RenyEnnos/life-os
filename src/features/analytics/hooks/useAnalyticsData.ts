@@ -5,6 +5,12 @@ import { habitsApi } from '@/features/habits/api/habits.api';
 import { tasksApi } from '@/features/tasks/api/tasks.api';
 import { endOfDay, format, startOfDay, subDays } from 'date-fns';
 
+/** Raw task shape returned by API (DB columns, not the frontend Task type) */
+interface RawTaskRow {
+    status?: string;
+    completed_at?: string | null;
+}
+
 export interface AnalyticsDataPoint {
     date: string;         // 'YYYY-MM-DD'
     sleepScore?: number;  // From health (e.g. sleep hours * 10 or a custom metric)
@@ -28,9 +34,9 @@ export function useAnalyticsData(daysToAnalyze = 30) {
             // 1. Fetch data in parallel
             const [healthMetrics, tasks, habits, completions] = await Promise.all([
                 healthApi.listMetrics(user.id, { startDate: dateStrStart, endDate: dateStrEnd, type: 'sleep' }),
-                tasksApi.getAll(), // tasks endpoint might not have full custom sorting mapped yet. We'll filter in memory.
-                habitsApi.list(user.id),
-                habitsApi.getLogs(user.id)
+                tasksApi.getAll() as Promise<RawTaskRow[]>,
+                habitsApi.list(),
+                habitsApi.getLogs()
             ]);
 
             // 2. Aggregate data by Date (YYYY-MM-DD)
@@ -43,7 +49,7 @@ export function useAnalyticsData(daysToAnalyze = 30) {
             }
 
             // Map Health (Sleep)
-            healthMetrics.forEach((metric: any) => {
+            healthMetrics.forEach((metric) => {
                 if (!metric.recorded_date) return;
                 const dateKey = format(new Date(metric.recorded_date), 'yyyy-MM-dd');
                 const existing = mapByDate.get(dateKey);
@@ -54,7 +60,7 @@ export function useAnalyticsData(daysToAnalyze = 30) {
             });
 
             // Map Tasks
-            tasks.filter((t: any) => t.status === 'completed' || t.completed_at).forEach((task: any) => {
+            tasks.filter((t) => t.status === 'completed' || t.completed_at).forEach((task) => {
                 if (!task.completed_at) return;
                 const dateKey = format(new Date(task.completed_at), 'yyyy-MM-dd');
                 const existing = mapByDate.get(dateKey);
@@ -68,9 +74,10 @@ export function useAnalyticsData(daysToAnalyze = 30) {
             if (activeHabitsCount > 0) {
                 // Group completions by date
                 const habitCompletesByDate = new Map<string, number>();
-                completions.forEach((c: any) => {
-                    if (!c.date && !c.logged_date) return;
-                    const dateKey = format(new Date(c.date || c.logged_date), 'yyyy-MM-dd');
+                completions.forEach((c) => {
+                    const dateStr = c.date || c.logged_date;
+                    if (!dateStr) return;
+                    const dateKey = format(new Date(dateStr), 'yyyy-MM-dd');
                     habitCompletesByDate.set(dateKey, (habitCompletesByDate.get(dateKey) || 0) + 1);
                 });
 

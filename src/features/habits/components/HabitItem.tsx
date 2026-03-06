@@ -3,6 +3,8 @@ import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { Habit } from '../types';
 import { clsx } from 'clsx';
+import confetti from 'canvas-confetti';
+import { motion } from 'framer-motion';
 
 interface HabitItemProps {
     habit: Habit;
@@ -11,37 +13,58 @@ interface HabitItemProps {
 }
 
 export function HabitItem({ habit, completed, onToggle }: HabitItemProps) {
-    return (
-        <Card className={clsx(
-            "p-4 flex items-center justify-between transition-all duration-300",
-            completed ? "bg-primary/10 border-primary/30" : "bg-card border-border hover:border-primary/50"
-        )}>
-            <div>
-                <h3 className={clsx(
-                    "font-mono font-bold text-lg",
-                    completed ? "text-primary line-through opacity-70" : "text-foreground"
-                )}>
-                    {habit.title}
-                </h3>
-                {habit.description && (
-                    <p className="text-sm text-muted-foreground font-mono mt-1">
-                        {habit.description}
-                    </p>
-                )}
-            </div>
+    const handleToggle = () => {
+        if (!completed) {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: [habit.color || '#3b82f6', '#ffffff']
+            });
+        }
+        onToggle();
+    };
 
-            <Button
-                variant={completed ? "primary" : "outline"}
-                size="icon"
-                className={clsx(
-                    "rounded-full w-12 h-12 border-2",
-                    completed ? "bg-primary text-background border-primary" : "border-muted-foreground text-muted-foreground hover:border-primary hover:text-primary"
-                )}
-                onClick={onToggle}
-                aria-label={completed ? `Mark habit ${habit.title} as incomplete` : `Mark habit ${habit.title} as complete`}
-            >
-                {completed ? <Check size={24} strokeWidth={3} /> : <div className="w-4 h-4 rounded-full bg-current opacity-20" />}
-            </Button>
-        </Card>
+    return (
+        <motion.div
+            layout
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            whileHover={{ scale: 1.01 }}
+            className="w-full"
+        >
+            <Card className={clsx(
+                "p-4 flex items-center justify-between transition-all duration-300",
+                completed ? "bg-primary/10 border-primary/30" : "bg-card border-border hover:border-primary/50"
+            )}>
+                <div className="flex-1">
+                    <h3 className={clsx(
+                        "font-mono font-bold text-lg transition-all duration-500",
+                        completed ? "text-primary line-through opacity-70" : "text-foreground"
+                    )}>
+                        {habit.title || habit.name}
+                    </h3>
+                    {habit.description && (
+                        <p className="text-sm text-muted-foreground font-mono mt-1">
+                            {habit.description}
+                        </p>
+                    )}
+                </div>
+
+                <Button
+                    variant={completed ? "primary" : "outline"}
+                    size="icon"
+                    className={clsx(
+                        "rounded-full w-12 h-12 border-2 shrink-0 transition-all duration-500",
+                        completed ? "bg-primary text-background border-primary scale-90" : "border-muted-foreground text-muted-foreground hover:border-primary hover:text-primary"
+                    )}
+                    onClick={handleToggle}
+                    aria-label={completed ? `Mark habit ${habit.title} as incomplete` : `Mark habit ${habit.title} as complete`}
+                >
+                    {completed ? <Check size={24} strokeWidth={3} /> : <div className="w-4 h-4 rounded-full bg-current opacity-20" />}
+                </Button>
+            </Card>
+        </motion.div>
     );
 }

@@ -30,7 +30,7 @@ describe("habits.api", () => {
   })
   it("getLogs normalizes date", async () => {
     vi.mocked((await import("@/shared/api/http")).apiClient.get).mockResolvedValueOnce([{ date: "2025-01-01" }])
-    const logs = await habitsApi.getLogs("u", "2025-01-01")
+    const logs = await habitsApi.getLogs("2025-01-01")
     expect(logs[0].date).toBe("2025-01-01")
   })
 })

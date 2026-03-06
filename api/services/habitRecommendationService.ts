@@ -1,4 +1,3 @@
-import { supabase } from '../lib/supabase'
 import { GeminiProvider } from './ai/providers/GeminiProvider'
 import { habitsService } from './habitsService'
 import { projectsService } from './projectsService'

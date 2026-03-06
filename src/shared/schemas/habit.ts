@@ -1,18 +1,22 @@
 import { z } from 'zod';
 
 export const habitSchema = z.object({
-    title: z.string().min(1, 'Title is required').max(200, 'Title is too long'),
+    title: z.string().min(1, 'Título é obrigatório').max(200, 'Título muito longo'),
     description: z.string().optional(),
-    type: z.enum(['binary', 'numeric'], {
-        errorMap: () => ({ message: 'Type must be either binary or numeric' })
+    type: z.enum(['binary', 'quantified'], {
+        errorMap: () => ({ message: 'O tipo deve ser binário ou quantificado' })
     }),
-    goal: z.number().nonnegative().optional(),
+    target_value: z.number().nonnegative().optional(),
+    goal: z.number().nonnegative().optional(), // Legacy support
+    unit: z.string().optional(),
+    color: z.string().optional(),
+    icon: z.string().optional(),
     routine: z.enum(['morning', 'afternoon', 'evening', 'any'], {
-        errorMap: () => ({ message: 'Routine must be morning, afternoon, evening, or any' })
+        errorMap: () => ({ message: 'A rotina deve ser Manhã, Tarde, Noite ou Qualquer' })
     }).optional(),
     active: z.boolean().optional(),
     attribute: z.enum(['BODY', 'MIND', 'SPIRIT', 'OUTPUT'], {
-        errorMap: () => ({ message: 'Attribute must be BODY, MIND, SPIRIT, or OUTPUT' })
+        errorMap: () => ({ message: 'O atributo deve ser BODY, MIND, SPIRIT ou OUTPUT' })
     }).optional(),
 });
 

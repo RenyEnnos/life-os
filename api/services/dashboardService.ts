@@ -2,15 +2,14 @@ import NodeCache from 'node-cache'
 import { habitsService } from './habitsService'
 import { symbiosisService } from './symbiosisService'
 import { rewardsService } from './rewardsService'
-import { financeService } from './financeService'
 
 const cache = new NodeCache({ stdTTL: 600 }) // 10 min default
 
 export type DashboardSummary = {
-    lifeScore: any
+    lifeScore: { level: number; current_xp: number; next_level_xp: number; life_score: number } | null
     habitConsistency: { percentage: number; weeklyData: number[] }
     vitalLoad: { totalImpact: number; state: 'balanced' | 'overloaded' | 'underloaded'; label: string }
-    widgets: any
+    widgets: Record<string, unknown>
 }
 
 export const dashboardService = {
@@ -32,7 +31,7 @@ export const dashboardService = {
         ])
 
         // 1. Calculate Habit Consistency
-        const activeHabits = (habits || []).filter((h: any) => h.active)
+        const activeHabits = (habits || []).filter((h: { active?: boolean }) => h.active)
         const consistency = await this.calculateConsistency(userId, activeHabits, habitLogs || [])
 
         const result = {
@@ -48,14 +47,14 @@ export const dashboardService = {
         return result
     },
 
-    async calculateConsistency(userId: string, habits: any[], logs: any[]) {
+    async calculateConsistency(userId: string, habits: { id: string; active?: boolean }[], logs: { habit_id: string; logging_date?: string; logged_date?: string; date?: string }[]) {
         const today = new Date().toISOString().split('T')[0]
         if (!habits.length) return { percentage: 0, weeklyData: [0, 0, 0, 0, 0, 0, 0] }
 
         // Assuming logs have 'logged_date' or 'date' property. 
         // Based on useDashboardData it was 'date'. In DB it's often 'logged_date'.
         // I will use a helper to extract date safely.
-        const getDate = (l: any) => l.logging_date || l.logged_date || l.date;
+        const getDate = (l: { logging_date?: string; logged_date?: string; date?: string }) => l.logging_date || l.logged_date || l.date;
 
         const todayLogs = logs.filter(l => getDate(l) === today)
         const todayCount = new Set(todayLogs.map(l => l.habit_id)).size
@@ -73,8 +72,8 @@ export const dashboardService = {
         return { percentage, weeklyData }
     },
 
-    calculateVitalLoad(links: any[]) {
-        const totalImpact = links.reduce((sum: number, link: any) => sum + (link.impact_vital ?? 0), 0);
+    calculateVitalLoad(links: { impact_vital?: number }[]) {
+        const totalImpact = links.reduce((sum: number, link: { impact_vital?: number }) => sum + (link.impact_vital ?? 0), 0);
         const state = totalImpact > 3 ? 'overloaded' : totalImpact < -1 ? 'underloaded' : 'balanced';
         const label = state === 'balanced' ? 'Carga vital equilibrada' : state === 'overloaded' ? 'Carga vital alta — priorize recuperação' : 'Carga vital baixa — adicione estímulos leves';
         // Cast state to strict type to fix lint error

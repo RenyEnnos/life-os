@@ -2,15 +2,17 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { tasksApi } from '../api/tasks.api';
 import { useToast } from '@/shared/ui/useToast';
 
-export function useScheduling() {
-    const queryClient = useQueryClient();
-    const { showToast } = useToast();
-
-    const getSuggestions = (date?: string, bufferTime?: number) => useQuery({
+export function useSuggestedSchedule(date?: string, bufferTime?: number) {
+    return useQuery({
         queryKey: ['tasks', 'scheduling-suggestions', date, bufferTime],
         queryFn: () => tasksApi.getSuggestedSchedule(date, bufferTime),
         enabled: false, // Manual trigger
     });
+}
+
+export function useScheduling() {
+    const queryClient = useQueryClient();
+    const { showToast } = useToast();
 
     const applySchedule = useMutation({
         mutationFn: tasksApi.applySchedule,
@@ -25,7 +27,6 @@ export function useScheduling() {
     });
 
     return {
-        getSuggestions,
         applySchedule
     };
 }

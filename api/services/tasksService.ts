@@ -50,12 +50,13 @@ class TasksServiceImpl {
         .select('*')
         .eq('user_id', userId)
         .is('deleted_at', null)
+        .gte('due_date', today)
+        .lt('due_date', today + 'T23:59:59')
         .order('position', { ascending: true })
 
       if (error) throw error
 
-      // Filter for due_today in memory (simple approach)
-      return (data || []).filter((t) => typeof t.due_date === 'string' && t.due_date.startsWith(today))
+      return data
     }
 
     // Default: return all tasks ordered by position
@@ -101,6 +102,46 @@ class TasksServiceImpl {
     const result = await this.repo.remove(userId, id)
     await invalidate(userId, 'tasks')
     return result
+  }
+
+  async getSummary(userId: string) {
+    const today = new Date().toISOString().split('T')[0]
+
+    // Get total count
+    const { count: total, error: totalError } = await supabase
+      .from('tasks')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .is('deleted_at', null)
+
+    if (totalError) throw totalError
+
+    // Get completed count
+    const { count: completed, error: completedError } = await supabase
+      .from('tasks')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('completed', true)
+      .is('deleted_at', null)
+
+    if (completedError) throw completedError
+
+    // Get due today count
+    const { count: dueToday, error: dueTodayError } = await supabase
+      .from('tasks')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .is('deleted_at', null)
+      .gte('due_date', today)
+      .lt('due_date', today + 'T23:59:59')
+
+    if (dueTodayError) throw dueTodayError
+
+    return {
+      total: total || 0,
+      completed: completed || 0,
+      dueToday: dueToday || 0
+    }
   }
 }
 

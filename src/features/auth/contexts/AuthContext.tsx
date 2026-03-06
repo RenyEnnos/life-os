@@ -1,11 +1,36 @@
 import React, { createContext, useContext, useEffect } from 'react';
 import { supabase } from '@/shared/lib/supabase';
 import { useAuthStore } from '@/shared/stores/authStore';
+import { useShallow } from 'zustand/react/shallow';
+import { setAuthToken, clearAuthToken } from '@/shared/api/authToken';
 
-export const AuthContext = createContext<any>(null);
+interface AuthContextValue {
+  user: ReturnType<typeof useAuth>['user'];
+  session: ReturnType<typeof useAuth>['session'];
+  profile: ReturnType<typeof useAuth>['profile'];
+  isLoading: boolean;
+  loading: boolean;
+  hasCompletedOnboarding: boolean;
+  error: string | null;
+  login: (creds: { email: string; password: string }) => Promise<void>;
+  register: (creds: { email: string; password: string; name?: string }) => Promise<void>;
+  logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
+}
+
+export const AuthContext = createContext<AuthContextValue | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { setAuth, setProfile, setLoading, setError, signOut } = useAuthStore();
+  const { setAuth, setProfile, setLoading, setError, signOut } = useAuthStore(
+    useShallow((s) => ({
+      setAuth: s.setAuth,
+      setProfile: s.setProfile,
+      setLoading: s.setLoading,
+      setError: s.setError,
+      signOut: s.signOut,
+    }))
+  );
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -42,11 +67,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (error) throw error;
         setAuth(session);
         if (session?.user) {
+          setAuthToken(session.access_token);
           await fetchProfile(session.user.id);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Auth initialization error:', err);
-        setError(err.message || 'Failed to initialize session');
+        setError(err instanceof Error ? err.message : 'Failed to initialize session');
       } finally {
         setLoading(false);
       }
@@ -59,7 +85,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       async (_event, session) => {
         setAuth(session);
         if (session?.user) {
+          setAuthToken(session.access_token);
           await fetchProfile(session.user.id);
+        } else {
+          clearAuthToken();
         }
         if (_event === 'SIGNED_OUT') {
           signOut();
@@ -82,14 +111,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 export const useAuth = () => {
-  const { user, session, profile, isLoading, error, signOut } = useAuthStore();
+  const { user, session, profile, isLoading, error, signOut } = useAuthStore(
+    useShallow((s) => ({
+      user: s.user,
+      session: s.session,
+      profile: s.profile,
+      isLoading: s.isLoading,
+      error: s.error,
+      signOut: s.signOut,
+    }))
+  );
 
-  const login = async (creds: { email: string; password: any }) => {
+  const login = async (creds: { email: string; password: string }) => {
     const { error } = await supabase.auth.signInWithPassword(creds);
     if (error) throw error;
   };
 
-  const register = async (creds: { email: string; password: any; name?: string }) => {
+  const register = async (creds: { email: string; password: string; name?: string }) => {
     const { error } = await supabase.auth.signUp({
       email: creds.email,
       password: creds.password,

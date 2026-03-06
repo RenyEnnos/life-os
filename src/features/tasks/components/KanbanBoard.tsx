@@ -12,6 +12,7 @@ import {
     defaultDropAnimationSideEffects
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { generateKeyBetween } from 'fractional-indexing';
 import { useTasks } from '../hooks/useTasks';
 import { KanbanColumn } from './KanbanColumn';
 import { Task, TaskStatus } from '@/shared/types';
@@ -79,38 +80,69 @@ export function KanbanBoard() {
 
         if (!over) return;
 
-        const taskId = active.id as string;
+        const activeId = active.id as string;
         const overId = over.id as string;
 
-        // Find the status of the column we dropped into
-        let newStatus: TaskStatus | null = null;
+        // Find active task
+        const activeTask = (tasks || []).find(t => t.id === activeId);
+        if (!activeTask) return;
+
+        // Determine target status
+        let newStatus: TaskStatus;
         if (['todo', 'in-progress', 'done'].includes(overId)) {
             newStatus = overId as TaskStatus;
         } else {
-            // Dropped over another task, find its column
             const overTask = (tasks || []).find(t => t.id === overId);
-            if (overTask) {
-                newStatus = (overTask.status || (overTask.completed ? 'done' : 'todo')) as TaskStatus;
-            }
+            newStatus = (overTask?.status || (overTask?.completed ? 'done' : 'todo')) as TaskStatus;
         }
 
-        const task = (tasks || []).find(t => t.id === taskId);
-        const currentStatus = (task?.status || (task?.completed ? 'done' : 'todo')) as TaskStatus;
+        // Get and sort tasks in target column
+        const columnTasks = (tasks || [])
+            .filter(t => (t.status || (t.completed ? 'done' : 'todo')) === newStatus)
+            .sort((a, b) => (a.position || '').localeCompare(b.position || ''));
 
-        if (newStatus && newStatus !== currentStatus) {
-            try {
-                await updateTask.mutateAsync({
-                    id: taskId,
-                    updates: {
-                        status: newStatus,
-                        completed: newStatus === 'done'
-                    }
-                });
-                showToast(`Tarefa movida para ${newStatus}.`, 'success');
-            } catch (error) {
-                console.error(error);
-                showToast('Erro ao mover tarefa.', 'error');
+        const currentStatus = (activeTask.status || (activeTask.completed ? 'done' : 'todo')) as TaskStatus;
+        
+        // If same position, do nothing
+        if (currentStatus === newStatus && activeId === overId) return;
+
+        let newPosition: string;
+
+        if (activeId !== overId) {
+            const oldIndexInCol = columnTasks.findIndex(t => t.id === activeId);
+            const overIndexInCol = columnTasks.findIndex(t => t.id === overId);
+            
+            let tempTasks = [...columnTasks];
+            if (oldIndexInCol !== -1) {
+                // Same column reorder
+                tempTasks = arrayMove(columnTasks, oldIndexInCol, overIndexInCol);
+            } else {
+                // Cross column move
+                tempTasks.splice(overIndexInCol, 0, activeTask);
             }
+
+            const finalIndex = tempTasks.findIndex(t => t.id === activeId);
+            const beforeTask = tempTasks[finalIndex - 1];
+            const afterTask = tempTasks[finalIndex + 1];
+            newPosition = generateKeyBetween(beforeTask?.position || null, afterTask?.position || null);
+        } else {
+            // Dropped on empty column or column header
+            const lastTask = columnTasks[columnTasks.length - 1];
+            newPosition = generateKeyBetween(lastTask?.position || null, null);
+        }
+
+        try {
+            await updateTask.mutateAsync({
+                id: activeId,
+                updates: {
+                    status: newStatus,
+                    completed: newStatus === 'done',
+                    position: newPosition
+                }
+            });
+        } catch (error) {
+            console.error('[handleDragEnd] Position update error:', error);
+            showToast('Erro ao reordenar tarefa.', 'error');
         }
     };
 

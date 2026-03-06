@@ -1,13 +1,10 @@
 import { supabase } from '../lib/supabase'
-import { Habit } from '../../shared/types'
+import { Habit } from '@/shared/types'
 import { logDbOp } from '../lib/dbLogger'
 import { rewardsService } from './rewardsService'
 import { invalidate } from './aiCache'
 
 import { eventBus, Events } from '../lib/events'
-
-const cache = new Map<string, { ts: number; data: any[] }>()
-const CACHE_TTL_MS = 2 * 60 * 1000
 
 export const habitsService = {
   async list(userId: string, query: { page?: string; pageSize?: string } & Record<string, unknown>) {
@@ -32,13 +29,7 @@ export const habitsService = {
       return data
     }
 
-    // Check cache (for non-paginated requests)
-    const now = Date.now()
-    const cached = cache.get(userId)
-    if (cached && now - cached.ts < CACHE_TTL_MS) {
-      return cached.data
-    }
-
+    // For non-paginated requests, query directly from database
     const { data, error } = await supabase
       .from('habits')
       .select('*')
@@ -47,8 +38,6 @@ export const habitsService = {
 
     if (error) throw error
 
-    // Set cache
-    cache.set(userId, { ts: now, data: data || [] })
     return data
   },
 
@@ -62,8 +51,6 @@ export const habitsService = {
     if (error) throw error
     await logDbOp('habits', 'insert', userId, { id: (data as { id: string })?.id })
 
-    // Invalidate cache
-    cache.delete(userId)
     await invalidate(userId, 'habits')
 
     return data
@@ -81,8 +68,6 @@ export const habitsService = {
     if (error) throw error
     await logDbOp('habits', 'update', userId, { id })
 
-    // Invalidate cache
-    cache.delete(userId)
     await invalidate(userId, 'habits')
 
     return data
@@ -98,8 +83,6 @@ export const habitsService = {
     if (error) throw error
     await logDbOp('habits', 'delete', userId, { id })
 
-    // Invalidate cache
-    cache.delete(userId)
     await invalidate(userId, 'habits')
 
     return true

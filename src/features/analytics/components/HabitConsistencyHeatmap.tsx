@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { AnalyticsDataPoint } from '../hooks/useAnalyticsData';
-import { format, parseISO, subDays } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { cn } from '@/shared/lib/cn';
 
 interface HabitConsistencyHeatmapProps {
@@ -49,7 +49,7 @@ export function HabitConsistencyHeatmap({ data }: HabitConsistencyHeatmapProps) 
                 <div className="flex gap-2">
                     {weeks.map((week, wIdx) => (
                         <div key={`week-${wIdx}`} className="flex flex-col gap-2">
-                            {week.map((item, dIdx) => {
+                            {week.map((item) => {
                                 const perc = item.habitAdherence || 0;
                                 const isToday = item.date === format(new Date(), 'yyyy-MM-dd');
 

@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase'
-import type { AttributeType } from '../../src/features/gamification/api/types'
+import type { AttributeType } from '@/features/gamification/api/types'
 
 export const rewardsService = {
   async getUserScore(userId: string) {
@@ -13,7 +13,7 @@ export const rewardsService = {
 
     if (!data) {
       // Initialize if not exists
-      const { data: newData, error: createError } = await supabase
+      const { error: createError } = await supabase
         .from('user_xp')
         .insert([{ user_id: userId }])
         .select()
@@ -70,13 +70,21 @@ export const rewardsService = {
   },
 
   async checkAndUnlockAchievement(userId: string, achievementCode: string) {
-    // Check if already unlocked
-    const { data: existing } = await supabase
+    // Get achievement ID first
+    const achievementId = await this.getAchievementId(achievementCode)
+    if (!achievementId) return null
+
+    // Use upsert to handle race conditions - unique constraint on (user_id, achievement_id) will prevent duplicates
+    const { data: existing, error: checkError } = await supabase
       .from('user_achievements')
       .select('id')
       .eq('user_id', userId)
-      .eq('achievement_id', (await this.getAchievementId(achievementCode)))
+      .eq('achievement_id', achievementId)
       .single()
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      throw checkError
+    }
 
     if (existing) return null // Already unlocked
 
@@ -89,12 +97,18 @@ export const rewardsService = {
 
     if (!achievement) return null
 
-    // Unlock
-    const { error } = await supabase
+    // Try to insert - will fail silently if another request just inserted
+    const { error: insertError } = await supabase
       .from('user_achievements')
       .insert([{ user_id: userId, achievement_id: achievement.id }])
 
-    if (error) throw error
+    // If duplicate key error, achievement was just unlocked by another request
+    if (insertError) {
+      if (insertError.code === '23505') { // PostgreSQL unique violation
+        return null
+      }
+      throw insertError
+    }
 
     // Award XP for achievement
     await this.addXp(userId, achievement.xp_reward)

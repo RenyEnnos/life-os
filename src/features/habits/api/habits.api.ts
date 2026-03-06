@@ -1,53 +1,13 @@
 import { apiClient } from '@/shared/api/http';
 import { Habit } from '../types';
+import { createHabitSchema, updateHabitSchema } from '@/shared/schemas/habit';
+import { formatZodError } from '@/shared/utils/formatZodError';
 
 type HabitLogResponse = {
     habit_id?: string;
     date?: string | null;
     logged_date?: string | null;
 } & Record<string, unknown>;
-
-/**
- * Validates habit ID format
- * @throws {Error} If ID is invalid
- */
-function validateHabitId(id: string): void {
-    if (!id || typeof id !== 'string' || id.trim() === '') {
-        throw new Error('ID do hábito é obrigatório');
-    }
-}
-
-/**
- * Validates habit data for creation/update
- * @throws {Error} If required fields are missing
- */
-function validateHabitData(habit: Partial<Habit>, requireTitle = true): void {
-    if (!habit || typeof habit !== 'object') {
-        throw new Error('Dados do hábito são obrigatórios');
-    }
-
-    // Check for either name or title field (both are valid)
-    const nameOrTitle = habit.name ?? habit.title;
-
-    if (requireTitle && (!nameOrTitle || typeof nameOrTitle !== 'string' || nameOrTitle.trim() === '')) {
-        throw new Error('Título do hábito é obrigatório');
-    }
-
-    if (nameOrTitle !== undefined && nameOrTitle.length > 200) {
-        throw new Error('Título do hábito deve ter no máximo 200 caracteres');
-    }
-
-    if (habit.description !== undefined && habit.description !== null && typeof habit.description !== 'string') {
-        throw new Error('Descrição deve ser uma string');
-    }
-
-    // Support both goal (legacy) and target_value
-    const targetValue = habit.target_value ?? habit.goal;
-
-    if (targetValue !== undefined && (typeof targetValue !== 'number' || targetValue < 0)) {
-        throw new Error('Meta deve ser um número positivo');
-    }
-}
 
 /**
  * Habit API client with error handling
@@ -58,8 +18,7 @@ export const habitsApi = {
      * Get all habits
      * @throws {ApiError} If fetch fails
      */
-    list: async (userId?: string): Promise<Habit[]> => {
-        void userId;
+    list: async (): Promise<Habit[]> => {
         const data = await apiClient.get<Habit[]>('/api/habits');
         return data;
     },
@@ -86,11 +45,12 @@ export const habitsApi = {
      * @throws {ApiError} If creation fails
      */
     create: async (habit: Partial<Habit>): Promise<Habit> => {
-        // Validate input before making request
-        validateHabitData(habit, true);
+        const validation = createHabitSchema.safeParse(habit);
+        if (!validation.success) {
+            throw new Error(formatZodError(validation.error));
+        }
 
-
-        const data = await apiClient.post<Habit>('/api/habits', habit);
+        const data = await apiClient.post<Habit>('/api/habits', validation.data);
         return data;
     },
 
@@ -102,35 +62,35 @@ export const habitsApi = {
      * @throws {ApiError} If update fails
      */
     update: async (id: string, updates: Partial<Habit>): Promise<Habit> => {
-        // Validate inputs before making request
-        validateHabitId(id);
-        validateHabitData(updates, false);
+        if (!id) throw new Error('ID do hábito é obrigatório');
+        
+        const validation = updateHabitSchema.safeParse(updates);
+        if (!validation.success) {
+            throw new Error(formatZodError(validation.error));
+        }
 
-        const data = await apiClient.put<Habit>(`/api/habits/${id}`, updates);
+        const data = await apiClient.put<Habit>(`/api/habits/${id}`, validation.data);
         return data;
     },
 
     /**
-     * Delete a habit
+     * Delete a habit (Soft-Delete)
      * @param id - Habit ID to delete
      * @throws {Error} If validation fails
      * @throws {ApiError} If deletion fails
      */
     delete: async (id: string): Promise<void> => {
-        // Validate input before making request
-        validateHabitId(id);
-
-        await apiClient.delete(`/api/habits/${id}`);
+        if (!id) throw new Error('ID do hábito é obrigatório');
+        // Soft-delete: update record with is_deleted = true
+        await apiClient.patch(`/api/habits/${id}`, { is_deleted: true });
     },
 
     /**
      * Get habit logs for a specific date
-     * @param userId - User ID (currently unused)
      * @param date - Date to fetch logs for (optional)
      * @throws {ApiError} If fetch fails
      */
-    getLogs: async (userId?: string, date?: string): Promise<(HabitLogResponse & { date: string })[]> => {
-        void userId;
+    getLogs: async (date?: string): Promise<(HabitLogResponse & { date: string })[]> => {
         const query = date ? `?date=${date}` : '';
         const data = await apiClient.get<HabitLogResponse[]>(`/api/habits/logs${query}`);
         return (data || []).map((log): HabitLogResponse & { date: string } => ({
@@ -151,18 +111,23 @@ export const habitsApi = {
     log: async (_userId: string, habitId: string, value: number, date: string): Promise<Record<string, unknown>> => {
         void _userId;
 
-        // Validate inputs before making request
-        validateHabitId(habitId);
-
-        if (!date || typeof date !== 'string' || date.trim() === '') {
-            throw new Error('Data é obrigatória');
-        }
-
-        if (typeof value !== 'number' || value < 0) {
-            throw new Error('Valor deve ser um número positivo');
-        }
+        if (!habitId) throw new Error('ID do hábito é obrigatório');
+        if (!date) throw new Error('Data é obrigatória');
+        if (typeof value !== 'number' || value < 0) throw new Error('Valor deve ser um número positivo');
 
         const data = await apiClient.post<Record<string, unknown>>(`/api/habits/${habitId}/log`, { value, date });
+        return data;
+    },
+
+    /**
+     * Get AI diagnosis for a list of habits
+     * @param habitsContext - JSON string containing habits and their recent logs
+     */
+    getDiagnosis: async (habitsContext: string): Promise<{ type: 'success' | 'warning' | 'info', message: string, detail: string }> => {
+        const data = await apiClient.post<{ type: 'success' | 'warning' | 'info', message: string, detail: string }>(
+            '/api/ai/habit-doctor', 
+            { context: habitsContext }
+        );
         return data;
     }
 };

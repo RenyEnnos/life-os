@@ -7,7 +7,7 @@ import { authenticateToken, type AuthRequest } from '../middleware/auth'
 import { rewardsService } from '../services/rewardsService'
 import { supabase } from '../lib/supabase'
 import { z } from 'zod'
-import type { AttributeType } from '../../src/features/gamification/api/types'
+import type { AttributeType } from '@/features/gamification/api/types'
 
 const router = Router()
 

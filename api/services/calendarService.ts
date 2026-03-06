@@ -24,13 +24,27 @@ export class CalendarService {
   async handleCallback(userId: string, code: string) {
     const oauth2Client = this.getOAuth2Client()
     const { tokens } = await oauth2Client.getToken(code)
-    await supabase.from('calendar_tokens').upsert({ user_id: userId, access_token: tokens.access_token!, refresh_token: tokens.refresh_token, scope: tokens.scope, token_type: tokens.token_type, expiry_date: tokens.expiry_date ? new Date(tokens.expiry_date) : null })
+    
+    if (!tokens.access_token) {
+      throw new Error('Failed to obtain access token from Google')
+    }
+    
+    await supabase.from('calendar_tokens').upsert({ 
+      user_id: userId, 
+      access_token: tokens.access_token, 
+      refresh_token: tokens.refresh_token, 
+      scope: tokens.scope, 
+      token_type: tokens.token_type, 
+      expiry_date: tokens.expiry_date ? new Date(tokens.expiry_date) : null 
+    })
     return true
   }
 
   async getCalendarClient(userId: string) {
     const { data } = await supabase.from('calendar_tokens').select('*').eq('user_id', userId).single()
     if (!data) throw new Error('Calendar not connected')
+    if (!data.access_token) throw new Error('Calendar access token is invalid')
+    
     const oauth2Client = this.getOAuth2Client()
     oauth2Client.setCredentials({ access_token: data.access_token, refresh_token: data.refresh_token })
     return google.calendar({ version: 'v3', auth: oauth2Client })

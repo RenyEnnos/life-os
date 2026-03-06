@@ -7,7 +7,12 @@ import { authenticateToken, type AuthRequest } from '../middleware/auth'
 import { healthService } from '../services/healthService'
 import { supabase } from '../lib/supabase'
 import { getPagination } from '../lib/pagination'
-import { z } from 'zod'
+import { 
+  createHealthMetricSchema, 
+  updateHealthMetricSchema,
+  createMedicationReminderSchema,
+  updateMedicationReminderSchema
+} from '@/shared/schemas/health'
 
 const router = Router()
 
@@ -45,22 +50,18 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Prom
  * POST /api/health
  */
 router.post('/', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
-  const schema = z.object({
-    metric_type: z.string().min(1),
-    value: z.number(),
-    unit: z.string().optional(),
-    recorded_at: z.string().optional()
-  })
-  const parsed = schema.safeParse(req.body || {})
+  const parsed = createHealthMetricSchema.safeParse(req.body || {})
   if (!parsed.success) {
-    res.status(400).json({ error: 'Invalid health metric payload', code: 'INVALID_METRIC_PAYLOAD' })
+    res.status(400).json({ 
+      error: 'Invalid health metric payload', 
+      code: 'INVALID_METRIC_PAYLOAD',
+      details: parsed.error.format() 
+    })
     return
   }
 
   try {
-    const { recorded_at, ...rest } = parsed.data
-    const payload = { ...rest, recorded_date: recorded_at }
-    const data = await healthService.create(req.user!.id, payload)
+    const data = await healthService.create(req.user!.id, parsed.data)
     res.status(201).json(data)
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Failed to create health metric'
@@ -73,15 +74,13 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response): Pro
  * PUT /api/health/:id
  */
 router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
-  const schema = z.object({
-    metric_type: z.string().min(1).optional(),
-    value: z.number().optional(),
-    unit: z.string().optional(),
-    recorded_at: z.string().optional()
-  })
-  const parsed = schema.safeParse(req.body || {})
+  const parsed = updateHealthMetricSchema.safeParse(req.body || {})
   if (!parsed.success) {
-    res.status(400).json({ error: 'Invalid health metric payload', code: 'INVALID_METRIC_PAYLOAD' })
+    res.status(400).json({ 
+      error: 'Invalid health metric payload', 
+      code: 'INVALID_METRIC_PAYLOAD',
+      details: parsed.error.format()
+    })
     return
   }
 
@@ -127,14 +126,13 @@ router.get('/medications', authenticateToken, async (req: AuthRequest, res: Resp
  * POST /api/health/medications
  */
 router.post('/medications', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
-  const schema = z.object({
-    name: z.string().min(1),
-    dosage: z.string().optional(),
-    schedule: z.string().optional()
-  })
-  const parsed = schema.safeParse(req.body || {})
+  const parsed = createMedicationReminderSchema.safeParse(req.body || {})
   if (!parsed.success) {
-    res.status(400).json({ error: 'Invalid medication payload', code: 'INVALID_MEDICATION_PAYLOAD' })
+    res.status(400).json({ 
+      error: 'Invalid medication payload', 
+      code: 'INVALID_MEDICATION_PAYLOAD',
+      details: parsed.error.format() 
+    })
     return
   }
 
@@ -152,14 +150,13 @@ router.post('/medications', authenticateToken, async (req: AuthRequest, res: Res
  * PUT /api/health/medications/:id
  */
 router.put('/medications/:id', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
-  const schema = z.object({
-    name: z.string().min(1).optional(),
-    dosage: z.string().optional(),
-    schedule: z.string().optional()
-  })
-  const parsed = schema.safeParse(req.body || {})
+  const parsed = updateMedicationReminderSchema.safeParse(req.body || {})
   if (!parsed.success) {
-    res.status(400).json({ error: 'Invalid medication payload', code: 'INVALID_MEDICATION_PAYLOAD' })
+    res.status(400).json({ 
+      error: 'Invalid medication payload', 
+      code: 'INVALID_MEDICATION_PAYLOAD',
+      details: parsed.error.format() 
+    })
     return
   }
 

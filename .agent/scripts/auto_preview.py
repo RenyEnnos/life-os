@@ -65,19 +65,11 @@ def start_server(port=3000):
         print("❌ No 'dev' or 'start' script found in package.json")
         sys.exit(1)
     
-    # Add port env var ONLY if safe; for 'concurrently' scripts, let them manage ports to avoid collisions
+    # Add port env var if needed (simple heuristic)
     env = os.environ.copy()
-    display_port = port
+    env["PORT"] = str(port)
     
-    is_concurrent = "run" in cmd and "dev" in cmd
-    
-    if not is_concurrent:
-        env["PORT"] = str(port)
-    else:
-        # Default Vite port
-        display_port = 5173
-
-    print(f"🚀 Starting preview (target port {display_port})...")
+    print(f"🚀 Starting preview on port {port}...")
     
     with open(LOG_FILE, "w") as log:
         process = subprocess.Popen(
@@ -86,13 +78,13 @@ def start_server(port=3000):
             stdout=log,
             stderr=log,
             env=env,
-            shell=False  # Explicit shell=False prevents command injection
+            shell=True # Required for npm on windows often, or consistent path handling
         )
     
     PID_FILE.write_text(str(process.pid))
     print(f"✅ Preview started! (PID: {process.pid})")
     print(f"   Logs: {LOG_FILE}")
-    print(f"   URL: http://localhost:{display_port}")
+    print(f"   URL: http://localhost:{port}")
 
 def stop_server():
     if not PID_FILE.exists():

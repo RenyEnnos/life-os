@@ -1,12 +1,11 @@
 /**
  * User authentication API routes
  * Handle user registration, login, token management, etc.
+ * Uses Supabase Auth for identity and public.profiles for metadata.
  */
 import { Router, type Request, type Response } from 'express'
-import bcrypt from 'bcryptjs'
-import jwt, { JwtPayload } from 'jsonwebtoken'
 import { supabase } from '../lib/supabase'
-import { LoginRequest, RegisterRequest, AuthResponse } from '../../shared/types'
+import { LoginRequest, RegisterRequest, AuthResponse } from '@/shared/types'
 import { normalizeEmail, normalizeName } from '@/shared/lib/normalize'
 import { financeCategoryService } from '../services/financeCategoryService'
 
@@ -15,7 +14,6 @@ import { validate } from '../middleware/validate'
 import { loginSchema, registerSchema, profileUpdateSchema } from '@/shared/schemas/auth'
 
 const router = Router()
-const JWT_SECRET = process.env.JWT_SECRET
 const isProduction = process.env.NODE_ENV === 'production'
 const authCookieOptions = {
   httpOnly: true,
@@ -25,20 +23,13 @@ const authCookieOptions = {
   path: '/'
 }
 
-if (!JWT_SECRET && process.env.NODE_ENV !== 'test') {
-  console.error('FATAL: JWT_SECRET is not defined in environment variables.')
-  process.exit(1)
-}
-
-const loginAttempts: Record<string, { count: number; last: number; lockedUntil?: number }> = {}
-
 async function logAuth(email: string, status: 'success' | 'fail', meta?: { code?: string; reason?: string }, req?: Request) {
   try {
     const ip = (req?.headers['x-forwarded-for'] as string) || req?.ip || 'unknown'
     const ua = req?.headers['user-agent'] || 'unknown'
     await supabase.from('auth_logs').insert([{ email, status, code: meta?.code || null, reason: meta?.reason || null, ip, user_agent: ua, created_at: new Date().toISOString() }])
-  } catch {
-    // noop
+  } catch (error) {
+    console.error('Failed to log auth event:', error)
   }
 }
 
@@ -50,70 +41,63 @@ router.post('/register', validate(registerSchema), async (req: Request<Record<st
   const logEmail = normalizeEmail(req.body?.email ?? '') || req.body?.email || 'unknown'
   try {
     const { email, password, name } = req.body
-    const normEmail = normalizeEmail(email)
     const normName = normalizeName(name)
 
-    // Check if profile already exists
-    console.log('[Register] Checking for existing profile:', email);
-    const { data: existingProfile, error: checkError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('id', normEmail) // Supabase Auth user id is the PK for profiles
-      .single()
+    // Register user in Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: normName,
+        },
+      },
+    })
 
-    // Create user in Supabase Auth first (conceptually, since we use profiles here)
-    // For this implementation, we will assume Supabase Auth handles the user creation
-    // and we just create the profile.
-    
-    // Hash password (if still using custom password table)
-    const passwordHash = await bcrypt.hash(password, 10)
-
-    // Create profile
-    console.log('[Register] Inserting profile into DB...');
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .insert([{
-        full_name: normName,
-        nickname: normName.split(' ')[0],
-        preferences: {},
-        theme: 'dark'
-      }])
-      .select()
-      .single()
-
-    if (error) {
-      console.error('Supabase profile creation error:', error)
-      await logAuth(logEmail, 'fail', { code: 'REGISTER_FAILED', reason: 'db_error' }, req)
-      res.status(500).json({ error: 'Failed to create profile', code: 'REGISTER_FAILED' })
+    if (authError || !authData.user) {
+      console.error('Supabase Auth registration error:', authError)
+      await logAuth(logEmail, 'fail', { code: 'REGISTER_FAILED', reason: authError?.message || 'auth_error' }, req)
+      res.status(authError?.status || 500).json({ error: authError?.message || 'Failed to register user', code: 'REGISTER_FAILED' })
       return
     }
 
-    // Generate JWT token
-    if (!JWT_SECRET) { res.status(500).json({ error: 'JWT_SECRET not configured' }); return }
-    const token = jwt.sign(
-      { userId: profile.id, email: normEmail },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    )
+    const userId = authData.user.id;
 
-    // Set HttpOnly cookie
-    res.cookie('token', token, authCookieOptions)
+    // Fetch the profile (created by DB trigger)
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+
+    if (!profile) {
+      // If trigger hasn't finished yet or failed, create a temporary response
+      // But usually it's atomic in the same transaction
+      console.warn('Profile not found immediately after registration');
+    }
+
+    const token = authData.session?.access_token || '';
+
+    // Set HttpOnly cookie if we have a token
+    if (token) {
+      res.cookie('token', token, authCookieOptions)
+    }
 
     const response: AuthResponse = {
       token,
       user: {
-        id: profile.id,
-        email: normEmail,
-        name: profile.nickname || profile.full_name,
-        preferences: profile.preferences,
-        theme: profile.theme,
-        created_at: profile.created_at,
-        updated_at: profile.updated_at
+        id: userId,
+        email: authData.user.email!,
+        name: profile?.nickname || profile?.full_name || normName,
+        preferences: profile?.preferences || {},
+        theme: profile?.theme || 'dark',
+        created_at: profile?.created_at || new Date().toISOString(),
+        updated_at: profile?.updated_at || new Date().toISOString()
       }
     }
 
     // Create default finance categories for new user (async, non-blocking)
-    financeCategoryService.createDefaultCategories(profile.id).catch(err => {
+    financeCategoryService.createDefaultCategories(userId).catch(err => {
       console.error('[Register] Failed to create default categories:', err)
     })
 
@@ -121,7 +105,6 @@ router.post('/register', validate(registerSchema), async (req: Request<Record<st
     res.status(201).json(response)
   } catch (error) {
     console.error('[Register] CRITICAL ERROR:', error)
-    if (error instanceof Error) console.error(error.stack);
     await logAuth(logEmail, 'fail', { code: 'SERVER_ERROR', reason: 'exception' }, req)
     res.status(500).json({ error: 'Internal server error', code: 'SERVER_ERROR' })
   }
@@ -135,81 +118,41 @@ router.post('/login', validate(loginSchema), async (req: Request<Record<string, 
   const logEmail = normalizeEmail(req.body?.email ?? '') || req.body?.email || 'unknown'
   try {
     const { email, password } = req.body
-    const normEmail = normalizeEmail(email)
-    const attemptKey = normEmail
 
-    if (!email || !password) {
-      await logAuth(logEmail, 'fail', { code: 'BAD_REQUEST', reason: 'missing_fields' }, req)
-      res.status(400).json({ error: 'Email and password are required', code: 'BAD_REQUEST' })
-      return
-    }
+    // Login with Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
 
-    const info = loginAttempts[attemptKey] || { count: 0, last: 0, lockedUntil: undefined }
-    if (info.lockedUntil && info.lockedUntil > Date.now()) {
-      await logAuth(logEmail, 'fail', { code: 'ACCOUNT_LOCKED', reason: 'rate_limit' }, req)
-      res.status(423).json({ error: 'Account temporarily locked', code: 'ACCOUNT_LOCKED' })
+    if (authError || !authData.user || !authData.session) {
+      await logAuth(logEmail, 'fail', { code: 'LOGIN_FAILED', reason: authError?.message || 'invalid_credentials' }, req)
+      res.status(authError?.status || 401).json({ error: authError?.message || 'Invalid credentials', code: 'LOGIN_FAILED' })
       return
     }
 
     // Find profile
-    const { data: profile, error } = await supabase
+    const { data: profile } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', normEmail) // Assuming id is used here, adjust if email is unique elsewhere
+      .eq('id', authData.user.id)
       .single()
 
-    if (error || !profile) {
-      const now = Date.now()
-      const attempts = loginAttempts[attemptKey] || { count: 0, last: 0 }
-      loginAttempts[attemptKey] = { ...attempts, count: attempts.count + 1, last: now }
-      await logAuth(logEmail, 'fail', { code: 'USER_NOT_FOUND', reason: 'not_found' }, req)
-      res.status(404).json({ error: 'User not found', code: 'USER_NOT_FOUND' })
-      return
-    }
-
-    // Verify password (if using custom passwords, otherwise Supabase Auth should handle this)
-    // For now we keep the current logic but pointing to profile
-    const isValidPassword = await bcrypt.compare(password, profile.password_hash)
-    if (!isValidPassword) {
-      const now = Date.now()
-      const attempts = loginAttempts[attemptKey] || { count: 0, last: 0 }
-      const withinWindow = attempts.last && (now - attempts.last) < 15 * 60 * 1000
-      const newCount = withinWindow ? attempts.count + 1 : 1
-      const lock = newCount >= 5 ? now + 15 * 60 * 1000 : undefined
-      loginAttempts[attemptKey] = { count: newCount, last: now, lockedUntil: lock }
-      if (lock) {
-        await logAuth(logEmail, 'fail', { code: 'ACCOUNT_LOCKED', reason: 'too_many_attempts' }, req)
-        res.status(423).json({ error: 'Account temporarily locked', code: 'ACCOUNT_LOCKED' })
-      } else {
-        await logAuth(logEmail, 'fail', { code: 'WRONG_PASSWORD', reason: 'bad_password' }, req)
-        res.status(401).json({ error: 'Incorrect password', code: 'WRONG_PASSWORD' })
-      }
-      return
-    }
-
-    // Generate JWT token
-    if (!JWT_SECRET) { res.status(500).json({ error: 'JWT_SECRET not configured' }); return }
-    const token = jwt.sign(
-      { userId: profile.id, email: normEmail },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    )
+    const token = authData.session.access_token
 
     // Set HttpOnly cookie
     res.cookie('token', token, authCookieOptions)
 
-    if (loginAttempts[attemptKey]) delete loginAttempts[attemptKey]
-
     const response: AuthResponse = {
       token,
       user: {
-        id: profile.id,
-        email: normEmail,
-        name: profile.nickname || profile.full_name,
-        preferences: profile.preferences,
-        theme: profile.theme,
-        created_at: profile.created_at,
-        updated_at: profile.updated_at
+        id: authData.user.id,
+        email: authData.user.email!,
+        name: profile?.nickname || profile?.full_name || authData.user.email!.split('@')[0],
+        preferences: profile?.preferences || {},
+        theme: profile?.theme || 'dark',
+        created_at: profile?.created_at || authData.user.created_at,
+        updated_at: profile?.updated_at || authData.user.updated_at
       }
     }
 
@@ -227,23 +170,14 @@ router.post('/login', validate(loginSchema), async (req: Request<Record<string, 
  * POST /api/auth/logout
  */
 router.post('/logout', async (req: Request, res: Response): Promise<void> => {
+  await supabase.auth.signOut()
   res.clearCookie('token', authCookieOptions)
   res.json({ message: 'Logged out successfully' })
 })
 
 /**
- * @swagger
- * /auth/verify:
- *   get:
- *     summary: Verify current session token
- *     tags: [Auth]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Token is valid, returns user data
- *       401:
- *         description: No token provided or invalid
+ * Verify current session token
+ * GET /api/auth/verify
  */
 router.get('/verify', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -254,29 +188,36 @@ router.get('/verify', async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET as string) as unknown as JwtPayload & { userId: string; email: string }
+    // Use Supabase to verify the token
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
 
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('id, full_name, nickname, avatar_url, preferences, theme, created_at, updated_at')
-      .eq('id', decoded.userId)
-      .single()
-
-    if (error || !profile) {
-      res.status(401).json({ error: 'Invalid token' })
+    if (authError || !authUser) {
+      res.status(401).json({ error: 'Invalid or expired token' })
       return
     }
 
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id, full_name, nickname, avatar_url, preferences, theme, created_at, updated_at')
+      .eq('id', authUser.id)
+      .single()
+
     // Map profile to expected user format
     const user = {
-      ...profile,
-      email: decoded.email,
-      name: profile.nickname || profile.full_name
+      id: authUser.id,
+      email: authUser.email,
+      name: profile?.nickname || profile?.full_name || authUser.email!.split('@')[0],
+      avatar_url: profile?.avatar_url,
+      preferences: profile?.preferences || {},
+      theme: profile?.theme || 'dark',
+      created_at: profile?.created_at || authUser.created_at,
+      updated_at: profile?.updated_at || authUser.updated_at
     }
 
     res.json(user)
-  } catch {
-    res.status(403).json({ error: 'Invalid token' })
+  } catch (error) {
+    console.error('Verify error:', error)
+    res.status(403).json({ error: 'Authentication failed' })
   }
 })
 
@@ -285,7 +226,14 @@ router.get('/verify', async (req: Request, res: Response): Promise<void> => {
  * POST /api/auth/forgot-password
  */
 router.post('/forgot-password', async (req: Request, res: Response): Promise<void> => {
-  // Placeholder for password reset logic
+  const { email } = req.body
+  const { error } = await supabase.auth.resetPasswordForEmail(email)
+  
+  if (error) {
+    res.status(error.status || 500).json({ error: error.message })
+    return
+  }
+
   res.json({ message: 'If an account exists with that email, a reset link will be sent.' })
 })
 
@@ -294,7 +242,14 @@ router.post('/forgot-password', async (req: Request, res: Response): Promise<voi
  * POST /api/auth/reset-password
  */
 router.post('/reset-password', async (req: Request, res: Response): Promise<void> => {
-  // Placeholder for password reset logic
+  const { password } = req.body
+  const { error } = await supabase.auth.updateUser({ password })
+
+  if (error) {
+    res.status(error.status || 500).json({ error: error.message })
+    return
+  }
+
   res.json({ message: 'Password has been reset successfully.' })
 })
 
@@ -332,16 +287,23 @@ router.patch('/profile', authenticateToken, validate(profileUpdateSchema), async
       .single()
 
     if (error) {
+      console.error('Profile update error:', error)
       res.status(500).json({ error: 'Failed to update profile' })
       return
     }
 
     res.json({
-      ...profile,
+      id: profile.id,
       email: req.user!.email,
-      name: profile.nickname || profile.full_name
+      name: profile.nickname || profile.full_name,
+      avatar_url: profile.avatar_url,
+      preferences: profile.preferences,
+      theme: profile.theme,
+      created_at: profile.created_at,
+      updated_at: profile.updated_at
     })
-  } catch {
+  } catch (error) {
+    console.error('Profile patch error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, MessageSquare } from 'lucide-react';
+import { Sparkles, X } from 'lucide-react';
 import { ChatInterface } from './ChatInterface';
 import { cn } from '@/shared/lib/cn';
 

@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Wallet, TrendingUp, TrendingDown, AlertTriangle, Plus } from 'lucide-react';
 import { WidgetShell } from './WidgetShell';
-import { useDashboardData } from '@/features/dashboard/hooks/useDashboardData';
+import { useDashboardFinance } from '@/features/dashboard/hooks/useDashboardData';
 import { useBudgets } from '@/features/finances/hooks/useBudgets';
 import { cn } from '@/shared/lib/cn';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { financesApi } from '@/features/finances/api/finances.api';
 
 export function FinanceWidget() {
-    const { finance, isLoading: isDashboardLoading } = useDashboardData();
+    const { data: financeData, isLoading: isFinanceLoading } = useDashboardFinance();
     const { budgetStatus, isLoading: isBudgetsLoading } = useBudgets();
     const qc = useQueryClient();
 
@@ -36,10 +36,11 @@ export function FinanceWidget() {
         }
     });
 
-    const isLoading = isDashboardLoading || isBudgetsLoading;
+    const finance = useMemo(() => financeData || { income: 0, expenses: 0, balance: 0 }, [financeData]);
+    const isLoading = isFinanceLoading || isBudgetsLoading;
 
     // Filter only active budgets or top categories
-    const relevantBudgets = budgetStatus.slice(0, 3); // Show top 3
+    const relevantBudgets = useMemo(() => budgetStatus.slice(0, 3), [budgetStatus]); // Show top 3
 
     return (
         <WidgetShell

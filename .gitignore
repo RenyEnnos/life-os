@@ -73,9 +73,7 @@ reports/
 .trae/cache/
 .trae/sessions/
 .Jules/
-.agent/preview.log
-.agent/preview.pid
-# .agent/                      # ← UNCOMMENT to ignore entire .agent folder
+.agent/
 
 # ===========================
 # Storybook

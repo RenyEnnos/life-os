@@ -16,23 +16,36 @@ export function useJournal() {
         enabled: !!user,
     });
 
-    const createEntry = useMutation({
-        mutationFn: journalApi.create,
+    const analyzeEntry = useMutation({
+        mutationFn: journalApi.analyzeEntry,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['journal'] });
+        },
+    });
+
+    const createEntry = useMutation({
+        mutationFn: journalApi.create,
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: ['journal'] });
+            if (data.id) {
+                analyzeEntry.mutate(data);
+            }
         },
     });
 
     const updateEntry = useMutation({
         mutationFn: ({ id, updates }: { id: string; updates: Partial<JournalEntry> }) =>
             journalApi.update(id, updates),
-        onSuccess: () => {
+        onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['journal'] });
+            if (data.id) {
+                analyzeEntry.mutate(data);
+            }
         },
     });
 
     const deleteEntry = useMutation({
-        mutationFn: journalApi.delete,
+        mutationFn: (id: string) => journalApi.delete(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['journal'] });
         },
@@ -44,6 +57,7 @@ export function useJournal() {
         createEntry,
         updateEntry,
         deleteEntry,
+        analyzeEntry,
         page,
         setPage,
         pageSize,

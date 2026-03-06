@@ -5,6 +5,7 @@
 
 import { ApiError } from '../api/ApiError'
 import { AppError } from '../errors/AppError'
+import { HttpStatus } from '../constants/httpStatus'
 import {
   getApiErrorMessage,
   isNetworkError,
@@ -79,7 +80,7 @@ function categorizeError(error: Error | ApiError | AppError): ErrorCategory {
   }
 
   // Check for rate limit (429)
-  if (error instanceof ApiError && error.status === 429) {
+  if (error instanceof ApiError && error.status === HttpStatus.TOO_MANY_REQUESTS) {
     return ErrorCategory.VALIDATION
   }
 
@@ -98,10 +99,10 @@ function determineSeverity(error: Error | ApiError | AppError, category: ErrorCa
     if (error.status >= 500) {
       return ErrorSeverity.HIGH
     }
-    if (error.status === 401 || error.status === 403) {
+    if (error.status === HttpStatus.UNAUTHORIZED || error.status === HttpStatus.FORBIDDEN) {
       return ErrorSeverity.MEDIUM
     }
-    if (error.status === 404) {
+    if (error.status === HttpStatus.NOT_FOUND) {
       return ErrorSeverity.LOW
     }
     if (error.status >= 400 && error.status < 500) {
@@ -126,7 +127,7 @@ function isRetryable(error: Error | ApiError | AppError, category: ErrorCategory
 
   if (error instanceof ApiError) {
     // Retry on server errors (5xx) and rate limit (429)
-    return error.status >= 500 || error.status === 429 || error.status === 408
+    return error.status >= HttpStatus.INTERNAL_SERVER_ERROR || error.status === HttpStatus.TOO_MANY_REQUESTS || error.status === 408
   }
 
   return false

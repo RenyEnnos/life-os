@@ -26,13 +26,13 @@ describe("authToken.ts", () => {
     beforeEach(() => {
         // Clear store before each test
         localStorageMock.clear()
-        // @ts-ignore - Mock localStorage
-        global.localStorage = localStorageMock
+        // Mock localStorage
+        ;(global as { localStorage: typeof localStorageMock }).localStorage = localStorageMock
     })
 
     afterEach(() => {
-        // @ts-ignore - Restore localStorage
-        delete global.localStorage
+        // Restore localStorage
+        delete (global as { localStorage?: unknown }).localStorage
     })
 
     describe("getAuthToken", () => {
@@ -48,16 +48,16 @@ describe("authToken.ts", () => {
         })
 
         it("returns null when localStorage is not available", () => {
-            // @ts-ignore - Simulate unavailable localStorage
-            global.localStorage = undefined
+            // Simulate unavailable localStorage
+            ;(global as unknown as { localStorage: undefined }).localStorage = undefined
             const token = getAuthToken()
             expect(token).toBeNull()
         })
 
         it("returns null when localStorage.getItem throws an error", () => {
-            // @ts-ignore - Mock localStorage that throws
-            global.localStorage = {
-                getItem: vi.fn(() => {
+            // Mock localStorage that throws
+            ;(global as unknown as { localStorage: { getItem: (key: string) => never } }).localStorage = {
+                getItem: vi.fn((_key: string) => {
                     throw new Error("Storage access denied")
                 }),
             }
@@ -110,16 +110,16 @@ describe("authToken.ts", () => {
         })
 
         it("does nothing when localStorage is not available", () => {
-            // @ts-ignore - Simulate unavailable localStorage
-            global.localStorage = undefined
+            // Simulate unavailable localStorage
+            ;(global as unknown as { localStorage: undefined }).localStorage = undefined
             // Should not throw
             expect(() => setAuthToken("test-token")).not.toThrow()
         })
 
         it("does nothing when localStorage.setItem throws an error", () => {
-            // @ts-ignore - Mock localStorage that throws on setItem
-            global.localStorage = {
-                setItem: vi.fn(() => {
+            // Mock localStorage that throws on setItem
+            ;(global as unknown as { localStorage: { setItem: (key: string, value: string) => never } }).localStorage = {
+                setItem: vi.fn((_key: string, _value: string) => {
                     throw new Error("Quota exceeded")
                 }),
             }
@@ -155,16 +155,16 @@ describe("authToken.ts", () => {
         })
 
         it("does nothing when localStorage is not available", () => {
-            // @ts-ignore - Simulate unavailable localStorage
-            global.localStorage = undefined
+            // Simulate unavailable localStorage
+            ;(global as unknown as { localStorage: undefined }).localStorage = undefined
             // Should not throw
             expect(() => clearAuthToken()).not.toThrow()
         })
 
         it("does nothing when localStorage.removeItem throws an error", () => {
-            // @ts-ignore - Mock localStorage that throws on removeItem
-            global.localStorage = {
-                removeItem: vi.fn(() => {
+            // Mock localStorage that throws on removeItem
+            ;(global as unknown as { localStorage: { removeItem: (key: string) => never } }).localStorage = {
+                removeItem: vi.fn((_key: string) => {
                     throw new Error("Storage access denied")
                 }),
             }

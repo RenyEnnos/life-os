@@ -68,34 +68,32 @@ class FinanceServiceImpl {
   }
 
   async summary(userId: string) {
-    const now = new Date()
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-
-    // Get all transactions for summary (can optimize to use DB aggregation later)
-    // For now, fetch current month for specific summary, or all? 
-    // The previous implementation fetched simple list.
-    // Let's stick to Month view for Summary context or global? 
-    // Previous was GLOBAL. Let's keep it global but maybe filtered by range if provided.
-
-    const { data: transactions } = await supabase
+    // Get income total
+    const { data: incomeData, error: incomeError } = await supabase
       .from('transactions')
-      .select('*')
+      .select('amount')
       .eq('user_id', userId)
+      .eq('type', 'income')
 
-    const list = transactions || []
+    if (incomeError) throw incomeError
 
-    const income = list.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)
-    const expenses = list.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0)
+    // Get expenses total
+    const { data: expenseData, error: expenseError } = await supabase
+      .from('transactions')
+      .select('amount, category')
+      .eq('user_id', userId)
+      .eq('type', 'expense')
 
-    const byCategory = list
-      .filter(t => t.type === 'expense')
-      .reduce((acc: Record<string, number>, t) => {
-        // Use normalized category logic: category match OR category_id lookup?
-        // Since we didn't fetch category join here, use 'category' string field or fallback
-        const cat = t.category || 'Outros';
-        acc[cat] = (acc[cat] || 0) + Number(t.amount);
-        return acc
-      }, {})
+    if (expenseError) throw expenseError
+
+    const income = (incomeData || []).reduce((s, t) => s + Number(t.amount), 0)
+    const expenses = (expenseData || []).reduce((s, t) => s + Number(t.amount), 0)
+
+    const byCategory = (expenseData || []).reduce((acc: Record<string, number>, t) => {
+      const cat = t.category || 'Outros'
+      acc[cat] = (acc[cat] || 0) + Number(t.amount)
+      return acc
+    }, {})
 
     return { income, expenses, balance: income - expenses, byCategory }
   }

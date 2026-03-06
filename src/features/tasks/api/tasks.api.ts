@@ -1,46 +1,12 @@
 import { apiClient } from '@/shared/api/http';
 import { Task } from '@/shared/types';
+import { createTaskSchema, updateTaskSchema } from '@/shared/schemas/task';
+import { formatZodError } from '@/shared/utils/formatZodError';
 
 export interface PaginatedTasksResponse {
     data: Task[];
     page: number;
     pageSize: number;
-}
-
-/**
- * Validates task ID format
- * @throws {Error} If ID is invalid
- */
-function validateTaskId(id: string): void {
-    if (!id || typeof id !== 'string' || id.trim() === '') {
-        throw new Error('ID da tarefa é obrigatório');
-    }
-}
-
-/**
- * Validates task data for creation/update
- * @throws {Error} If required fields are missing
- */
-function validateTaskData(task: Partial<Task>, requireTitle = true): void {
-    if (!task || typeof task !== 'object') {
-        throw new Error('Dados da tarefa são obrigatórios');
-    }
-
-    if (requireTitle && (!task.title || typeof task.title !== 'string' || task.title.trim() === '')) {
-        throw new Error('Título da tarefa é obrigatório');
-    }
-
-    if (task.title !== undefined && task.title.length > 200) {
-        throw new Error('Título da tarefa deve ter no máximo 200 caracteres');
-    }
-
-    if (task.description !== undefined && task.description !== null && typeof task.description !== 'string') {
-        throw new Error('Descrição deve ser uma string');
-    }
-
-    if (task.status !== undefined && !['todo', 'in-progress', 'done'].includes(task.status)) {
-        throw new Error('Status da tarefa inválido');
-    }
 }
 
 /**
@@ -79,10 +45,12 @@ export const tasksApi = {
      * @throws {ApiError} If creation fails
      */
     create: async (task: Partial<Task>): Promise<Task> => {
-        // Validate input before making request
-        validateTaskData(task, true);
+        const validation = createTaskSchema.safeParse(task);
+        if (!validation.success) {
+            throw new Error(formatZodError(validation.error));
+        }
 
-        const data = await apiClient.post<Task>('/api/tasks', task);
+        const data = await apiClient.post<Task>('/api/tasks', validation.data);
         return data;
     },
 
@@ -94,25 +62,27 @@ export const tasksApi = {
      * @throws {ApiError} If update fails
      */
     update: async (id: string, updates: Partial<Task>): Promise<Task> => {
-        // Validate inputs before making request
-        validateTaskId(id);
-        validateTaskData(updates, false);
+        if (!id) throw new Error('ID da tarefa é obrigatório');
+        
+        const validation = updateTaskSchema.safeParse(updates);
+        if (!validation.success) {
+            throw new Error(formatZodError(validation.error));
+        }
 
-        const data = await apiClient.put<Task>(`/api/tasks/${id}`, updates);
+        const data = await apiClient.put<Task>(`/api/tasks/${id}`, validation.data);
         return data;
     },
 
     /**
-     * Delete a task
+     * Delete a task (Soft-Delete)
      * @param id - Task ID to delete
      * @throws {Error} If validation fails
      * @throws {ApiError} If deletion fails
      */
     delete: async (id: string): Promise<void> => {
-        // Validate input before making request
-        validateTaskId(id);
-
-        await apiClient.delete(`/api/tasks/${id}`);
+        if (!id) throw new Error('ID da tarefa é obrigatório');
+        // Soft-delete: update record with is_deleted = true
+        await apiClient.patch(`/api/tasks/${id}`, { is_deleted: true });
     },
 
     /**

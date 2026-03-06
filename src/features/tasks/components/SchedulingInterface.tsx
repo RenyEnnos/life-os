@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Modal from '@/shared/ui/Modal';
-import { useScheduling } from '../hooks/useScheduling';
+import { useScheduling, useSuggestedSchedule } from '../hooks/useScheduling';
 import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
 import Clock from 'lucide-react/dist/esm/icons/clock';
 import Calendar from 'lucide-react/dist/esm/icons/calendar';
@@ -17,11 +17,11 @@ interface SchedulingInterfaceProps {
 }
 
 export const SchedulingInterface: React.FC<SchedulingInterfaceProps> = ({ open, onClose }) => {
-    const { getSuggestions, applySchedule } = useScheduling();
+    const { applySchedule } = useScheduling();
     const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
     const [bufferTime, setBufferTime] = useState(15);
 
-    const { data: suggestions, isLoading, isError, refetch } = getSuggestions(selectedDate, bufferTime);
+    const { data: suggestions, isLoading, isError, refetch } = useSuggestedSchedule(selectedDate, bufferTime);
 
     // Trigger fetch when modal opens or date changes
     React.useEffect(() => {

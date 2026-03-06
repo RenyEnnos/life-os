@@ -2,6 +2,7 @@ import { useState } from 'react';
 import AccessibilitySettings from './components/AccessibilitySettings';
 import IdentityTab from './components/IdentityTab';
 import PreferencesTab from './components/PreferencesTab';
+import AppearanceTab from './components/AppearanceTab';
 
 type SettingsSection = 'identity' | 'preferences' | 'accessibility' | 'appearance' | 'integrations' | 'data';
 
@@ -142,8 +143,9 @@ export default function SettingsPage() {
                             {activeSection === 'identity' && <IdentityTab />}
                             {activeSection === 'preferences' && <PreferencesTab />}
                             {activeSection === 'accessibility' && <AccessibilitySettings />}
+                            {activeSection === 'appearance' && <AppearanceTab />}
 
-                            {['appearance', 'integrations', 'data'].includes(activeSection) && (
+                            {['integrations', 'data'].includes(activeSection) && (
                                 <section className="flex flex-col items-center justify-center gap-4 py-20 animate-[fadeIn_0.4s_ease-out_forwards]">
                                     <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center mb-2">
                                         <span className="material-symbols-outlined text-3xl text-zinc-600">construction</span>

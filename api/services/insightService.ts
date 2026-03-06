@@ -31,6 +31,7 @@ export const insightService = {
             .from('tasks')
             .select('id, status')
             .eq('user_id', userId)
+            .is('deleted_at', null)
             .gte('created_at', startDate.toISOString())
             .lte('created_at', endDate.toISOString());
 

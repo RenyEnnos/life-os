@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase'
 import { getPagination } from '../lib/pagination'
-import type { JournalEntry } from '../../shared/types'
+import type { JournalEntry } from '@/shared/types'
 
 export const journalService = {
   async list(userId: string, query: { date?: string; startDate?: string; endDate?: string; page?: string | string[]; pageSize?: string | string[] }) {

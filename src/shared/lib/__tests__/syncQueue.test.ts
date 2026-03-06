@@ -31,9 +31,6 @@ Object.defineProperty(global, 'localStorage', {
 const mockConsoleError = vi.spyOn(console, "error").mockImplementation(() => {})
 
 describe("syncQueue.ts", () => {
-    // Use node environment to avoid jsdom issues
-    // @ts-ignore - test environment override
-    const testEnv = process.env.VITEST_ENV || 'node'
     beforeEach(() => {
         vi.useFakeTimers()
         // Clear all mocks before each test
@@ -283,7 +280,7 @@ describe("syncQueue.ts", () => {
         it("processes multiple items sequentially in order", async () => {
             const { addToQueue, processQueue } = useSyncQueue.getState()
 
-            let callOrder: string[] = []
+            const callOrder: string[] = []
 
             vi.mocked(apiClient.post).mockImplementation(async () => {
                 callOrder.push("post")

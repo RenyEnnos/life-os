@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '@/shared/api/http';
-import { Sparkles, BrainCircuit, AlertCircle, ArrowRight, ShieldAlert } from 'lucide-react';
+import { Sparkles, BrainCircuit, ArrowRight, ShieldAlert } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 import ReactMarkdown from 'react-markdown';
 import { ReactNode } from 'react';
@@ -9,7 +9,7 @@ import { useRiskFactors } from '../hooks/useRiskFactors';
 export function AIInsightsWidget() {
     const [insights, setInsights] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [, setError] = useState<string | null>(null);
     const { data: riskFactors, isLoading: isRisksLoading } = useRiskFactors();
 
     const generateInsights = async () => {
@@ -20,7 +20,7 @@ export function AIInsightsWidget() {
                 method: 'POST'
             });
             setInsights(data.insights);
-        } catch (err) {
+        } catch {
             setError('Failed to generate insights.');
         } finally {
             setIsLoading(false);
@@ -31,6 +31,7 @@ export function AIInsightsWidget() {
         if (!insights && !isLoading) {
             generateInsights();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (

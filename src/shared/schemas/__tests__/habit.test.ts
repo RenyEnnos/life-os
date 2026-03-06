@@ -7,7 +7,7 @@ describe('habitSchema', () => {
       title: 'Exercise Daily',
       description: '30 minutes of cardio',
       type: 'binary',
-      goal: 30,
+      target_value: 30,
       routine: 'morning',
       active: true,
       attribute: 'BODY'
@@ -18,7 +18,7 @@ describe('habitSchema', () => {
   it('accepts valid habit with required fields only', () => {
     const result = habitSchema.safeParse({
       title: 'Meditate',
-      type: 'numeric'
+      type: 'quantified'
     })
     expect(result.success).toBe(true)
   })
@@ -45,11 +45,11 @@ describe('habitSchema', () => {
     expect(result.success).toBe(false)
   })
 
-  it('rejects negative goal', () => {
+  it('rejects negative target_value', () => {
     const result = habitSchema.safeParse({
       title: 'Exercise',
-      type: 'numeric',
-      goal: -5
+      type: 'quantified',
+      target_value: -5
     })
     expect(result.success).toBe(false)
   })

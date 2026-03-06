@@ -4,6 +4,7 @@ import { habitsApi } from '../api/habits.api';
 import { rewardsApi } from '@/features/rewards/api/rewards.api';
 import { XP_REWARDS } from '@/shared/constants/gamification';
 import { Habit } from '../types';
+import { NotificationReconciler } from '@/shared/services/NotificationReconciler';
 
 const PAGE_SIZE = 50;
 
@@ -45,6 +46,7 @@ export function useHabits() {
         mutationFn: habitsApi.create,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['habits'] });
+            NotificationReconciler.reconcile();
         },
     });
 
@@ -115,6 +117,7 @@ export function useHabits() {
             queryClient.invalidateQueries({ queryKey: ['habits'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard'] });
             queryClient.invalidateQueries({ queryKey: ['life-score'] });
+            NotificationReconciler.reconcile();
         },
     });
 

@@ -21,7 +21,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Prom
     try {
       const data = await journalService.list(req.user!.id, req.query)
       res.json(data)
-    } catch (error) {
+    } catch {
       res.status(500).json({ error: 'Failed to fetch journal entries', code: 'FETCH_FAILED' })
     }
     return

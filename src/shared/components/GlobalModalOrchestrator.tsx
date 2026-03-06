@@ -1,5 +1,6 @@
 import { Modal } from '@/shared/ui/Modal';
 import { useUIStore } from '@/shared/stores/uiStore';
+import { useShallow } from 'zustand/react/shallow';
 import { JournalEditor } from '@/features/journal/components/JournalEditor';
 import { useJournal } from '@/features/journal/hooks/useJournal';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
@@ -8,7 +9,13 @@ import { useHabits } from '@/features/habits/hooks/useHabits';
 import type { JournalEntry, Task, Project } from '@/shared/types';
 
 export function GlobalModalOrchestrator() {
-    const { activeModal, modalData, closeModal } = useUIStore();
+    const { activeModal, modalData, closeModal } = useUIStore(
+        useShallow((s) => ({
+            activeModal: s.activeModal,
+            modalData: s.modalData,
+            closeModal: s.closeModal,
+        }))
+    );
     const { createEntry, updateEntry } = useJournal();
     const { createTask, updateTask } = useTasks();
     const { createProject } = useProjects();

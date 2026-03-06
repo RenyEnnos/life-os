@@ -1,13 +1,16 @@
 {
-  "mode": "yolo",
-  "depth": "comprehensive",
-  "parallelization": true,
-  "commit_docs": true,
-  "model_profile": "quality",
+  "project_name": "Life OS: Rebirth",
+  "version": "1.0.0",
+  "workflow_mode": "strict",
+  "desktop_stack": "Electron",
+  "state_management": "Zustand",
+  "priority": "Functional Integrity & Offline Mode",
+  "rules": {
+    "no_mock_logic": true,
+    "require_state_persistence": true,
+    "atomic_features": true
+  },
   "workflow": {
-    "research": true,
-    "plan_check": true,
-    "verifier": true,
-    "auto_advance": true
+    "research": false
   }
 }

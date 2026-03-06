@@ -135,7 +135,6 @@ export function withErrorTracking<P extends object>(
 ): React.FC<P> {
   return function WrappedComponent(props: P) {
     try {
-      // @ts-ignore
       return <Component {...props} />;
     } catch (error) {
       captureError(error, context);

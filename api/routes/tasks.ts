@@ -33,12 +33,8 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Prom
 router.get('/summary', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   const userId = req.user!.id
   try {
-    const tasks = await tasksService.list(userId, req.query)
-    const total = tasks.length
-    const completed = tasks.filter((t) => t.completed).length
-    const today = new Date().toISOString().split('T')[0]
-    const dueToday = tasks.filter((t) => typeof t.due_date === 'string' && t.due_date.startsWith(today)).length
-    res.json({ total, completed, dueToday })
+    const summary = await tasksService.getSummary(userId)
+    res.json(summary)
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'Unknown error'
     res.status(500).json({ error: msg, code: 'TASKS_SUMMARY_FAILED' })
@@ -67,8 +63,9 @@ router.post('/', authenticateToken, validate(createTaskSchema), async (req: Auth
           }
         })
       }
-    } catch {
-      // noop: falha de sincronização de calendário não deve bloquear criação
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error'
+      console.warn(`Calendar sync failed for task ${data.id}: ${msg}`)
     }
     res.status(201).json(data)
   } catch (error: unknown) {

@@ -100,13 +100,6 @@ export function JournalEditor({ entry, onSave, onCancel }: JournalEditorProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         onSave({ title, content, entry_date: date, tags });
-        
-        // Auto-analyze after short delay to ensure DB sync
-        if (entry?.id) {
-            setTimeout(() => {
-                handleAnalyze();
-            }, 1500);
-        }
     };
 
     return (

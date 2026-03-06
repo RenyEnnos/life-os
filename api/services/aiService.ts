@@ -54,6 +54,18 @@ const UniversalEntitySchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('transaction'), data: TransactionParseSchema })
 ])
 
+const HabitDiagnosisSchema = z.object({
+  type: z.enum(['success', 'warning', 'info']),
+  message: z.string(),
+  detail: z.string(),
+  action: z.object({
+    type: z.enum(['CHANGE_ROUTINE', 'CHANGE_FREQUENCY', 'PAUSE_HABIT', 'CREATE_TASK']),
+    habitId: z.string().optional(),
+    value: z.any().optional(),
+    label: z.string()
+  }).optional()
+})
+
 export const aiService = {
   async checkLimit(userId: string, feature: string, force = false): Promise<boolean> {
     const today = new Date().toISOString().split('T')[0]
@@ -384,6 +396,66 @@ export const aiService = {
     } catch {
       await this.logUsage(userId, 'parseEntity', false, { errorMessage: 'JSON/Schema error', tokens: response?.tokens, ms: response?.ms })
       return { type: 'task', data: { title: naturalInput } }
+    }
+  },
+
+  async generateHabitDiagnosis(userId: string, habitsContext: string, opts?: { force?: boolean }) {
+    if (!habitsContext) throw new Error('context required')
+    const allowed = await this.checkLimit(userId, 'habitDoctor', !!opts?.force)
+    if (!allowed) throw new Error('Daily AI limit reached for this feature.')
+
+    const systemPrompt = `You are a productivity doctor specialized in habits. 
+    Given a user's habits and their recent completion data, provide a diagnosis and an actionable suggestion.
+    
+    Rules:
+    1. If they are doing well (80%+ consistency): Type "success".
+    2. If they are struggling (30%-70%): Type "info" or "warning".
+    3. If they are failing (<30%): Type "warning".
+    
+    Return a JSON object with keys: 
+    - "type": success/warning/info
+    - "message": short punchy title
+    - "detail": actionable advice
+    - "action": (Optional) { "type": "CHANGE_ROUTINE" | "CHANGE_FREQUENCY" | "PAUSE_HABIT" | "CREATE_TASK", "habitId": "id", "value": "new_value", "label": "Button text" }
+
+    Example Action: { "type": "CHANGE_ROUTINE", "habitId": "123", "value": "morning", "label": "Mudar para Manhã" }
+    
+    Focus on WHY they might be failing based on the data.
+    Respond in the language of the user's input (default to Portuguese Brazil).`
+
+    const cached = await getCached(userId, 'habitDoctor', { habitsContext })
+    if (cached) { await this.logUsage(userId, 'habitDoctor', true); return cached }
+
+    let response;
+    try {
+      response = await aiManager.execute('deep_reason', {
+        systemPrompt,
+        userPrompt: habitsContext,
+        jsonMode: true
+      });
+    } catch (e) { console.error(e); }
+
+    if (!response || !response.text) {
+      const fallback = { type: 'info', message: 'Nexus Estável', detail: 'Continue mantendo a consistência para uma análise mais profunda.' }
+      await this.logUsage(userId, 'habitDoctor', true)
+      return fallback
+    }
+
+    try {
+      const parsed = JSON.parse(response.text)
+      const result = HabitDiagnosisSchema.safeParse(parsed)
+
+      if (!result.success) {
+        throw new Error('Schema validation failed')
+      }
+
+      const diagnosis = result.data
+      await setCache(userId, 'habitDoctor', { habitsContext }, diagnosis)
+      await this.logUsage(userId, 'habitDoctor', true, { tokens: response.tokens, ms: response.ms })
+      return diagnosis
+    } catch {
+      await this.logUsage(userId, 'habitDoctor', false, { errorMessage: 'JSON/Schema error', tokens: response?.tokens, ms: response?.ms })
+      throw new Error('Failed to parse AI response')
     }
   }
 }

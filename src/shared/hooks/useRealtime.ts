@@ -35,8 +35,8 @@ export function useRealtime() {
     es.addEventListener('ai_logs', () => invalidate(['ai-logs']))
     es.addEventListener('journal_entries', () => invalidate(['journal', user.id]))
 
-    es.onerror = () => {
-      // Allow auto-reconnect handled by browser; do nothing
+    es.onerror = (event) => {
+      console.warn('Realtime connection error, browser will auto-reconnect:', event)
     }
 
     return () => { es.close() }

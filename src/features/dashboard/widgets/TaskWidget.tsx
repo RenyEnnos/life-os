@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { CheckCircle2, Circle, Plus, Play, Calendar } from 'lucide-react';
 import { Widget } from '@/shared/ui/Widget';
-import { useDashboardData } from '@/features/dashboard/hooks/useDashboardData';
+import { useDashboardTasks } from '@/features/dashboard/hooks/useDashboardData';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { tasksApi } from '@/features/tasks/api/tasks.api';
 import { cn } from '@/shared/lib/cn';
@@ -10,12 +10,21 @@ import { useAuth } from '@/features/auth/contexts/AuthContext';
 
 import { useFocusStore } from '@/features/focus/stores/useFocusStore';
 
+const today = new Date().toISOString().split('T')[0];
+
 export function TaskWidget() {
-    const { agenda, isLoading } = useDashboardData(); // Agenda is strictly today's tasks
+    const { data: tasks, isLoading } = useDashboardTasks();
     const { user } = useAuth();
     const qc = useQueryClient();
     const [isAdding, setIsAdding] = useState(false);
     const [newTaskTitle, setNewTaskTitle] = useState('');
+
+    const agenda = useMemo(() => (tasks || [])
+        .filter((t) => {
+            const due = t.due_date
+            return typeof due === 'string' && due.startsWith(today)
+        })
+        .slice(0, 5), [tasks]);
 
     // Connect to focus store
     const startFocus = useFocusStore(state => state.startFocus);

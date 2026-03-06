@@ -1,17 +1,9 @@
 import { getAuthToken } from './authToken';
 import { handleFetchError } from '../lib/errorHandler';
 
-export class ApiError extends Error {
-    public status: number;
-    public details?: any;
-    
-    constructor(message: string, status: number, details?: any) {
-        super(message);
-        this.name = 'ApiError';
-        this.status = status;
-        this.details = details;
-    }
-}
+import { ApiError } from './ApiError';
+
+export { ApiError };
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 

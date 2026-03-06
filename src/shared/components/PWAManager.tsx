@@ -1,6 +1,7 @@
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { useEffect } from 'react'
 import { toast } from 'react-hot-toast'
+import { logger } from '@/shared/lib/logger'
 
 export function PWAManager() {
     const {
@@ -8,10 +9,10 @@ export function PWAManager() {
         updateServiceWorker,
     } = useRegisterSW({
         onRegistered(r: ServiceWorkerRegistration | undefined) {
-            console.log('SW Registered: ' + r)
+            logger.log('SW Registered: ' + r)
         },
         onRegisterError(error: Error) {
-            console.log('SW registration error', error)
+            logger.log('SW registration error', error)
         },
     })
 

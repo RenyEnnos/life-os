@@ -60,8 +60,8 @@ export function OnboardingFlow({ onClose }: OnboardingFlowProps) {
       };
 
       const { error } = await supabase
-        .from('profiles' as any)
-        // @ts-ignore
+        .from('profiles' as never)
+        // @ts-expect-error - Supabase table type not available at compile time
         .upsert(updatedProfile);
 
       if (error) {

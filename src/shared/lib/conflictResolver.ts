@@ -6,7 +6,7 @@
 export interface SyncableEntity {
     id: string;
     updated_at: string | number;
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 /**
@@ -29,23 +29,20 @@ export function resolveWithLWW<T extends SyncableEntity>(local: T, server: T): T
  * In case of direct conflict on a field, the timestamp-based winner is used for that field.
  */
 export function resolveWithMerge<T extends SyncableEntity>(local: T, server: T): T {
-    const winner = resolveWithLWW(local, server);
-    
     // Simple merge: Start with server data (the authority)
     const result = { ...server };
-    
+
     // Overlay local changes if they are newer
     const localTime = new Date(local.updated_at).getTime();
     const serverTime = new Date(server.updated_at).getTime();
-    
+
     if (localTime > serverTime) {
-        Object.keys(local).forEach(key => {
-            if (local[key] !== undefined && local[key] !== null) {
-                result[key as keyof T] = local[key];
-            }
-        });
+        // Overlay local non-null values onto result
+        Object.assign(result, Object.fromEntries(
+            Object.entries(local).filter(([, v]) => v !== undefined && v !== null)
+        ));
     }
-    
+
     return result;
 }
 
@@ -55,7 +52,7 @@ export function resolveWithMerge<T extends SyncableEntity>(local: T, server: T):
 export function hasConflict(local: SyncableEntity, server: SyncableEntity): boolean {
     // If timestamps match, no conflict (assuming data is same)
     if (local.updated_at === server.updated_at) return false;
-    
+
     // Check if critical fields differ
     // This is a simple implementation; ideally we check actual content values
     return JSON.stringify(local) !== JSON.stringify(server);

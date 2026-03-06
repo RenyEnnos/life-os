@@ -4,5 +4,6 @@ export * from './project';
 export * from './finances';
 export * from './journal';
 export * from './habit';
+export * from './health';
 export * from './calendar';
 export * from './dashboard';

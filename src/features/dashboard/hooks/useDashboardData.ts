@@ -7,46 +7,65 @@ import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { Task } from '@/features/tasks/types';
 import { Habit } from '@/features/habits/types';
 import { FinanceSummary } from '@/shared/types';
+import { useMemo } from 'react';
+
+const today = new Date().toISOString().split('T')[0];
+
+export function useDashboardTasks() {
+  const { user } = useAuth();
+  return useQuery<Task[]>({
+    queryKey: ['tasks', user?.id, 1, 10],
+    queryFn: () => tasksApi.getPaginated(1, 10),
+    enabled: !!user?.id,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useDashboardHabits() {
+  const { user } = useAuth();
+  return useQuery<Habit[]>({
+    queryKey: ['habits', user?.id, 1, 10],
+    queryFn: () => habitsApi.getPaginated(1, 10),
+    enabled: !!user?.id,
+    staleTime: 1000 * 60 * 10,
+  });
+}
+
+export function useDashboardSummary() {
+  const { user } = useAuth();
+  return useQuery<DashboardSummary>({
+    queryKey: ['dashboard', 'summary', user?.id],
+    queryFn: () => dashboardApi.getSummary(),
+    enabled: !!user?.id,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useDashboardFinance() {
+  const { user } = useAuth();
+  return useQuery<FinanceSummary>({
+    queryKey: ['finance', 'summary', user?.id],
+    queryFn: () => financesApi.getSummary(),
+    enabled: !!user?.id,
+    staleTime: 1000 * 60 * 10,
+  });
+}
 
 export function useDashboardData() {
   const { user } = useAuth();
   const userId = user?.id;
 
-  const { data: dashboardSummary, isLoading: summaryLoading } = useQuery<DashboardSummary>({
-    queryKey: ['dashboard', 'summary', userId],
-    queryFn: () => dashboardApi.getSummary(),
-    enabled: !!userId,
-    staleTime: 1000 * 60 * 5, // 5 minutes - dashboard data changes frequently
-  });
+  const { data: dashboardSummary, isLoading: summaryLoading } = useDashboardSummary();
+  const { data: tasks, isLoading: tasksLoading } = useDashboardTasks();
+  const { data: habits, isLoading: habitsLoading } = useDashboardHabits();
+  const { data: financeData, isLoading: financeLoading } = useDashboardFinance();
 
-  const { data: tasks, isLoading: tasksLoading } = useQuery<Task[]>({
-    queryKey: ['tasks', userId, 1, 10],
-    queryFn: () => tasksApi.getPaginated(1, 10),
-    enabled: !!userId,
-    staleTime: 1000 * 60 * 5, // 5 minutes - tasks can change frequently
-  });
-
-  const { data: habits, isLoading: habitsLoading } = useQuery<Habit[]>({
-    queryKey: ['habits', userId, 1, 10],
-    queryFn: () => habitsApi.getPaginated(1, 10),
-    enabled: !!userId,
-    staleTime: 1000 * 60 * 10, // 10 minutes - habits change less frequently
-  });
-
-  const { data: financeData, isLoading: financeLoading } = useQuery<FinanceSummary>({
-    queryKey: ['finance', 'summary', userId],
-    queryFn: () => financesApi.getSummary(),
-    enabled: !!userId,
-    staleTime: 1000 * 60 * 10, // 10 minutes - financial data changes less often
-  });
-
-  const today = new Date().toISOString().split('T')[0];
-  const agenda = (tasks || [])
+  const agenda = useMemo(() => (tasks || [])
     .filter((t) => {
       const due = t.due_date
       return typeof due === 'string' && due.startsWith(today)
     })
-    .slice(0, 5);
+    .slice(0, 5), [tasks]);
 
   const defaultLifeScore = {
     user_id: userId || '',

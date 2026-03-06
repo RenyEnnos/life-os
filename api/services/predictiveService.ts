@@ -1,8 +1,7 @@
-import { supabase } from '../lib/supabase';
 import { scoreService } from './scoreService';
 import { insightService } from './insightService';
 import { aiManager } from './ai/AIManager';
-import { subDays, format, startOfDay } from 'date-fns';
+import { subDays, format } from 'date-fns';
 
 export interface ForecastData {
     date: string;

@@ -1,20 +1,27 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Activity, Check, Plus, Minus } from 'lucide-react';
 import { Widget } from '@/shared/ui/Widget';
-import { useDashboardData } from '@/features/dashboard/hooks/useDashboardData';
+import { useDashboardHabits, useDashboardSummary } from '@/features/dashboard/hooks/useDashboardData';
 import { useHabits } from '@/features/habits/hooks/useHabits';
 import { cn } from '@/shared/lib/cn';
 import type { Habit } from '@/shared/types';
 
 export function HabitWidget() {
-    const { habits, habitConsistency, isLoading } = useDashboardData();
+    const { data: habits, isLoading: habitsLoading } = useDashboardHabits();
+    const { data: summary, isLoading: summaryLoading } = useDashboardSummary();
     const { logHabit } = useHabits();
     const [selectedHabitId, setSelectedHabitId] = useState('');
+
+    const habitConsistency = summary?.habitConsistency;
+    const isLoading = habitsLoading || summaryLoading;
 
     const resolveHabitTitle = (habit: Habit) => (habit as any).name || (habit as any).title || 'Hábito';
 
     // Sort habits: prioritize incomplete ones for today
-    const sortedHabits = [...(habits || [])].sort((a, b) => ((a as any).streak_current || 0) > ((b as any).streak_current || 0) ? -1 : 1);
+    const sortedHabits = useMemo(() => 
+        [...(habits || [])].sort((a, b) => ((a as any).streak_current || 0) > ((b as any).streak_current || 0) ? -1 : 1),
+        [habits]
+    );
 
     return (
         <Widget

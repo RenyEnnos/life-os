@@ -157,6 +157,30 @@ router.post('/summary', authenticateToken, async (req: AuthRequest, res: Respons
 })
 
 /**
+ * Habit Doctor Diagnosis
+ * POST /api/ai/habit-doctor
+ */
+router.post('/habit-doctor', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  const schema = z.object({ context: z.string().min(1) })
+  const parsed = schema.safeParse(req.body || {})
+  if (!parsed.success) {
+    res.status(400).json({ error: 'context (habits/logs) required', code: 'INVALID_DOCTOR_REQUEST' })
+    return
+  }
+
+  const { context } = parsed.data
+  const force = req.query.force === 'true'
+
+  try {
+    const diagnosis = await aiService.generateHabitDiagnosis(req.user!.id, context, { force })
+    res.json(diagnosis)
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Habit Doctor failed'
+    res.status(500).json({ error: msg, code: 'DOCTOR_ERROR' })
+  }
+})
+
+/**
  * Get AI usage logs
  * GET /api/ai/logs
  */

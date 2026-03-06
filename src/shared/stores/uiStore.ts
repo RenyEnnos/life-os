@@ -1,5 +1,7 @@
 import { create } from 'zustand';
-import type { JournalEntry, Task } from '@/shared/types';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import type { JournalEntry } from '@/shared/types';
+import { indexedDBStorage } from './storage';
 
 type ModalType = 'action' | 'mission' | 'ritual' | 'journal' | 'search' | null;
 
@@ -16,13 +18,30 @@ type ModalData<T extends ModalType> = T extends keyof ModalDataMap ? ModalDataMa
 interface UIStore {
     activeModal: ModalType;
     modalData: ModalDataMap[keyof ModalDataMap] | null;
+    _hasHydrated: boolean;
     openModal: <T extends NonNullable<ModalType>>(type: T, data?: ModalData<T>) => void;
     closeModal: () => void;
+    setHasHydrated: (state: boolean) => void;
 }
 
-export const useUIStore = create<UIStore>((set) => ({
-    activeModal: null,
-    modalData: null,
-    openModal: (type, data = undefined) => set({ activeModal: type, modalData: data }),
-    closeModal: () => set({ activeModal: null, modalData: null }),
-}));
+export const useUIStore = create<UIStore>()(
+    persist(
+        (set) => ({
+            activeModal: null,
+            modalData: null,
+            _hasHydrated: false,
+            openModal: (type, data = undefined) => set({ activeModal: type, modalData: data }),
+            closeModal: () => set({ activeModal: null, modalData: null }),
+            setHasHydrated: (state) => set({ _hasHydrated: state }),
+        }),
+        {
+            name: 'life-os-ui',
+            storage: createJSONStorage(() => indexedDBStorage),
+            onRehydrateStorage: (state) => {
+                return () => state.setHasHydrated(true);
+            },
+            // Não persistir estado de modais abertos, apenas configurações se houver
+            partialize: (state) => ({}), 
+        }
+    )
+);

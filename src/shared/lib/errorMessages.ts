@@ -4,10 +4,8 @@
  */
 
 import { ApiError } from '../api/http'
+import { HttpStatus } from '../constants/httpStatus'
 
-/**
- * Error code to user-friendly message mapping (Portuguese)
- */
 const ERROR_CODE_MESSAGES: Record<string, string> = {
   // Validation errors (400)
   VALIDATION_ERROR: 'Os dados fornecidos são inválidos. Por favor, verifique e tente novamente.',
@@ -81,9 +79,6 @@ const ERROR_CODE_MESSAGES: Record<string, string> = {
   LOGS_ERROR: 'Erro ao buscar logs. Tente novamente.',
 }
 
-/**
- * HTTP status code to generic message mapping (Portuguese)
- */
 const HTTP_STATUS_MESSAGES: Record<number, string> = {
   400: 'Requisição inválida. Verifique os dados enviados.',
   401: 'Não autenticado. Faça login para continuar.',
@@ -96,9 +91,6 @@ const HTTP_STATUS_MESSAGES: Record<number, string> = {
   503: 'Serviço temporariamente indisponível.',
 }
 
-/**
- * Field name to Portuguese label mapping
- */
 const FIELD_LABELS: Record<string, string> = {
   title: 'título',
   description: 'descrição',
@@ -113,9 +105,6 @@ const FIELD_LABELS: Record<string, string> = {
   value: 'valor',
 }
 
-/**
- * Validation error type to message template
- */
 const VALIDATION_ERROR_TEMPLATES: Record<string, string> = {
   REQUIRED: 'O campo {{field}} é obrigatório',
   TOO_SHORT: 'O campo {{field}} deve ter pelo menos {{min}} caracteres',
@@ -129,43 +118,29 @@ const VALIDATION_ERROR_TEMPLATES: Record<string, string> = {
   MAX_VALUE: 'O valor máximo para {{field}} é {{max}}',
 }
 
-/**
- * Get user-friendly error message from error code
- */
 export function getErrorMessage(code: string): string {
-  return ERROR_CODE_MESSAGES[code] || HTTP_STATUS_MESSAGES[parseInt(code)] || 'Erro desconhecido. Tente novamente.'
+  const numericCode = Number(code)
+  return ERROR_CODE_MESSAGES[code] || HTTP_STATUS_MESSAGES[numericCode] || 'Erro desconhecido. Tente novamente.'
 }
 
-/**
- * Get user-friendly error message from HTTP status code
- */
 export function getHttpErrorMessage(status: number): string {
   return HTTP_STATUS_MESSAGES[status] || `Erro ${status}. Tente novamente.`
 }
 
-/**
- * Get error message from ApiError instance
- */
 export function getApiErrorMessage(error: ApiError | Error): string {
-  if (error instanceof ApiError && error.details) {
-    // If there are validation details, return those
-    if (Array.isArray(error.details)) {
-      return getValidationErrorMessage(error.details)
-    }
+  if (error instanceof ApiError && Array.isArray(error.details)) {
+    return getValidationErrorMessage(error.details)
   }
 
-  // Check if error has a code property
   const errWithCode = error as { code?: string }
   if (errWithCode.code) {
     return getErrorMessage(errWithCode.code)
   }
 
-  // Fall back to status code for ApiError
   if (error instanceof ApiError) {
     return getHttpErrorMessage(error.status)
   }
 
-  // Return the error message itself if it exists and is user-friendly
   if (error.message && !error.message.includes('Erro na requisição')) {
     return error.message
   }
@@ -173,15 +148,11 @@ export function getApiErrorMessage(error: ApiError | Error): string {
   return 'Ocorreu um erro. Tente novamente.'
 }
 
-/**
- * Get validation error message from error details
- */
 export function getValidationErrorMessage(details: Array<{ field?: string; message: string }>): string {
   if (!details || details.length === 0) {
     return 'Os dados fornecidos são inválidos.'
   }
 
-  // If there's only one error, return it
   if (details.length === 1) {
     const detail = details[0]
     if (detail.field) {
@@ -191,7 +162,6 @@ export function getValidationErrorMessage(details: Array<{ field?: string; messa
     return detail.message
   }
 
-  // Multiple errors - return the first one with field info
   const firstError = details[0]
   if (firstError.field) {
     const label = FIELD_LABELS[firstError.field] || firstError.field
@@ -201,9 +171,6 @@ export function getValidationErrorMessage(details: Array<{ field?: string; messa
   return firstError.message
 }
 
-/**
- * Format field validation error with template
- */
 export function formatFieldError(
   field: string,
   type: keyof typeof VALIDATION_ERROR_TEMPLATES,
@@ -223,9 +190,6 @@ export function formatFieldError(
   return message
 }
 
-/**
- * Check if error is a network/connection error
- */
 export function isNetworkError(error: Error): boolean {
   const networkErrorMessages = [
     'Failed to fetch',
@@ -237,60 +201,38 @@ export function isNetworkError(error: Error): boolean {
   return networkErrorMessages.some(msg => error.message.includes(msg))
 }
 
-/**
- * Check if error is a validation error
- */
 export function isValidationError(error: Error | ApiError): boolean {
   if (error instanceof ApiError) {
-    return error.status === 400 || error.status === 422
+    return error.status === HttpStatus.BAD_REQUEST || error.status === HttpStatus.UNPROCESSABLE
   }
 
-  const errWithCode = error as { code?: string }
-  return errWithCode.code === 'VALIDATION_ERROR' ||
-    errWithCode.code === 'BAD_REQUEST' ||
-    Boolean(error.message.includes('inválid'))
+  const code = (error as { code?: string }).code
+  return code === 'VALIDATION_ERROR' || code === 'BAD_REQUEST' || error.message.includes('inválid')
 }
 
-/**
- * Check if error is an authentication error
- */
 export function isAuthError(error: Error | ApiError): boolean {
   if (error instanceof ApiError) {
-    return error.status === 401 || error.status === 403
+    return error.status === HttpStatus.UNAUTHORIZED || error.status === HttpStatus.FORBIDDEN
   }
 
-  const errWithCode = error as { code?: string }
-  return errWithCode.code === 'AUTHENTICATION_ERROR' ||
-    errWithCode.code === 'AUTHORIZATION_ERROR' ||
-    false
+  const code = (error as { code?: string }).code
+  return code === 'AUTHENTICATION_ERROR' || code === 'AUTHORIZATION_ERROR'
 }
 
-/**
- * Check if error is a not found error
- */
 export function isNotFoundError(error: Error | ApiError): boolean {
   if (error instanceof ApiError) {
-    return error.status === 404
+    return error.status === HttpStatus.NOT_FOUND
   }
 
-  const errWithCode = error as { code?: string }
-  return Boolean(
-    errWithCode.code === 'NOT_FOUND' ||
-    (errWithCode.code && errWithCode.code.endsWith('_NOT_FOUND'))
-  )
+  const code = (error as { code?: string }).code
+  return code === 'NOT_FOUND' || Boolean(code?.endsWith('_NOT_FOUND'))
 }
 
-/**
- * Check if error is a server error (5xx)
- */
 export function isServerError(error: Error | ApiError): boolean {
   if (error instanceof ApiError) {
-    return error.status >= 500 && error.status < 600
+    return error.status >= HttpStatus.INTERNAL_SERVER_ERROR && error.status < 600
   }
 
-  const errWithCode = error as { code?: string }
-  return errWithCode.code === 'INTERNAL_ERROR' ||
-    errWithCode.code === 'SERVER_ERROR' ||
-    errWithCode.code === 'SERVICE_UNAVAILABLE' ||
-    false
+  const code = (error as { code?: string }).code
+  return code === 'INTERNAL_ERROR' || code === 'SERVER_ERROR' || code === 'SERVICE_UNAVAILABLE'
 }

@@ -4,8 +4,8 @@ import { fetchJSON, getJSON, postJSON, putJSON, patchJSON, delJSON, resolveApiUr
 const originalFetch = global.fetch;
 const originalWindow = global.window;
 
-// @ts-ignore - Sem tipagem no parâmetro para evitar conflitos com Vitest
-function mockFetch(response: any) {
+// Mock fetch response type
+function mockFetch(response: { status: number; body: unknown; headers?: Headers; statusText?: string }) {
     global.fetch = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
         const body = response.body
         const headers = response.headers || new Headers()
@@ -38,11 +38,9 @@ describe("http.ts", () => {
         if (originalWindow) {
             global.window = originalWindow
         } else {
-            // @ts-ignore
-            delete global.window
+            delete (global as { window?: unknown }).window
         }
-        // @ts-ignore
-        delete global.import
+        delete (global as { import?: unknown }).import
     })
 
     describe("fetchJSON", () => {
@@ -186,10 +184,9 @@ describe("http.ts", () => {
         })
 
         it("timeout aborts request after specified time", async () => {
-            // @ts-ignore - Override fetch for abort simulation
-            global.fetch = vi.fn((_url: string, init?: RequestInit) => {
+            global.fetch = vi.fn((_url: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
                 const signal = init?.signal as AbortSignal | undefined
-                return new Promise((_resolve, reject) => {
+                return new Promise<Response>((_resolve, reject) => {
                     if (signal) {
                         signal.addEventListener("abort", () => {
                             const err = new Error("Tempo de requisição excedido")
@@ -217,13 +214,11 @@ describe("http.ts", () => {
         })
 
         it("handles network failure (Failed to fetch)", async () => {
-            // @ts-ignore - Simulate network failure
             global.fetch = vi.fn(() => Promise.reject(new Error("Failed to fetch")))
             await expect(fetchJSON("/api/network-error")).rejects.toThrow(/Falha na conexão com o servidor/)
         })
 
         it("handles generic fetch errors", async () => {
-            // @ts-ignore - Simulate generic error
             global.fetch = vi.fn(() => Promise.reject(new Error("Some other error")))
             await expect(fetchJSON("/api/error")).rejects.toThrow("Some other error")
         })

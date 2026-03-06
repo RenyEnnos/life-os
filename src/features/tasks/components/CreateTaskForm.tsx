@@ -6,7 +6,7 @@ import { Input, TextArea } from '@/shared/ui/Input';
 import { useAI } from '@/features/ai-assistant/hooks/useAI';
 import { Tag } from '@/shared/ui/Tag';
 import { X, Zap } from 'lucide-react';
-import { taskSchema, type TaskFormData } from '@/shared/schemas/tasks';
+import { taskSchema, type TaskInput as TaskFormData } from '@/shared/schemas/task';
 import type { Task, EnergyLevel, TimeBlock } from '@/shared/types';
 
 interface CreateTaskFormProps {
@@ -28,8 +28,10 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
             description: '',
             due_date: '',
             tags: [],
-            energyLevel: 'any',
-            timeBlock: 'any',
+            energy_level: 'any',
+            time_block: 'any',
+            status: 'todo',
+            completed: false
         }
     });
 
@@ -78,24 +80,25 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
     };
 
     const removeTag = (tagToRemove: string) => {
-        setValue('tags', tags.filter(tag => tag !== tagToRemove));
+        setValue('tags', tags.filter((tag: string) => tag !== tagToRemove));
     };
 
-    const onFormSubmit = (data: TaskFormData) => {
+    const onFormSubmit = (data: any) => {
         const payload: Partial<Task> = {
             title: data.title,
-            description: data.description,
+            description: data.description || undefined,
             due_date: data.due_date ? new Date(data.due_date).toISOString() : undefined,
-            completed: false,
+            completed: data.completed,
             tags: data.tags,
-            energy_level: data.energyLevel as EnergyLevel,
-            time_block: data.timeBlock as TimeBlock,
+            energy_level: data.energy_level as EnergyLevel,
+            time_block: data.time_block as TimeBlock,
+            status: data.status
         };
         onSubmit(payload);
     };
 
     return (
-        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onFormSubmit as any)} className="space-y-4">
             <div className="space-y-2">
                 <label className="text-sm font-mono text-muted-foreground uppercase tracking-wider">Título</label>
                 <Input
@@ -134,7 +137,7 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                         Energia
                     </label>
                     <select
-                        {...register('energyLevel')}
+                        {...register('energy_level')}
                         className="w-full bg-surface/50 border border-border rounded-md p-2 text-sm font-mono text-foreground focus:bg-surface focus:border-primary focus:outline-none transition-colors"
                     >
                         <option value="any">Qualquer</option>
@@ -148,7 +151,7 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                         Período
                     </label>
                     <select
-                        {...register('timeBlock')}
+                        {...register('time_block')}
                         className="w-full bg-surface/50 border border-border rounded-md p-2 text-sm font-mono text-foreground focus:bg-surface focus:border-primary focus:outline-none transition-colors"
                     >
                         <option value="any">Qualquer</option>
@@ -193,7 +196,7 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
                     </Button>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-2">
-                    {tags.map(tag => (
+                    {tags.map((tag: string) => (
                         <Tag
                             key={tag}
                             variant="default"
@@ -224,4 +227,3 @@ export function CreateTaskForm({ onSubmit, onCancel }: CreateTaskFormProps) {
         </form>
     );
 }
-

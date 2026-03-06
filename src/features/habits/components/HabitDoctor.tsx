@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
-import { Stethoscope, Sparkles, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Stethoscope, Sparkles, RefreshCw, AlertTriangle, CheckCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Habit } from '../types';
 import { Badge } from '@/shared/ui/Badge';
 import { motion, AnimatePresence } from 'framer-motion';
+import { habitsApi } from '../api/habits.api';
+import { actionDispatcher } from '@/features/dashboard/lib/actionDispatcher';
+import { useToast } from '@/shared/ui/useToast';
 
 interface HabitDoctorProps {
     habits: Habit[];
@@ -12,39 +15,68 @@ interface HabitDoctorProps {
 
 export function HabitDoctor({ habits }: HabitDoctorProps) {
     const [analyzing, setAnalyzing] = useState(false);
-    const [insight, setInsight] = useState<{ type: 'success' | 'warning' | 'info', message: string, detail: string } | null>(null);
+    const [executingAction, setExecutingAction] = useState(false);
+    const [insight, setInsight] = useState<{ 
+        type: 'success' | 'warning' | 'info', 
+        message: string, 
+        detail: string,
+        action?: { type: string, habitId?: string, value?: any, label: string }
+    } | null>(null);
+    const { showToast } = useToast();
 
     const runDiagnosis = async () => {
+        if (!habits.length) return;
+        
         setAnalyzing(true);
         setInsight(null);
 
-        // Simulate AI Analysis
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        try {
+            // Prepare context for AI
+            const habitsContext = JSON.stringify(habits.map(h => ({
+                id: h.id,
+                name: h.name || h.title,
+                active: h.active,
+                frequency: h.frequency,
+                streak: (h as any).streak_current || 0,
+                type: h.type,
+                target: h.target_value || (h as any).goal
+            })));
 
-        // Mock Logic for Demo
-        const activeHabits = habits.filter(h => h.active);
-
-        if (activeHabits.length === 0) {
-            setInsight({
-                type: 'info',
-                message: "No habits to analyze.",
-                detail: "Start by creating some habits."
-            });
-        } else if (activeHabits.length > 5) {
+            const result = await habitsApi.getDiagnosis(habitsContext);
+            setInsight(result);
+        } catch (error) {
+            console.error('Habit Doctor Analysis failed:', error);
             setInsight({
                 type: 'warning',
-                message: "High Cognitive Load",
-                detail: `You have ${activeHabits.length} active habits. Consider focusing on the top 3 to prevent burnout.`
+                message: "Nexus Desconectado",
+                detail: "Não foi possível realizar a análise no momento. Tente novamente em alguns minutos."
             });
-        } else {
-            setInsight({
-                type: 'success',
-                message: "Healthy Routine Balance",
-                detail: "Your habit distribution across morning and evening is well-balanced."
-            });
+        } finally {
+            setAnalyzing(false);
         }
+    };
 
-        setAnalyzing(false);
+    const handleExecuteAction = async () => {
+        if (!insight?.action) return;
+        setExecutingAction(true);
+        try {
+            const success = await actionDispatcher.execute({
+                type: insight.action.type as any,
+                payload: {
+                    habitId: insight.action.habitId,
+                    value: insight.action.value,
+                    label: insight.action.label
+                }
+            });
+            if (success) {
+                showToast('Ação executada com sucesso', 'success');
+                setInsight(null);
+            }
+        } catch (error) {
+            showToast('Falha ao executar ação', 'error');
+        } finally {
+            setExecutingAction(false);
+        }
     };
 
     return (
@@ -83,9 +115,21 @@ export function HabitDoctor({ habits }: HabitDoctorProps) {
                                     {insight.type === 'warning' && <AlertTriangle className="text-yellow-500 mt-0.5" size={18} />}
                                     {insight.type === 'success' && <CheckCircle className="text-green-500 mt-0.5" size={18} />}
                                     {insight.type === 'info' && <Sparkles className="text-blue-500 mt-0.5" size={18} />}
-                                    <div>
+                                    <div className="flex-1">
                                         <h4 className="font-bold text-sm text-white mb-1">{insight.message}</h4>
-                                        <p className="text-xs text-zinc-400 leading-relaxed">{insight.detail}</p>
+                                        <p className="text-xs text-zinc-400 leading-relaxed mb-3">{insight.detail}</p>
+                                        
+                                        {insight.action && (
+                                            <Button 
+                                                size="sm" 
+                                                className="h-7 text-[10px] uppercase tracking-wider font-bold gap-2"
+                                                onClick={handleExecuteAction}
+                                                disabled={executingAction}
+                                            >
+                                                {executingAction ? 'Executando...' : insight.action.label}
+                                                {!executingAction && <ArrowRight size={12} />}
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
                             </motion.div>

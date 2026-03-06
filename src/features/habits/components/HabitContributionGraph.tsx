@@ -23,13 +23,13 @@ export const HabitContributionGraph = ({ logs, className }: HabitContributionGra
         return eachDayOfInterval({ start, end: today });
     }, []);
 
-    const getActivityLevel = (date: Date) => {
-        const dateStr = format(date, 'yyyy-MM-dd');
-        const dayLogs = logs.filter(l => l.date.startsWith(dateStr) && l.value > 0);
-        return dayLogs.length;
-    };
-
     const trackerData: TrackerData[] = useMemo(() => {
+        const getActivityLevel = (date: Date) => {
+            const dateStr = format(date, 'yyyy-MM-dd');
+            const dayLogs = logs.filter(l => l.date.startsWith(dateStr) && l.value > 0);
+            return dayLogs.length;
+        };
+
         return days.map(day => {
             const count = getActivityLevel(day);
             let color: Color = "zinc";

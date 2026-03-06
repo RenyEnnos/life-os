@@ -47,7 +47,7 @@ async function measurePerformance(fn: () => Promise<unknown>, iterations = 100):
 
 describe('API Performance Benchmarks', () => {
   it('GET /api/tasks - list tasks performs within limits', async () => {
-    const { mean, p95, p99 } = await measurePerformance(
+    const { p95, p99 } = await measurePerformance(
       async () => {
         await request(app)
           .get('/api/tasks?page=1&pageSize=10')
@@ -61,7 +61,7 @@ describe('API Performance Benchmarks', () => {
   })
 
   it('GET /api/tasks/summary - get task summary performs within limits', async () => {
-    const { mean, p95, p99 } = await measurePerformance(
+    const { p95, p99 } = await measurePerformance(
       async () => {
         await request(app)
           .get('/api/tasks/summary')
@@ -75,7 +75,7 @@ describe('API Performance Benchmarks', () => {
   })
 
   it('GET /api/finances/summary - get finances summary performs within limits', async () => {
-    const { mean, p95, p99 } = await measurePerformance(
+    const { p95, p99 } = await measurePerformance(
       async () => {
         await request(app)
           .get('/api/finances/summary')
@@ -89,7 +89,7 @@ describe('API Performance Benchmarks', () => {
   })
 
   it('GET /api/habits - list habits performs within limits', async () => {
-    const { mean, p95, p99 } = await measurePerformance(
+    const { p95, p99 } = await measurePerformance(
       async () => {
         await request(app)
           .get('/api/habits')
@@ -103,7 +103,7 @@ describe('API Performance Benchmarks', () => {
   })
 
   it('GET /api/dashboard - get dashboard data performs within limits', async () => {
-    const { mean, p95, p99 } = await measurePerformance(
+    const { p95, p99 } = await measurePerformance(
       async () => {
         await request(app)
           .get('/api/dashboard')
@@ -117,7 +117,7 @@ describe('API Performance Benchmarks', () => {
   })
 
   it('POST /api/tasks - create task performs within limits', async () => {
-    const { mean, p95, p99 } = await measurePerformance(
+    const { p95, p99 } = await measurePerformance(
       async () => {
         await request(app)
           .post('/api/tasks')
@@ -137,7 +137,7 @@ describe('API Performance Benchmarks', () => {
   })
 
   it('GET /api/projects - list projects performs within limits', async () => {
-    const { mean, p95, p99 } = await measurePerformance(
+    const { p95, p99 } = await measurePerformance(
       async () => {
         await request(app)
           .get('/api/projects')
@@ -151,7 +151,7 @@ describe('API Performance Benchmarks', () => {
   })
 
   it('GET /api/health - health check performs within limits', async () => {
-    const { mean, p95, p99 } = await measurePerformance(
+    const { p95, p99 } = await measurePerformance(
       async () => {
         await request(app).get('/api/health')
       },

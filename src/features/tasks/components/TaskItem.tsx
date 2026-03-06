@@ -6,8 +6,10 @@ import { format } from 'date-fns';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, memo } from 'react';
 import { Confetti } from '@/shared/ui/premium/Confetti';
+import { SyncBadge } from '@/shared/ui/SyncBadge';
+import { haptics } from '@/shared/services/HapticsService';
 
 interface TaskItemProps {
     task: Task;
@@ -15,12 +17,13 @@ interface TaskItemProps {
     onDelete: () => void;
 }
 
-export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
+export const TaskItem = memo(({ task, onToggle, onDelete }: TaskItemProps) => {
     const buttonRef = useRef<HTMLButtonElement>(null);
     const prevCompleted = useRef(task.completed);
 
     useEffect(() => {
         if (!prevCompleted.current && task.completed && buttonRef.current) {
+            haptics.success();
             const rect = buttonRef.current.getBoundingClientRect();
             const x = (rect.left + rect.width / 2) / window.innerWidth;
             const y = (rect.top + rect.height / 2) / window.innerHeight;
@@ -84,7 +87,7 @@ export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
                     className={cn(
                         "mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300 shrink-0",
                         task.completed
-                            ? "bg-primary border-primary text-white shadow-[0_0_10px_rgba(48,140,232,0.4)]"
+                            ? "bg-primary border-primary text-black shadow-[0_0_10px_rgba(48,140,232,0.4)]"
                             : "border-white/10 hover:border-primary/50 bg-transparent text-transparent hover:text-primary/50"
                     )}
                 >
@@ -92,13 +95,16 @@ export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
                 </button>
 
                 <div className="flex-1 min-w-0">
-                    <h3 className={cn(
-                        "text-sm font-medium transition-colors truncate",
-                        task.completed ? "line-through text-zinc-500" : "text-zinc-200",
-                        !task.completed && "group-hover:text-white"
-                    )}>
-                        {task.title}
-                    </h3>
+                    <div className="flex items-center gap-2">
+                        <h3 className={cn(
+                            "text-sm font-medium transition-colors truncate",
+                            task.completed ? "line-through text-zinc-500" : "text-zinc-200",
+                            !task.completed && "group-hover:text-white"
+                        )}>
+                            {task.title}
+                        </h3>
+                        <SyncBadge itemId={task.id} />
+                    </div>
                     
                     {task.description && (
                         <p className="mt-1 text-xs text-zinc-500 line-clamp-2 leading-relaxed">
@@ -149,4 +155,4 @@ export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
             </div>
         </motion.div>
     );
-}
+});

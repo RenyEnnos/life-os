@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase'
-import type { HealthMetric, MedicationReminder } from '../../shared/types'
+import type { HealthMetric, MedicationReminder } from '@/shared/types'
 
 export const healthService = {
   async list(userId: string, query: { date?: string; type?: string; limit?: number; startDate?: string; endDate?: string; tags?: string }) {
