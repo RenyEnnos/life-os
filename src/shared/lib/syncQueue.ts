@@ -34,14 +34,30 @@ interface SyncQueueState {
 // Custom storage for Zustand using idb-keyval
 const storage = {
     getItem: async (name: string): Promise<string | null> => {
-        const value = await get(name);
-        return value ? JSON.stringify(value) : null;
+        if (typeof indexedDB === "undefined") return null;
+        try {
+            const value = await get(name);
+            return value ? JSON.stringify(value) : null;
+        } catch(e) {
+            console.warn("indexedDB getItem failed", e);
+            return null;
+        }
     },
     setItem: async (name: string, value: string): Promise<void> => {
-        await set(name, JSON.parse(value));
+        if (typeof indexedDB === "undefined") return;
+        try {
+            await set(name, JSON.parse(value));
+        } catch(e) {
+            console.warn("indexedDB setItem failed", e);
+        }
     },
     removeItem: async (name: string): Promise<void> => {
-        await del(name);
+        if (typeof indexedDB === "undefined") return;
+        try {
+            await del(name);
+        } catch(e) {
+            console.warn("indexedDB removeItem failed", e);
+        }
     },
 };
 

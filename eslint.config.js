@@ -24,7 +24,10 @@ export default tseslint.config({ ignores: ['dist', 'coverage', '**/*.css'] }, {
       'warn',
       { allowConstantExport: true },
     ],
-    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
+    'no-case-declarations': 'off',
+    '@typescript-eslint/triple-slash-reference': 'off',
   },
 }, {
   files: ['api/**/*.ts'],

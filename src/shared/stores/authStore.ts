@@ -50,10 +50,18 @@ export const useAuthStore = create<AuthState>()(
         profile: state.profile,
       }),
       onRehydrateStorage: () => {
-        return (state) => {
+        return (state, error) => {
+          if (error) {
+            console.error("Erro ao reidratar authStore:", error);
+          }
           if (state) {
             state.setHasHydrated(true);
             state.setLoading(false);
+          } else {
+            setTimeout(() => {
+              useAuthStore.getState().setHasHydrated(true);
+              useAuthStore.getState().setLoading(false);
+            }, 0);
           }
         };
       },
