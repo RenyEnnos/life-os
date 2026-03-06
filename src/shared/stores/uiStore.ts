@@ -37,8 +37,19 @@ export const useUIStore = create<UIStore>()(
         {
             name: 'life-os-ui',
             storage: createJSONStorage(() => indexedDBStorage),
-            onRehydrateStorage: (state) => {
-                return () => state.setHasHydrated(true);
+            onRehydrateStorage: () => {
+                return (state, error) => {
+                    if (error) {
+                        console.error("Erro ao reidratar uiStore:", error);
+                    }
+                    if (state) {
+                        state.setHasHydrated(true);
+                    } else {
+                        setTimeout(() => {
+                            useUIStore.getState().setHasHydrated(true);
+                        }, 0);
+                    }
+                };
             },
             // Não persistir estado de modais abertos, apenas configurações se houver
             partialize: (state) => ({}), 
