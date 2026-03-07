@@ -38,7 +38,7 @@ export function useHabits() {
 
     const { data: logs } = useQuery({
         queryKey: ['habit-logs', user?.id],
-        queryFn: () => habitsApi.getLogs(user!.id),
+        queryFn: () => habitsApi.getLogs(),
         enabled: !!user,
     });
 

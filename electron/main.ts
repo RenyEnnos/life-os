@@ -1,5 +1,6 @@
 import { app, BrowserWindow, shell, ipcMain, Notification, Tray, Menu, globalShortcut } from 'electron'
 import path from 'node:path'
+import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import windowStateKeeper from 'electron-window-state'
 import schedule from 'node-schedule'
@@ -38,23 +39,39 @@ if (process.defaultApp) {
 const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 
 function createTray() {
+  // Linux does not support SVG icons for system tray – use PNG
+  const iconCandidates = ['icon-192.png', 'icon-512.png', 'favicon.svg']
+  let trayIcon: string | undefined
+
+  for (const candidate of iconCandidates) {
+    const candidatePath = path.join(process.env.PUBLIC!, candidate)
+    if (fs.existsSync(candidatePath)) {
+      trayIcon = candidatePath
+      break
+    }
+  }
+
+  if (!trayIcon) {
+    console.warn('No tray icon found – system tray disabled')
+    return
+  }
+
   try {
-    const iconPath = path.join(process.env.PUBLIC, 'favicon.svg')
-    tray = new Tray(iconPath)
+    tray = new Tray(trayIcon)
 
     const contextMenu = Menu.buildFromTemplate([
-      { 
-        label: 'Abrir Life OS', 
+      {
+        label: 'Abrir Life OS',
         click: () => {
           win?.show()
-        } 
+        }
       },
       { type: 'separator' },
-      { 
-        label: 'Sair', 
+      {
+        label: 'Sair',
         click: () => {
           app.quit()
-        } 
+        }
       }
     ])
 
@@ -87,7 +104,7 @@ function createWindow() {
     height: mainWindowState.height,
     minWidth: 1024,
     minHeight: 768,
-    icon: path.join(process.env.PUBLIC, 'favicon.svg'),
+    icon: path.join(process.env.PUBLIC!, 'favicon.svg'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -116,7 +133,7 @@ function createWindow() {
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
   } else {
-    win.loadFile(path.join(process.env.DIST, 'index.html'))
+    win.loadFile(path.join(process.env.DIST!, 'index.html'))
   }
 
   // Open external links in default browser
@@ -137,15 +154,15 @@ ipcMain.on('notify', (_event, options: { title: string; body: string; icon?: str
   new Notification({
     title: options.title,
     body: options.body,
-    icon: options.icon || path.join(process.env.PUBLIC, 'favicon.svg')
+    icon: options.icon || path.join(process.env.PUBLIC!, 'favicon.svg')
   }).show()
 })
 
-ipcMain.on('schedule-notification', (_event, options: { 
-  id: string; 
-  title: string; 
-  body: string; 
-  scheduledAt: number; 
+ipcMain.on('schedule-notification', (_event, options: {
+  id: string;
+  title: string;
+  body: string;
+  scheduledAt: number;
   icon?: string;
 }) => {
   // Cancel if exists
@@ -154,16 +171,16 @@ ipcMain.on('schedule-notification', (_event, options: {
   }
 
   const date = new Date(options.scheduledAt)
-  
+
   // Only schedule if in the future
   if (date > new Date()) {
     const job = schedule.scheduleJob(date, () => {
       const notification = new Notification({
         title: options.title,
         body: options.body,
-        icon: options.icon || path.join(process.env.PUBLIC, 'favicon.svg')
+        icon: options.icon || path.join(process.env.PUBLIC!, 'favicon.svg')
       })
-      
+
       notification.on('click', () => {
         if (win) {
           if (win.isMinimized()) win.restore()
@@ -212,7 +229,7 @@ if (!gotTheLock) {
       win.focus()
       win.show()
     }
-    
+
     // Handle the deep link
     const url = commandLine.pop()
     if (url?.startsWith('lifeos://')) {
