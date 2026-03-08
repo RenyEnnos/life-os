@@ -1,6 +1,7 @@
 import { setupLegacyHandlers } from './ipc/legacyHandler'
 import { setupAuthHandlers } from './ipc/authHandler'
 import { setupTasksHandlers } from './ipc/tasksHandler'
+import { setupResourceHandlers } from './ipc/resourceHandler'
 import { initDb } from './db/database'
 import { startSyncEngine } from './sync/engine'
 import { app, BrowserWindow, shell, ipcMain, Notification, Tray, Menu, globalShortcut } from 'electron'
@@ -260,6 +261,7 @@ if (!gotTheLock) {
     setupLegacyHandlers();
     setupAuthHandlers();
     setupTasksHandlers();
+    setupResourceHandlers();
     startSyncEngine();
 
     createWindow()

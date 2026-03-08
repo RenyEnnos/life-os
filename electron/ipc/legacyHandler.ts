@@ -1,5 +1,17 @@
 import { ipcMain } from 'electron';
 import { getDb } from '../db/database';
+import crypto from 'node:crypto';
+
+// Strict allowlist mapping REST resources to SQLite tables
+const ALLOWLISTED_TABLES: Record<string, string> = {
+    'habits': 'habits',
+    'journal': 'journal_entries',
+    'finances': 'transactions',
+    'health': 'health_metrics',
+    'projects': 'projects',
+    'rewards': 'rewards',
+    'user': 'user_profiles'
+};
 
 // A dynamic fallback handler for all features that haven't been fully migrated
 // from the old Express REST API to strict IPC handlers yet.
@@ -15,11 +27,17 @@ export const setupLegacyHandlers = () => {
 
         if (!resource) return { success: true };
 
+        const tableName = ALLOWLISTED_TABLES[resource];
+        if (!tableName) {
+            console.warn(`[Legacy Fallback Blocked] Resource '${resource}' is not allowlisted.`);
+            return method === 'GET' && !id ? [] : { success: false, error: 'Resource not allowlisted' };
+        }
+
         try {
-            // Attempt to auto-create table if it doesn't exist
-            // (Only for quick prototyping. In a real app we'd predefine all schemas)
+            // Only auto-create table for quick prototyping if it's explicitly allowed
+            // (In a real app we'd predefine all schemas in database.ts)
             db.exec(`
-                CREATE TABLE IF NOT EXISTS ${resource} (
+                CREATE TABLE IF NOT EXISTS ${tableName} (
                     id TEXT PRIMARY KEY,
                     data TEXT,
                     is_deleted INTEGER DEFAULT 0,
@@ -30,11 +48,11 @@ export const setupLegacyHandlers = () => {
 
             if (method === 'GET') {
                 if (id) {
-                    const stmt = db.prepare(`SELECT * FROM ${resource} WHERE id = ? AND is_deleted = 0`);
+                    const stmt = db.prepare(`SELECT * FROM ${tableName} WHERE id = ? AND is_deleted = 0`);
                     const row = stmt.get(id) as any;
                     return row && row.data ? JSON.parse(row.data) : null;
                 } else {
-                    const stmt = db.prepare(`SELECT * FROM ${resource} WHERE is_deleted = 0 ORDER BY created_at DESC`);
+                    const stmt = db.prepare(`SELECT * FROM ${tableName} WHERE is_deleted = 0 ORDER BY created_at DESC`);
                     const rows = stmt.all() as any[];
                     // If it's empty, mock some data for the UI to not crash
                     if (rows.length === 0) return [];
@@ -44,7 +62,7 @@ export const setupLegacyHandlers = () => {
 
             if (method === 'POST') {
                 const newId = body?.id || crypto.randomUUID();
-                const stmt = db.prepare(`INSERT INTO ${resource} (id, data) VALUES (?, ?)`);
+                const stmt = db.prepare(`INSERT INTO ${tableName} (id, data) VALUES (?, ?)`);
                 stmt.run(newId, JSON.stringify({ ...body, id: newId }));
                 return { ...body, id: newId };
             }
@@ -52,19 +70,19 @@ export const setupLegacyHandlers = () => {
             if (method === 'PUT' || method === 'PATCH') {
                 if (!id) throw new Error('ID required for update');
 
-                const getStmt = db.prepare(`SELECT * FROM ${resource} WHERE id = ?`);
+                const getStmt = db.prepare(`SELECT * FROM ${tableName} WHERE id = ?`);
                 const existing = getStmt.get(id) as any;
                 const existingData = existing && existing.data ? JSON.parse(existing.data) : {};
 
                 const updatedData = { ...existingData, ...body };
-                const stmt = db.prepare(`UPDATE ${resource} SET data = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
+                const stmt = db.prepare(`UPDATE ${tableName} SET data = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
                 stmt.run(JSON.stringify(updatedData), id);
                 return updatedData;
             }
 
             if (method === 'DELETE') {
                 if (!id) throw new Error('ID required for delete');
-                const stmt = db.prepare(`UPDATE ${resource} SET is_deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
+                const stmt = db.prepare(`UPDATE ${tableName} SET is_deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
                 stmt.run(id);
                 return { success: true };
             }

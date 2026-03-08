@@ -38,5 +38,10 @@ contextBridge.exposeInMainWorld('api', {
     create: (task: any) => ipcRenderer.invoke('tasks:create', task),
     update: (id: string, updates: any) => ipcRenderer.invoke('tasks:update', id, updates),
     delete: (id: string) => ipcRenderer.invoke('tasks:delete', id)
+  },
+  // Scalable Resource Handler for all future refactored features
+  invokeResource: (resource: string, action: string, ...args: any[]) => ipcRenderer.invoke('resource:invoke', resource, action, ...args),
+  legacy: {
+    request: (method: string, url: string, body?: any) => ipcRenderer.invoke('api:legacy', method, url, body)
   }
 })

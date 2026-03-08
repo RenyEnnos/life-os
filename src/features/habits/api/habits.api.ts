@@ -1,7 +1,11 @@
-import { apiClient } from '@/shared/api/http';
 import { Habit } from '../types';
 import { createHabitSchema, updateHabitSchema } from '@/shared/schemas/habit';
 import { formatZodError } from '@/shared/utils/formatZodError';
+import { IpcClient } from '@/shared/api/ipcClient';
+import { apiClient } from '@/shared/api/http'; // Fallback for non-CRUD APIs like AI
+
+// Initialize the generic IPC client pointing to the 'habits' DB resource
+const habitsIpc = new IpcClient<Habit>('habits');
 
 type HabitLogResponse = {
     habit_id?: string;
@@ -11,38 +15,28 @@ type HabitLogResponse = {
 
 /**
  * Habit API client with error handling
- * All methods propagate errors from the API layer for centralized handling
+ * All CRUD methods propagate directly to the local Electron DB via IPC (Zero-Latency)
  */
 export const habitsApi = {
     /**
      * Get all habits
-     * @throws {ApiError} If fetch fails
      */
     list: async (): Promise<Habit[]> => {
-        const data = await apiClient.get<Habit[]>('/api/habits');
-        return data;
+        return habitsIpc.getAll();
     },
 
     /**
      * Get paginated habits
-     * @param page - Page number
-     * @param pageSize - Number of items per page
-     * @throws {ApiError} If fetch fails
+     * Pagination is done in-memory here since fetching all local SQLite data is instantaneous
      */
-    getPaginated: async (page: number, pageSize: number) => {
-        const params = new URLSearchParams({
-            page: page.toString(),
-            pageSize: pageSize.toString()
-        });
-        const data = await apiClient.get<Habit[]>(`/api/habits?${params.toString()}`);
-        return data;
+    getPaginated: async (page: number, pageSize: number): Promise<Habit[]> => {
+        const all = await habitsIpc.getAll();
+        const start = (page - 1) * pageSize;
+        return all.slice(start, start + pageSize);
     },
 
     /**
      * Create a new habit
-     * @param habit - Habit data to create
-     * @throws {Error} If validation fails
-     * @throws {ApiError} If creation fails
      */
     create: async (habit: Partial<Habit>): Promise<Habit> => {
         const validation = createHabitSchema.safeParse(habit);
@@ -50,16 +44,11 @@ export const habitsApi = {
             throw new Error(formatZodError(validation.error));
         }
 
-        const data = await apiClient.post<Habit>('/api/habits', validation.data);
-        return data;
+        return habitsIpc.create(validation.data);
     },
 
     /**
      * Update an existing habit
-     * @param id - Habit ID to update
-     * @param updates - Habit fields to update
-     * @throws {Error} If validation fails
-     * @throws {ApiError} If update fails
      */
     update: async (id: string, updates: Partial<Habit>): Promise<Habit> => {
         if (!id) throw new Error('ID do hábito é obrigatório');
@@ -69,26 +58,21 @@ export const habitsApi = {
             throw new Error(formatZodError(validation.error));
         }
 
-        const data = await apiClient.put<Habit>(`/api/habits/${id}`, validation.data);
-        return data;
+        return habitsIpc.update(id, validation.data);
     },
 
     /**
      * Delete a habit (Soft-Delete)
-     * @param id - Habit ID to delete
-     * @throws {Error} If validation fails
-     * @throws {ApiError} If deletion fails
      */
     delete: async (id: string): Promise<void> => {
         if (!id) throw new Error('ID do hábito é obrigatório');
-        // Soft-delete: update record with is_deleted = true
-        await apiClient.patch(`/api/habits/${id}`, { is_deleted: true });
+        await habitsIpc.delete(id);
     },
 
     /**
      * Get habit logs for a specific date
-     * @param date - Date to fetch logs for (optional)
-     * @throws {ApiError} If fetch fails
+     * Logs are a sub-entity and can be migrated similarly later,
+     * for now we let them fall back to the generic `legacy` IPC if they hit the /api/habits/logs endpoint.
      */
     getLogs: async (date?: string): Promise<(HabitLogResponse & { date: string })[]> => {
         const query = date ? `?date=${date}` : '';
@@ -101,12 +85,6 @@ export const habitsApi = {
 
     /**
      * Log a habit entry
-     * @param userId - User ID (currently unused)
-     * @param habitId - Habit ID to log
-     * @param value - Value to log (e.g., completed count)
-     * @param date - Date of the log
-     * @throws {Error} If validation fails
-     * @throws {ApiError} If logging fails
      */
     log: async (_userId: string, habitId: string, value: number, date: string): Promise<Record<string, unknown>> => {
         void _userId;
@@ -121,7 +99,6 @@ export const habitsApi = {
 
     /**
      * Get AI diagnosis for a list of habits
-     * @param habitsContext - JSON string containing habits and their recent logs
      */
     getDiagnosis: async (habitsContext: string): Promise<{ type: 'success' | 'warning' | 'info', message: string, detail: string }> => {
         const data = await apiClient.post<{ type: 'success' | 'warning' | 'info', message: string, detail: string }>(
