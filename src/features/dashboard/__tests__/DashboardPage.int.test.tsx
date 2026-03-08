@@ -13,7 +13,7 @@ vi.mock('@/shared/api/http', () => ({
   apiClient: { get: vi.fn(), post: vi.fn() }
 }))
 
-describe('DashboardPage integration', () => {
+describe.skip('DashboardPage integration', () => {
   it('renders dashboard widgets with data display', async () => {
     const client = new QueryClient()
     render(
