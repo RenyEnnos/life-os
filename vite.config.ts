@@ -17,7 +17,7 @@ export default defineConfig({
         vite: {
           build: {
             rollupOptions: {
-              external: ['node-schedule', 'electron-window-state'],
+              external: ['node-schedule', 'electron-window-state', 'electron-store', 'better-sqlite3'],
             },
           },
         },
@@ -109,7 +109,7 @@ export default defineConfig({
           'backend': ['@supabase/supabase-js', 'groq-sdk'],
 
           // UI component libraries
-          'ui-libs': ['lucide-react', 'recharts', 'date-fns'],
+          'ui-libs': ['lucide-react', 'date-fns'],
 
           // Form handling and validation
           'forms': ['zod'],
