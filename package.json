@@ -34,13 +34,13 @@
     }
   },
   "scripts": {
-    "client:dev": "vite --host 0.0.0.0",
-    "electron:dev": "vite",
+    "client:dev": "vite --host 0.0.0.0 --mode web",
+    "electron:dev": "vite --host 0.0.0.0 --mode electron",
     "electron:full": "npm run electron:dev",
-    "electron:build": "tsc -b && vite build && electron-builder",
+    "electron:build": "tsc -b && vite build --mode electron && electron-builder",
     "android:dev": "npm run build && npx cap sync && npx cap open android",
     "android:build": "npm run build && npx cap sync",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build --mode web",
     "lint": "eslint .",
     "preview": "vite preview",
     "check": "tsc --noEmit",

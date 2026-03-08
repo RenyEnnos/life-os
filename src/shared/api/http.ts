@@ -1,5 +1,6 @@
 import { getAuthToken } from './authToken';
 import { handleFetchError } from '../lib/errorHandler';
+import { isDesktopApp } from '../lib/platform';
 
 import { ApiError } from './ApiError';
 
@@ -130,6 +131,11 @@ export function resolveApiUrl(path: string): string {
   if (base) {
     return `${String(base).replace(/\/+$/, "")}/${cleanedPath}`
   }
+
+  if (isDesktopApp()) {
+    return `http://localhost:3001/${cleanedPath}`
+  }
+
   const origin = typeof window !== "undefined" ? window.location.origin : ""
   return origin ? `${origin}/${cleanedPath}` : `/${cleanedPath}`
 }
