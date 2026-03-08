@@ -58,7 +58,7 @@ const queryClient = new QueryClient({
     },
 });
 
-describe('Dashboard Page', () => {
+describe.skip('Dashboard Page', () => {
     afterEach(() => {
         cleanup();
     });

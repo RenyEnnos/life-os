@@ -6,18 +6,21 @@ import { VitePWA } from 'vite-plugin-pwa'
 import electron from 'vite-plugin-electron/simple'
 
 // https://vite.dev/config/
-export default defineConfig({
-  base: './',
-  plugins: [
-    react(),
-    electron({
+export default defineConfig(({ mode }) => {
+  const isElectronMode = mode === 'electron'
+
+  return {
+    base: './',
+    plugins: [
+      react(),
+      electron({
       main: {
         // Shortcut of `build.lib.entry`.
         entry: 'electron/main.ts',
         vite: {
           build: {
             rollupOptions: {
-              external: ['node-schedule', 'electron-window-state'],
+              external: ['node-schedule', 'electron-window-state', 'electron-store', 'better-sqlite3'],
             },
           },
         },
@@ -29,9 +32,10 @@ export default defineConfig({
       },
       // PWA is not needed in Electron environment
       // developer can toggle it based on process.env
-    }),
-    VitePWA({
-      registerType: 'autoUpdate',
+      }),
+      VitePWA({
+        disable: isElectronMode,
+        registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'robots.txt', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png'],
       manifest: {
         name: 'Life OS',
@@ -80,8 +84,8 @@ export default defineConfig({
           }
         ]
       }
-    }),
-    traeBadgePlugin({
+      }),
+      traeBadgePlugin({
       variant: 'dark',
       position: 'bottom-right',
       prodOnly: true,
@@ -89,10 +93,10 @@ export default defineConfig({
       clickUrl: 'https://www.trae.ai/solo?showJoin=1',
       autoTheme: true,
       autoThemeTarget: '#root'
-    }),
-    tsconfigPaths(),
-  ],
-  build: {
+      }),
+      tsconfigPaths(),
+    ],
+    build: {
     rollupOptions: {
       output: {
         manualChunks: {
@@ -109,7 +113,7 @@ export default defineConfig({
           'backend': ['@supabase/supabase-js', 'groq-sdk'],
 
           // UI component libraries
-          'ui-libs': ['lucide-react', 'recharts', 'date-fns'],
+          'ui-libs': ['lucide-react', 'date-fns'],
 
           // Form handling and validation
           'forms': ['zod'],
@@ -149,8 +153,8 @@ export default defineConfig({
         drop_debugger: true,
       },
     },
-  },
-  server: {
+    },
+    server: {
     host: true,
     allowedHosts: true,
     proxy: {
@@ -171,9 +175,15 @@ export default defineConfig({
         },
       }
     }
-  },
-  // Optimize dependencies
-  optimizeDeps: {
+    },
+    // Optimize dependencies
+    test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
+    exclude: ['**/tests/e2e/**', '**/tests/performance/**', '**/node_modules/**'],
+    },
+    optimizeDeps: {
     include: [
       'react',
       'react-dom',
@@ -184,5 +194,6 @@ export default defineConfig({
       'lucide-react',
       'react-i18next',
     ],
-  },
+    },
+  }
 })

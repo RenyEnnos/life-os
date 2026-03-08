@@ -1,3 +1,9 @@
+import { setupLegacyHandlers } from './ipc/legacyHandler'
+import { setupAuthHandlers } from './ipc/authHandler'
+import { setupTasksHandlers } from './ipc/tasksHandler'
+import { setupResourceHandlers } from './ipc/resourceHandler'
+import { initDb } from './db/database'
+import { startSyncEngine } from './sync/engine'
 import { app, BrowserWindow, shell, ipcMain, Notification, Tray, Menu, globalShortcut } from 'electron'
 import path from 'node:path'
 import fs from 'node:fs'
@@ -251,6 +257,13 @@ if (!gotTheLock) {
   })
 
   app.whenReady().then(() => {
+    initDb();
+    setupLegacyHandlers();
+    setupAuthHandlers();
+    setupTasksHandlers();
+    setupResourceHandlers();
+    startSyncEngine();
+
     createWindow()
     createTray()
 

@@ -20,7 +20,7 @@ export function TaskWidget() {
     const [newTaskTitle, setNewTaskTitle] = useState('');
 
     const agenda = useMemo(() => (tasks || [])
-        .filter((t) => {
+        .filter((t: any) => {
             const due = t.due_date
             return typeof due === 'string' && due.startsWith(today)
         })

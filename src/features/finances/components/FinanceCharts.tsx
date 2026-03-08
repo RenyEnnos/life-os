@@ -24,9 +24,9 @@ export function FinanceCharts({ transactions, summary, onDeleteTransaction }: Fi
     })) : [];
 
     const balanceHistoryData = useMemo(() => {
-        if (!transactions || transactions.length === 0) return [];
+        if (!transactions || !Array.isArray(transactions) || transactions.length === 0) return [];
 
-        const sorted = [...transactions].sort((a, b) =>
+        const sorted = [...(Array.isArray(transactions) ? transactions : [])].sort((a, b) =>
             new Date(a.date).getTime() - new Date(b.date).getTime()
         );
 

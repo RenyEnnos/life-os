@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import * as Sentry from "@sentry/react";
 import App from './App'
 import '../index.css'
-import { initLocalDatabase } from '@/shared/lib/sqlite'
+
 
 if (process.env.NODE_ENV === 'production') {
   Sentry.init({
@@ -20,19 +20,4 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Initialize the local database before rendering
-initLocalDatabase().then(() => {
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  )
-}).catch(err => {
-  console.error('Failed to initialize local database:', err)
-  // Still render the app even if DB fails, maybe with a warning?
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  )
-})
+createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictMode>)

@@ -1,11 +1,11 @@
-import { BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter, HashRouter } from 'react-router-dom'
 import { AuthProvider } from "@/features/auth/contexts/AuthContext";
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { queryClient, persister } from "@/shared/lib/react-query";
 import { AppRoutes } from "@/config/routes/index";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { ToastProvider } from "@/shared/ui/GlassToast";
-import { OfflineSyncManager } from "@/shared/components/OfflineSyncManager";
+
 
 import { PWAManager } from "@/shared/components/PWAManager";
 import { Toaster } from 'react-hot-toast';
@@ -19,8 +19,11 @@ import { SEOProvider, SEOWrapper } from '@/shared/seo';
 import { AccessibilityProvider } from '@/shared/providers/AccessibilityProvider';
 import { ConflictResolutionModal } from "@/shared/components/ConflictResolutionModal";
 import { ThemeProvider } from "@/shared/providers/ThemeProvider";
+import { isDesktopApp } from '@/shared/lib/platform'
 
 export default function App() {
+    const Router = isDesktopApp() ? HashRouter : BrowserRouter
+
     return (
         <I18nextProvider i18n={i18n}>
             <AccessibilityProvider>
@@ -33,8 +36,7 @@ export default function App() {
                             <AuthProvider>
                                 <ToastProvider>
                                     <ConflictResolutionModal />
-                                    <OfflineSyncManager />
-                                    <PWAManager />
+                                    {!isDesktopApp() ? <PWAManager /> : null}
                                     <Toaster position="bottom-right" toastOptions={{ className: 'glass-panel text-white border-blue-500/30' }} />
                                     <OnboardingManager />
                                     <SanctuaryOverlay />

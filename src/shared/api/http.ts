@@ -1,5 +1,6 @@
 import { getAuthToken } from './authToken';
 import { handleFetchError } from '../lib/errorHandler';
+import { isDesktopApp } from '../lib/platform';
 
 import { ApiError } from './ApiError';
 
@@ -20,6 +21,26 @@ export async function fetchJSON<T = unknown>(url: string, options: FetchOptions 
   const { headers: optionHeaders, timeoutMs: _timeoutMs, ...restOptions } = options
   void _timeoutMs
   const token = getAuthToken();
+
+  // ----- ELECTRON OFFLINE-FIRST FALLBACK -----
+  // For unmigrated frontend features that still call /api/... instead of window.api.*
+  if (typeof window !== 'undefined' && (window as any).api?.legacy) {
+    if (url.includes('/api/')) {
+        try {
+            let bodyObj = undefined;
+            if (typeof restOptions.body === 'string') {
+                bodyObj = JSON.parse(restOptions.body);
+            } else if (restOptions.body) {
+                bodyObj = restOptions.body; // pass as is, though legacy handler expects parsed obj
+            }
+            const res = await (window as any).api.legacy.request(restOptions.method || 'GET', url, bodyObj);
+            return res as T;
+        } catch (err: unknown) {
+            throw handleFetchError(url, err);
+        }
+    }
+  }
+  // -------------------------------------------
 
   const requestOptions: RequestInit = {
     credentials: "include",
@@ -110,6 +131,11 @@ export function resolveApiUrl(path: string): string {
   if (base) {
     return `${String(base).replace(/\/+$/, "")}/${cleanedPath}`
   }
+
+  if (isDesktopApp()) {
+    return `http://localhost:3001/${cleanedPath}`
+  }
+
   const origin = typeof window !== "undefined" ? window.location.origin : ""
   return origin ? `${origin}/${cleanedPath}` : `/${cleanedPath}`
 }
