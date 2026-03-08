@@ -3,6 +3,14 @@
 
 interface Window {
   api: {
+    legacy: {
+      request: (method: string, url: string, body?: any) => Promise<any>;
+    };
+    auth: {
+      check: () => Promise<any>;
+      login: (credentials: any) => Promise<any>;
+      logout: () => Promise<any>;
+    };
     tasks: {
       getAll: () => Promise<any[]>;
       create: (task: any) => Promise<any>;

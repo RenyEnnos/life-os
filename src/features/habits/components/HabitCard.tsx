@@ -8,7 +8,7 @@ import { Check, Flame, Trophy, Edit2, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/shared/lib/cn";
 import { Confetti } from "@/shared/ui/premium/Confetti";
-import { SyncBadge } from "@/shared/ui/SyncBadge";
+
 import { haptics } from "@/shared/services/HapticsService";
 
 interface HabitCardProps {
@@ -81,7 +81,7 @@ export const HabitCard = memo(({
                         <h3 className="text-xl font-bold tracking-tight text-white">
                             {habit.name || habit.title}
                         </h3>
-                        <SyncBadge  />
+
                         {streak > 0 && (
                             <div className="flex items-center gap-1 rounded-full bg-orange-500/10 px-2 py-0.5 text-xs font-medium text-orange-500">
                                 <Flame className="h-3 w-3 fill-orange-500" />

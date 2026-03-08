@@ -9,7 +9,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const distPath = path.join(__dirname, '..', 'dist', 'assets', 'js');
+const distPath = fs.existsSync(path.join(__dirname, '..', 'dist', 'assets', 'js')) ? path.join(__dirname, '..', 'dist', 'assets', 'js') : path.join(__dirname, '..', 'dist', 'assets');
 
 function formatBytes(bytes, decimals = 2) {
   if (bytes === 0) return '0 Bytes';

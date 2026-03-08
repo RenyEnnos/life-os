@@ -8,7 +8,6 @@ import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
 import { useEffect, useRef, memo } from 'react';
 import { Confetti } from '@/shared/ui/premium/Confetti';
-import { SyncBadge } from '@/shared/ui/SyncBadge';
 import { haptics } from '@/shared/services/HapticsService';
 
 interface TaskItemProps {
@@ -103,7 +102,7 @@ export const TaskItem = memo(({ task, onToggle, onDelete }: TaskItemProps) => {
                         )}>
                             {task.title}
                         </h3>
-                        <SyncBadge  />
+
                     </div>
                     
                     {task.description && (

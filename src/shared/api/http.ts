@@ -26,8 +26,13 @@ export async function fetchJSON<T = unknown>(url: string, options: FetchOptions 
   if (typeof window !== 'undefined' && (window as any).api?.legacy) {
     if (url.includes('/api/')) {
         try {
-            const bodyObj = restOptions.body ? JSON.parse(restOptions.body as string) : undefined;
-            const res = await (window as any).api.legacy.request(options.method || 'GET', url, bodyObj);
+            let bodyObj = undefined;
+            if (typeof restOptions.body === 'string') {
+                bodyObj = JSON.parse(restOptions.body);
+            } else if (restOptions.body) {
+                bodyObj = restOptions.body; // pass as is, though legacy handler expects parsed obj
+            }
+            const res = await (window as any).api.legacy.request(restOptions.method || 'GET', url, bodyObj);
             return res as T;
         } catch (err: unknown) {
             throw handleFetchError(url, err);

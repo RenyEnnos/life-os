@@ -11,6 +11,16 @@ const store = new Store();
 export const startSyncEngine = () => {
     console.log('[SyncEngine] Started offline-first sync engine');
 
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || store.get('SUPABASE_URL');
+    const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || store.get('SUPABASE_KEY');
+
+    if (!supabaseUrl || !supabaseKey) {
+        console.warn('[SyncEngine] Missing Supabase configuration; sync engine will not run.');
+        return;
+    }
+
+    const supabase = createClient(supabaseUrl as string, supabaseKey as string);
+
     // Poll the queue every 10 seconds if online
     setInterval(async () => {
         if (!net.isOnline()) return;
@@ -19,18 +29,6 @@ export const startSyncEngine = () => {
         const pendingItems = db.prepare('SELECT * FROM sync_queue ORDER BY timestamp ASC LIMIT 50').all() as any[];
 
         if (pendingItems.length === 0) return;
-
-        // Fetch Supabase config
-        // Assuming VITE_SUPABASE_URL is bundled or stored
-        const supabaseUrl = process.env.VITE_SUPABASE_URL || store.get('SUPABASE_URL');
-        const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || store.get('SUPABASE_KEY');
-
-        if (!supabaseUrl || !supabaseKey) {
-            // Cannot sync yet
-            return;
-        }
-
-        const supabase = createClient(supabaseUrl as string, supabaseKey as string);
 
         for (const item of pendingItems) {
             try {

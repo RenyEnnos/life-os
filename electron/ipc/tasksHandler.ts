@@ -26,24 +26,26 @@ export const setupTasksHandlers = () => {
         const user_id = task.user_id || 'local-user'; // Replace with auth context
 
         try {
-            const stmt = db.prepare(`
-                INSERT INTO tasks (id, user_id, title, description, status, priority, due_date, estimated_time, actual_time, tags, energy_level, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `);
-
             const now = new Date().toISOString();
             const tagsStr = task.tags ? JSON.stringify(task.tags) : '[]';
 
-            stmt.run(
-                id, user_id, task.title, task.description || null, task.status || 'todo',
-                task.priority || 'medium', task.due_date || null, task.estimated_time || null,
-                task.actual_time || 0, tagsStr, task.energy_level || 'medium',
-                task.created_at || now, now
-            );
+            const insertTask = db.transaction(() => {
+                const stmt = db.prepare(`
+                    INSERT INTO tasks (id, user_id, title, description, status, priority, due_date, estimated_time, actual_time, tags, energy_level, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `);
+                stmt.run(
+                    id, user_id, task.title, task.description || null, task.status || 'todo',
+                    task.priority || 'medium', task.due_date || null, task.estimated_time || null,
+                    task.actual_time || 0, tagsStr, task.energy_level || 'medium',
+                    task.created_at || now, now
+                );
 
-            // Add to sync queue for Supabase syncing
-            const syncStmt = db.prepare('INSERT INTO sync_queue (id, table_name, operation, payload, timestamp) VALUES (?, ?, ?, ?, ?)');
-            syncStmt.run(crypto.randomUUID(), 'tasks', 'INSERT', JSON.stringify({ ...task, id, user_id, created_at: now, updated_at: now }), Date.now());
+                const syncStmt = db.prepare('INSERT INTO sync_queue (id, table_name, operation, payload, timestamp) VALUES (?, ?, ?, ?, ?)');
+                syncStmt.run(crypto.randomUUID(), 'tasks', 'INSERT', JSON.stringify({ ...task, id, user_id, created_at: now, updated_at: now }), Date.now());
+            });
+
+            insertTask();
 
             return { id, ...task, tags: task.tags || [] };
         } catch (err) {
@@ -74,13 +76,16 @@ export const setupTasksHandlers = () => {
                 return updates[k];
             });
 
-            const updateStmt = db.prepare(`UPDATE tasks SET ${setClause} WHERE id = ?`);
-            updateStmt.run(...values, now, id);
+            let updatedTask;
+            const runUpdate = db.transaction(() => {
+                const updateStmt = db.prepare(`UPDATE tasks SET ${setClause} WHERE id = ?`);
+                updateStmt.run(...values, now, id);
 
-            // Queue for sync
-            const updatedTask = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
-            const syncStmt = db.prepare('INSERT INTO sync_queue (id, table_name, operation, payload, timestamp) VALUES (?, ?, ?, ?, ?)');
-            syncStmt.run(crypto.randomUUID(), 'tasks', 'UPDATE', JSON.stringify(updatedTask), Date.now());
+                updatedTask = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+                const syncStmt = db.prepare('INSERT INTO sync_queue (id, table_name, operation, payload, timestamp) VALUES (?, ?, ?, ?, ?)');
+                syncStmt.run(crypto.randomUUID(), 'tasks', 'UPDATE', JSON.stringify(updatedTask), Date.now());
+            });
+            runUpdate();
 
             return {
                 ...updatedTask as any,
@@ -96,12 +101,14 @@ export const setupTasksHandlers = () => {
         const db = getDb();
         try {
             const now = new Date().toISOString();
-            const stmt = db.prepare('UPDATE tasks SET is_deleted = 1, updated_at = ? WHERE id = ?');
-            stmt.run(now, id);
+            const runDelete = db.transaction(() => {
+                const stmt = db.prepare('UPDATE tasks SET is_deleted = 1, updated_at = ? WHERE id = ?');
+                stmt.run(now, id);
 
-            // Queue for sync (soft delete)
-            const syncStmt = db.prepare('INSERT INTO sync_queue (id, table_name, operation, payload, timestamp) VALUES (?, ?, ?, ?, ?)');
-            syncStmt.run(crypto.randomUUID(), 'tasks', 'DELETE', JSON.stringify({ id, is_deleted: true, updated_at: now }), Date.now());
+                const syncStmt = db.prepare('INSERT INTO sync_queue (id, table_name, operation, payload, timestamp) VALUES (?, ?, ?, ?, ?)');
+                syncStmt.run(crypto.randomUUID(), 'tasks', 'DELETE', JSON.stringify({ id, is_deleted: true, updated_at: now }), Date.now());
+            });
+            runDelete();
 
             return true;
         } catch (err) {
