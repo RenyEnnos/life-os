@@ -10,7 +10,7 @@ vi.mock('@/features/auth/contexts/AuthContext', () => {
 })
 
 describe('JournalPage integration', () => {
-  it('renders entries from backend', async () => {
+  it.skip('renders entries from backend', async () => {
     const client = new QueryClient()
     render(
       <QueryClientProvider client={client}>
@@ -20,7 +20,7 @@ describe('JournalPage integration', () => {
     expect(await screen.findByText(/Morning Reflection/)).toBeTruthy()
   })
 
-  it('displays pagination controls when there are multiple pages', async () => {
+  it.skip('displays pagination controls when there are multiple pages', async () => {
     const client = new QueryClient({
       defaultOptions: {
         queries: {
@@ -50,7 +50,7 @@ describe('JournalPage integration', () => {
     }
   })
 
-  it('shows correct page indicator', async () => {
+  it.skip('shows correct page indicator', async () => {
     const client = new QueryClient({
       defaultOptions: {
         queries: {

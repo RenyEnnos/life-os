@@ -15,7 +15,7 @@ export function useDashboardTasks() {
   const { user } = useAuth();
   return useQuery<Task[]>({
     queryKey: ['tasks', user?.id, 1, 10],
-    queryFn: () => tasksApi.getPaginated(1, 10),
+    queryFn: () => tasksApi.getAll() as unknown as Promise<Task[]>,
     enabled: !!user?.id,
     staleTime: 1000 * 60 * 5,
   });

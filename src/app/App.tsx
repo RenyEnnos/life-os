@@ -5,7 +5,7 @@ import { queryClient, persister } from "@/shared/lib/react-query";
 import { AppRoutes } from "@/config/routes/index";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { ToastProvider } from "@/shared/ui/GlassToast";
-import { OfflineSyncManager } from "@/shared/components/OfflineSyncManager";
+
 
 import { PWAManager } from "@/shared/components/PWAManager";
 import { Toaster } from 'react-hot-toast';
@@ -33,8 +33,7 @@ export default function App() {
                             <AuthProvider>
                                 <ToastProvider>
                                     <ConflictResolutionModal />
-                                    <OfflineSyncManager />
-                                    <PWAManager />
+                                                                        <PWAManager />
                                     <Toaster position="bottom-right" toastOptions={{ className: 'glass-panel text-white border-blue-500/30' }} />
                                     <OnboardingManager />
                                     <SanctuaryOverlay />

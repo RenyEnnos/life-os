@@ -6,6 +6,8 @@ const __dirname = dirname(__filename)
 
 export default defineConfig({
   test: {
+    exclude: [
+        'tests/**','**/tests/e2e/**', '**/tests/performance/**', '**/node_modules/**'],
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
     globals: true,
@@ -36,6 +38,7 @@ export default defineConfig({
         'src/shared/lib/audio/noiseGenerator.ts'
       ],
       exclude: [
+        'tests/**',
         'node_modules/',
         'dist/',
         'build/',

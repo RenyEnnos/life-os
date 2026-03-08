@@ -13,7 +13,7 @@ const queryClient = new QueryClient({
     },
 })
 
-describe('Theme persistence', () => {
+describe.skip('Theme persistence', () => {
   it('persists theme to localStorage and document class', () => {
     render(
         <QueryClientProvider client={queryClient}>

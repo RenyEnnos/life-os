@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect } from 'react';
 import { supabase } from '@/shared/lib/supabase';
 import { useAuthStore } from '@/shared/stores/authStore';
 import { useShallow } from 'zustand/react/shallow';
-import { setAuthToken, clearAuthToken } from '@/shared/api/authToken';
+import { clearAuthToken } from "@/shared/api/authToken";
 
 interface AuthContextValue {
   user: ReturnType<typeof useAuth>['user'];
@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (error) throw error;
         setAuth(session);
         if (session?.user) {
-          setAuthToken(session.access_token);
+          // setAuthToken removed
           await fetchProfile(session.user.id);
         }
       } catch (err: unknown) {
@@ -85,7 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       async (_event, session) => {
         setAuth(session);
         if (session?.user) {
-          setAuthToken(session.access_token);
+          // setAuthToken removed
           await fetchProfile(session.user.id);
         } else {
           clearAuthToken();
