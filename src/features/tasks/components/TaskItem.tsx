@@ -23,7 +23,7 @@ export const TaskItem = memo(({ task, onToggle, onDelete }: TaskItemProps) => {
 
     useEffect(() => {
         if (!prevCompleted.current && task.completed && buttonRef.current) {
-            haptics.success();
+            haptics.impact();
             const rect = buttonRef.current.getBoundingClientRect();
             const x = (rect.left + rect.width / 2) / window.innerWidth;
             const y = (rect.top + rect.height / 2) / window.innerHeight;
@@ -103,7 +103,7 @@ export const TaskItem = memo(({ task, onToggle, onDelete }: TaskItemProps) => {
                         )}>
                             {task.title}
                         </h3>
-                        <SyncBadge itemId={task.id} />
+                        <SyncBadge  />
                     </div>
                     
                     {task.description && (

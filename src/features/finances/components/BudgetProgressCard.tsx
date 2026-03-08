@@ -35,7 +35,7 @@ export function BudgetProgressCard({ budgets, isLoading }: BudgetProgressCardPro
   return (
     <BentoCard title="ORÇAMENTOS" icon={Target} className="min-h-[200px]">
       <div className="space-y-6 mt-2">
-        {budgets.map((budget) => {
+        {(Array.isArray(budgets) ? budgets : []).map((budget) => {
           const percent = Math.min(100, (budget.spent / budget.limit) * 100);
           const isWarning = budget.status === 'warning';
           const isExceeded = budget.status === 'exceeded';

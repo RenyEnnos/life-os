@@ -173,6 +173,12 @@ export default defineConfig({
     }
   },
   // Optimize dependencies
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
+    exclude: ['**/tests/e2e/**', '**/tests/performance/**', '**/node_modules/**'],
+  },
   optimizeDeps: {
     include: [
       'react',

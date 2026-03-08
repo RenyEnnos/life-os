@@ -52,7 +52,7 @@ export const tasksApi = {
     },
 
     update: async (id: string, updates: Partial<Task>): Promise<Task> => {
-        if (!id) throw new Error('ID da tarefa é obrigatório');
+        if (!id || id.trim() === '') throw new Error('ID da tarefa é obrigatório');
         if (!window.api) throw new Error('Electron API not found in window object');
         
         const validation = updateTaskSchema.safeParse(updates);
@@ -64,7 +64,7 @@ export const tasksApi = {
     },
 
     delete: async (id: string): Promise<void> => {
-        if (!id) throw new Error('ID da tarefa é obrigatório');
+        if (!id || id.trim() === '') throw new Error('ID da tarefa é obrigatório');
         if (!window.api) throw new Error('Electron API not found in window object');
 
         await window.api.tasks.delete(id);

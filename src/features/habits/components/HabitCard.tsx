@@ -81,7 +81,7 @@ export const HabitCard = memo(({
                         <h3 className="text-xl font-bold tracking-tight text-white">
                             {habit.name || habit.title}
                         </h3>
-                        <SyncBadge itemId={habit.id} />
+                        <SyncBadge  />
                         {streak > 0 && (
                             <div className="flex items-center gap-1 rounded-full bg-orange-500/10 px-2 py-0.5 text-xs font-medium text-orange-500">
                                 <Flame className="h-3 w-3 fill-orange-500" />
@@ -164,7 +164,7 @@ export const HabitCard = memo(({
                         e.stopPropagation();
                         
                         if (!isCompleted) {
-                            haptics.success();
+                            haptics.impact();
                             let x = e.clientX / window.innerWidth;
                             let y = e.clientY / window.innerHeight;
                             

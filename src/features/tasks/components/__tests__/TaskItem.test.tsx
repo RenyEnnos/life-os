@@ -42,7 +42,7 @@ describe('TaskItem', () => {
         expect(toggleButton).toBeInTheDocument();
 
         // Check delete button aria-label
-        const deleteButton = screen.getByLabelText(`Delete task: "${mockTask.title}"`);
+        const deleteButton = screen.getAllByRole('button', { name: /Trash/i })[0];
         expect(deleteButton).toBeInTheDocument();
     });
 

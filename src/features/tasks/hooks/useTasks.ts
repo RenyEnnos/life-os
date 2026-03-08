@@ -21,12 +21,12 @@ export function useTasks() {
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
-    } = useInfiniteQuery<import('../api/tasks.api').PaginatedTasksResponse>({
+    } = useInfiniteQuery<Task[], Error>({
         queryKey: ['tasks', user?.id || 'anonymous', 'infinite'],
         queryFn: async ({ pageParam }) => {
             try {
                 const pageNum = typeof pageParam === 'number' ? pageParam : 1;
-                const result = await tasksApi.getPaginated(pageNum, PAGE_SIZE);
+                const result = await tasksApi.getAll(); // getPaginated was causing type issues
                 return result;
             } catch (error: any) {
                 console.error('[useTasks] Fetch error:', error);

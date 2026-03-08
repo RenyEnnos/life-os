@@ -27,7 +27,7 @@ export function useHabits() {
         enabled: !!user,
         initialPageParam: 1,
         getNextPageParam: (lastPage, allPages) => {
-            if (lastPage.length < PAGE_SIZE) {
+            if (!lastPage || lastPage.length < PAGE_SIZE) {
                 return undefined;
             }
             return allPages.length + 1;

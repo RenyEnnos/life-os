@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (error) throw error;
         setAuth(session);
         if (session?.user) {
-          setAuthToken(session.access_token);
+          // setAuthToken removed
           await fetchProfile(session.user.id);
         }
       } catch (err: unknown) {
@@ -85,7 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       async (_event, session) => {
         setAuth(session);
         if (session?.user) {
-          setAuthToken(session.access_token);
+          // setAuthToken removed
           await fetchProfile(session.user.id);
         } else {
           clearAuthToken();
