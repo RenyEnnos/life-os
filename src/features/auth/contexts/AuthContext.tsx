@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect } from 'react';
 import { supabase } from '@/shared/lib/supabase';
 import { useAuthStore } from '@/shared/stores/authStore';
 import { useShallow } from 'zustand/react/shallow';
-import { setAuthToken, clearAuthToken } from '@/shared/api/authToken';
+import { clearAuthToken } from "@/shared/api/authToken";
 
 interface AuthContextValue {
   user: ReturnType<typeof useAuth>['user'];

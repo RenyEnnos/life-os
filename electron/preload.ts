@@ -1,56 +1,42 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { ipcRenderer, contextBridge } from 'electron'
 
-// Expose protected methods that allow the renderer process to use
-// the ipcRenderer without exposing the entire object
+// --------- Expose some API to the Renderer process ---------
+contextBridge.exposeInMainWorld('ipcRenderer', {
+  on(...args: Parameters<typeof ipcRenderer.on>) {
+    const [channel, listener] = args
+    return ipcRenderer.on(channel, (event, ...args) => listener(event, ...args))
+  },
+  off(...args: Parameters<typeof ipcRenderer.off>) {
+    const [channel, ...omit] = args
+    return ipcRenderer.off(channel, ...omit)
+  },
+  send(...args: Parameters<typeof ipcRenderer.send>) {
+    const [channel, ...omit] = args
+    return ipcRenderer.send(channel, ...omit)
+  },
+  invoke(...args: Parameters<typeof ipcRenderer.invoke>) {
+    const [channel, ...omit] = args
+    return ipcRenderer.invoke(channel, ...omit)
+  },
+})
+
 contextBridge.exposeInMainWorld('electron', {
-  send: (channel: string, ...args: any[]) => {
-    // Whitelist channels
-    const validChannels = ['toMain']
-    if (validChannels.includes(channel)) {
-      ipcRenderer.send(channel, ...args)
-    }
-  },
-  
-  invoke: (channel: string, ...args: any[]) => {
-    // Whitelist channels
-    const validChannels = ['get-app-info']
-    if (validChannels.includes(channel)) {
-      return ipcRenderer.invoke(channel, ...args)
-    }
-    return Promise.reject(new Error(`Unauthorized IPC channel: ${channel}`))
-  },
+  notify: (options: { title: string; body: string; icon?: string }) => ipcRenderer.send('notify', options),
+  scheduleNotification: (options: any) => ipcRenderer.send('schedule-notification', options),
+  cancelNotification: (id: string) => ipcRenderer.send('cancel-notification', id),
+  getAppInfo: () => ipcRenderer.invoke('get-app-info')
+})
 
-  on: (channel: string, callback: (...args: any[]) => void) => {
-    const validChannels = ['fromMain', 'main-process-message']
-    if (validChannels.includes(channel)) {
-      const subscription = (_event: any, ...args: any[]) => callback(...args)
-      ipcRenderer.on(channel, subscription)
-      return () => {
-        ipcRenderer.removeListener(channel, subscription)
-      }
-    }
-    return () => {}
+contextBridge.exposeInMainWorld('api', {
+  auth: {
+    check: () => ipcRenderer.invoke('auth:check'),
+    login: (credentials: any) => ipcRenderer.invoke('auth:login', credentials),
+    logout: () => ipcRenderer.invoke('auth:logout')
   },
-
-  notify: (options: { title: string; body: string; icon?: string }) => {
-    ipcRenderer.send('notify', options)
-  },
-
-  scheduleNotification: (options: { 
-    id: string; 
-    title: string; 
-    body: string; 
-    scheduledAt: number; 
-    icon?: string;
-  }) => {
-    ipcRenderer.send('schedule-notification', options)
-  },
-
-  cancelNotification: (id: string) => {
-    ipcRenderer.send('cancel-notification', id)
-  },
-  
-  getAppInfo: () => {
-    return ipcRenderer.invoke('get-app-info')
+  tasks: {
+    getAll: () => ipcRenderer.invoke('tasks:getAll'),
+    create: (task: any) => ipcRenderer.invoke('tasks:create', task),
+    update: (id: string, updates: any) => ipcRenderer.invoke('tasks:update', id, updates),
+    delete: (id: string) => ipcRenderer.invoke('tasks:delete', id)
   }
 })

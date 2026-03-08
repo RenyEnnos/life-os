@@ -1,29 +1,16 @@
-# Life OS
+# Life OS (Desktop-First Architecture)
 
-Life OS is a comprehensive personal productivity and management application designed to help you organize your life, track your habits, manage your finances, and achieve your goals.
+Life OS is a comprehensive personal productivity and management application originally built as a Web App, now completely refactored into a **Zero-Latency Offline-First Desktop Application** using Electron.
 
-## Features
+## Visionary Architecture 🚀
 
-- **Dashboard**: Overview of your daily progress, tasks, and health metrics.
-- **Habits**: Track daily habits with morning, afternoon, and evening routines.
-- **Tasks**: Manage tasks with due dates, priorities, and AI-generated weekly plans.
-- **Journal**: Daily journaling with AI-generated summaries.
-- **Finances**: Track income and expenses with visual charts and AI tag suggestions.
-- **Health**: Monitor health metrics and medication reminders.
-- **Projects**: Manage projects and perform AI-powered SWOT analysis.
-- **Rewards**: Gamify your life with a scoring system and achievements.
-- **AI Integration**: Powered by Groq for intelligent suggestions and summaries.
+We decided to move away from a traditional HTTP REST backend (`/api`) pattern. The new architecture focuses on a **Local-First**, native Desktop experience:
 
-## Tech Stack
-
-- **Frontend**: React, TypeScript, Vite, Tailwind CSS
-- **State Management**: React Query, Zustand
-- **Routing**: React Router
-- **Icons**: Lucide React
-- **Charts**: Recharts
-- **Backend**: Node.js, Express (or Supabase Edge Functions)
-- **Database**: Supabase (PostgreSQL)
-- **AI**: Groq SDK
+1. **Electron Main Process:** Acts as our "Backend".
+2. **Local SQLite (`better-sqlite3`):** All data is saved instantaneously to a local disk database, eliminating loading spinners and fetch latency.
+3. **IPC Communication:** The React frontend communicates directly with the local database via Electron IPC (`window.api`).
+4. **Background Sync Engine:** A worker runs silently in the background of the Main Process pushing Deltas to Supabase (our Cloud layer) and listening for real-time changes using WebSockets.
+5. **Offline Support:** You have full functionality even without internet access. Data is queued and pushed to Supabase when connectivity is restored.
 
 ## Setup & Installation
 
@@ -35,38 +22,29 @@ Life OS is a comprehensive personal productivity and management application desi
 
 2.  **Install dependencies:**
     ```bash
-    pnpm install
+    npm install
+    # Native dependencies like better-sqlite3 will build for your platform
     ```
 
 3.  **Environment Variables:**
-    Create a `.env` file in the root directory with the following variables:
+    Create a `.env` file in the root directory:
     ```env
     VITE_SUPABASE_URL=your_supabase_url
     VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-    GROQ_API_KEY=your_groq_api_key
     ```
 
-4.  **Run the development server:**
+4.  **Run the Desktop app:**
     ```bash
-    pnpm dev
+    npm run dev &
     ```
 
-## Scripts
+## Development
 
-- `pnpm dev`: Start the development server.
-- `pnpm build`: Build the application for production.
-- `pnpm preview`: Preview the production build.
-- `pnpm test`: Run tests using Vitest.
-
-## Architecture
-
-The project follows a feature-based architecture:
-- `src/features/*`: Contains all feature-specific logic (components, hooks, types).
-- `src/components/ui`: Shared UI components (Button, Card, Input, etc.).
-- `src/lib`: Utility functions and configurations (api, supabase, utils).
-- `src/contexts`: Global contexts (AuthContext).
-- `src/hooks`: Shared hooks (useAI).
+- `src/features/*`: Contains React features fetching data via `window.api`.
+- `electron/main.ts`: Main process entry.
+- `electron/db/database.ts`: SQLite schema and setup.
+- `electron/sync/engine.ts`: Supabase background sync.
+- `electron/ipc/*`: IPC handlers for the frontend.
 
 ## License
-
 MIT

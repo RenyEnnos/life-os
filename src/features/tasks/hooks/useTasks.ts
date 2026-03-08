@@ -21,7 +21,7 @@ export function useTasks() {
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
-    } = useInfiniteQuery<Task[]>({
+    } = useInfiniteQuery<import('../api/tasks.api').PaginatedTasksResponse>({
         queryKey: ['tasks', user?.id || 'anonymous', 'infinite'],
         queryFn: async ({ pageParam }) => {
             try {

@@ -21,6 +21,21 @@ export async function fetchJSON<T = unknown>(url: string, options: FetchOptions 
   void _timeoutMs
   const token = getAuthToken();
 
+  // ----- ELECTRON OFFLINE-FIRST FALLBACK -----
+  // For unmigrated frontend features that still call /api/... instead of window.api.*
+  if (typeof window !== 'undefined' && (window as any).api?.legacy) {
+    if (url.includes('/api/')) {
+        try {
+            const bodyObj = restOptions.body ? JSON.parse(restOptions.body as string) : undefined;
+            const res = await (window as any).api.legacy.request(options.method || 'GET', url, bodyObj);
+            return res as T;
+        } catch (err: unknown) {
+            throw handleFetchError(url, err);
+        }
+    }
+  }
+  // -------------------------------------------
+
   const requestOptions: RequestInit = {
     credentials: "include",
     headers: {
