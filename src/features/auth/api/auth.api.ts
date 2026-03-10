@@ -3,7 +3,7 @@ import { apiClient } from '@/shared/api/http';
 import type { UserProfile } from '@/shared/types/profile';
 import type { LoginRequest, RegisterRequest } from '@/shared/types';
 
-const AUTH_API_BASE = '/' + 'api/auth';
+const AUTH_API_BASE = '/api/auth';
 
 interface AuthResponse {
   token?: string;
