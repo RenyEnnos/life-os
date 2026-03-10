@@ -80,6 +80,54 @@ const createSchema = (db: Database.Database) => {
         );
     `);
 
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS transactions (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            type TEXT NOT NULL,
+            amount REAL NOT NULL,
+            description TEXT,
+            category TEXT DEFAULT 'Outros',
+            category_id TEXT,
+            tags TEXT,
+            date TEXT NOT NULL,
+            is_deleted INTEGER DEFAULT 0,
+            version INTEGER DEFAULT 1,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        );
+    `);
+
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS health_metrics (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            metric_type TEXT NOT NULL,
+            value REAL NOT NULL,
+            unit TEXT,
+            recorded_date TEXT NOT NULL,
+            is_deleted INTEGER DEFAULT 0,
+            version INTEGER DEFAULT 1,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        );
+    `);
+
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS medication_reminders (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            dosage TEXT NOT NULL,
+            times TEXT NOT NULL,
+            active INTEGER DEFAULT 1,
+            is_deleted INTEGER DEFAULT 0,
+            version INTEGER DEFAULT 1,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        );
+    `);
+
     // Sync Queue Table (for offline mutations tracking)
     db.exec(`
         CREATE TABLE IF NOT EXISTS sync_queue (

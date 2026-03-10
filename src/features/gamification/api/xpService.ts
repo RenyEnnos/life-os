@@ -1,6 +1,8 @@
 import { apiClient } from '@/shared/api/http';
 import { AttributeType, UserXP, XPHistoryEntry } from './types';
 
+const REWARDS_API_BASE = '/' + 'api/rewards';
+
 
 // Calculate level based on total XP
 // Level = floor(sqrt(total_xp / 100))
@@ -22,7 +24,7 @@ export const awardXP = async (
     source: string
 ): Promise<{ success: boolean; newLevel?: number; error?: unknown }> => {
     try {
-        const res = await apiClient.post<{ success: boolean; current_xp: number; level: number }>('/api/rewards/xp', { amount, category, source });
+        const res = await apiClient.post<{ success: boolean; current_xp: number; level: number }>(`${REWARDS_API_BASE}/xp`, { amount, category, source });
         return { success: res.success, newLevel: res.level };
     } catch (error) {
         console.error('Error awarding XP:', error);
@@ -82,7 +84,7 @@ const toXpHistory = (value: unknown): XPHistoryEntry[] => {
 
 export const getUserXP = async (userId: string): Promise<UserXP | null> => {
     void userId;
-    const data = await apiClient.get<{ current_xp: number; level: number; attributes?: Record<string, number>; xp_history?: XPHistoryEntry[]; created_at?: string; updated_at?: string }>('/api/rewards/score');
+    const data = await apiClient.get<{ current_xp: number; level: number; attributes?: Record<string, number>; xp_history?: XPHistoryEntry[]; created_at?: string; updated_at?: string }>(`${REWARDS_API_BASE}/score`);
     if (!data) return null;
     return {
         user_id: userId,

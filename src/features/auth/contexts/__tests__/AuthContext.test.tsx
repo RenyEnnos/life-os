@@ -5,28 +5,18 @@ import { useAuth } from '../AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import { supabase } from '@/shared/lib/supabase';
+import { authApi } from '@/features/auth/api/auth.api';
 
-// Mock supabase
-vi.mock('@/shared/lib/supabase', () => ({
-    supabase: {
-        auth: {
-            getSession: vi.fn(),
-            onAuthStateChange: vi.fn(() => ({
-                data: { subscription: { unsubscribe: vi.fn() } }
-            })),
-            signInWithPassword: vi.fn(),
-            signUp: vi.fn(),
-            signOut: vi.fn(),
-        },
-        from: vi.fn(() => ({
-            select: vi.fn(() => ({
-                eq: vi.fn(() => ({
-                    single: vi.fn()
-                }))
-            }))
-        }))
-    }
+vi.mock('@/features/auth/api/auth.api', () => ({
+  authApi: {
+    checkSession: vi.fn(),
+    login: vi.fn(),
+    register: vi.fn(),
+    logout: vi.fn(),
+    resetPassword: vi.fn(),
+    updatePassword: vi.fn(),
+    getProfile: vi.fn(),
+  },
 }));
 
 const queryClient = new QueryClient({
@@ -64,17 +54,19 @@ describe('AuthContext', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         queryClient.clear();
+        vi.mocked(authApi.checkSession).mockResolvedValue({ session: null, profile: null });
+        vi.mocked(authApi.login).mockResolvedValue({ session: null, user: null, profile: null });
+        vi.mocked(authApi.getProfile).mockResolvedValue(null);
     });
 
     it('verifies session on mount', async () => {
-        const mockSession = { user: { id: '1', email: 'test@example.com' } };
-        (supabase.auth.getSession as any).mockResolvedValue({ data: { session: mockSession }, error: null });
-        (supabase.from as any).mockReturnValue({
-            select: vi.fn(() => ({
-                eq: vi.fn(() => ({
-                    single: vi.fn().mockResolvedValue({ data: { id: '1', full_name: 'Test User' }, error: null })
-                }))
-            }))
+        const mockSession = {
+            user: { id: '1', email: 'test@example.com' },
+        } as any;
+
+        vi.mocked(authApi.checkSession).mockResolvedValue({
+            session: mockSession,
+            profile: { id: '1', full_name: 'Test User' },
         });
 
         renderWithProviders(<TestComponent />);
@@ -82,16 +74,22 @@ describe('AuthContext', () => {
         await waitFor(() => {
             expect(screen.getByTestId('user-email')).toHaveTextContent('test@example.com');
         });
-        expect(supabase.auth.getSession).toHaveBeenCalled();
+        expect(authApi.checkSession).toHaveBeenCalled();
     });
 
     it('handles login flow', async () => {
-        (supabase.auth.getSession as any).mockResolvedValue({ data: { session: null }, error: null });
-        (supabase.auth.signInWithPassword as any).mockResolvedValue({ data: { user: { id: '2', email: 'login@example.com' }, session: {} }, error: null });
+        const mockSession = {
+            user: { id: '2', email: 'login@example.com' },
+        } as any;
+
+        vi.mocked(authApi.login).mockResolvedValue({
+            session: mockSession,
+            user: mockSession.user,
+            profile: { id: '2', full_name: 'Login User' },
+        });
 
         renderWithProviders(<TestComponent />);
 
-        // Wait for initial load
         await waitFor(() => {
             expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
         });
@@ -101,12 +99,13 @@ describe('AuthContext', () => {
             loginButton.click();
         });
 
-        // After login, we expect the store to be updated. 
-        // In real app, onAuthStateChange or manual setAuth would trigger.
-        // For this test, we verify the call.
-        expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({
+        expect(authApi.login).toHaveBeenCalledWith({
             email: 'test@example.com',
             password: 'password'
+        });
+
+        await waitFor(() => {
+            expect(screen.getByTestId('user-email')).toHaveTextContent('login@example.com');
         });
     });
 });

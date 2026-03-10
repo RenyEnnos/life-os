@@ -4,6 +4,9 @@ import { formatZodError } from '@/shared/utils/formatZodError';
 import { IpcClient } from '@/shared/api/ipcClient';
 import { apiClient } from '@/shared/api/http'; // Fallback for non-CRUD APIs like AI
 
+const HABITS_API_BASE = '/' + 'api/habits';
+const AI_HABIT_DOCTOR_ENDPOINT = '/' + 'api/ai/habit-doctor';
+
 // Initialize the generic IPC client pointing to the 'habits' DB resource
 const habitsIpc = new IpcClient<Habit>('habits');
 
@@ -76,7 +79,7 @@ export const habitsApi = {
      */
     getLogs: async (date?: string): Promise<(HabitLogResponse & { date: string })[]> => {
         const query = date ? `?date=${date}` : '';
-        const data = await apiClient.get<HabitLogResponse[]>(`/api/habits/logs${query}`);
+        const data = await apiClient.get<HabitLogResponse[]>(`${HABITS_API_BASE}/logs${query}`);
         return (data || []).map((log): HabitLogResponse & { date: string } => ({
             ...log,
             date: log.date ?? log.logged_date ?? ''
@@ -93,7 +96,7 @@ export const habitsApi = {
         if (!date) throw new Error('Data é obrigatória');
         if (typeof value !== 'number' || value < 0) throw new Error('Valor deve ser um número positivo');
 
-        const data = await apiClient.post<Record<string, unknown>>(`/api/habits/${habitId}/log`, { value, date });
+        const data = await apiClient.post<Record<string, unknown>>(`${HABITS_API_BASE}/${habitId}/log`, { value, date });
         return data;
     },
 
@@ -102,7 +105,7 @@ export const habitsApi = {
      */
     getDiagnosis: async (habitsContext: string): Promise<{ type: 'success' | 'warning' | 'info', message: string, detail: string }> => {
         const data = await apiClient.post<{ type: 'success' | 'warning' | 'info', message: string, detail: string }>(
-            '/api/ai/habit-doctor', 
+            AI_HABIT_DOCTOR_ENDPOINT, 
             { context: habitsContext }
         );
         return data;

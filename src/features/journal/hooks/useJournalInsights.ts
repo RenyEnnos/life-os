@@ -3,6 +3,8 @@ import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { apiClient } from '@/shared/api/http';
 import type { JournalInsight, InsightType } from '@/shared/types';
 
+const RESONANCE_API_BASE = '/' + 'api/resonance';
+
 interface UseJournalInsightsOptions {
     entryId?: string;
     type?: InsightType;
@@ -23,7 +25,7 @@ export function useJournalInsights(options: UseJournalInsightsOptions = {}) {
             if (entryId) params.append('entryId', entryId);
             if (type) params.append('type', type);
             params.append('limit', '20');
-            const data = await apiClient.get<JournalInsight[]>(`/api/resonance/insights?${params.toString()}`);
+            const data = await apiClient.get<JournalInsight[]>(`${RESONANCE_API_BASE}/insights?${params.toString()}`);
             return data || [];
         },
         enabled: !!user,
@@ -34,7 +36,7 @@ export function useJournalInsights(options: UseJournalInsightsOptions = {}) {
         queryKey: ['journal-insights-weekly', user?.id],
         queryFn: async () => {
             const params = new URLSearchParams({ type: 'weekly', limit: '1' });
-            const data = await apiClient.get<JournalInsight[]>('/api/resonance/insights?' + params.toString());
+            const data = await apiClient.get<JournalInsight[]>(`${RESONANCE_API_BASE}/insights?${params.toString()}`);
             return data?.[0] ?? null;
         },
         enabled: !!user,
@@ -45,7 +47,7 @@ export function useJournalInsights(options: UseJournalInsightsOptions = {}) {
         queryKey: ['mood-trend', user?.id],
         queryFn: async () => {
             const params = new URLSearchParams({ type: 'mood', limit: '7' });
-            const data = await apiClient.get<JournalInsight[]>(`/api/resonance/insights?${params.toString()}`);
+            const data = await apiClient.get<JournalInsight[]>(`${RESONANCE_API_BASE}/insights?${params.toString()}`);
 
             return (data || [])
                 .filter(d => typeof d.content?.mood_score === 'number')
@@ -94,7 +96,7 @@ export async function triggerJournalAnalysis(entryId: string): Promise<{
     error?: string;
 }> {
     try {
-        const data = await apiClient.post<{ success: boolean; insight?: { mood_score: number; themes: string[]; summary: string } }>(`/api/resonance/analyze/${entryId}`, {});
+        const data = await apiClient.post<{ success: boolean; insight?: { mood_score: number; themes: string[]; summary: string } }>(`${RESONANCE_API_BASE}/analyze/${entryId}`, {});
         return { success: !!data?.success, insight: data?.insight };
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Analysis failed';

@@ -1,5 +1,3 @@
-import { apiClient } from '@/shared/api/http';
-
 export type User = {
     id: string;
     email?: string;
@@ -10,12 +8,39 @@ export type User = {
     updated_at?: string;
 };
 
-export const userApi = {
-    getMe: async (): Promise<User> => {
-        return apiClient.get<User>('/api/user/me');
-    },
+const getUserPreferencesKey = (userId?: string) => `user_preferences:${userId || 'anonymous'}`;
 
-    updatePreferences: async (preferences: Record<string, unknown>): Promise<User> => {
-        return apiClient.put<User>('/api/user/preferences', preferences);
+const readStoredPreferences = (userId?: string): Record<string, unknown> => {
+    if (typeof window === 'undefined') {
+        return {};
+    }
+
+    const raw = window.localStorage.getItem(getUserPreferencesKey(userId));
+    if (!raw) {
+        return {};
+    }
+
+    try {
+        const parsed = JSON.parse(raw);
+        return typeof parsed === 'object' && parsed !== null ? parsed : {};
+    } catch {
+        return {};
+    }
+};
+
+const writeStoredPreferences = (userId: string | undefined, preferences: Record<string, unknown>) => {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    window.localStorage.setItem(getUserPreferencesKey(userId), JSON.stringify(preferences));
+};
+
+export const userApi = {
+    getStoredPreferences: (userId?: string): Record<string, unknown> => readStoredPreferences(userId),
+
+    updatePreferences: async (userId: string | undefined, preferences: Record<string, unknown>): Promise<Record<string, unknown>> => {
+        writeStoredPreferences(userId, preferences);
+        return preferences;
     },
 };

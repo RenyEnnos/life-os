@@ -3,7 +3,6 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, type Transition } from 'framer-motion';
 import { NavigationSystem } from './NavigationSystem';
 import { OnboardingModal } from '@/features/onboarding/OnboardingModal';
-import { useRealtime } from '@/shared/hooks/useRealtime';
 import { SanctuaryOverlay } from '@/shared/ui/sanctuary/SanctuaryOverlay';
 import { useSanctuaryStore } from '@/shared/stores/sanctuaryStore';
 import { FloatingNexus } from '@/features/ai-assistant/components/FloatingNexus';
@@ -34,7 +33,6 @@ const pageTransition: Transition = {
 export function AppLayout() {
     const [showOnboarding, setShowOnboarding] = useState(false);
     const location = useLocation();
-    useRealtime();
 
     useEffect(() => {
         if (!localStorage.getItem('life-os-onboarding-completed')) {

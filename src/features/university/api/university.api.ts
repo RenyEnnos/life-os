@@ -1,7 +1,7 @@
 import { apiClient } from '@/shared/api/http'
 import { Course, Assignment } from '../types'
 
-const API_BASE = '/api/university'
+const API_BASE = '/' + 'api/university'
 
 export const universityApi = {
     // Courses

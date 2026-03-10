@@ -1,47 +1,62 @@
-import { apiClient } from '@/shared/api/http';
+import { IpcClient } from '@/shared/api/ipcClient';
 import { HealthMetric, MedicationReminder } from '@/shared/types';
+
+const healthMetricsIpc = new IpcClient<HealthMetric>('health');
+const medicationRemindersIpc = new IpcClient<MedicationReminder>('medications');
 
 export const healthApi = {
     // Metrics
     listMetrics: async (_userId?: string, filters?: Record<string, string>) => {
-        const params = new URLSearchParams();
-        if (filters?.startDate) params.append('startDate', filters.startDate);
-        if (filters?.endDate) params.append('endDate', filters.endDate);
-        if (filters?.tags) params.append('tags', filters.tags);
-        if (filters?.type) params.append('type', filters.type);
+        const all = await healthMetricsIpc.getAll();
 
-        const query = params.toString();
-        const data = await apiClient.get<HealthMetric[]>(`/api/health${query ? `?${query}` : ''}`);
-        return data;
+        return all.filter((metric) => {
+            if (_userId && metric.user_id !== _userId) {
+                return false;
+            }
+            if (filters?.startDate && metric.recorded_date < filters.startDate) {
+                return false;
+            }
+            if (filters?.endDate && metric.recorded_date > filters.endDate) {
+                return false;
+            }
+            if (filters?.type && metric.metric_type !== filters.type) {
+                return false;
+            }
+
+            return true;
+        });
     },
 
     createMetric: async (metric: Partial<HealthMetric>) => {
-        const payload = { ...metric, recorded_at: metric.recorded_date };
-        const data = await apiClient.post<HealthMetric>('/api/health', payload);
+        const data = await healthMetricsIpc.create(metric);
         return data;
     },
 
     deleteMetric: async (id: string) => {
-        await apiClient.delete(`/api/health/${id}`);
+        await healthMetricsIpc.delete(id);
     },
 
     // Reminders
-    listReminders: async () => {
-        const data = await apiClient.get<MedicationReminder[]>('/api/health/medications');
-        return data;
+    listReminders: async (userId?: string) => {
+        const data = await medicationRemindersIpc.getAll();
+        if (!userId) {
+            return data;
+        }
+
+        return data.filter((reminder) => reminder.user_id === userId);
     },
 
     createReminder: async (reminder: Partial<MedicationReminder>) => {
-        const data = await apiClient.post<MedicationReminder>('/api/health/medications', reminder);
+        const data = await medicationRemindersIpc.create(reminder);
         return data;
     },
 
     updateReminder: async (id: string, updates: Partial<MedicationReminder>) => {
-        const data = await apiClient.put<MedicationReminder>(`/api/health/medications/${id}`, updates);
+        const data = await medicationRemindersIpc.update(id, updates);
         return data;
     },
 
     deleteReminder: async (id: string) => {
-        await apiClient.delete(`/api/health/medications/${id}`);
+        await medicationRemindersIpc.delete(id);
     }
 };

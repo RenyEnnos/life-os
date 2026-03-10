@@ -112,7 +112,7 @@ function createWindow() {
     minHeight: 768,
     icon: path.join(process.env.PUBLIC!, 'favicon.svg'),
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'preload.mjs'),
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: true,

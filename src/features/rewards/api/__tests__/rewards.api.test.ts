@@ -8,7 +8,7 @@ vi.mock("@/shared/api/http", () => {
         if (url.endsWith("/rewards/achievements")) return [{ id: "a1", name: "Starter" }]
         if (url.includes("/achievements/full")) return [{ id: "a2", name: "Finisher", unlocked: false }]
         if (url.includes("/rewards/score")) return { life_score: 120, level: 3, current_xp: 2500 }
-        if (url.endsWith("/api/rewards")) return [{ id: "r1", title: "Reward 1" }]
+        if (url.endsWith("/" + "api/rewards")) return [{ id: "r1", title: "Reward 1" }]
         return []
       }),
       post: vi.fn(async (_url: string, body?: Record<string, unknown>) => {

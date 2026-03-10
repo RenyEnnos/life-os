@@ -6,7 +6,7 @@ vi.mock("@/shared/api/http", () => {
   return {
     apiClient: {
       get: vi.fn(async (_url: string) => {
-        if (_url.startsWith("/api/journal")) {
+        if (_url.startsWith("/" + "api/journal")) {
           return [{ id: "1", entry_date: "2025-01-01", content: "Hello", tags: [] }]
         }
         if (_url.includes("/insights")) {
@@ -15,7 +15,7 @@ vi.mock("@/shared/api/http", () => {
         return []
       }),
       post: vi.fn(async (_url: string, body?: Record<string, unknown>) => {
-        if (_url.startsWith("/api/journal")) return { id: "2", ...body }
+        if (_url.startsWith("/" + "api/journal")) return { id: "2", ...body }
         if (_url.includes("/resonance/analyze/")) return { success: true, insight: { mood_score: 8, themes: ["focus"], summary: "Good" } }
         return {}
       }),

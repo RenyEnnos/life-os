@@ -85,12 +85,14 @@
     "@types/jsonwebtoken": "^9.0.10",
     "axios": "^1.13.6",
     "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.6.2",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "dotenv": "^17.3.1",
+    "electron-store": "^10.0.1",
     "electron-window-state": "^5.0.3",
     "fractional-indexing": "^3.2.0",
     "framer-motion": "^12.35.0",
@@ -123,9 +125,7 @@
     "workbox-strategies": "^7.4.0",
     "workbox-window": "^7.4.0",
     "zod": "^3.25.76",
-    "zustand": "^5.0.11",
-    "better-sqlite3": "^11.8.1",
-    "electron-store": "^10.0.1"
+    "zustand": "^5.0.11"
   },
   "overrides": {
     "jws": "^4.0.1",

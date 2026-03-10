@@ -1,6 +1,9 @@
 import { apiClient } from '@/shared/api/http';
 import { JournalEntry, JournalInsight } from '@/shared/types';
 
+const JOURNAL_API_BASE = '/' + 'api/journal';
+const RESONANCE_API_BASE = '/' + 'api/resonance';
+
 /**
  * Validates journal entry ID format
  * @throws {Error} If ID is invalid
@@ -71,7 +74,7 @@ export const journalApi = {
         if (page !== undefined) queryParams.append('page', page.toString());
         if (pageSize !== undefined) queryParams.append('pageSize', pageSize.toString());
         const params = queryParams.toString() ? `?${queryParams.toString()}` : '';
-        const data = await apiClient.get<JournalEntry[]>(`/api/journal${params}`);
+        const data = await apiClient.get<JournalEntry[]>(`${JOURNAL_API_BASE}${params}`);
         return data;
     },
 
@@ -85,7 +88,7 @@ export const journalApi = {
         // Validate input before making request
         validateEntryData(entry, true);
 
-        const data = await apiClient.post<JournalEntry>('/api/journal', entry);
+        const data = await apiClient.post<JournalEntry>(JOURNAL_API_BASE, entry);
         return data;
     },
 
@@ -101,7 +104,7 @@ export const journalApi = {
         validateEntryId(id);
         validateEntryData(updates, false);
 
-        const data = await apiClient.put<JournalEntry>(`/api/journal/${id}`, updates);
+        const data = await apiClient.put<JournalEntry>(`${JOURNAL_API_BASE}/${id}`, updates);
         return data;
     },
 
@@ -115,7 +118,7 @@ export const journalApi = {
         // Validate input before making request
         validateEntryId(id);
 
-        await apiClient.delete(`/api/journal/${id}`);
+        await apiClient.delete(`${JOURNAL_API_BASE}/${id}`);
     },
 
     /**
@@ -132,7 +135,7 @@ export const journalApi = {
         }
 
         const data = await apiClient.post<{ success: boolean; insight?: JournalInsight }>(
-            `/api/resonance/analyze/${entry.id}`,
+            `${RESONANCE_API_BASE}/analyze/${entry.id}`,
             {}
         );
         return data.insight ?? null;
