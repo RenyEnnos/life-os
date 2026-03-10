@@ -1,4 +1,5 @@
 import Store from 'electron-store';
+import { safeStorage } from 'electron';
 import { createClient, type Session } from '@supabase/supabase-js';
 import { getDb } from '../db/database';
 import type { Database } from '../../src/shared/types/database';
@@ -12,6 +13,30 @@ interface AuthSessionRow {
   user_id: string;
   expires_at: number;
 }
+
+const ENCRYPTED_TOKEN_PREFIX = 'enc:';
+
+const encodeToken = (value: string): string => {
+  if (!safeStorage.isEncryptionAvailable()) {
+    return value;
+  }
+
+  const encrypted = safeStorage.encryptString(value);
+  return `${ENCRYPTED_TOKEN_PREFIX}${encrypted.toString('base64')}`;
+};
+
+const decodeToken = (value: string): string => {
+  if (!value.startsWith(ENCRYPTED_TOKEN_PREFIX)) {
+    return value;
+  }
+
+  if (!safeStorage.isEncryptionAvailable()) {
+    throw new Error('Encrypted desktop auth token cannot be decrypted on this machine');
+  }
+
+  const payload = value.slice(ENCRYPTED_TOKEN_PREFIX.length);
+  return safeStorage.decryptString(Buffer.from(payload, 'base64'));
+};
 
 export const createDesktopSupabaseClient = () => {
   const supabaseUrl =
@@ -59,7 +84,7 @@ export const persistDesktopSession = (session: Session, fallback: AuthSessionRow
       INSERT INTO auth_session (id, access_token, refresh_token, user_id, expires_at)
       VALUES (?, ?, ?, ?, ?)
     `
-  ).run(userId, accessToken, refreshToken, userId, expiresAt);
+  ).run(userId, encodeToken(accessToken), encodeToken(refreshToken), userId, expiresAt);
 };
 
 export const clearDesktopSession = () => {
@@ -77,8 +102,8 @@ export const hydrateDesktopSession = async (
   }
 
   const { data, error } = await client.auth.setSession({
-    access_token: storedSession.access_token,
-    refresh_token: storedSession.refresh_token,
+    access_token: decodeToken(storedSession.access_token),
+    refresh_token: decodeToken(storedSession.refresh_token),
   });
 
   if (error || !data.session) {

@@ -8,10 +8,19 @@ export class BaseRepository<T extends { id?: string; user_id?: string }> {
         this.tableName = tableName;
     }
 
+    private hasUserIdColumn(): boolean {
+        const db = getDb();
+        const columns = db.prepare(`PRAGMA table_info(${this.tableName})`).all() as Array<{ name: string }>;
+        return columns.some((column) => column.name === 'user_id');
+    }
+
     private getUserId(): string {
-        // In a real implementation this might be fetched from the session.
-        // For now, hardcoding local user as done in tasksHandler
-        return 'local-user-id';
+        const db = getDb();
+        const session = db
+            .prepare('SELECT user_id FROM auth_session ORDER BY expires_at DESC LIMIT 1')
+            .get() as { user_id?: string } | undefined;
+
+        return session?.user_id || 'local-user-id';
     }
 
     private enqueueSync(operation: 'INSERT' | 'UPDATE' | 'DELETE', payload: any) {
@@ -22,8 +31,12 @@ export class BaseRepository<T extends { id?: string; user_id?: string }> {
 
     public getAll(): T[] {
         const db = getDb();
-        const stmt = db.prepare(`SELECT * FROM ${this.tableName} WHERE is_deleted = 0 ORDER BY created_at DESC`);
-        const rows = stmt.all() as any[];
+        const userScoped = this.hasUserIdColumn();
+        const stmt = userScoped
+            ? db.prepare(`SELECT * FROM ${this.tableName} WHERE is_deleted = 0 AND user_id = ? ORDER BY created_at DESC`)
+            : db.prepare(`SELECT * FROM ${this.tableName} WHERE is_deleted = 0 ORDER BY created_at DESC`);
+        const userId = this.getUserId();
+        const rows = (userScoped ? stmt.all(userId) : stmt.all()) as any[];
 
         // Parse JSON fields automatically (like tags) if needed,
         // but for a generic repository, we might leave that to the specific subclass or UI.
@@ -33,15 +46,18 @@ export class BaseRepository<T extends { id?: string; user_id?: string }> {
 
     public getById(id: string): T | null {
         const db = getDb();
-        const stmt = db.prepare(`SELECT * FROM ${this.tableName} WHERE id = ? AND is_deleted = 0`);
-        const row = stmt.get(id) as any;
+        const userScoped = this.hasUserIdColumn();
+        const stmt = userScoped
+            ? db.prepare(`SELECT * FROM ${this.tableName} WHERE id = ? AND user_id = ? AND is_deleted = 0`)
+            : db.prepare(`SELECT * FROM ${this.tableName} WHERE id = ? AND is_deleted = 0`);
+        const row = (userScoped ? stmt.get(id, this.getUserId()) : stmt.get(id)) as any;
         return row ? this.deserialize(row) : null;
     }
 
     public create(data: Partial<T>): T {
         const db = getDb();
         const id = data.id || crypto.randomUUID();
-        const user_id = data.user_id || this.getUserId();
+        const user_id = this.hasUserIdColumn() ? this.getUserId() : data.user_id;
         const now = new Date().toISOString();
 
         const record = { ...data, id, user_id, created_at: now, updated_at: now, is_deleted: 0, version: 1 };
@@ -83,10 +99,17 @@ export class BaseRepository<T extends { id?: string; user_id?: string }> {
         let updatedRecord: any;
 
         const runUpdate = db.transaction(() => {
-            const updateStmt = db.prepare(`UPDATE ${this.tableName} SET ${setClause} WHERE id = ?`);
-            updateStmt.run(...values);
+            const userScoped = this.hasUserIdColumn();
+            const updateStmt = userScoped
+                ? db.prepare(`UPDATE ${this.tableName} SET ${setClause} WHERE id = ? AND user_id = ?`)
+                : db.prepare(`UPDATE ${this.tableName} SET ${setClause} WHERE id = ?`);
+            if (userScoped) {
+                updateStmt.run(...values, this.getUserId());
+            } else {
+                updateStmt.run(...values);
+            }
 
-            updatedRecord = db.prepare(`SELECT * FROM ${this.tableName} WHERE id = ?`).get(id);
+            updatedRecord = this.getById(id);
             this.enqueueSync('UPDATE', updatedRecord);
         });
 
@@ -99,8 +122,11 @@ export class BaseRepository<T extends { id?: string; user_id?: string }> {
         const now = new Date().toISOString();
 
         const runDelete = db.transaction(() => {
-            const stmt = db.prepare(`UPDATE ${this.tableName} SET is_deleted = 1, updated_at = ? WHERE id = ?`);
-            const result = stmt.run(now, id);
+            const userScoped = this.hasUserIdColumn();
+            const stmt = userScoped
+                ? db.prepare(`UPDATE ${this.tableName} SET is_deleted = 1, updated_at = ? WHERE id = ? AND user_id = ?`)
+                : db.prepare(`UPDATE ${this.tableName} SET is_deleted = 1, updated_at = ? WHERE id = ?`);
+            const result = userScoped ? stmt.run(now, id, this.getUserId()) : stmt.run(now, id);
 
             if (result.changes > 0) {
                 this.enqueueSync('DELETE', { id, is_deleted: 1, updated_at: now });
