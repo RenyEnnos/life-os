@@ -44,10 +44,11 @@ export const financesApi = {
         await financesIpc.delete(id);
     },
 
-    getSummary: async () => {
+    getSummary: async (userId?: string) => {
         const all = await financesIpc.getAll();
+        const scoped = userId ? all.filter((transaction) => transaction.user_id === userId) : all;
 
-        const summary = all.reduce(
+        const summary = scoped.reduce(
             (acc, transaction) => {
                 const amount = Number(transaction.amount) || 0;
 

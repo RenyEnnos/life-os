@@ -21,6 +21,21 @@ interface AuthCheckResult {
   profile: UserProfile | null;
 }
 
+const buildProfileFromUser = (user: User): UserProfile => ({
+  id: user.id,
+  full_name: (user.user_metadata?.full_name as string | undefined) ?? undefined,
+  nickname: (user.user_metadata?.nickname as string | undefined) ?? undefined,
+});
+
+const buildWebSession = (user: User): Session => ({
+  access_token: 'web-session',
+  refresh_token: 'web-session',
+  token_type: 'bearer',
+  expires_in: 3600,
+  expires_at: Math.floor(Date.now() / 1000) + 3600,
+  user,
+});
+
 interface DesktopAuthBridge {
   check?: () => Promise<AuthCheckResult>;
   login?: (credentials: LoginRequest) => Promise<AuthResult>;
@@ -55,14 +70,8 @@ export const authApi = {
 
     const user = await apiClient.get<User>(`${AUTH_API_BASE}/verify`);
     return {
-      session: null,
-      profile: user
-        ? {
-            id: user.id,
-            full_name: (user.user_metadata?.full_name as string | undefined) ?? undefined,
-            nickname: (user.user_metadata?.nickname as string | undefined) ?? undefined,
-          }
-        : null,
+      session: buildWebSession(user),
+      profile: buildProfileFromUser(user),
     };
   },
 
@@ -73,7 +82,7 @@ export const authApi = {
     }
 
     const data = await apiClient.post<AuthResponse>(`${AUTH_API_BASE}/login`, credentials);
-    return { user: data.user, session: null, profile: null };
+    return { user: data.user, session: buildWebSession(data.user), profile: buildProfileFromUser(data.user) };
   },
 
   register: async (credentials: RegisterRequest): Promise<AuthResult> => {
@@ -83,7 +92,7 @@ export const authApi = {
     }
 
     const data = await apiClient.post<AuthResponse>(`${AUTH_API_BASE}/register`, credentials);
-    return { user: data.user, session: null, profile: null };
+    return { user: data.user, session: buildWebSession(data.user), profile: buildProfileFromUser(data.user) };
   },
 
   logout: async (): Promise<void> => {

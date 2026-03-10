@@ -60,11 +60,19 @@ describe('finances.api', () => {
     expect(invokeResource).toHaveBeenCalledWith('finances', 'delete', '1')
   })
   it('getSummary computes summary from local transactions', async () => {
+    const summary = await financesApi.getSummary('user-1')
+    expect(summary.income).toBe(1000)
+    expect(summary.expenses).toBe(0)
+    expect(summary.balance).toBe(1000)
+    expect(summary.byCategory?.Food).toBeUndefined()
+    expect(invokeResource).toHaveBeenCalledWith('finances', 'getAll')
+  })
+
+  it('getSummary includes other users only when no user filter is provided', async () => {
     const summary = await financesApi.getSummary()
     expect(summary.income).toBe(1000)
     expect(summary.expenses).toBe(100)
     expect(summary.balance).toBe(900)
     expect(summary.byCategory?.Food).toBe(100)
-    expect(invokeResource).toHaveBeenCalledWith('finances', 'getAll')
   })
 })

@@ -45,7 +45,7 @@ export function useDashboardFinance() {
   const { user } = useAuth();
   return useQuery<FinanceSummary>({
     queryKey: ['finance', 'summary', user?.id],
-    queryFn: () => financesApi.getSummary(),
+    queryFn: () => financesApi.getSummary(user?.id),
     enabled: !!user?.id,
     staleTime: 1000 * 60 * 10,
   });

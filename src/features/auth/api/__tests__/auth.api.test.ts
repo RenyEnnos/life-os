@@ -43,7 +43,13 @@ describe('authApi', () => {
             const result = await authApi.login(mockCredentials);
 
             expect(apiClient.post).toHaveBeenCalledWith('/' + 'api/auth/login', mockCredentials);
-            expect(result).toEqual({ ...mockResponse, session: null, profile: null });
+            expect(result.user).toEqual(mockResponse.user);
+            expect(result.session?.user).toEqual(mockResponse.user);
+            expect(result.profile).toEqual({
+                id: 'user-123',
+                full_name: undefined,
+                nickname: undefined,
+            });
         });
 
         it('should handle login errors', async () => {
@@ -81,7 +87,13 @@ describe('authApi', () => {
             const result = await authApi.register(mockCredentials);
 
             expect(apiClient.post).toHaveBeenCalledWith('/' + 'api/auth/register', mockCredentials);
-            expect(result).toEqual({ ...mockResponse, session: null, profile: null });
+            expect(result.user).toEqual(mockResponse.user);
+            expect(result.session?.user).toEqual(mockResponse.user);
+            expect(result.profile).toEqual({
+                id: 'user-456',
+                full_name: undefined,
+                nickname: undefined,
+            });
         });
 
         it('should handle registration errors', async () => {
@@ -116,7 +128,13 @@ describe('authApi', () => {
             const result = await authApi.register(mockCredentials);
 
             expect(apiClient.post).toHaveBeenCalledWith('/' + 'api/auth/register', mockCredentials);
-            expect(result).toEqual({ ...mockResponse, session: null, profile: null });
+            expect(result.user).toEqual(mockResponse.user);
+            expect(result.session?.user).toEqual(mockResponse.user);
+            expect(result.profile).toEqual({
+                id: 'user-789',
+                full_name: undefined,
+                nickname: undefined,
+            });
         });
     });
 
@@ -171,7 +189,13 @@ describe('authApi', () => {
                 password: 'password123',
                 name: 'Fallback',
             });
-            expect(result).toEqual({ ...mockResponse, session: null, profile: null });
+            expect(result.user).toEqual(mockResponse.user);
+            expect(result.session?.user).toEqual(mockResponse.user);
+            expect(result.profile).toEqual({
+                id: 'fallback-user',
+                full_name: undefined,
+                nickname: undefined,
+            });
         });
     });
 
@@ -207,6 +231,26 @@ describe('authApi', () => {
 
             expect(apiClient.get).toHaveBeenCalledWith('/' + 'api/auth/verify');
             expect(result).toEqual(mockUser);
+        });
+
+        it('checkSession returns a synthetic web session when verify succeeds', async () => {
+            const mockUser = {
+                id: 'user-123',
+                email: 'test@example.com',
+                user_metadata: { full_name: 'Test User', nickname: 'Tester' },
+            } as any;
+
+            (apiClient.get as any).mockResolvedValue(mockUser);
+
+            const result = await authApi.checkSession();
+
+            expect(apiClient.get).toHaveBeenCalledWith('/' + 'api/auth/verify');
+            expect(result.session?.user).toEqual(mockUser);
+            expect(result.profile).toEqual({
+                id: 'user-123',
+                full_name: 'Test User',
+                nickname: 'Tester',
+            });
         });
 
         it('should handle verify errors when session is invalid', async () => {

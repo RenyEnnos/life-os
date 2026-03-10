@@ -15,7 +15,7 @@ export function useFinances(filters?: Record<string, string>) {
 
     const { data: summary, isLoading: loadingSummary } = useQuery<{ income: number; expenses: number; balance: number; byCategory?: Record<string, number> }>({
         queryKey: ['finance-summary', user?.id],
-        queryFn: async () => financesApi.getSummary(),
+        queryFn: async () => financesApi.getSummary(user?.id),
         enabled: !!user,
     });
 
