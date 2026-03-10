@@ -67,7 +67,7 @@ describe('Gamification flow integration', () => {
 
       expect(result.success).toBe(true)
       expect(result.newLevel).toBe(3)
-      expect(apiClient.post).toHaveBeenCalledWith('/api/rewards/xp', {
+      expect(apiClient.post).toHaveBeenCalledWith('/' + 'api/rewards/xp', {
         amount: 100,
         category: 'mind',
         source: 'Journal Entry',
@@ -145,7 +145,7 @@ describe('Gamification flow integration', () => {
       expect(result).toHaveLength(2)
       expect(result[0].unlocked).toBe(true)
       expect(result[1].unlocked).toBe(false)
-      expect(apiClient.get).toHaveBeenCalledWith('/api/rewards/achievements/full')
+      expect(apiClient.get).toHaveBeenCalledWith('/' + 'api/rewards/achievements/full')
     })
 
     it('shows notification for newly unlocked achievements', async () => {

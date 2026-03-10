@@ -12,8 +12,15 @@ vi.mock('@/shared/api/http', () => ({
 }));
 
 describe('authApi', () => {
+    const globalWindow = window as Window & {
+        api?: {
+            auth?: Record<string, unknown>;
+        };
+    };
+
     beforeEach(() => {
         vi.clearAllMocks();
+        delete globalWindow.api;
     });
 
     describe('login', () => {
@@ -35,8 +42,8 @@ describe('authApi', () => {
 
             const result = await authApi.login(mockCredentials);
 
-            expect(apiClient.post).toHaveBeenCalledWith('/api/auth/login', mockCredentials);
-            expect(result).toEqual(mockResponse);
+            expect(apiClient.post).toHaveBeenCalledWith('/' + 'api/auth/login', mockCredentials);
+            expect(result).toEqual({ ...mockResponse, session: null, profile: null });
         });
 
         it('should handle login errors', async () => {
@@ -49,7 +56,7 @@ describe('authApi', () => {
             (apiClient.post as any).mockRejectedValue(mockError);
 
             await expect(authApi.login(mockCredentials)).rejects.toThrow('Invalid credentials');
-            expect(apiClient.post).toHaveBeenCalledWith('/api/auth/login', mockCredentials);
+            expect(apiClient.post).toHaveBeenCalledWith('/' + 'api/auth/login', mockCredentials);
         });
     });
 
@@ -73,8 +80,8 @@ describe('authApi', () => {
 
             const result = await authApi.register(mockCredentials);
 
-            expect(apiClient.post).toHaveBeenCalledWith('/api/auth/register', mockCredentials);
-            expect(result).toEqual(mockResponse);
+            expect(apiClient.post).toHaveBeenCalledWith('/' + 'api/auth/register', mockCredentials);
+            expect(result).toEqual({ ...mockResponse, session: null, profile: null });
         });
 
         it('should handle registration errors', async () => {
@@ -88,7 +95,7 @@ describe('authApi', () => {
             (apiClient.post as any).mockRejectedValue(mockError);
 
             await expect(authApi.register(mockCredentials)).rejects.toThrow('Email already exists');
-            expect(apiClient.post).toHaveBeenCalledWith('/api/auth/register', mockCredentials);
+            expect(apiClient.post).toHaveBeenCalledWith('/' + 'api/auth/register', mockCredentials);
         });
 
         it('should handle registration with minimal required fields', async () => {
@@ -108,8 +115,63 @@ describe('authApi', () => {
 
             const result = await authApi.register(mockCredentials);
 
-            expect(apiClient.post).toHaveBeenCalledWith('/api/auth/register', mockCredentials);
-            expect(result).toEqual(mockResponse);
+            expect(apiClient.post).toHaveBeenCalledWith('/' + 'api/auth/register', mockCredentials);
+            expect(result).toEqual({ ...mockResponse, session: null, profile: null });
+        });
+    });
+
+    describe('desktop bridge branch control', () => {
+        it('uses desktop bridge method when available', async () => {
+            const bridgeResult = {
+                user: { id: 'desktop-user', email: 'desktop@example.com' },
+                session: { access_token: 'token' },
+                profile: { id: 'desktop-user' },
+            } as any;
+
+            globalWindow.api = {
+                auth: {
+                    login: vi.fn().mockResolvedValue(bridgeResult),
+                },
+            };
+
+            const result = await authApi.login({ email: 'desktop@example.com', password: '123456' });
+
+            expect(result).toEqual(bridgeResult);
+            expect(globalWindow.api.auth?.login).toHaveBeenCalledWith({
+                email: 'desktop@example.com',
+                password: '123456',
+            });
+            expect(apiClient.post).not.toHaveBeenCalled();
+        });
+
+        it('falls back to web API when bridge is partial', async () => {
+            globalWindow.api = {
+                auth: {
+                    login: vi.fn(),
+                },
+            };
+
+            const mockResponse = {
+                user: {
+                    id: 'fallback-user',
+                    email: 'fallback@example.com',
+                },
+            };
+
+            (apiClient.post as any).mockResolvedValue(mockResponse);
+
+            const result = await authApi.register({
+                email: 'fallback@example.com',
+                password: 'password123',
+                name: 'Fallback',
+            } as any);
+
+            expect(apiClient.post).toHaveBeenCalledWith('/' + 'api/auth/register', {
+                email: 'fallback@example.com',
+                password: 'password123',
+                name: 'Fallback',
+            });
+            expect(result).toEqual({ ...mockResponse, session: null, profile: null });
         });
     });
 
@@ -119,7 +181,7 @@ describe('authApi', () => {
 
             await authApi.logout();
 
-            expect(apiClient.post).toHaveBeenCalledWith('/api/auth/logout', {});
+            expect(apiClient.post).toHaveBeenCalledWith('/' + 'api/auth/logout', {});
         });
 
         it('should handle logout errors gracefully', async () => {
@@ -127,7 +189,7 @@ describe('authApi', () => {
             (apiClient.post as any).mockRejectedValue(mockError);
 
             await expect(authApi.logout()).rejects.toThrow('Logout failed');
-            expect(apiClient.post).toHaveBeenCalledWith('/api/auth/logout', {});
+            expect(apiClient.post).toHaveBeenCalledWith('/' + 'api/auth/logout', {});
         });
     });
 
@@ -143,7 +205,7 @@ describe('authApi', () => {
 
             const result = await authApi.verify();
 
-            expect(apiClient.get).toHaveBeenCalledWith('/api/auth/verify');
+            expect(apiClient.get).toHaveBeenCalledWith('/' + 'api/auth/verify');
             expect(result).toEqual(mockUser);
         });
 
@@ -152,7 +214,7 @@ describe('authApi', () => {
             (apiClient.get as any).mockRejectedValue(mockError);
 
             await expect(authApi.verify()).rejects.toThrow('Invalid session');
-            expect(apiClient.get).toHaveBeenCalledWith('/api/auth/verify');
+            expect(apiClient.get).toHaveBeenCalledWith('/' + 'api/auth/verify');
         });
 
         it('should handle verify errors when no session exists', async () => {
@@ -178,7 +240,7 @@ describe('authApi', () => {
 
             const result = await authApi.updateProfile(updateData);
 
-            expect(apiClient.patch).toHaveBeenCalledWith('/api/auth/profile', updateData);
+            expect(apiClient.patch).toHaveBeenCalledWith('/' + 'api/auth/profile', updateData);
             expect(result).toEqual(mockResponse);
         });
 
@@ -196,7 +258,7 @@ describe('authApi', () => {
 
             const result = await authApi.updateProfile(updateData);
 
-            expect(apiClient.patch).toHaveBeenCalledWith('/api/auth/profile', updateData);
+            expect(apiClient.patch).toHaveBeenCalledWith('/' + 'api/auth/profile', updateData);
             expect(result).toEqual(mockResponse);
         });
 
@@ -214,7 +276,7 @@ describe('authApi', () => {
 
             const result = await authApi.updateProfile(updateData);
 
-            expect(apiClient.patch).toHaveBeenCalledWith('/api/auth/profile', updateData);
+            expect(apiClient.patch).toHaveBeenCalledWith('/' + 'api/auth/profile', updateData);
             expect(result).toEqual(mockResponse);
         });
 
@@ -232,7 +294,7 @@ describe('authApi', () => {
 
             const result = await authApi.updateProfile(updateData);
 
-            expect(apiClient.patch).toHaveBeenCalledWith('/api/auth/profile', updateData);
+            expect(apiClient.patch).toHaveBeenCalledWith('/' + 'api/auth/profile', updateData);
             expect(result).toEqual(mockResponse);
         });
 
@@ -256,7 +318,7 @@ describe('authApi', () => {
 
             const result = await authApi.updateProfile(updateData);
 
-            expect(apiClient.patch).toHaveBeenCalledWith('/api/auth/profile', updateData);
+            expect(apiClient.patch).toHaveBeenCalledWith('/' + 'api/auth/profile', updateData);
             expect(result).toEqual(mockResponse);
         });
 
@@ -266,7 +328,7 @@ describe('authApi', () => {
             (apiClient.patch as any).mockRejectedValue(mockError);
 
             await expect(authApi.updateProfile(updateData)).rejects.toThrow('Update failed');
-            expect(apiClient.patch).toHaveBeenCalledWith('/api/auth/profile', updateData);
+            expect(apiClient.patch).toHaveBeenCalledWith('/' + 'api/auth/profile', updateData);
         });
     });
 
@@ -277,7 +339,7 @@ describe('authApi', () => {
 
             await authApi.resetPassword(email);
 
-            expect(apiClient.post).toHaveBeenCalledWith('/api/auth/reset-password', { email });
+            expect(apiClient.post).toHaveBeenCalledWith('/' + 'api/auth/reset-password', { email });
         });
 
         it('should handle password reset errors', async () => {
@@ -286,7 +348,7 @@ describe('authApi', () => {
             (apiClient.post as any).mockRejectedValue(mockError);
 
             await expect(authApi.resetPassword(email)).rejects.toThrow('Email not found');
-            expect(apiClient.post).toHaveBeenCalledWith('/api/auth/reset-password', { email });
+            expect(apiClient.post).toHaveBeenCalledWith('/' + 'api/auth/reset-password', { email });
         });
 
         it('should handle invalid email format', async () => {

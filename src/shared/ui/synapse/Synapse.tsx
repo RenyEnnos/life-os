@@ -6,7 +6,6 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { apiFetch } from '@/shared/api/http';
 import './synapse.css';
 
 /**
@@ -54,60 +53,13 @@ export const Synapse = () => {
     };
 
     // State for HUD Context
-    const [context, setContext] = useState<{
+    const [context] = useState<{
         weather?: { temp?: number, condition?: string };
         market?: { price?: number, change?: number };
         focus?: { score?: number };
     } | null>(null);
-    const [contextLoading, setContextLoading] = useState(false);
-    const [contextError, setContextError] = useState<string | null>(null);
-
-    // Fetch Context Data
-    useEffect(() => {
-        if (!open) return;
-        setContextLoading(true);
-        setContextError(null);
-        type SynapseApiData = {
-            weather?: { temp?: number; summary?: string; condition?: string | number }
-            market?: { bitcoin?: { usd?: number; usd_24h_change?: number; change_24h?: number } }
-            dev?: { focus?: number; total_hours?: string }
-        }
-        apiFetch<{ success: boolean; data?: SynapseApiData }>('/api/context/synapse-briefing')
-            .then((payload) => {
-                if (!payload?.success || !payload.data) {
-                    throw new Error('Context offline');
-                }
-                const weather = payload.data?.weather || {};
-                const marketRaw = payload.data?.market || {};
-                const btc = marketRaw.bitcoin || {};
-                const price = typeof btc.usd === 'number' ? btc.usd : undefined;
-                const change = typeof btc.usd_24h_change === 'number'
-                    ? btc.usd_24h_change
-                    : (typeof btc.change_24h === 'number' ? btc.change_24h : undefined);
-
-                const dev = payload.data?.dev || {};
-                const focusScore = (() => {
-                    if (typeof dev.focus === 'number') return Math.round(dev.focus);
-                    if (typeof dev.total_hours === 'string') {
-                        const hours = parseFloat(dev.total_hours);
-                        if (!Number.isNaN(hours)) return Math.min(100, Math.round(hours * 10));
-                    }
-                    return undefined;
-                })();
-
-                setContext({
-                    weather: { temp: weather.temp, condition: String(weather.summary || weather.condition || '') },
-                    market: { price, change },
-                    focus: { score: focusScore }
-                });
-            })
-            .catch(err => {
-                console.error('Synapse Context Error', err);
-                setContext(null);
-                setContextError('Context HUD offline');
-            })
-            .finally(() => setContextLoading(false));
-    }, [open]);
+    const contextLoading = false;
+    const contextError = 'Context HUD offline';
 
     const tempLabel = context?.weather?.temp !== undefined
         ? `${Math.round(context.weather.temp)}°C ${context.weather?.condition || ''}`.trim()

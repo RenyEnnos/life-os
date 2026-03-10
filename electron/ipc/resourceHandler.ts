@@ -7,6 +7,8 @@ const ALLOWED_RESOURCES: Record<string, string> = {
     'habits': 'habits',
     'journal': 'journal_entries', // example mapping
     'finances': 'transactions',
+    'health': 'health_metrics',
+    'medications': 'medication_reminders',
     // ... add more as we migrate
 };
 

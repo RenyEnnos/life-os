@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from "react"
-import { getJSON } from "@/shared/api/http"
+import { useMemo } from 'react'
+import { useAuth } from '@/features/auth/contexts/AuthContext'
 
 type Identity = {
   id: string
@@ -10,30 +10,21 @@ type Identity = {
 }
 
 export function useDashboardIdentity() {
-  const [user, setUser] = useState<Identity | null>(null)
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
+  const { user, profile, loading } = useAuth()
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await getJSON<Identity>("/api/auth/verify")
-      setUser(data || null)
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Não foi possível carregar perfil"
-      setError(message)
-      setUser(null)
-    } finally {
-      setLoading(false)
+  const identity = useMemo<Identity | null>(() => {
+    if (!user) {
+      return null
     }
-  }, [])
 
-  useEffect(() => {
-    load()
-  }, [load])
+    return {
+      id: user.id,
+      email: user.email || '',
+      name: profile?.full_name || user.user_metadata?.full_name,
+      avatar_url: user.user_metadata?.avatar_url,
+      preferences: undefined,
+    }
+  }, [profile?.full_name, user])
 
-  const refresh = useCallback(() => load(), [load])
-
-  return { user, loading, error, refresh }
+  return { user: identity, loading, error: null, refresh: async () => undefined }
 }

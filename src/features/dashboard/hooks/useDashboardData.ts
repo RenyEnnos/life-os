@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { tasksApi } from '@/features/tasks/api/tasks.api';
 import { habitsApi } from '@/features/habits/api/habits.api';
-import { dashboardApi, DashboardSummary } from '../api/dashboard.api';
+import { buildDashboardSummary, DashboardSummary } from '../api/dashboard.api';
 import { financesApi } from '@/features/finances/api/finances.api';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { Task } from '@/features/tasks/types';
@@ -33,12 +33,12 @@ export function useDashboardHabits() {
 
 export function useDashboardSummary() {
   const { user } = useAuth();
-  return useQuery<DashboardSummary>({
-    queryKey: ['dashboard', 'summary', user?.id],
-    queryFn: () => dashboardApi.getSummary(),
-    enabled: !!user?.id,
-    staleTime: 1000 * 60 * 5,
-  });
+  const habitsQuery = useDashboardHabits();
+
+  return {
+    data: buildDashboardSummary(habitsQuery.data || [], user?.id),
+    isLoading: habitsQuery.isLoading,
+  } as { data: DashboardSummary; isLoading: boolean };
 }
 
 export function useDashboardFinance() {
@@ -89,4 +89,3 @@ export function useDashboardData() {
     isLoading: tasksLoading || habitsLoading || summaryLoading || financeLoading
   };
 }
-

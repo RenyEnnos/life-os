@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ArrowRight, ArrowLeft, User, Target, Zap, Palette, Rocket } from 'lucide-react';
-import { useOnboardingStore, OnboardingFormData } from '@/shared/stores/onboardingStore';
+import { useOnboardingStore } from '@/shared/stores/onboardingStore';
 import { useAuthStore } from '@/shared/stores/authStore';
-import { supabase } from '@/shared/lib/supabase';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { cn } from '@/shared/lib/cn';
-import { AnimatedGradientText } from '@/shared/ui/premium/AnimatedGradientText';
 
 const steps = [
   { id: 0, title: 'Perfil', icon: User },
@@ -24,7 +22,7 @@ interface OnboardingFlowProps {
 
 export function OnboardingFlow({ onClose }: OnboardingFlowProps) {
   const { currentStep, formData, setStep, updateFormData, completeOnboarding } = useOnboardingStore();
-  const { setProfile, profile } = useAuthStore();
+  const { setProfile, profile, user } = useAuthStore();
   const [direction, setDirection] = useState(0);
 
   const nextStep = () => {
@@ -45,11 +43,16 @@ export function OnboardingFlow({ onClose }: OnboardingFlowProps) {
 
   const handleComplete = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) return;
+      const profileId = profile?.id ?? user?.id;
+
+      if (!profileId) {
+        completeOnboarding();
+        if (onClose) onClose();
+        return;
+      }
 
       const updatedProfile = {
-        id: session.user.id,
+        id: profileId,
         full_name: formData.fullName,
         nickname: formData.nickname,
         goals: formData.goals,
@@ -58,15 +61,6 @@ export function OnboardingFlow({ onClose }: OnboardingFlowProps) {
         onboarding_completed: true,
         updated_at: new Date().toISOString(),
       };
-
-      const { error } = await supabase
-        .from('profiles' as never)
-        // @ts-expect-error - Supabase table type not available at compile time
-        .upsert(updatedProfile);
-
-      if (error) {
-        console.warn('Ignoring profile upsert error (table may be missing):', error);
-      }
 
       setProfile({ ...profile, ...updatedProfile });
 

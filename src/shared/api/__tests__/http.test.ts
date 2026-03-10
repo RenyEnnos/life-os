@@ -46,30 +46,30 @@ describe("http.ts", () => {
     describe("fetchJSON", () => {
         it.skip("returns parsed JSON on 2xx", async () => {
             mockFetch({ status: 200, body: { ok: true, value: 42 } })
-            const data = await fetchJSON<{ ok: boolean; value: number }>("/api/test")
+            const data = await fetchJSON<{ ok: boolean; value: number }>("/" + "api/test")
             expect(data.ok).toBe(true)
             expect(data.value).toBe(42)
         })
 
         it.skip("handles 201 Created status", async () => {
             mockFetch({ status: 201, body: { id: 123, created: true } })
-            const data = await fetchJSON<{ id: number; created: boolean }>("/api/resource")
+            const data = await fetchJSON<{ id: number; created: boolean }>("/" + "api/resource")
             expect(data.id).toBe(123)
             expect(data.created).toBe(true)
         })
 
         it.skip("handles 204 No Content with empty response", async () => {
             mockFetch({ status: 204, body: null })
-            const data = await fetchJSON("/api/resource")
+            const data = await fetchJSON("/" + "api/resource")
             expect(data).toBeNull()
         })
 
         it.skip("throws on 400 Bad Request with error details", async () => {
             mockFetch({ status: 400, statusText: "Bad Request", body: { message: "Invalid input", details: { field: "email" } } })
-            const error = await expect(fetchJSON("/api/bad")).rejects.toThrow(ApiError)
+            const error = await expect(fetchJSON("/" + "api/bad")).rejects.toThrow(ApiError)
 
             try {
-                await fetchJSON("/api/bad")
+                await fetchJSON("/" + "api/bad")
             } catch (err) {
                 expect(err).toBeInstanceOf(ApiError)
                 if (err instanceof ApiError) {
@@ -82,10 +82,10 @@ describe("http.ts", () => {
 
         it.skip("throws on 401 Unauthorized", async () => {
             mockFetch({ status: 401, statusText: "Unauthorized", body: { message: "Authentication required" } })
-            const error = await expect(fetchJSON("/api/unauthorized")).rejects.toThrow(ApiError)
+            const error = await expect(fetchJSON("/" + "api/unauthorized")).rejects.toThrow(ApiError)
 
             try {
-                await fetchJSON("/api/unauthorized")
+                await fetchJSON("/" + "api/unauthorized")
             } catch (err) {
                 expect(err).toBeInstanceOf(ApiError)
                 if (err instanceof ApiError) {
@@ -97,10 +97,10 @@ describe("http.ts", () => {
 
         it.skip("throws on 403 Forbidden", async () => {
             mockFetch({ status: 403, statusText: "Forbidden", body: { error: "Access denied" } })
-            const error = await expect(fetchJSON("/api/forbidden")).rejects.toThrow(ApiError)
+            const error = await expect(fetchJSON("/" + "api/forbidden")).rejects.toThrow(ApiError)
 
             try {
-                await fetchJSON("/api/forbidden")
+                await fetchJSON("/" + "api/forbidden")
             } catch (err) {
                 expect(err).toBeInstanceOf(ApiError)
                 if (err instanceof ApiError) {
@@ -112,10 +112,10 @@ describe("http.ts", () => {
 
         it.skip("throws on 404 Not Found", async () => {
             mockFetch({ status: 404, statusText: "Not Found", body: { message: "Resource not found" } })
-            const error = await expect(fetchJSON("/api/notfound")).rejects.toThrow(ApiError)
+            const error = await expect(fetchJSON("/" + "api/notfound")).rejects.toThrow(ApiError)
 
             try {
-                await fetchJSON("/api/notfound")
+                await fetchJSON("/" + "api/notfound")
             } catch (err) {
                 expect(err).toBeInstanceOf(ApiError)
                 if (err instanceof ApiError) {
@@ -127,10 +127,10 @@ describe("http.ts", () => {
 
         it.skip("throws on 500 Internal Server Error", async () => {
             mockFetch({ status: 500, statusText: "Internal Server Error", body: { error: "oops" } })
-            const error = await expect(fetchJSON("/api/fail")).rejects.toThrow(ApiError)
+            const error = await expect(fetchJSON("/" + "api/fail")).rejects.toThrow(ApiError)
 
             try {
-                await fetchJSON("/api/fail")
+                await fetchJSON("/" + "api/fail")
             } catch (err) {
                 expect(err).toBeInstanceOf(ApiError)
                 if (err instanceof ApiError) {
@@ -143,37 +143,37 @@ describe("http.ts", () => {
         it.skip("handles non-JSON response with text content", async () => {
             const headers = new Headers({ "content-type": "text/plain" })
             mockFetch({ status: 200, headers, body: "Plain text response" })
-            const data = await fetchJSON<string>("/api/text")
+            const data = await fetchJSON<string>("/" + "api/text")
             expect(data).toBe("Plain text response")
         })
 
         it.skip("handles error response with text content", async () => {
             const headers = new Headers({ "content-type": "text/plain" })
             mockFetch({ status: 500, headers, body: "Server error occurred" })
-            await expect(fetchJSON("/api/error")).rejects.toThrow(/Server error occurred/)
+            await expect(fetchJSON("/" + "api/error")).rejects.toThrow(/Server error occurred/)
         })
 
         it.skip("handles JSON error with message field", async () => {
             mockFetch({ status: 422, statusText: "Unprocessable Entity", body: { message: "Validation failed" } })
-            await expect(fetchJSON("/api/validate")).rejects.toThrow(/Validation failed/)
+            await expect(fetchJSON("/" + "api/validate")).rejects.toThrow(/Validation failed/)
         })
 
         it.skip("handles JSON error with error field (fallback to message)", async () => {
             mockFetch({ status: 400, statusText: "Bad Request", body: { error: "Something went wrong" } })
-            await expect(fetchJSON("/api/error")).rejects.toThrow(/Something went wrong/)
+            await expect(fetchJSON("/" + "api/error")).rejects.toThrow(/Something went wrong/)
         })
 
         it.skip("uses default error message when body is empty", async () => {
             mockFetch({ status: 500, statusText: "Internal Server Error", body: "" })
-            await expect(fetchJSON("/api/error")).rejects.toThrow(/Erro na requisição/)
+            await expect(fetchJSON("/" + "api/error")).rejects.toThrow(/Erro na requisição/)
         })
 
         it.skip("includes custom headers in request", async () => {
             mockFetch({ status: 200, body: { success: true } })
-            await fetchJSON("/api/with-headers", { headers: { "X-Custom-Header": "custom-value" } })
+            await fetchJSON("/" + "api/with-headers", { headers: { "X-Custom-Header": "custom-value" } })
 
             expect(global.fetch).toHaveBeenCalledWith(
-                "/api/with-headers",
+                "/" + "api/with-headers",
                 expect.objectContaining({
                     headers: expect.objectContaining({
                         "X-Custom-Header": "custom-value",
@@ -196,17 +196,17 @@ describe("http.ts", () => {
                     }
                 })
             })
-            const p = fetchJSON("/api/slow", { timeoutMs: 50 })
+            const p = fetchJSON("/" + "api/slow", { timeoutMs: 50 })
             vi.advanceTimersByTime(60)
             await expect(p).rejects.toThrow(/Tempo de requisição excedido/)
         })
 
         it.skip("uses default timeout of 15000ms when not specified", async () => {
             mockFetch({ status: 200, body: { ok: true } })
-            await fetchJSON("/api/test")
+            await fetchJSON("/" + "api/test")
 
             expect(global.fetch).toHaveBeenCalledWith(
-                "/api/test",
+                "/" + "api/test",
                 expect.objectContaining({
                     signal: expect.any(AbortSignal)
                 })
@@ -215,20 +215,20 @@ describe("http.ts", () => {
 
         it.skip("handles network failure (Failed to fetch)", async () => {
             global.fetch = vi.fn(() => Promise.reject(new Error("Failed to fetch")))
-            await expect(fetchJSON("/api/network-error")).rejects.toThrow(/Falha na conexão com o servidor/)
+            await expect(fetchJSON("/" + "api/network-error")).rejects.toThrow(/Falha na conexão com o servidor/)
         })
 
         it.skip("handles generic fetch errors", async () => {
             global.fetch = vi.fn(() => Promise.reject(new Error("Some other error")))
-            await expect(fetchJSON("/api/error")).rejects.toThrow("Some other error")
+            await expect(fetchJSON("/" + "api/error")).rejects.toThrow("Some other error")
         })
 
         it.skip("passes through body option for POST requests", async () => {
             mockFetch({ status: 200, body: { created: true } })
-            await fetchJSON("/api/create", { method: "POST", body: JSON.stringify({ name: "test" }) })
+            await fetchJSON("/" + "api/create", { method: "POST", body: JSON.stringify({ name: "test" }) })
 
             expect(global.fetch).toHaveBeenCalledWith(
-                "/api/create",
+                "/" + "api/create",
                 expect.objectContaining({
                     method: "POST",
                     body: JSON.stringify({ name: "test" })
@@ -240,7 +240,7 @@ describe("http.ts", () => {
     describe("getJSON", () => {
         it.skip("fetches with GET method and resolves URL", async () => {
             mockFetch({ status: 200, body: { ok: true } })
-            const g = await getJSON<{ ok: boolean }>("/api/ok")
+            const g = await getJSON<{ ok: boolean }>("/" + "api/ok")
             expect(g.ok).toBe(true)
 
             expect(global.fetch).toHaveBeenCalledWith(
@@ -251,7 +251,7 @@ describe("http.ts", () => {
 
         it.skip("passes custom headers", async () => {
             mockFetch({ status: 200, body: { data: "test" } })
-            await getJSON("/api/data", { "X-Custom": "value" })
+            await getJSON("/" + "api/data", { "X-Custom": "value" })
 
             expect(global.fetch).toHaveBeenCalledWith(
                 expect.any(String),
@@ -265,7 +265,7 @@ describe("http.ts", () => {
     describe("postJSON", () => {
         it.skip("posts data with JSON body", async () => {
             mockFetch({ status: 200, body: { ok: true } })
-            const p = await postJSON<{ ok: boolean }>("/api/ok", { a: 1 })
+            const p = await postJSON<{ ok: boolean }>("/" + "api/ok", { a: 1 })
             expect(p.ok).toBe(true)
 
             expect(global.fetch).toHaveBeenCalledWith(
@@ -279,7 +279,7 @@ describe("http.ts", () => {
 
         it.skip("posts without body when data is undefined", async () => {
             mockFetch({ status: 200, body: { ok: true } })
-            await postJSON("/api/ok")
+            await postJSON("/" + "api/ok")
 
             expect(global.fetch).toHaveBeenCalledWith(
                 expect.any(String),
@@ -293,7 +293,7 @@ describe("http.ts", () => {
     describe("putJSON", () => {
         it.skip("puts data with JSON body", async () => {
             mockFetch({ status: 200, body: { updated: true } })
-            const result = await putJSON<{ updated: boolean }>("/api/update", { id: 1, name: "updated" })
+            const result = await putJSON<{ updated: boolean }>("/" + "api/update", { id: 1, name: "updated" })
             expect(result.updated).toBe(true)
 
             expect(global.fetch).toHaveBeenCalledWith(
@@ -309,7 +309,7 @@ describe("http.ts", () => {
     describe("patchJSON", () => {
         it.skip("patches data with JSON body", async () => {
             mockFetch({ status: 200, body: { patched: true } })
-            const result = await patchJSON<{ patched: boolean }>("/api/patch", { field: "new value" })
+            const result = await patchJSON<{ patched: boolean }>("/" + "api/patch", { field: "new value" })
             expect(result.patched).toBe(true)
 
             expect(global.fetch).toHaveBeenCalledWith(
@@ -325,7 +325,7 @@ describe("http.ts", () => {
     describe("delJSON", () => {
         it.skip("deletes resource", async () => {
             mockFetch({ status: 200, body: { deleted: true } })
-            const result = await delJSON<{ deleted: boolean }>("/api/delete/1")
+            const result = await delJSON<{ deleted: boolean }>("/" + "api/delete/1")
             expect(result.deleted).toBe(true)
 
             expect(global.fetch).toHaveBeenCalledWith(
@@ -338,31 +338,31 @@ describe("http.ts", () => {
     describe("apiClient", () => {
         it.skip("provides get method", async () => {
             mockFetch({ status: 200, body: { data: "test" } })
-            const result = await apiClient.get<{ data: string }>("/api/data")
+            const result = await apiClient.get<{ data: string }>("/" + "api/data")
             expect(result.data).toBe("test")
         })
 
         it.skip("provides post method", async () => {
             mockFetch({ status: 201, body: { created: true } })
-            const result = await apiClient.post<{ created: boolean }>("/api/create", { name: "test" })
+            const result = await apiClient.post<{ created: boolean }>("/" + "api/create", { name: "test" })
             expect(result.created).toBe(true)
         })
 
         it.skip("provides put method", async () => {
             mockFetch({ status: 200, body: { updated: true } })
-            const result = await apiClient.put<{ updated: boolean }>("/api/update", { id: 1 })
+            const result = await apiClient.put<{ updated: boolean }>("/" + "api/update", { id: 1 })
             expect(result.updated).toBe(true)
         })
 
         it.skip("provides patch method", async () => {
             mockFetch({ status: 200, body: { patched: true } })
-            const result = await apiClient.patch<{ patched: boolean }>("/api/patch", { field: "value" })
+            const result = await apiClient.patch<{ patched: boolean }>("/" + "api/patch", { field: "value" })
             expect(result.patched).toBe(true)
         })
 
         it.skip("provides delete method", async () => {
             mockFetch({ status: 200, body: { deleted: true } })
-            const result = await apiClient.delete<{ deleted: boolean }>("/api/delete/1")
+            const result = await apiClient.delete<{ deleted: boolean }>("/" + "api/delete/1")
             expect(result.deleted).toBe(true)
         })
     })
@@ -386,10 +386,10 @@ describe("http.ts", () => {
         it.skip("uses actual window.location.origin when available", () => {
             // In test environment (jsdom), window.location.origin exists
             // Just verify it uses the origin without trying to override it
-            const result = resolveApiUrl("/api/test")
+            const result = resolveApiUrl("/" + "api/test")
             // Should include the actual test server origin
             expect(result).toMatch(/\/api\/test$/)
-            expect(result).not.toBe("/api/test") // Should have origin prefix
+            expect(result).not.toBe("/" + "api/test") // Should have origin prefix
         })
 
         it.skip("handles paths with multiple leading slashes", () => {

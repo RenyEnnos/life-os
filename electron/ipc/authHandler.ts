@@ -1,79 +1,187 @@
 import { ipcMain } from 'electron';
-import { getDb } from '../db/database';
-import Store from 'electron-store';
+import { type User } from '@supabase/supabase-js';
+import {
+  clearDesktopSession,
+  createDesktopSupabaseClient,
+  hydrateDesktopSession,
+  persistDesktopSession,
+} from '../auth/desktopSession';
 
-const store = new Store();
+interface AuthCredentials {
+  email: string;
+  password: string;
+  name?: string;
+}
+
+interface UserProfile {
+  id: string;
+  full_name?: string;
+  nickname?: string;
+  avatar_url?: string;
+  theme?: string;
+  onboarding_completed?: boolean;
+}
+
+const getDefaultProfile = (userId: string): UserProfile => ({
+  id: userId,
+  full_name: 'Usuário',
+  nickname: 'Usuário',
+  theme: 'dark',
+  onboarding_completed: false,
+});
+
+const fetchProfile = async (
+  client: ReturnType<typeof createDesktopSupabaseClient>,
+  userId: string
+): Promise<UserProfile> => {
+  const { data, error } = await client.from('profiles').select('*').eq('id', userId).maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return (data as UserProfile | null) ?? getDefaultProfile(userId);
+};
+
+const toAuthResult = (
+  session: Awaited<ReturnType<typeof hydrateDesktopSession>>['session'],
+  user: User | null,
+  profile: UserProfile | null
+) => ({
+  session,
+  user,
+  profile,
+});
 
 export const setupAuthHandlers = () => {
-    ipcMain.handle('auth:check', async () => {
-        try {
-            const db = getDb();
-            const session = db.prepare('SELECT * FROM auth_session ORDER BY expires_at DESC LIMIT 1').get() as any;
+  ipcMain.handle('auth:check', async () => {
+    try {
+      const { client, session } = await hydrateDesktopSession();
 
-            if (session && session.expires_at > Date.now() / 1000) {
-                // Return a mock user based on the session ID
-                return {
-                    id: session.user_id,
-                    email: 'desktop-user@lifeos.local',
-                    role: 'authenticated',
-                    nickname: 'Local User'
-                };
-            }
-            return null;
-        } catch (err) {
-            console.error('Failed to check auth', err);
-            return null;
-        }
+      if (!session) {
+        return { session: null, profile: null };
+      }
+
+      const profile = await fetchProfile(client, session.user.id);
+      return { session, profile };
+    } catch (err) {
+      console.error('Failed to check auth', err);
+      clearDesktopSession();
+      return { session: null, profile: null };
+    }
+  });
+
+  ipcMain.handle('auth:login', async (_event, credentials: AuthCredentials) => {
+    try {
+      const client = createDesktopSupabaseClient();
+      const { data, error } = await client.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data.session || !data.user) {
+        throw new Error('Auth login did not return a valid session');
+      }
+
+      persistDesktopSession(data.session);
+      const profile = await fetchProfile(client, data.user.id);
+
+      return toAuthResult(data.session, data.user, profile);
+    } catch (err) {
+      console.error('Failed to login', err);
+      throw err;
+    }
+  });
+
+  ipcMain.handle('auth:register', async (_event, credentials: AuthCredentials) => {
+    try {
+      const client = createDesktopSupabaseClient();
+      const { data, error } = await client.auth.signUp({
+        email: credentials.email,
+        password: credentials.password,
+        options: {
+          data: {
+            full_name: credentials.name,
+          },
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.session) {
+        persistDesktopSession(data.session);
+      }
+
+      const profile = data.user ? await fetchProfile(client, data.user.id) : null;
+      return toAuthResult(data.session ?? null, data.user ?? null, profile);
+    } catch (err) {
+      console.error('Failed to register', err);
+      throw err;
+    }
+  });
+
+  ipcMain.handle('auth:logout', async () => {
+    try {
+      const { client, session } = await hydrateDesktopSession();
+      if (session) {
+        await client.auth.signOut();
+      }
+    } catch (err) {
+      console.error('Failed to perform remote logout', err);
+    }
+
+    try {
+      clearDesktopSession();
+      return true;
+    } catch (err) {
+      console.error('Failed to logout', err);
+      return false;
+    }
+  });
+
+  ipcMain.handle('auth:reset-password', async (_event, email: string, redirectTo?: string) => {
+    const client = createDesktopSupabaseClient();
+    const { error } = await client.auth.resetPasswordForEmail(email, {
+      redirectTo,
     });
 
-    ipcMain.handle('auth:login', async (_event, credentials) => {
-        const db = getDb();
-        try {
-            // For this offline-first prototype, we bypass network auth
-            // and log the user in locally immediately if offline.
-            // If online, you would use Supabase GoTrue here.
+    if (error) {
+      throw error;
+    }
 
-            const userId = 'local-user-id';
-            const now = Math.floor(Date.now() / 1000);
+    return true;
+  });
 
-            db.prepare('DELETE FROM auth_session').run(); // clear old
-            db.prepare(`
-                INSERT INTO auth_session (id, access_token, refresh_token, user_id, expires_at)
-                VALUES (?, ?, ?, ?, ?)
-            `).run(crypto.randomUUID(), 'dummy-access', 'dummy-refresh', userId, now + 3600 * 24 * 30);
+  ipcMain.handle('auth:update-password', async (_event, password: string) => {
+    const { client } = await hydrateDesktopSession();
+    const { data, error } = await client.auth.updateUser({ password });
 
-            // Store Supabase Key for the Sync Engine if we actually got a real one.
-            // In offline-mode bypass, we just store a flag or skip it if we don't have internet.
-            // But if we simulate it, the store must be updated.
-            store.set('SUPABASE_KEY', 'dummy-access'); // Note: For real goTrue, this would be the actual session token
+    if (error) {
+      throw error;
+    }
 
-            return {
-                user: {
-                    id: userId,
-                    email: credentials.email || 'desktop-user@lifeos.local',
-                    role: 'authenticated',
-                    nickname: credentials.email ? credentials.email.split('@')[0] : 'Local User'
-                },
-                session: {
-                    access_token: 'dummy-access',
-                    refresh_token: 'dummy-refresh'
-                }
-            };
-        } catch (err) {
-            console.error('Failed to login', err);
-            throw err;
-        }
-    });
+    const sessionResponse = await client.auth.getSession();
+    if (sessionResponse.error) {
+      throw sessionResponse.error;
+    }
 
-    ipcMain.handle('auth:logout', async () => {
-        const db = getDb();
-        try {
-            db.prepare('DELETE FROM auth_session').run();
-            store.delete('SUPABASE_KEY');
-            return true;
-        } catch (err) {
-            console.error('Failed to logout', err);
-            return false;
-        }
-    });
+    const session = sessionResponse.data.session;
+    if (session) {
+      persistDesktopSession(session);
+    }
+
+    const profile = data.user ? await fetchProfile(client, data.user.id) : null;
+    return toAuthResult(session ?? null, data.user ?? null, profile);
+  });
+
+  ipcMain.handle('auth:get-profile', async (_event, userId: string) => {
+    const { client } = await hydrateDesktopSession();
+    return fetchProfile(client, userId);
+  });
 };

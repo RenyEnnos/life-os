@@ -1,5 +1,11 @@
 import { ipcRenderer, contextBridge } from 'electron'
 
+interface AuthCredentials {
+  email: string
+  password: string
+  name?: string
+}
+
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', {
   on(...args: Parameters<typeof ipcRenderer.on>) {
@@ -30,8 +36,12 @@ contextBridge.exposeInMainWorld('electron', {
 contextBridge.exposeInMainWorld('api', {
   auth: {
     check: () => ipcRenderer.invoke('auth:check'),
-    login: (credentials: any) => ipcRenderer.invoke('auth:login', credentials),
-    logout: () => ipcRenderer.invoke('auth:logout')
+    login: (credentials: AuthCredentials) => ipcRenderer.invoke('auth:login', credentials),
+    register: (credentials: AuthCredentials) => ipcRenderer.invoke('auth:register', credentials),
+    logout: () => ipcRenderer.invoke('auth:logout'),
+    resetPassword: (email: string, redirectTo?: string) => ipcRenderer.invoke('auth:reset-password', email, redirectTo),
+    updatePassword: (password: string) => ipcRenderer.invoke('auth:update-password', password),
+    getProfile: (userId: string) => ipcRenderer.invoke('auth:get-profile', userId)
   },
   tasks: {
     getAll: () => ipcRenderer.invoke('tasks:getAll'),

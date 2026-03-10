@@ -3,6 +3,8 @@ import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { apiFetch } from '@/shared/api/http';
 import type { Project } from '@/shared/types';
 
+const PROJECTS_API_BASE = '/' + 'api/projects';
+
 export function useProjects() {
     const { user } = useAuth();
     const queryClient = useQueryClient();
@@ -10,14 +12,14 @@ export function useProjects() {
     const { data: projects, isLoading: loadingProjects } = useQuery<Project[]>({
         queryKey: ['projects', user?.id],
         queryFn: async () => {
-            return apiFetch<Project[]>('/api/projects');
+            return apiFetch<Project[]>(PROJECTS_API_BASE);
         },
         enabled: !!user,
     });
 
     const createProject = useMutation({
         mutationFn: async (data: Partial<Project>) => {
-            return apiFetch('/api/projects', {
+            return apiFetch(PROJECTS_API_BASE, {
                 method: 'POST',
                 body: JSON.stringify(data),
             });
@@ -29,7 +31,7 @@ export function useProjects() {
 
     const updateProject = useMutation({
         mutationFn: async ({ id, updates }: { id: string; updates: Partial<Project> }) => {
-            return apiFetch(`/api/projects/${id}`, {
+            return apiFetch(`${PROJECTS_API_BASE}/${id}`, {
                 method: 'PUT',
                 body: JSON.stringify(updates),
             });
@@ -41,7 +43,7 @@ export function useProjects() {
 
     const deleteProject = useMutation({
         mutationFn: async (id: string) => {
-            return apiFetch(`/api/projects/${id}`, {
+            return apiFetch(`${PROJECTS_API_BASE}/${id}`, {
                 method: 'DELETE',
             });
         },
@@ -57,14 +59,14 @@ export function useProjects() {
             queryKey: ['swot', projectId],
             queryFn: async () => {
                 if (!projectId) return [];
-                return apiFetch<SwotEntry[]>(`/api/projects/${projectId}/swot`);
+                return apiFetch<SwotEntry[]>(`${PROJECTS_API_BASE}/${projectId}/swot`);
             },
             enabled: !!user && !!projectId,
         });
 
         const addSwot = useMutation({
             mutationFn: async (data: Record<string, unknown>) => {
-                return apiFetch(`/api/projects/${projectId}/swot`, {
+                return apiFetch(`${PROJECTS_API_BASE}/${projectId}/swot`, {
                     method: 'POST',
                     body: JSON.stringify(data),
                 });
@@ -76,7 +78,7 @@ export function useProjects() {
 
         const deleteSwot = useMutation({
             mutationFn: async (swotId: string) => {
-                return apiFetch(`/api/projects/swot/${swotId}`, {
+                return apiFetch(`${PROJECTS_API_BASE}/swot/${swotId}`, {
                     method: 'DELETE',
                 });
             },

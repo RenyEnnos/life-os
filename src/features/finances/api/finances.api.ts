@@ -1,36 +1,77 @@
-import { apiClient } from '@/shared/api/http';
+import { IpcClient } from '@/shared/api/ipcClient';
 import { Transaction } from '@/shared/types';
+
+const financesIpc = new IpcClient<Transaction>('finances');
 
 export const financesApi = {
     list: async (_userId?: string, filters?: Record<string, string>) => {
-        const params = new URLSearchParams();
-        if (filters?.startDate) params.append('startDate', filters.startDate);
-        if (filters?.endDate) params.append('endDate', filters.endDate);
-        if (filters?.type) params.append('type', filters.type);
-        if (filters?.category) params.append('category', filters.category);
+        const all = await financesIpc.getAll();
 
-        const query = params.toString();
-        const data = await apiClient.get<Transaction[]>(`/api/finances/transactions${query ? `?${query}` : ''}`);
-        return data;
+        return all.filter((transaction) => {
+            const transactionDate = transaction.transaction_date ?? transaction.date;
+
+            if (_userId && transaction.user_id !== _userId) {
+                return false;
+            }
+            if (filters?.startDate && transactionDate && transactionDate < filters.startDate) {
+                return false;
+            }
+            if (filters?.endDate && transactionDate && transactionDate > filters.endDate) {
+                return false;
+            }
+            if (filters?.type && transaction.type !== filters.type) {
+                return false;
+            }
+            if (filters?.category && transaction.category !== filters.category) {
+                return false;
+            }
+
+            return true;
+        });
     },
 
     create: async (transaction: Partial<Transaction>) => {
-        const data = await apiClient.post<Transaction>('/api/finances/transactions', transaction);
+        const data = await financesIpc.create(transaction);
         return data;
     },
 
     update: async (id: string, updates: Partial<Transaction>) => {
-        const data = await apiClient.put<Transaction>(`/api/finances/transactions/${id}`, updates);
+        const data = await financesIpc.update(id, updates);
         return data;
     },
 
     delete: async (id: string) => {
-        await apiClient.delete(`/api/finances/transactions/${id}`);
+        await financesIpc.delete(id);
     },
 
-    // Simplified client-side summary (Safe for small data sets, temporary solution)
     getSummary: async () => {
-        const data = await apiClient.get<{ income: number; expenses: number; balance: number; byCategory?: Record<string, number> }>('/api/finances/summary');
-        return data;
+        const all = await financesIpc.getAll();
+
+        const summary = all.reduce(
+            (acc, transaction) => {
+                const amount = Number(transaction.amount) || 0;
+
+                if (transaction.type === 'income') {
+                    acc.income += amount;
+                } else {
+                    acc.expenses += amount;
+
+                    if (transaction.category) {
+                        acc.byCategory[transaction.category] = (acc.byCategory[transaction.category] || 0) + amount;
+                    }
+                }
+
+                return acc;
+            },
+            {
+                income: 0,
+                expenses: 0,
+                balance: 0,
+                byCategory: {} as Record<string, number>,
+            }
+        );
+
+        summary.balance = summary.income - summary.expenses;
+        return summary;
     }
 };

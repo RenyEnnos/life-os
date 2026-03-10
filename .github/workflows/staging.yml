@@ -17,8 +17,13 @@ jobs:
       - run: npm run test
       - run: npm run test:integration
       - run: npm run build
+      - run: npm run electron:build
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
+      - name: Desktop smoke tests
+        env:
+          E2E_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+        run: npx playwright test tests/e2e/smoke.spec.ts --project=chromium
       - name: E2E tests
         env:
           E2E_BASE_URL: ${{ secrets.STAGING_BASE_URL }}

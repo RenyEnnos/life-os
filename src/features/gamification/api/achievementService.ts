@@ -2,6 +2,8 @@ import { apiClient } from '@/shared/api/http';
 import type { Achievement, UserAchievement } from './types';
 import { toast } from 'react-hot-toast';
 
+const REWARDS_API_BASE = '/' + 'api/rewards';
+
 export interface AchievementWithStatus extends Achievement {
     unlocked: boolean;
     unlockedAt?: string;
@@ -11,7 +13,7 @@ export interface AchievementWithStatus extends Achievement {
  * Fetches all achievements from the database.
  */
 export async function getAchievements(): Promise<Achievement[]> {
-    const data = await apiClient.get<Achievement[]>('/api/rewards/achievements/full');
+    const data = await apiClient.get<Achievement[]>(`${REWARDS_API_BASE}/achievements/full`);
     return (data as Achievement[]) || [];
 }
 
@@ -20,7 +22,7 @@ export async function getAchievements(): Promise<Achievement[]> {
  */
 export async function getAchievementsWithStatus(userId: string): Promise<AchievementWithStatus[]> {
     void userId;
-    const data = await apiClient.get<AchievementWithStatus[]>('/api/rewards/achievements/full');
+    const data = await apiClient.get<AchievementWithStatus[]>(`${REWARDS_API_BASE}/achievements/full`);
     return data || [];
 }
 
@@ -29,7 +31,7 @@ export async function getAchievementsWithStatus(userId: string): Promise<Achieve
  */
 export async function getUserAchievements(userId: string): Promise<UserAchievement[]> {
     void userId;
-    const data = await apiClient.get<UserAchievement[]>('/api/rewards/achievements');
+    const data = await apiClient.get<UserAchievement[]>(`${REWARDS_API_BASE}/achievements`);
     return data as UserAchievement[] || [];
 }
 

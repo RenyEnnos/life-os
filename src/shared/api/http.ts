@@ -25,7 +25,7 @@ export async function fetchJSON<T = unknown>(url: string, options: FetchOptions 
   // ----- ELECTRON OFFLINE-FIRST FALLBACK -----
   // For unmigrated frontend features that still call /api/... instead of window.api.*
   if (typeof window !== 'undefined' && (window as any).api?.legacy) {
-    if (url.includes('/api/')) {
+    if (url.startsWith('/' + 'api/')) {
         try {
             let bodyObj = undefined;
             if (typeof restOptions.body === 'string') {

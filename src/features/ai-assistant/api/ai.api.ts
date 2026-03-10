@@ -1,9 +1,12 @@
 import { apiFetch } from '@/shared/api/http';
 import { AIResponse, AILog, SynapseSuggestion } from '../types';
 
+const AI_API_BASE = '/' + 'api/ai';
+const SYNAPSE_API_BASE = '/' + 'api/synapse';
+
 export const aiApi = {
     chat: async (message: string, context?: string) => {
-        return apiFetch<AIResponse>('/api/ai/chat', {
+        return apiFetch<AIResponse>(`${AI_API_BASE}/chat`, {
             method: 'POST',
             body: JSON.stringify({ message, context }),
         });
@@ -11,7 +14,7 @@ export const aiApi = {
 
     generateTags: async (context: string, type: 'habit' | 'task' | 'journal' | 'finance', force?: boolean) => {
         const q = force ? '?force=true' : '';
-        return apiFetch<AIResponse>(`/api/ai/tags${q}`, {
+        return apiFetch<AIResponse>(`${AI_API_BASE}/tags${q}`, {
             method: 'POST',
             body: JSON.stringify({ context, type }),
         });
@@ -19,7 +22,7 @@ export const aiApi = {
 
     generateSwot: async (context: string, force?: boolean) => {
         const q = force ? '?force=true' : '';
-        return apiFetch<AIResponse>(`/api/ai/swot${q}`, {
+        return apiFetch<AIResponse>(`${AI_API_BASE}/swot${q}`, {
             method: 'POST',
             body: JSON.stringify({ context }),
         });
@@ -27,7 +30,7 @@ export const aiApi = {
 
     generatePlan: async (context: string, force?: boolean) => {
         const q = force ? '?force=true' : '';
-        return apiFetch<AIResponse>(`/api/ai/plan${q}`, {
+        return apiFetch<AIResponse>(`${AI_API_BASE}/plan${q}`, {
             method: 'POST',
             body: JSON.stringify({ context }),
         });
@@ -35,29 +38,29 @@ export const aiApi = {
 
     generateSummary: async (context: string, force?: boolean) => {
         const q = force ? '?force=true' : '';
-        return apiFetch<AIResponse>(`/api/ai/summary${q}`, {
+        return apiFetch<AIResponse>(`${AI_API_BASE}/summary${q}`, {
             method: 'POST',
             body: JSON.stringify({ context }),
         });
     },
 
     getLogs: async () => {
-        return apiFetch<AILog[]>('/api/ai/logs');
+        return apiFetch<AILog[]>(`${AI_API_BASE}/logs`);
     },
 
     getSuggestions: async () => {
-        return apiFetch<{ suggestions: SynapseSuggestion[] }>('/api/synapse/suggestions');
+        return apiFetch<{ suggestions: SynapseSuggestion[] }>(`${SYNAPSE_API_BASE}/suggestions`);
     },
 
     sendSuggestionFeedback: async (payload: { suggestionId: string; action: 'accepted' | 'dismissed'; source?: string }) => {
-        return apiFetch<{ success: boolean }>('/api/synapse/feedback', {
+        return apiFetch<{ success: boolean }>(`${SYNAPSE_API_BASE}/feedback`, {
             method: 'POST',
             body: JSON.stringify(payload)
         });
     },
 
     parseTask: async (input: string) => {
-        return apiFetch<Partial<import('@/shared/types').Task>>('/api/ai/parse-task', {
+        return apiFetch<Partial<import('@/shared/types').Task>>(`${AI_API_BASE}/parse-task`, {
             method: 'POST',
             body: JSON.stringify({ input })
         });
@@ -67,7 +70,7 @@ export const aiApi = {
         return apiFetch<{
             type: 'task' | 'habit' | 'transaction';
             data: any;
-        }>('/api/ai/parse-entity', {
+        }>(`${AI_API_BASE}/parse-entity`, {
             method: 'POST',
             body: JSON.stringify({ input })
         });

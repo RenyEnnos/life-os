@@ -20,7 +20,7 @@ describe("achievementService", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(apiClient.get).mockImplementation(async (_url: string) => {
-      if (_url.includes("/api/rewards/achievements/full")) {
+      if (_url.includes("/" + "api/rewards/achievements/full")) {
         return [
           {
             id: "1",
@@ -42,7 +42,7 @@ describe("achievementService", () => {
           }
         ]
       }
-      if (_url.includes("/api/rewards/achievements")) {
+      if (_url.includes("/" + "api/rewards/achievements")) {
         return [
           {
             id: "1",

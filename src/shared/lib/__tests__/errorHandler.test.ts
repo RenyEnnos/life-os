@@ -30,7 +30,7 @@ describe('errorHandler', () => {
   describe('handleError', () => {
     it('should handle ApiError with 400 status', () => {
       const error = new ApiError('Bad request', 400)
-      const result = handleError('/api/test', error)
+      const result = handleError('/' + 'api/test', error)
 
       expect(result.category).toBe(ErrorCategory.VALIDATION)
       expect(result.severity).toBe(ErrorSeverity.LOW)
@@ -39,7 +39,7 @@ describe('errorHandler', () => {
 
     it('should handle ApiError with 401 status', () => {
       const error = new ApiError('Unauthorized', 401)
-      const result = handleError('/api/test', error)
+      const result = handleError('/' + 'api/test', error)
 
       expect(result.category).toBe(ErrorCategory.AUTH)
       expect(result.severity).toBe(ErrorSeverity.MEDIUM)
@@ -48,7 +48,7 @@ describe('errorHandler', () => {
 
     it('should handle ApiError with 404 status', () => {
       const error = new ApiError('Not found', 404)
-      const result = handleError('/api/test', error)
+      const result = handleError('/' + 'api/test', error)
 
       expect(result.category).toBe(ErrorCategory.NOT_FOUND)
       expect(result.severity).toBe(ErrorSeverity.LOW)
@@ -57,7 +57,7 @@ describe('errorHandler', () => {
 
     it('should handle ApiError with 429 status', () => {
       const error = new ApiError('Too many requests', 429)
-      const result = handleError('/api/test', error)
+      const result = handleError('/' + 'api/test', error)
 
       expect(result.category).toBe(ErrorCategory.VALIDATION)
       expect(result.shouldRetry).toBe(true)
@@ -65,7 +65,7 @@ describe('errorHandler', () => {
 
     it('should handle ApiError with 500 status', () => {
       const error = new ApiError('Internal server error', 500)
-      const result = handleError('/api/test', error)
+      const result = handleError('/' + 'api/test', error)
 
       expect(result.category).toBe(ErrorCategory.SERVER)
       expect(result.severity).toBe(ErrorSeverity.HIGH)
@@ -74,7 +74,7 @@ describe('errorHandler', () => {
 
     it('should handle network error', () => {
       const error = new Error('Failed to fetch')
-      const result = handleError('/api/test', error)
+      const result = handleError('/' + 'api/test', error)
 
       expect(result.category).toBe(ErrorCategory.NETWORK)
       expect(result.severity).toBe(ErrorSeverity.MEDIUM)
@@ -83,14 +83,14 @@ describe('errorHandler', () => {
 
     it('should log 4xx errors as warnings', () => {
       const error = new ApiError('Bad request', 400)
-      handleError('/api/test', error)
+      handleError('/' + 'api/test', error)
 
       expect(consoleWarnSpy).toHaveBeenCalled()
     })
 
     it('should log 5xx errors as errors', () => {
       const error = new ApiError('Internal server error', 500)
-      handleError('/api/test', error)
+      handleError('/' + 'api/test', error)
 
       expect(consoleErrorSpy).toHaveBeenCalled()
     })

@@ -16,9 +16,3 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
-
-export const getSession = async () => {
-  const { data: { session }, error } = await supabase.auth.getSession();
-  if (error) throw error;
-  return session;
-};

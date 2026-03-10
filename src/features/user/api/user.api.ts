@@ -1,5 +1,3 @@
-import { apiClient } from '@/shared/api/http';
-
 export type User = {
     id: string;
     email?: string;
@@ -10,12 +8,39 @@ export type User = {
     updated_at?: string;
 };
 
-export const userApi = {
-    getMe: async (): Promise<User> => {
-        return apiClient.get<User>('/api/user/me');
-    },
+const USER_PREFERENCES_KEY = 'user_preferences';
 
-    updatePreferences: async (preferences: Record<string, unknown>): Promise<User> => {
-        return apiClient.put<User>('/api/user/preferences', preferences);
+const readStoredPreferences = (): Record<string, unknown> => {
+    if (typeof window === 'undefined') {
+        return {};
+    }
+
+    const raw = window.localStorage.getItem(USER_PREFERENCES_KEY);
+    if (!raw) {
+        return {};
+    }
+
+    try {
+        const parsed = JSON.parse(raw);
+        return typeof parsed === 'object' && parsed !== null ? parsed : {};
+    } catch {
+        return {};
+    }
+};
+
+const writeStoredPreferences = (preferences: Record<string, unknown>) => {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    window.localStorage.setItem(USER_PREFERENCES_KEY, JSON.stringify(preferences));
+};
+
+export const userApi = {
+    getStoredPreferences: (): Record<string, unknown> => readStoredPreferences(),
+
+    updatePreferences: async (preferences: Record<string, unknown>): Promise<Record<string, unknown>> => {
+        writeStoredPreferences(preferences);
+        return preferences;
     },
 };

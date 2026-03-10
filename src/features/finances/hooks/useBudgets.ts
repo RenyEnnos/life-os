@@ -3,6 +3,8 @@ import { apiClient } from '@/shared/api/http';
 import { Budget } from '@/features/finances/types';
 import { toast } from 'sonner';
 
+const BUDGETS_API_BASE = '/' + 'api/budgets';
+
 export type BudgetStatus = {
     categoryId: string;
     categoryName: string;
@@ -18,16 +20,16 @@ export function useBudgets() {
 
     const { data: budgets, isLoading: isBudgetsLoading } = useQuery<Budget[]>({
         queryKey: ['budgets'],
-        queryFn: () => apiClient.get('/api/budgets'),
+        queryFn: () => apiClient.get(BUDGETS_API_BASE),
     });
 
     const { data: budgetStatus, isLoading: isStatusLoading } = useQuery<BudgetStatus[]>({
         queryKey: ['budgets', 'status'],
-        queryFn: () => apiClient.get('/api/budgets/status'),
+        queryFn: () => apiClient.get(`${BUDGETS_API_BASE}/status`),
     });
 
     const createBudget = useMutation({
-        mutationFn: (newBudget: Partial<Budget>) => apiClient.post('/api/budgets', newBudget),
+        mutationFn: (newBudget: Partial<Budget>) => apiClient.post(BUDGETS_API_BASE, newBudget),
         onMutate: async (newBudget) => {
             await queryClient.cancelQueries({ queryKey: ['budgets'] });
             const previousBudgets = queryClient.getQueryData<Budget[]>(['budgets']);
@@ -52,7 +54,7 @@ export function useBudgets() {
 
     const updateBudget = useMutation({
         mutationFn: ({ id, data }: { id: string; data: Partial<Budget> }) => 
-            apiClient.put(`/api/budgets/${id}`, data),
+            apiClient.put(`${BUDGETS_API_BASE}/${id}`, data),
         onMutate: async ({ id, data }) => {
             await queryClient.cancelQueries({ queryKey: ['budgets'] });
             const previousBudgets = queryClient.getQueryData<Budget[]>(['budgets']);
@@ -75,7 +77,7 @@ export function useBudgets() {
     });
 
     const deleteBudget = useMutation({
-        mutationFn: (id: string) => apiClient.delete(`/api/budgets/${id}`),
+        mutationFn: (id: string) => apiClient.delete(`${BUDGETS_API_BASE}/${id}`),
         onMutate: async (id) => {
             await queryClient.cancelQueries({ queryKey: ['budgets'] });
             const previousBudgets = queryClient.getQueryData<Budget[]>(['budgets']);

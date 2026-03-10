@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { apiFetch } from '@/shared/api/http';
+import { useState } from 'react';
 import { Sparkles, BrainCircuit, ArrowRight, ShieldAlert } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 import ReactMarkdown from 'react-markdown';
@@ -7,32 +6,9 @@ import { ReactNode } from 'react';
 import { useRiskFactors } from '../hooks/useRiskFactors';
 
 export function AIInsightsWidget() {
-    const [insights, setInsights] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [, setError] = useState<string | null>(null);
+    const [insights] = useState<string | null>('Local-first desktop mode keeps cross-domain AI insights disabled until an explicit cloud client is introduced.');
+    const [isLoading] = useState(false);
     const { data: riskFactors, isLoading: isRisksLoading } = useRiskFactors();
-
-    const generateInsights = async () => {
-        setIsLoading(true);
-        setError(null);
-        try {
-            const data = await apiFetch<{ insights: string }>('/api/insights/cross-domain', {
-                method: 'POST'
-            });
-            setInsights(data.insights);
-        } catch {
-            setError('Failed to generate insights.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        if (!insights && !isLoading) {
-            generateInsights();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     return (
         <div className="flex flex-col gap-6 h-full">
@@ -48,8 +24,7 @@ export function AIInsightsWidget() {
                         </h3>
                     </div>
                     <button
-                        onClick={generateInsights}
-                        disabled={isLoading}
+                        disabled
                         className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
                     >
                         <BrainCircuit size={18} className={cn(isLoading && "animate-pulse text-primary")} />

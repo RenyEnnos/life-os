@@ -1,27 +1,56 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useMemo, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
-import { userApi } from '../api/user.api';
+import { userApi, User } from '../api/user.api';
+import { useThemeStore } from '@/shared/stores/themeStore';
 
 export function useUser() {
-    const { user } = useAuth();
-    const queryClient = useQueryClient();
+    const { user, profile, loading } = useAuth();
+    const [preferences, setPreferences] = useState<Record<string, unknown>>(() => userApi.getStoredPreferences());
 
-    const { data: userProfile, isLoading } = useQuery({
-        queryKey: ['user', user?.id],
-        queryFn: () => userApi.getMe(),
-        enabled: !!user,
-    });
+    useEffect(() => {
+        setPreferences(userApi.getStoredPreferences());
+    }, []);
+
+    const userProfile = useMemo<User | null>(() => {
+        if (!user) {
+            return null;
+        }
+
+        const storedTheme = typeof preferences.theme === 'string' ? preferences.theme : undefined;
+
+        return {
+            id: user.id,
+            email: user.email,
+            name: profile?.full_name || user.user_metadata?.full_name,
+            preferences,
+            theme: storedTheme || profile?.theme,
+            created_at: user.created_at || new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+    }, [preferences, profile?.full_name, profile?.theme, user]);
 
     const updatePreferences = useMutation({
-        mutationFn: (preferences: Record<string, unknown>) => userApi.updatePreferences(preferences),
+        mutationFn: async (nextPreferences: Record<string, unknown>) => {
+            const merged = { ...preferences, ...nextPreferences };
+            await userApi.updatePreferences(merged);
+
+            const theme = merged.theme;
+            if (theme === 'light' || theme === 'dark') {
+                useThemeStore.getState().setTheme(theme);
+            }
+
+            setPreferences(merged);
+            return merged;
+        },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['user'] });
+            setPreferences(userApi.getStoredPreferences());
         },
     });
 
     return {
         userProfile,
-        isLoading,
+        isLoading: loading,
         updatePreferences,
     };
 }
