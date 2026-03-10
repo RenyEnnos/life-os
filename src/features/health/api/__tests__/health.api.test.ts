@@ -131,9 +131,14 @@ describe("health.api", () => {
 
   describe("listReminders", () => {
     it("returns medications", async () => {
-      const meds = await healthApi.listReminders()
+      const meds = await healthApi.listReminders('user-1')
       expect(meds[0].name).toBe("Omega-3")
       expect(invokeResource).toHaveBeenCalledWith('medications', 'getAll')
+    })
+
+    it("filters medications by user", async () => {
+      const meds = await healthApi.listReminders('user-2')
+      expect(meds).toEqual([])
     })
   })
 

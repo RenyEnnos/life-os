@@ -15,7 +15,7 @@ export function useHealth(filters?: Record<string, string>) {
 
     const { data: medications, isLoading: loadingMedications } = useQuery<MedicationReminder[]>({
         queryKey: ['medications', user?.id],
-        queryFn: async () => healthApi.listReminders(),
+        queryFn: async () => healthApi.listReminders(user?.id),
         enabled: !!user,
     });
 

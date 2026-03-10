@@ -37,9 +37,13 @@ export const healthApi = {
     },
 
     // Reminders
-    listReminders: async () => {
+    listReminders: async (userId?: string) => {
         const data = await medicationRemindersIpc.getAll();
-        return data;
+        if (!userId) {
+            return data;
+        }
+
+        return data.filter((reminder) => reminder.user_id === userId);
     },
 
     createReminder: async (reminder: Partial<MedicationReminder>) => {

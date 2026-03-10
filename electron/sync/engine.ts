@@ -2,6 +2,8 @@ import { getDb } from '../db/database';
 import { net } from 'electron';
 import { createDesktopSupabaseClient, hydrateDesktopSession } from '../auth/desktopSession';
 
+const ALLOWED_SYNC_TABLES = new Set(['tasks', 'habits', 'transactions', 'health_metrics', 'medication_reminders', 'journal_entries']);
+
 export const startSyncEngine = () => {
   console.log('[SyncEngine] Started offline-first sync engine');
 
@@ -33,6 +35,9 @@ export const startSyncEngine = () => {
       try {
         const payload = JSON.parse(item.payload);
         const table = item.table_name;
+        if (!ALLOWED_SYNC_TABLES.has(table)) {
+          throw new Error(`Unsupported sync table: ${String(table)}`);
+        }
         const syncClient = supabase as unknown as {
           from: (tableName: string) => {
             upsert: (data: unknown) => Promise<{ error: unknown }>;

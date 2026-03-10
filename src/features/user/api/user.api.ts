@@ -8,14 +8,14 @@ export type User = {
     updated_at?: string;
 };
 
-const USER_PREFERENCES_KEY = 'user_preferences';
+const getUserPreferencesKey = (userId?: string) => `user_preferences:${userId || 'anonymous'}`;
 
-const readStoredPreferences = (): Record<string, unknown> => {
+const readStoredPreferences = (userId?: string): Record<string, unknown> => {
     if (typeof window === 'undefined') {
         return {};
     }
 
-    const raw = window.localStorage.getItem(USER_PREFERENCES_KEY);
+    const raw = window.localStorage.getItem(getUserPreferencesKey(userId));
     if (!raw) {
         return {};
     }
@@ -28,19 +28,19 @@ const readStoredPreferences = (): Record<string, unknown> => {
     }
 };
 
-const writeStoredPreferences = (preferences: Record<string, unknown>) => {
+const writeStoredPreferences = (userId: string | undefined, preferences: Record<string, unknown>) => {
     if (typeof window === 'undefined') {
         return;
     }
 
-    window.localStorage.setItem(USER_PREFERENCES_KEY, JSON.stringify(preferences));
+    window.localStorage.setItem(getUserPreferencesKey(userId), JSON.stringify(preferences));
 };
 
 export const userApi = {
-    getStoredPreferences: (): Record<string, unknown> => readStoredPreferences(),
+    getStoredPreferences: (userId?: string): Record<string, unknown> => readStoredPreferences(userId),
 
-    updatePreferences: async (preferences: Record<string, unknown>): Promise<Record<string, unknown>> => {
-        writeStoredPreferences(preferences);
+    updatePreferences: async (userId: string | undefined, preferences: Record<string, unknown>): Promise<Record<string, unknown>> => {
+        writeStoredPreferences(userId, preferences);
         return preferences;
     },
 };

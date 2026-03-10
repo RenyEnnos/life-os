@@ -6,11 +6,12 @@ import { useThemeStore } from '@/shared/stores/themeStore';
 
 export function useUser() {
     const { user, profile, loading } = useAuth();
-    const [preferences, setPreferences] = useState<Record<string, unknown>>(() => userApi.getStoredPreferences());
+    const userId = user?.id;
+    const [preferences, setPreferences] = useState<Record<string, unknown>>(() => userApi.getStoredPreferences(userId));
 
     useEffect(() => {
-        setPreferences(userApi.getStoredPreferences());
-    }, []);
+        setPreferences(userApi.getStoredPreferences(userId));
+    }, [userId]);
 
     const userProfile = useMemo<User | null>(() => {
         if (!user) {
@@ -33,7 +34,7 @@ export function useUser() {
     const updatePreferences = useMutation({
         mutationFn: async (nextPreferences: Record<string, unknown>) => {
             const merged = { ...preferences, ...nextPreferences };
-            await userApi.updatePreferences(merged);
+            await userApi.updatePreferences(userId, merged);
 
             const theme = merged.theme;
             if (theme === 'light' || theme === 'dark') {
@@ -44,7 +45,7 @@ export function useUser() {
             return merged;
         },
         onSuccess: () => {
-            setPreferences(userApi.getStoredPreferences());
+            setPreferences(userApi.getStoredPreferences(userId));
         },
     });
 

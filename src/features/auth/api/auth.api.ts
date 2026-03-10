@@ -140,7 +140,8 @@ export const authApi = {
     }
 
     await apiClient.post(`${AUTH_API_BASE}/update-password`, { password });
-    return { user: null, session: null, profile: null };
+    const user = await apiClient.get<User>(`${AUTH_API_BASE}/verify`);
+    return { user, session: buildWebSession(user), profile: buildProfileFromUser(user) };
   },
 
   getProfile: async (userId: string): Promise<UserProfile | null> => {
