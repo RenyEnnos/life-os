@@ -1,1 +1,48 @@
-"use strict";const n=require("electron");n.contextBridge.exposeInMainWorld("ipcRenderer",{on(...e){const[r,i]=e;return n.ipcRenderer.on(r,(o,...t)=>i(o,...t))},off(...e){const[r,...i]=e;return n.ipcRenderer.off(r,...i)},send(...e){const[r,...i]=e;return n.ipcRenderer.send(r,...i)},invoke(...e){const[r,...i]=e;return n.ipcRenderer.invoke(r,...i)}});n.contextBridge.exposeInMainWorld("electron",{notify:e=>n.ipcRenderer.send("notify",e),scheduleNotification:e=>n.ipcRenderer.send("schedule-notification",e),cancelNotification:e=>n.ipcRenderer.send("cancel-notification",e),getAppInfo:()=>n.ipcRenderer.invoke("get-app-info")});n.contextBridge.exposeInMainWorld("api",{auth:{check:()=>n.ipcRenderer.invoke("auth:check"),login:e=>n.ipcRenderer.invoke("auth:login",e),register:e=>n.ipcRenderer.invoke("auth:register",e),logout:()=>n.ipcRenderer.invoke("auth:logout"),resetPassword:(e,r)=>n.ipcRenderer.invoke("auth:reset-password",e,r),updatePassword:e=>n.ipcRenderer.invoke("auth:update-password",e),getProfile:e=>n.ipcRenderer.invoke("auth:get-profile",e)},tasks:{getAll:()=>n.ipcRenderer.invoke("tasks:getAll"),create:e=>n.ipcRenderer.invoke("tasks:create",e),update:(e,r)=>n.ipcRenderer.invoke("tasks:update",e,r),delete:e=>n.ipcRenderer.invoke("tasks:delete",e)},invokeResource:(e,r,...i)=>n.ipcRenderer.invoke("resource:invoke",e,r,...i),legacy:{request:(e,r,i)=>n.ipcRenderer.invoke("api:legacy",e,r,i)}});
+"use strict";
+const electron = require("electron");
+electron.contextBridge.exposeInMainWorld("ipcRenderer", {
+  on(...args) {
+    const [channel, listener] = args;
+    return electron.ipcRenderer.on(channel, (event, ...args2) => listener(event, ...args2));
+  },
+  off(...args) {
+    const [channel, ...omit] = args;
+    return electron.ipcRenderer.off(channel, ...omit);
+  },
+  send(...args) {
+    const [channel, ...omit] = args;
+    return electron.ipcRenderer.send(channel, ...omit);
+  },
+  invoke(...args) {
+    const [channel, ...omit] = args;
+    return electron.ipcRenderer.invoke(channel, ...omit);
+  }
+});
+electron.contextBridge.exposeInMainWorld("electron", {
+  notify: (options) => electron.ipcRenderer.send("notify", options),
+  scheduleNotification: (options) => electron.ipcRenderer.send("schedule-notification", options),
+  cancelNotification: (id) => electron.ipcRenderer.send("cancel-notification", id),
+  getAppInfo: () => electron.ipcRenderer.invoke("get-app-info")
+});
+electron.contextBridge.exposeInMainWorld("api", {
+  auth: {
+    check: () => electron.ipcRenderer.invoke("auth:check"),
+    login: (credentials) => electron.ipcRenderer.invoke("auth:login", credentials),
+    register: (credentials) => electron.ipcRenderer.invoke("auth:register", credentials),
+    logout: () => electron.ipcRenderer.invoke("auth:logout"),
+    resetPassword: (email, redirectTo) => electron.ipcRenderer.invoke("auth:reset-password", email, redirectTo),
+    updatePassword: (password) => electron.ipcRenderer.invoke("auth:update-password", password),
+    getProfile: (userId) => electron.ipcRenderer.invoke("auth:get-profile", userId)
+  },
+  tasks: {
+    getAll: () => electron.ipcRenderer.invoke("tasks:getAll"),
+    create: (task) => electron.ipcRenderer.invoke("tasks:create", task),
+    update: (id, updates) => electron.ipcRenderer.invoke("tasks:update", id, updates),
+    delete: (id) => electron.ipcRenderer.invoke("tasks:delete", id)
+  },
+  // Scalable Resource Handler for all future refactored features
+  invokeResource: (resource, action, ...args) => electron.ipcRenderer.invoke("resource:invoke", resource, action, ...args),
+  legacy: {
+    request: (method, url, body) => electron.ipcRenderer.invoke("api:legacy", method, url, body)
+  }
+});
