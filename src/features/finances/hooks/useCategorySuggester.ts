@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'Alimentação': ['food', 'ifood', 'restaurant', 'market', 'grocery', 'lunch', 'dinner', 'snack', 'coffee', 'supermarket', 'burger', 'pizza'],
@@ -10,37 +10,18 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 };
 
 export function useCategorySuggester(description: string) {
-    const [suggestedCategory, setSuggestedCategory] = useState<string | null>(null);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const suggestedCategory = useMemo<string | null>(() => {
+    if (!description || description.length < 3) return null;
+    const lower = description.toLowerCase();
+    for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+      if (keywords.some(k => lower.includes(k))) {
+        return category;
+      }
+    }
+    return null;
+  }, [description]);
 
-    useEffect(() => {
-        if (!description || description.length < 3) {
-            setSuggestedCategory(null);
-            return;
-        }
+  const isAnalyzing = false;
 
-        const analyze = async () => {
-            setIsAnalyzing(true);
-            // Simulate AI delay
-            await new Promise(r => setTimeout(r, 800));
-
-            const lowerDesc = description.toLowerCase();
-            let foundCategory: string | null = null;
-
-            for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
-                if (keywords.some(k => lowerDesc.includes(k))) {
-                    foundCategory = category;
-                    break;
-                }
-            }
-
-            setSuggestedCategory(foundCategory);
-            setIsAnalyzing(false);
-        };
-
-        const timeout = setTimeout(analyze, 500); // Debounce
-        return () => clearTimeout(timeout);
-    }, [description]);
-
-    return { suggestedCategory, isAnalyzing };
+  return { suggestedCategory, isAnalyzing };
 }
