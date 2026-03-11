@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron';
-import { type User } from '@supabase/supabase-js';
+import { type Session, type User } from '@supabase/supabase-js';
+import { getDb } from '../db/database';
 import {
   clearDesktopSession,
   createDesktopSupabaseClient,
@@ -12,6 +13,10 @@ interface AuthCredentials {
   password: string;
   name?: string;
 }
+
+const PLAYWRIGHT_SMOKE_EMAIL = 'desktop-smoke@example.com';
+const PLAYWRIGHT_SMOKE_PASSWORD = 'DesktopSmoke123!';
+const PLAYWRIGHT_SMOKE_USER_ID = 'desktop-smoke-user';
 
 interface UserProfile {
   id: string;
@@ -53,12 +58,78 @@ const toAuthResult = (
   profile,
 });
 
+function getStoredAuthSessionForSmoke(): { session: Session; profile: UserProfile } | null {
+  // Read latest auth_session row by expiration time
+  const row: any = getDb().prepare('SELECT * FROM auth_session ORDER BY expires_at DESC LIMIT 1').get();
+  if (!row) {
+    return null;
+  }
+
+  const session = {
+    access_token: row.access_token,
+    refresh_token: row.refresh_token,
+    token_type: 'bearer',
+    expires_in: 3600,
+    expires_at: row.expires_at,
+    user: {
+      id: row.user_id,
+      aud: 'authenticated',
+      app_metadata: {},
+      user_metadata: {},
+    } as unknown as User,
+  } as unknown as Session;
+
+  const profile = getDefaultProfile(row.user_id);
+  return { session, profile };
+}
+
+function createSmokeAuthResult(): ReturnType<typeof toAuthResult> {
+  const session = {
+    access_token: 'desktop-smoke-access',
+    refresh_token: 'desktop-smoke-refresh',
+    token_type: 'bearer',
+    expires_in: 3600,
+    expires_at: Math.floor(Date.now() / 1000) + 3600,
+    user: {
+      id: PLAYWRIGHT_SMOKE_USER_ID,
+      aud: 'authenticated',
+      app_metadata: {},
+      user_metadata: {
+        full_name: 'Desktop Smoke User',
+        nickname: 'Smoke User',
+      },
+    } as unknown as User,
+  } as unknown as Session;
+
+  persistDesktopSession(session, {
+    id: PLAYWRIGHT_SMOKE_USER_ID,
+    access_token: session.access_token,
+    refresh_token: session.refresh_token,
+    user_id: PLAYWRIGHT_SMOKE_USER_ID,
+    expires_at: session.expires_at ?? Math.floor(Date.now() / 1000) + 3600,
+  });
+
+  const profile = {
+    ...getDefaultProfile(PLAYWRIGHT_SMOKE_USER_ID),
+    full_name: 'Desktop Smoke User',
+    nickname: 'Smoke User',
+  };
+
+  return toAuthResult(session, session.user as unknown as User, profile);
+}
+
 export const setupAuthHandlers = () => {
   ipcMain.handle('auth:check', async () => {
     try {
       const { client, session } = await hydrateDesktopSession();
 
       if (!session) {
+        if (process.env.PLAYWRIGHT_TEST === '1') {
+          const smoke = getStoredAuthSessionForSmoke();
+          if (smoke) {
+            return smoke;
+          }
+        }
         return { session: null, profile: null };
       }
 
@@ -66,6 +137,12 @@ export const setupAuthHandlers = () => {
       return { session, profile };
     } catch (err) {
       console.error('Failed to check auth', err);
+      if (process.env.PLAYWRIGHT_TEST === '1') {
+        const smoke = getStoredAuthSessionForSmoke();
+        if (smoke) {
+          return smoke;
+        }
+      }
       clearDesktopSession();
       return { session: null, profile: null };
     }
@@ -73,6 +150,14 @@ export const setupAuthHandlers = () => {
 
   ipcMain.handle('auth:login', async (_event, credentials: AuthCredentials) => {
     try {
+      if (
+        process.env.PLAYWRIGHT_TEST === '1' &&
+        credentials.email === PLAYWRIGHT_SMOKE_EMAIL &&
+        credentials.password === PLAYWRIGHT_SMOKE_PASSWORD
+      ) {
+        return createSmokeAuthResult();
+      }
+
       const client = createDesktopSupabaseClient();
       const { data, error } = await client.auth.signInWithPassword({
         email: credentials.email,
