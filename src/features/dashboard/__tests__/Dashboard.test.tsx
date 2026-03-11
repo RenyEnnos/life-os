@@ -1,10 +1,26 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import { AgoraSection } from '@/features/dashboard/components/AgoraSection';
-import { AuthProvider } from '@/features/auth/contexts/AuthProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // MemoryRouter not needed for AgoraSection rendering in current tests
 import '@testing-library/jest-dom';
+
+// Lightweight auth seam: mock useAuth to avoid booting real AuthProvider
+vi.mock('@/features/auth/contexts/AuthContext', () => ({
+  useAuth: () => ({
+    user: null,
+    session: null,
+    profile: null,
+    isLoading: false,
+    loading: false,
+    hasCompletedOnboarding: false,
+    error: null,
+    login: vi.fn(),
+    logout: vi.fn(),
+    resetPassword: vi.fn(),
+    updatePassword: vi.fn(),
+  }),
+}));
 
 // Mock dependencies
 vi.mock('@/features/habits/hooks/useHabits', () => ({
@@ -82,9 +98,7 @@ describe('AgoraSection defensive rendering', () => {
     it('renders Vital: N/A placeholder when vitalLoad is absent', () => {
         render(
             <QueryClientProvider client={queryClient}>
-                <AuthProvider>
-                    <AgoraSection />
-                </AuthProvider>
+                <AgoraSection />
             </QueryClientProvider>
         );
         const vitalNode = screen.getByText('Vital: N/A');
@@ -94,9 +108,7 @@ describe('AgoraSection defensive rendering', () => {
     it('renders habit rhythm as N/A when habitConsistency is absent', () => {
         render(
             <QueryClientProvider client={queryClient}>
-                <AuthProvider>
-                    <AgoraSection />
-                </AuthProvider>
+                <AgoraSection />
             </QueryClientProvider>
         );
         const rhythmNode = screen.getByText(/Ritmo de hábitos: N\/A/);
