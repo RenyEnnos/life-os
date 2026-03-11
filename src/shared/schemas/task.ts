@@ -5,6 +5,7 @@ import { z } from 'zod';
  * Unificado para suportar Kanban, Lista e Planejamento.
  */
 export const taskSchema = z.object({
+    user_id: z.string().optional().nullable(),
     title: z.string().min(1, 'O título é obrigatório').max(200, 'O título deve ter no máximo 200 caracteres'),
     description: z.string().max(1000, 'A descrição deve ter no máximo 1000 caracteres').optional().nullable(),
     status: z.enum(['todo', 'in-progress', 'done']).default('todo'),

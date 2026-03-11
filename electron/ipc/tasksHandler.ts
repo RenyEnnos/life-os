@@ -12,6 +12,9 @@ class TasksRepository extends BaseRepository<any> {
         if (result.tags) {
             result.tags = JSON.stringify(result.tags);
         }
+        if (typeof result.completed === 'boolean') {
+            result.completed = result.completed ? 1 : 0;
+        }
         return result;
     }
 
@@ -23,6 +26,9 @@ class TasksRepository extends BaseRepository<any> {
             } catch {
                 result.tags = [];
             }
+        }
+        if (typeof result.completed === 'number') {
+            result.completed = result.completed === 1;
         }
         return result;
     }
