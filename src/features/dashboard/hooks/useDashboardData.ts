@@ -52,8 +52,6 @@ export function useDashboardFinance() {
 }
 
 export function useDashboardData() {
-  const { user } = useAuth();
-  const userId = user?.id;
 
   const { data: dashboardSummary, isLoading: summaryLoading } = useDashboardSummary();
   const { data: tasks, isLoading: tasksLoading } = useDashboardTasks();
@@ -66,26 +64,15 @@ export function useDashboardData() {
       return typeof due === 'string' && due.startsWith(today)
     })
     .slice(0, 5), [tasks]);
-
-  const defaultLifeScore = {
-    user_id: userId || '',
-    level: 1,
-    current_xp: 0,
-    next_level_xp: 100,
-    life_score: 0,
-    attributes: { BODY: 0, MIND: 0, SPIRIT: 0, OUTPUT: 0 },
-    updated_at: new Date().toISOString(),
-  };
-
   return {
     tasks: tasks || [],
     habits: habits || [],
-    lifeScore: dashboardSummary?.lifeScore || defaultLifeScore,
+    lifeScore: dashboardSummary?.lifeScore,
     agenda,
     finance: financeData || { income: 0, expenses: 0, balance: 0 },
-    habitConsistency: dashboardSummary?.habitConsistency || { percentage: 0, weeklyData: [0, 0, 0, 0, 0, 0, 0] },
-    vitalLoad: dashboardSummary?.vitalLoad || { totalImpact: 0, state: 'balanced', label: 'Carregando...' },
-    symbiosisLinks: [],
+    habitConsistency: dashboardSummary?.habitConsistency,
+    vitalLoad: dashboardSummary?.vitalLoad,
+    symbiosisLinks: undefined,
     isLoading: tasksLoading || habitsLoading || summaryLoading || financeLoading
   };
 }
