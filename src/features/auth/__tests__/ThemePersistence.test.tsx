@@ -1,34 +1,22 @@
 /** @vitest-environment jsdom */
-import { describe, it, expect } from 'vitest'
-import React from 'react'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { ThemeToggle } from '@/shared/ui/ThemeToggle'
-import { AuthProvider } from '../contexts/AuthProvider'
-import { BrowserRouter } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: { retry: false },
-    },
+beforeEach(() => {
+  localStorage.clear()
+  document.documentElement.classList.remove('light', 'dark')
 })
 
-describe.skip('Theme persistence', () => {
+describe('Theme persistence', () => {
   it('persists theme to localStorage and document class', () => {
-    render(
-        <QueryClientProvider client={queryClient}>
-            <BrowserRouter>
-                <AuthProvider>
-                    <ThemeToggle />
-                </AuthProvider>
-            </BrowserRouter>
-        </QueryClientProvider>
-    )
+    render(<ThemeToggle />)
     const btn = screen.getByRole('button', { name: /alternar tema/i })
+    
+    expect(document.documentElement.classList.contains('light') || document.documentElement.classList.contains('dark')).toBeTruthy()
     fireEvent.click(btn)
     const t = localStorage.getItem('theme')
-    expect(!!t).toBe(true)
-    expect(['light','dark'].includes(t!)).toBe(true)
-    expect(document.documentElement.classList.contains(t!)).toBe(true)
+    expect(t).toBe('dark')
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
   })
 })
