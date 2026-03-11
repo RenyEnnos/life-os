@@ -32,11 +32,10 @@ export function useDashboardHabits() {
 }
 
 export function useDashboardSummary() {
-  const { user } = useAuth();
   const habitsQuery = useDashboardHabits();
 
   return {
-    data: buildDashboardSummary(habitsQuery.data || [], user?.id),
+    data: buildDashboardSummary(habitsQuery.data || []),
     isLoading: habitsQuery.isLoading,
   } as { data: DashboardSummary; isLoading: boolean };
 }
@@ -67,12 +66,10 @@ export function useDashboardData() {
   return {
     tasks: tasks || [],
     habits: habits || [],
-    lifeScore: dashboardSummary?.lifeScore,
     agenda,
     finance: financeData || { income: 0, expenses: 0, balance: 0 },
     habitConsistency: dashboardSummary?.habitConsistency,
     vitalLoad: dashboardSummary?.vitalLoad,
-    symbiosisLinks: undefined,
     isLoading: tasksLoading || habitsLoading || summaryLoading || financeLoading
   };
 }

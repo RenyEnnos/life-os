@@ -28,9 +28,6 @@ export const habitConsistencySchema = z.object({
       .length(7, 'Weekly data must contain exactly 7 values')
 });
 
-// Dashboard Widgets (flexible configuration for future use)
-export const dashboardWidgetsSchema = z.record(z.unknown()).optional();
-
 // Dashboard Preferences (for future user customization)
 export const dashboardPreferencesSchema = z.object({
     theme: z.enum(['light', 'dark', 'auto'], {
@@ -43,12 +40,8 @@ export const dashboardPreferencesSchema = z.object({
 
 // Complete Dashboard Summary
 export const dashboardSummarySchema = z.object({
-    lifeScore: z.unknown().refine((val) => val !== undefined, {
-        message: 'LifeScore is required'
-    }),
     habitConsistency: habitConsistencySchema,
     vitalLoad: vitalLoadSchema,
-    widgets: dashboardWidgetsSchema.optional().default({}),
 });
 
 // Create/Update Schemas (for future dashboard customization features)
