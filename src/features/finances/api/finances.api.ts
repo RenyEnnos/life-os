@@ -31,11 +31,13 @@ export const financesApi = {
         });
     },
 
-    create: async (transaction: Partial<Transaction>) => {
-        const userId = useAuthStore.getState().user?.id;
-        const payload: Partial<Transaction> = transaction.user_id || !userId
+    create: async (transaction: Partial<Transaction>, userIdOrContext?: unknown) => {
+        const resolvedUserId = typeof userIdOrContext === 'string'
+            ? userIdOrContext
+            : useAuthStore.getState().user?.id;
+        const payload: Partial<Transaction> = transaction.user_id || !resolvedUserId
             ? transaction
-            : { ...transaction, user_id: userId };
+            : { ...transaction, user_id: resolvedUserId };
 
         const data = await financesIpc.create(payload);
         return data;

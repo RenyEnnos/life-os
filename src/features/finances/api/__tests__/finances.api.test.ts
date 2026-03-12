@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { financesApi } from '../finances.api'
 
 const { mockGetAuthState } = vi.hoisted(() => ({
-  mockGetAuthState: vi.fn(() => ({ user: { id: 'user-1' } })),
+  mockGetAuthState: vi.fn<() => { user: { id: string } | null }>(() => ({ user: { id: 'user-1' } })),
 }))
 
 vi.mock('@/shared/stores/authStore', () => ({
@@ -63,12 +63,17 @@ describe('finances.api', () => {
   })
 
   it('create preserves explicit payload user_id over derived user id', async () => {
-    await financesApi.create({ description: 'Test', amount: 50, type: 'expense', user_id: 'user-2' })
+    await financesApi.create({ description: 'Test', amount: 50, type: 'expense', user_id: 'user-2' }, 'user-1')
     expect(invokeResource).toHaveBeenCalledWith('finances', 'create', { description: 'Test', amount: 50, type: 'expense', user_id: 'user-2' })
   })
 
+  it('create prefers explicit userId argument over store user', async () => {
+    await financesApi.create({ description: 'Test', amount: 50, type: 'expense' }, 'user-3')
+    expect(invokeResource).toHaveBeenCalledWith('finances', 'create', { description: 'Test', amount: 50, type: 'expense', user_id: 'user-3' })
+  })
+
   it('create does not inject user_id when auth user is unavailable', async () => {
-    mockGetAuthState.mockReturnValue({ user: null } as any)
+    mockGetAuthState.mockReturnValue({ user: null })
     await financesApi.create({ description: 'Test', amount: 50, type: 'expense' })
     expect(invokeResource).toHaveBeenCalledWith('finances', 'create', { description: 'Test', amount: 50, type: 'expense' })
   })

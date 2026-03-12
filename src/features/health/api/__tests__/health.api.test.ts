@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { healthApi } from '../health.api'
 
 const { mockGetAuthState } = vi.hoisted(() => ({
-  mockGetAuthState: vi.fn(() => ({ user: { id: 'user-1' } })),
+  mockGetAuthState: vi.fn<() => { user: { id: string } | null }>(() => ({ user: { id: 'user-1' } })),
 }))
 
 vi.mock('@/shared/stores/authStore', () => ({
@@ -133,12 +133,17 @@ describe("health.api", () => {
     })
 
     it("preserves explicit metric user_id over derived user id", async () => {
-      await healthApi.createMetric({ metric_type: "sleep", value: 8, user_id: 'user-2' })
+      await healthApi.createMetric({ metric_type: "sleep", value: 8, user_id: 'user-2' }, 'user-1')
       expect(invokeResource).toHaveBeenCalledWith('health', 'create', { metric_type: 'sleep', value: 8, user_id: 'user-2' })
     })
 
+    it("prefers explicit userId argument for metric create", async () => {
+      await healthApi.createMetric({ metric_type: "sleep", value: 8 }, 'user-3')
+      expect(invokeResource).toHaveBeenCalledWith('health', 'create', { metric_type: 'sleep', value: 8, user_id: 'user-3' })
+    })
+
     it("does not inject user_id when auth user is unavailable", async () => {
-      mockGetAuthState.mockReturnValue({ user: null } as any)
+      mockGetAuthState.mockReturnValue({ user: null })
       await healthApi.createMetric({ metric_type: "sleep", value: 8 })
       expect(invokeResource).toHaveBeenCalledWith('health', 'create', { metric_type: 'sleep', value: 8 })
     })
@@ -172,12 +177,17 @@ describe("health.api", () => {
     })
 
     it("preserves explicit reminder user_id over derived user id", async () => {
-      await healthApi.createReminder({ name: 'Vit D3', user_id: 'user-2' })
+      await healthApi.createReminder({ name: 'Vit D3', user_id: 'user-2' }, 'user-1')
       expect(invokeResource).toHaveBeenCalledWith('medications', 'create', { name: 'Vit D3', user_id: 'user-2' })
     })
 
+    it("prefers explicit userId argument for reminder create", async () => {
+      await healthApi.createReminder({ name: 'Vit D3' }, 'user-3')
+      expect(invokeResource).toHaveBeenCalledWith('medications', 'create', { name: 'Vit D3', user_id: 'user-3' })
+    })
+
     it("does not inject reminder user_id when auth user is unavailable", async () => {
-      mockGetAuthState.mockReturnValue({ user: null } as any)
+      mockGetAuthState.mockReturnValue({ user: null })
       await healthApi.createReminder({ name: "Vit D3" })
       expect(invokeResource).toHaveBeenCalledWith('medications', 'create', { name: 'Vit D3' })
     })
