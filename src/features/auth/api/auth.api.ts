@@ -151,8 +151,11 @@ export const authApi = {
 
     await apiClient.post(`${AUTH_API_BASE}/update-password`, { password });
     const user = await apiClient.get<User>(`${AUTH_API_BASE}/verify`);
+    const user = await apiClient.get<User>(`${AUTH_API_BASE}/verify`);
+    if (!user) {
+      throw new Error('Verification failed: user not found after password update.');
+    }
     return buildWebAuthResult(user);
-  },
 
   getProfile: async (userId: string): Promise<UserProfile | null> => {
     const authBridge = getDesktopAuthBridge();
