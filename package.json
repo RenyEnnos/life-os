@@ -132,6 +132,12 @@
     "qs": "^6.14.1",
     "minimatch": "^10.2.3",
     "serialize-javascript": "^7.0.3",
+    "@rollup/plugin-terser": {
+      "serialize-javascript": "^6.0.1"
+    },
+    "filelist": {
+      "minimatch": "^5.1.6"
+    },
     "undici": "^6.23.0",
     "tar": "^7.0.0",
     "esbuild": "^0.24.2"
