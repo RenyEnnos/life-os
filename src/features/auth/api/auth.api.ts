@@ -79,8 +79,11 @@ export const authApi = {
     }
 
     const user = await apiClient.get<User>(`${AUTH_API_BASE}/verify`);
+    const user = await apiClient.get<User>(`${AUTH_API_BASE}/verify`);
+    if (!user) {
+      throw new Error('Verification failed: user not found.');
+    }
     return buildWebAuthCheckResult(user);
-  },
 
   login: async (credentials: LoginRequest): Promise<AuthResult> => {
     const authBridge = getDesktopAuthBridge();
