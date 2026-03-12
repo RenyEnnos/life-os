@@ -3,7 +3,6 @@ import {
     vitalLoadSchema,
     vitalLoadStateSchema,
     habitConsistencySchema,
-    dashboardWidgetsSchema,
     dashboardPreferencesSchema,
     dashboardSummarySchema,
     createDashboardPreferencesSchema,
@@ -230,38 +229,7 @@ describe('habitConsistencySchema', () => {
     })
 })
 
-describe('dashboardWidgetsSchema', () => {
-    it('accepts empty object', () => {
-        const result = dashboardWidgetsSchema.safeParse({})
-        expect(result.success).toBe(true)
-    })
-
-    it('accepts object with various properties', () => {
-        const result = dashboardWidgetsSchema.safeParse({
-            lifeScore: { enabled: true },
-            habits: { position: 'top' },
-            calendar: { view: 'month' }
-        })
-        expect(result.success).toBe(true)
-    })
-
-    it('accepts nested objects', () => {
-        const result = dashboardWidgetsSchema.safeParse({
-            layout: {
-                columns: 3,
-                widgets: ['lifeScore', 'habits', 'tasks']
-            }
-        })
-        expect(result.success).toBe(true)
-    })
-
-    it('accepts arrays as values', () => {
-        const result = dashboardWidgetsSchema.safeParse({
-            widgetOrder: ['lifeScore', 'habits', 'tasks', 'calendar']
-        })
-        expect(result.success).toBe(true)
-    })
-})
+// dashboardWidgetsSchema tests removed in MVP
 
 describe('dashboardPreferencesSchema', () => {
     it('accepts empty object', () => {
@@ -332,9 +300,8 @@ describe('dashboardPreferencesSchema', () => {
 })
 
 describe('dashboardSummarySchema', () => {
-    it('accepts valid dashboard summary with all fields', () => {
+    it('accepts valid dashboard summary with required fields', () => {
         const result = dashboardSummarySchema.safeParse({
-            lifeScore: { score: 75, level: 5 },
             habitConsistency: {
                 percentage: 80,
                 weeklyData: [5, 6, 7, 4, 5, 6, 7]
@@ -343,17 +310,13 @@ describe('dashboardSummarySchema', () => {
                 totalImpact: 1,
                 state: 'balanced',
                 label: 'Carga vital equilibrada'
-            },
-            widgets: {
-                lifeScore: { enabled: true }
             }
         })
         expect(result.success).toBe(true)
     })
 
-    it('accepts dashboard summary without widgets (defaults to empty object)', () => {
+    it('accepts dashboard summary with required fields (no extra fields)', () => {
         const result = dashboardSummarySchema.safeParse({
-            lifeScore: { score: 60, level: 4 },
             habitConsistency: {
                 percentage: 50,
                 weeklyData: [3, 4, 5, 3, 4, 5, 6]
@@ -366,70 +329,14 @@ describe('dashboardSummarySchema', () => {
         })
         expect(result.success).toBe(true)
         if (result.success) {
-            expect(result.data.widgets).toEqual({})
+            const data: any = result.data
+            expect(data.lifeScore).toBeUndefined()
+            expect(data.widgets).toBeUndefined()
         }
-    })
-
-    it('accepts null lifeScore (unknown structure)', () => {
-        const result = dashboardSummarySchema.safeParse({
-            lifeScore: null,
-            habitConsistency: {
-                percentage: 100,
-                weeklyData: [7, 7, 7, 7, 7, 7, 7]
-            },
-            vitalLoad: {
-                totalImpact: -2,
-                state: 'underloaded',
-                label: 'Low load'
-            }
-        })
-        expect(result.success).toBe(true)
-    })
-
-    it('accepts complex lifeScore object', () => {
-        const result = dashboardSummarySchema.safeParse({
-            lifeScore: {
-                score: 85,
-                level: 6,
-                xp: 1250,
-                nextLevelXp: 1500,
-                attributes: {
-                    body: 80,
-                    mind: 90,
-                    spirit: 85
-                }
-            },
-            habitConsistency: {
-                percentage: 75,
-                weeklyData: [5, 6, 5, 7, 5, 6, 7]
-            },
-            vitalLoad: {
-                totalImpact: 0,
-                state: 'balanced',
-                label: 'Balanced'
-            }
-        })
-        expect(result.success).toBe(true)
-    })
-
-    it('rejects missing lifeScore', () => {
-        const result = dashboardSummarySchema.safeParse({
-            habitConsistency: {
-                percentage: 50,
-                weeklyData: [1, 2, 3, 4, 5, 6, 7]
-            },
-            vitalLoad: {
-                totalImpact: 0,
-                state: 'balanced',
-                label: 'Test'
-            }
-        })
-        expect(result.success).toBe(false)
     })
 
     it('rejects missing habitConsistency', () => {
         const result = dashboardSummarySchema.safeParse({
-            lifeScore: {},
             vitalLoad: {
                 totalImpact: 0,
                 state: 'balanced',
@@ -441,7 +348,6 @@ describe('dashboardSummarySchema', () => {
 
     it('rejects invalid habitConsistency', () => {
         const result = dashboardSummarySchema.safeParse({
-            lifeScore: {},
             habitConsistency: {
                 percentage: 150, // Invalid: > 100
                 weeklyData: [1, 2, 3, 4, 5, 6, 7]
@@ -457,7 +363,6 @@ describe('dashboardSummarySchema', () => {
 
     it('rejects missing vitalLoad', () => {
         const result = dashboardSummarySchema.safeParse({
-            lifeScore: {},
             habitConsistency: {
                 percentage: 50,
                 weeklyData: [1, 2, 3, 4, 5, 6, 7]
@@ -468,7 +373,6 @@ describe('dashboardSummarySchema', () => {
 
     it('rejects invalid vitalLoad state', () => {
         const result = dashboardSummarySchema.safeParse({
-            lifeScore: {},
             habitConsistency: {
                 percentage: 50,
                 weeklyData: [1, 2, 3, 4, 5, 6, 7]

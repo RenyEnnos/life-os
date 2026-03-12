@@ -58,10 +58,30 @@ describe('AuthFlow integration', () => {
     localStorage.clear()
   })
 
-  it.skip('performs complete login flow', async () => {
+  it('performs complete login flow', async () => {
     const mockedAuthApi = vi.mocked(authApi)
-    mockedAuthApi.verify.mockResolvedValue(null as any) // No initial session
-    mockedAuthApi.login.mockResolvedValue({ user: mockUser, token: 'mock-token' } as any)
+    // Align with current contract: initial session is checked via checkSession, not verify
+    mockedAuthApi.checkSession?.mockResolvedValue({ session: null, profile: null } as any)
+    // Build a realistic session object that mirrors the real Supabase session shape
+    const session = {
+      access_token: 'web-session',
+      refresh_token: 'web-session',
+      token_type: 'bearer',
+      expires_in: 3600,
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
+      user: mockUser,
+    } as any
+    mockedAuthApi.login.mockResolvedValue({
+      user: mockUser,
+      session,
+      profile: {
+        id: mockUser.id,
+        full_name: mockUser.name,
+        nickname: mockUser.name,
+        theme: 'dark',
+        onboarding_completed: false,
+      } as any,
+    } as any)
 
     renderWithProviders(<TestComponent />)
 
@@ -94,8 +114,26 @@ describe('AuthFlow integration', () => {
 
   it.skip('performs complete logout flow', async () => {
     const mockedAuthApi = vi.mocked(authApi)
-    mockedAuthApi.verify.mockResolvedValue(null as any) // No initial session
-    mockedAuthApi.login.mockResolvedValue({ user: mockUser, token: 'mock-token' } as any)
+    mockedAuthApi.checkSession?.mockResolvedValue({ session: null, profile: null } as any)
+    const session = {
+      access_token: 'web-session',
+      refresh_token: 'web-session',
+      token_type: 'bearer',
+      expires_in: 3600,
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
+      user: mockUser,
+    } as any
+    mockedAuthApi.login.mockResolvedValue({
+      user: mockUser,
+      session,
+      profile: {
+        id: mockUser.id,
+        full_name: mockUser.name,
+        nickname: mockUser.name,
+        theme: 'dark',
+        onboarding_completed: false,
+      } as any,
+    } as any)
     mockedAuthApi.logout.mockResolvedValue(undefined)
 
     renderWithProviders(<TestComponent />)
@@ -129,8 +167,26 @@ describe('AuthFlow integration', () => {
 
   it.skip('persists session across page reloads', async () => {
     const mockedAuthApi = vi.mocked(authApi)
-    mockedAuthApi.verify.mockResolvedValue(null as any) // No initial session
-    mockedAuthApi.login.mockResolvedValue({ user: mockUser, token: 'mock-token' } as any)
+    mockedAuthApi.checkSession?.mockResolvedValue({ session: null, profile: null } as any)
+    const session = {
+      access_token: 'web-session',
+      refresh_token: 'web-session',
+      token_type: 'bearer',
+      expires_in: 3600,
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
+      user: mockUser,
+    } as any
+    mockedAuthApi.login.mockResolvedValue({
+      user: mockUser,
+      session,
+      profile: {
+        id: mockUser.id,
+        full_name: mockUser.name,
+        nickname: mockUser.name,
+        theme: 'dark',
+        onboarding_completed: false,
+      } as any,
+    } as any)
 
     // Initial render and login
     const { unmount } = renderWithProviders(<TestComponent />)
@@ -164,7 +220,7 @@ describe('AuthFlow integration', () => {
 
   it.skip('handles session verification failure', async () => {
     const mockedAuthApi = vi.mocked(authApi)
-    mockedAuthApi.verify.mockRejectedValue(new Error('Session invalid'))
+    mockedAuthApi.checkSession.mockRejectedValue(new Error('Session invalid'))
 
     renderWithProviders(<TestComponent />)
 

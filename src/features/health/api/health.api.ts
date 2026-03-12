@@ -1,5 +1,6 @@
 import { IpcClient } from '@/shared/api/ipcClient';
 import { HealthMetric, MedicationReminder } from '@/shared/types';
+import { useAuthStore } from '@/shared/stores/authStore';
 
 const healthMetricsIpc = new IpcClient<HealthMetric>('health');
 const medicationRemindersIpc = new IpcClient<MedicationReminder>('medications');
@@ -27,10 +28,13 @@ export const healthApi = {
         });
     },
 
-    createMetric: async (metric: Partial<HealthMetric>, userId?: string) => {
-        const payload: Partial<HealthMetric> = metric.user_id || !userId
+    createMetric: async (metric: Partial<HealthMetric>, userIdOrContext?: unknown) => {
+        const resolvedUserId = typeof userIdOrContext === 'string'
+            ? userIdOrContext
+            : useAuthStore.getState().user?.id;
+        const payload: Partial<HealthMetric> = metric.user_id || !resolvedUserId
             ? metric
-            : { ...metric, user_id: userId };
+            : { ...metric, user_id: resolvedUserId };
 
         const data = await healthMetricsIpc.create(payload);
         return data;
@@ -50,10 +54,13 @@ export const healthApi = {
         return data.filter((reminder) => reminder.user_id === userId);
     },
 
-    createReminder: async (reminder: Partial<MedicationReminder>, userId?: string) => {
-        const payload: Partial<MedicationReminder> = (!reminder.user_id && userId)
-            ? { ...reminder, user_id: userId }
-            : reminder;
+    createReminder: async (reminder: Partial<MedicationReminder>, userIdOrContext?: unknown) => {
+        const resolvedUserId = typeof userIdOrContext === 'string'
+            ? userIdOrContext
+            : useAuthStore.getState().user?.id;
+        const payload: Partial<MedicationReminder> = reminder.user_id || !resolvedUserId
+            ? reminder
+            : { ...reminder, user_id: resolvedUserId };
 
         const data = await medicationRemindersIpc.create(payload);
         return data;

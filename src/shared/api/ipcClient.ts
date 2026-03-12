@@ -1,3 +1,5 @@
+import type { BridgeAPI } from '../types/electron';
+
 export class IpcClient<T> {
     private resource: string;
 
@@ -5,34 +7,36 @@ export class IpcClient<T> {
         this.resource = resource;
     }
 
-    private assertApi() {
-        if (typeof window === 'undefined' || !(window as any).api?.invokeResource) {
+    private getBridge(): BridgeAPI {
+        const win = window as Window;
+        if (typeof window === 'undefined' || !win?.api?.invokeResource) {
             throw new Error(`window.api.invokeResource is not available. Ensure you are running in Electron.`);
         }
+        return win.api;
     }
 
     async getAll(): Promise<T[]> {
-        this.assertApi();
-        return (window as any).api.invokeResource(this.resource, 'getAll');
+        const bridge = this.getBridge();
+        return bridge.invokeResource<T[]>(this.resource, 'getAll');
     }
 
     async getById(id: string): Promise<T | null> {
-        this.assertApi();
-        return (window as any).api.invokeResource(this.resource, 'getById', id);
+        const bridge = this.getBridge();
+        return bridge.invokeResource<T | null>(this.resource, 'getById', id);
     }
 
     async create(data: Partial<T>): Promise<T> {
-        this.assertApi();
-        return (window as any).api.invokeResource(this.resource, 'create', data);
+        const bridge = this.getBridge();
+        return bridge.invokeResource<T>(this.resource, 'create', data);
     }
 
     async update(id: string, updates: Partial<T>): Promise<T> {
-        this.assertApi();
-        return (window as any).api.invokeResource(this.resource, 'update', id, updates);
+        const bridge = this.getBridge();
+        return bridge.invokeResource<T>(this.resource, 'update', id, updates);
     }
 
     async delete(id: string): Promise<boolean> {
-        this.assertApi();
-        return (window as any).api.invokeResource(this.resource, 'delete', id);
+        const bridge = this.getBridge();
+        return bridge.invokeResource<boolean>(this.resource, 'delete', id);
     }
 }
