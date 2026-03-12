@@ -1,5 +1,6 @@
 import { IpcClient } from '@/shared/api/ipcClient';
 import { Transaction } from '@/shared/types';
+import { useAuthStore } from '@/shared/stores/authStore';
 
 const financesIpc = new IpcClient<Transaction>('finances');
 
@@ -30,8 +31,15 @@ export const financesApi = {
         });
     },
 
-    create: async (transaction: Partial<Transaction>) => {
-        const data = await financesIpc.create(transaction);
+    create: async (transaction: Partial<Transaction>, userIdOrContext?: unknown) => {
+        const resolvedUserId = typeof userIdOrContext === 'string'
+            ? userIdOrContext
+            : useAuthStore.getState().user?.id;
+        const payload: Partial<Transaction> = transaction.user_id || !resolvedUserId
+            ? transaction
+            : { ...transaction, user_id: resolvedUserId };
+
+        const data = await financesIpc.create(payload);
         return data;
     },
 

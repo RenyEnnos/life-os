@@ -203,7 +203,7 @@ export const setupAuthHandlers = () => {
         persistDesktopSession(data.session);
       }
 
-      const profile = data.user ? await fetchProfile(client, data.user.id) : null;
+      const profile = data.session && data.user ? await fetchProfile(client, data.user.id) : null;
       return toAuthResult(data.session ?? null, data.user ?? null, profile);
     } catch (err) {
       console.error('Failed to register', err);

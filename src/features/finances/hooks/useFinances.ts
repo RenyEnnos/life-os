@@ -20,7 +20,7 @@ export function useFinances(filters?: Record<string, string>) {
     });
 
     const createTransaction = useMutation({
-        mutationFn: financesApi.create,
+        mutationFn: (transaction: Partial<Transaction>) => financesApi.create(transaction, user?.id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
             queryClient.invalidateQueries({ queryKey: ['finance-summary'] });
