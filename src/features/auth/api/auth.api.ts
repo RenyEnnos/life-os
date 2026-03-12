@@ -36,6 +36,16 @@ const buildWebSession = (user: User): Session => ({
   user,
 });
 
+const buildWebAuthCheckResult = (user: User): AuthCheckResult => ({
+  session: buildWebSession(user),
+  profile: buildProfileFromUser(user),
+});
+
+const buildWebAuthResult = (user: User): AuthResult => ({
+  user,
+  ...buildWebAuthCheckResult(user),
+});
+
 interface DesktopAuthBridge {
   check?: () => Promise<AuthCheckResult>;
   login?: (credentials: LoginRequest) => Promise<AuthResult>;
@@ -69,11 +79,11 @@ export const authApi = {
     }
 
     const user = await apiClient.get<User>(`${AUTH_API_BASE}/verify`);
-    return {
-      session: buildWebSession(user),
-      profile: buildProfileFromUser(user),
-    };
-  },
+    const user = await apiClient.get<User>(`${AUTH_API_BASE}/verify`);
+    if (!user) {
+      throw new Error('Verification failed: user not found.');
+    }
+    return buildWebAuthCheckResult(user);
 
   login: async (credentials: LoginRequest): Promise<AuthResult> => {
     const authBridge = getDesktopAuthBridge();
@@ -82,7 +92,7 @@ export const authApi = {
     }
 
     const data = await apiClient.post<AuthResponse>(`${AUTH_API_BASE}/login`, credentials);
-    return { user: data.user, session: buildWebSession(data.user), profile: buildProfileFromUser(data.user) };
+    return buildWebAuthResult(data.user);
   },
 
   register: async (credentials: RegisterRequest): Promise<AuthResult> => {
@@ -92,7 +102,7 @@ export const authApi = {
     }
 
     const data = await apiClient.post<AuthResponse>(`${AUTH_API_BASE}/register`, credentials);
-    return { user: data.user, session: buildWebSession(data.user), profile: buildProfileFromUser(data.user) };
+    return buildWebAuthResult(data.user);
   },
 
   logout: async (): Promise<void> => {
@@ -141,8 +151,11 @@ export const authApi = {
 
     await apiClient.post(`${AUTH_API_BASE}/update-password`, { password });
     const user = await apiClient.get<User>(`${AUTH_API_BASE}/verify`);
-    return { user, session: buildWebSession(user), profile: buildProfileFromUser(user) };
-  },
+    const user = await apiClient.get<User>(`${AUTH_API_BASE}/verify`);
+    if (!user) {
+      throw new Error('Verification failed: user not found after password update.');
+    }
+    return buildWebAuthResult(user);
 
   getProfile: async (userId: string): Promise<UserProfile | null> => {
     const authBridge = getDesktopAuthBridge();
