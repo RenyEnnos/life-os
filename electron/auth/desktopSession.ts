@@ -38,14 +38,26 @@ const decodeToken = (value: string): string => {
   return safeStorage.decryptString(Buffer.from(payload, 'base64'));
 };
 
-export const createDesktopSupabaseClient = () => {
+// Desktop auth availability helper. Exposed for IPC/handlers to guard against misconfiguration.
+export const isDesktopAuthAvailable = (): boolean => {
+  const supabaseUrl =
+    process.env.VITE_SUPABASE_URL ?? (store.get('SUPABASE_URL') as string | undefined);
+  const supabaseAnonKey =
+    process.env.VITE_SUPABASE_ANON_KEY ?? (store.get('SUPABASE_ANON_KEY') as string | undefined);
+  return !!supabaseUrl && !!supabaseAnonKey;
+};
+
+// Create a Supabase client for desktop runtime when configuration exists.
+// If not configured, return null instead of throwing to allow graceful fallback.
+export const createDesktopSupabaseClient = (): ReturnType<typeof createClient<Database>> | null => {
   const supabaseUrl =
     process.env.VITE_SUPABASE_URL ?? (store.get('SUPABASE_URL') as string | undefined);
   const supabaseAnonKey =
     process.env.VITE_SUPABASE_ANON_KEY ?? (store.get('SUPABASE_ANON_KEY') as string | undefined);
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Supabase auth is not configured for desktop runtime');
+    // Desktop auth not configured; allow callers to handle the disabled path gracefully.
+    return null;
   }
 
   return createClient<Database>(supabaseUrl, supabaseAnonKey, {
@@ -93,8 +105,12 @@ export const clearDesktopSession = () => {
 };
 
 export const hydrateDesktopSession = async (
-  client = createDesktopSupabaseClient()
-): Promise<{ client: ReturnType<typeof createDesktopSupabaseClient>; session: Session | null }> => {
+  client: ReturnType<typeof createDesktopSupabaseClient> = createDesktopSupabaseClient()
+): Promise<{ client: ReturnType<typeof createDesktopSupabaseClient> | null; session: Session | null }> => {
+  // If desktop auth is not configured, fail gracefully with no exception.
+  if (!client) {
+    return { client: null, session: null };
+  }
   const storedSession = getStoredSession();
 
   if (!storedSession) {

@@ -36,9 +36,13 @@ const getDefaultProfile = (userId: string): UserProfile => ({
 });
 
 const fetchProfile = async (
-  client: ReturnType<typeof createDesktopSupabaseClient>,
+  client: ReturnType<typeof createDesktopSupabaseClient> | null,
   userId: string
 ): Promise<UserProfile> => {
+  if (!client) {
+    // Offline/default: return a sane default profile when no desktop client is available
+    return getDefaultProfile(userId);
+  }
   const { data, error } = await client.from('profiles').select('*').eq('id', userId).maybeSingle();
 
   if (error) {
@@ -133,7 +137,10 @@ export const setupAuthHandlers = () => {
         return { session: null, profile: null };
       }
 
-      const profile = await fetchProfile(client, session.user.id);
+      let profile: UserProfile | null = null;
+      if (client) {
+        profile = await fetchProfile(client, session.user.id);
+      }
       return { session, profile };
     } catch (err) {
       console.error('Failed to check auth', err);
@@ -159,6 +166,9 @@ export const setupAuthHandlers = () => {
       }
 
       const client = createDesktopSupabaseClient();
+      if (!client) {
+        throw new Error('Desktop authentication is disabled: Supabase config is not set.');
+      }
       const { data, error } = await client.auth.signInWithPassword({
         email: credentials.email,
         password: credentials.password,
@@ -185,6 +195,9 @@ export const setupAuthHandlers = () => {
   ipcMain.handle('auth:register', async (_event, credentials: AuthCredentials) => {
     try {
       const client = createDesktopSupabaseClient();
+      if (!client) {
+        throw new Error('Desktop authentication is disabled: Supabase config is not set.');
+      }
       const { data, error } = await client.auth.signUp({
         email: credentials.email,
         password: credentials.password,
@@ -203,7 +216,10 @@ export const setupAuthHandlers = () => {
         persistDesktopSession(data.session);
       }
 
-      const profile = data.session && data.user ? await fetchProfile(client, data.user.id) : null;
+      let profile: UserProfile | null = null;
+      if (data.session && data.user && client) {
+        profile = await fetchProfile(client, data.user.id);
+      }
       return toAuthResult(data.session ?? null, data.user ?? null, profile);
     } catch (err) {
       console.error('Failed to register', err);
@@ -214,7 +230,7 @@ export const setupAuthHandlers = () => {
   ipcMain.handle('auth:logout', async () => {
     try {
       const { client, session } = await hydrateDesktopSession();
-      if (session) {
+      if (session && client) {
         await client.auth.signOut();
       }
     } catch (err) {
@@ -232,6 +248,9 @@ export const setupAuthHandlers = () => {
 
   ipcMain.handle('auth:reset-password', async (_event, email: string, redirectTo?: string) => {
     const client = createDesktopSupabaseClient();
+    if (!client) {
+      throw new Error('Desktop authentication is disabled: Supabase config is not set.');
+    }
     const { error } = await client.auth.resetPasswordForEmail(email, {
       redirectTo,
     });
@@ -245,6 +264,9 @@ export const setupAuthHandlers = () => {
 
   ipcMain.handle('auth:update-password', async (_event, password: string) => {
     const { client } = await hydrateDesktopSession();
+    if (!client) {
+      throw new Error('Desktop authentication is disabled: Supabase config is not set.');
+    }
     const { data, error } = await client.auth.updateUser({ password });
 
     if (error) {
@@ -261,12 +283,18 @@ export const setupAuthHandlers = () => {
       persistDesktopSession(session);
     }
 
-    const profile = data.user ? await fetchProfile(client, data.user.id) : null;
+    let profile: UserProfile | null = null;
+    if (data.user && client) {
+      profile = await fetchProfile(client, data.user.id);
+    }
     return toAuthResult(session ?? null, data.user ?? null, profile);
   });
 
   ipcMain.handle('auth:get-profile', async (_event, userId: string) => {
     const { client } = await hydrateDesktopSession();
+    if (!client) {
+      return null;
+    }
     return fetchProfile(client, userId);
   });
 };
