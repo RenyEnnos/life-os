@@ -1,16 +1,16 @@
 # Life OS (Desktop-First Architecture)
 
-Life OS is a comprehensive personal productivity and management application originally built as a Web App, now completely refactored into a **Zero-Latency Offline-First Desktop Application** using Electron.
+Life OS is a comprehensive personal productivity and management application originally built as a web app, now refactored into a local-first desktop application using Electron.
 
 ## Visionary Architecture 🚀
 
-We decided to move away from a traditional HTTP REST backend (`/api`) pattern. The new architecture focuses on a **Local-First**, native Desktop experience:
+We moved away from a traditional HTTP REST backend (`/api`) pattern. The current architecture focuses on a local-first desktop experience:
 
 1. **Electron Main Process:** Acts as our "Backend".
-2. **Local SQLite (`better-sqlite3`):** All data is saved instantaneously to a local disk database, eliminating loading spinners and fetch latency.
+2. **Local SQLite (`better-sqlite3`):** App data is written to a local disk database for low-latency desktop usage.
 3. **IPC Communication:** The React frontend communicates directly with the local database via Electron IPC (`window.api`).
-4. **Background Sync Engine:** A worker runs silently in the background of the Main Process pushing Deltas to Supabase (our Cloud layer) and listening for real-time changes using WebSockets.
-5. **Offline Support:** You have full functionality even without internet access. Data is queued and pushed to Supabase when connectivity is restored.
+4. **Optional Sync Layer:** Sync code exists in `electron/sync/engine.ts`, but it depends on desktop Supabase session/configuration and should not be treated as guaranteed MVP behavior out of the box.
+5. **MVP Runtime Expectation:** Treat the default MVP as a local-first desktop app unless cloud sync is explicitly configured and validated for your environment.
 
 ## Setup & Installation
 
@@ -27,15 +27,16 @@ We decided to move away from a traditional HTTP REST backend (`/api`) pattern. T
     ```
 
 3.  **Environment Variables:**
-    Create a `.env` file in the root directory:
+    Create a `.env` file in the root directory if you need Supabase-backed auth or want to validate desktop sync:
     ```env
     VITE_SUPABASE_URL=your_supabase_url
     VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
     ```
+    For the current MVP, local desktop usage is the default expectation. Sync is only available when the desktop Supabase flow is configured correctly.
 
 4.  **Run the Desktop app:**
     ```bash
-    npm run dev &
+    npm run dev
     ```
 
 ## Development

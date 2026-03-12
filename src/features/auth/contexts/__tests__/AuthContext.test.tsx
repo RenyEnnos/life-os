@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { AuthProvider } from '../AuthContext';
 import { useAuth } from '../AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -60,14 +60,14 @@ describe('AuthContext', () => {
     });
 
     it('verifies session on mount', async () => {
-        const mockSession = {
+        const mockSession: { user: { id: string; email: string } } = {
             user: { id: '1', email: 'test@example.com' },
-        } as any;
+        };
 
         vi.mocked(authApi.checkSession).mockResolvedValue({
             session: mockSession,
             profile: { id: '1', full_name: 'Test User' },
-        });
+        } as any);
 
         renderWithProviders(<TestComponent />);
 
@@ -78,15 +78,15 @@ describe('AuthContext', () => {
     });
 
     it('handles login flow', async () => {
-        const mockSession = {
+        const mockSession: { user: { id: string; email: string } } = {
             user: { id: '2', email: 'login@example.com' },
-        } as any;
+        };
 
         vi.mocked(authApi.login).mockResolvedValue({
             session: mockSession,
             user: mockSession.user,
             profile: { id: '2', full_name: 'Login User' },
-        });
+        } as any);
 
         renderWithProviders(<TestComponent />);
 
@@ -95,9 +95,7 @@ describe('AuthContext', () => {
         });
 
         const loginButton = screen.getByText('Login');
-        await act(async () => {
-            loginButton.click();
-        });
+        fireEvent.click(loginButton);
 
         expect(authApi.login).toHaveBeenCalledWith({
             email: 'test@example.com',

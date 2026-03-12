@@ -26,5 +26,5 @@ export function useDashboardIdentity() {
     }
   }, [profile?.full_name, user])
 
-  return { user: identity, loading, error: null, refresh: async () => undefined }
+  return { user: identity, loading }
 }

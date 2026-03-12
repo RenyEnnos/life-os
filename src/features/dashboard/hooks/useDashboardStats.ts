@@ -43,7 +43,6 @@ export function useDashboardStats() {
       todayCount,
       completionRate,
       weeklyVelocity: { counts, max },
-      toNextLevelPct: completionRate, // fallback simples até termos XP real
     }
   }, [tasks, today])
 

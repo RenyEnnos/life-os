@@ -1,112 +1,66 @@
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect, beforeEach } from "vitest"
 import { tasksApi } from "../tasks.api"
-import { ApiError } from "@/shared/api/http"
 
-vi.mock("@/shared/api/http", () => {
-      return {
-    ApiError: class extends Error {
-      status: number
-      details?: unknown
-      constructor(message: string, status: number, details?: unknown) {
-        super(message)
-        this.name = 'ApiError'
-        this.status = status
-        this.details = details
+// Bridge-based tests: validate contract with window.api.tasks
+
+describe("tasks.api (bridge-based)", () => {
+  beforeEach(() => {
+    (window as any).api = {
+      tasks: {
+        getAll: async () => [ { id: "1", title: "Test", tags: [], completed: false } ],
+        create: async (payload: any) => ({
+          id: "2",
+          title: payload?.title ?? "",
+          completed: false,
+          tags: payload?.tags ?? [],
+        }),
+        update: async (id: string, updates: any) => ({ id, ...updates }),
+        delete: async (id: string) => {}
       }
-    },
-    apiClient: {
-      get: vi.fn(async () => [{ id: "1", title: "Test", completed: false }]),
-      post: vi.fn(async (_url: string, body?: Record<string, unknown>) => ({
-        id: "2",
-        title: typeof body?.title === 'string' ? body.title : "",
-        completed: false
-      })),
-      put: vi.fn(async (_url: string, body?: Record<string, unknown>) => ({
-        id: "1",
-        title: typeof body?.title === 'string' ? body.title : "Test",
-        completed: Boolean(body?.completed)
-      })),
-      delete: vi.fn(async () => ({})),
-    },
-  }
-})
+    }
+  })
 
-describe("tasks.api", () => {
   describe("getAll", () => {
-    it.skip("lists tasks", async () => {
+    it("fetches tasks via bridge and returns an array", async () => {
       const data = await tasksApi.getAll()
       expect(Array.isArray(data)).toBe(true)
-      expect(data[0].title).toBe("Test")
+      expect(data[0].id).toBe("1")
     })
   })
 
   describe("create", () => {
-    it.skip("creates a new task with valid data", async () => {
-      const created = await tasksApi.create({ title: "New" })
-      expect(created.id).toBeDefined()
-      expect(created.title).toBe("New")
+    it("creates a task with valid payload via bridge", async () => {
+      const created = await tasksApi.create({ title: "New Task" })
+      expect(created.id).toBe("2")
+      expect(created.title).toBe("New Task")
     })
 
-    it.skip("throws validation error for missing title", async () => {
-      await expect(tasksApi.create({})).rejects.toThrow("Título da tarefa é obrigatório")
-    })
-
-    it.skip("throws validation error for empty title", async () => {
-      await expect(tasksApi.create({ title: "" })).rejects.toThrow("Título da tarefa é obrigatório")
-    })
-
-    it.skip("throws validation error for title too long", async () => {
-      await expect(tasksApi.create({ title: "a".repeat(201) })).rejects.toThrow("Título da tarefa deve ter no máximo 200 caracteres")
-    })
-
-    it.skip("throws validation error for invalid task data", async () => {
-      await expect(tasksApi.create(null as unknown as Partial<Record<string, unknown>>)).rejects.toThrow("Dados da tarefa são obrigatórios")
-    })
-
-    it.skip("throws validation error for invalid description type", async () => {
-      await expect(tasksApi.create({ title: "Test", description: 123 as unknown as string })).rejects.toThrow("Descrição deve ser uma string")
+    it("rejects invalid payload for create", async () => {
+      // Missing required fields should reject (schema validation)
+      await expect(tasksApi.create({} as any)).rejects.toThrow()
     })
   })
 
   describe("update", () => {
-    it.skip("updates a task with valid data", async () => {
-      const updated = await tasksApi.update("1", { completed: true })
+    it("updates a task with valid id and payload via bridge", async () => {
+      const updated = await tasksApi.update("1", { title: "Updated", completed: true })
+      expect(updated.id).toBe("1")
+      expect(updated.title).toBe("Updated")
       expect(updated.completed).toBe(true)
     })
 
-    it.skip("allows updates without title", async () => {
-      const updated = await tasksApi.update("1", { completed: false })
-      expect(updated.completed).toBe(false)
-    })
-
-    it.skip("throws validation error for invalid ID", async () => {
-      await expect(tasksApi.update("", { completed: true })).rejects.toThrow("ID da tarefa é obrigatório")
-    })
-
-    it.skip("throws validation error for missing ID", async () => {
-      await expect(tasksApi.update("  ", { completed: true })).rejects.toThrow("ID da tarefa é obrigatório")
-    })
-
-    it.skip("throws validation error for invalid updates data", async () => {
-      await expect(tasksApi.update("1", null as unknown as Partial<Record<string, unknown>>)).rejects.toThrow("Dados da tarefa são obrigatórios")
-    })
-
-    it.skip("throws validation error for title too long in update", async () => {
-      await expect(tasksApi.update("1", { title: "a".repeat(201) })).rejects.toThrow("Título da tarefa deve ter no máximo 200 caracteres")
+    it("rejects when id is invalid for update", async () => {
+      await expect(tasksApi.update("", { completed: true })).rejects.toThrow()
     })
   })
 
   describe("delete", () => {
-    it.skip("deletes a task with valid ID", async () => {
+    it("deletes a task with valid id via bridge", async () => {
       await expect(tasksApi.delete("1")).resolves.toBeUndefined()
     })
 
-    it.skip("throws validation error for empty ID", async () => {
-      await expect(tasksApi.delete("")).rejects.toThrow("ID da tarefa é obrigatório")
-    })
-
-    it.skip("throws validation error for whitespace-only ID", async () => {
-      await expect(tasksApi.delete("   ")).rejects.toThrow("ID da tarefa é obrigatório")
+    it("rejects invalid id for delete", async () => {
+      await expect(tasksApi.delete("")).rejects.toThrow()
     })
   })
 })

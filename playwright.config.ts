@@ -9,14 +9,16 @@ export default defineConfig({
     headless: true
   },
   webServer: {
-    command: 'npm run dev',
+    // Start the browser web client, not Electron
+    command: 'npm run client:dev',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: ['**/smoke.spec.ts'] },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] }, testIgnore: ['**/smoke.spec.ts'] },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] }, testIgnore: ['**/smoke.spec.ts'] },
+    { name: 'smoke', testMatch: '**/smoke.spec.ts', use: { browserName: 'chromium' } },
   ],
 })

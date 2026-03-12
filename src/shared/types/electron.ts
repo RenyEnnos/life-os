@@ -49,9 +49,27 @@ export interface ElectronAPI {
   }>;
 }
 
+import type { Task } from './common';
+
+export interface TasksBridge {
+  getAll(): Promise<Task[]>;
+  create(task: Partial<Task>): Promise<Task>;
+  update(id: string, updates: Partial<Task>): Promise<Task>;
+  delete(id: string): Promise<boolean>;
+}
+
+export interface BridgeAPI {
+  tasks: TasksBridge;
+  // Generic resource bridge, returns a typed result
+  invokeResource: <R = unknown>(resource: string, action: string, ...args: unknown[]) => Promise<R>;
+}
+
 // Add to global Window interface
 declare global {
   interface Window {
     electron: ElectronAPI;
+    // Expose a permissive runtime bridge surface for tests: keep exported BridgeAPI type
+    // but allow actual value to be treated as any to accommodate partial mocks.
+    api: any;
   }
 }
