@@ -1,6 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { healthApi } from '../health.api'
 
+const { mockGetAuthState } = vi.hoisted(() => ({
+  mockGetAuthState: vi.fn(() => ({ user: { id: 'user-1' } })),
+}))
+
+vi.mock('@/shared/stores/authStore', () => ({
+  useAuthStore: {
+    getState: mockGetAuthState,
+  },
+}))
+
 const invokeResource = vi.fn(async (resource: string, action: string, ...args: unknown[]) => {
   if (resource === 'health') {
     if (action === 'getAll') {
@@ -54,6 +64,7 @@ vi.mock("@/shared/api/http", () => {
 
 beforeEach(() => {
   invokeResource.mockClear()
+  mockGetAuthState.mockReturnValue({ user: { id: 'user-1' } })
   vi.stubGlobal('window', {
     api: {
       invokeResource,
@@ -113,12 +124,23 @@ describe("health.api", () => {
     it("creates metric through the IPC health resource", async () => {
       const created = await healthApi.createMetric({ metric_type: "sleep", value: 8, recorded_date: "2024-01-01" })
       expect(created.id).toBeDefined()
-      expect(invokeResource).toHaveBeenCalledWith('health', 'create', { metric_type: 'sleep', value: 8, recorded_date: '2024-01-01' })
+      expect(invokeResource).toHaveBeenCalledWith('health', 'create', { metric_type: 'sleep', value: 8, recorded_date: '2024-01-01', user_id: 'user-1' })
     })
 
     it("posts metric without recorded_date", async () => {
       const created = await healthApi.createMetric({ metric_type: "sleep", value: 8 })
       expect(created.id).toBeDefined()
+    })
+
+    it("preserves explicit metric user_id over derived user id", async () => {
+      await healthApi.createMetric({ metric_type: "sleep", value: 8, user_id: 'user-2' })
+      expect(invokeResource).toHaveBeenCalledWith('health', 'create', { metric_type: 'sleep', value: 8, user_id: 'user-2' })
+    })
+
+    it("does not inject user_id when auth user is unavailable", async () => {
+      mockGetAuthState.mockReturnValue({ user: null } as any)
+      await healthApi.createMetric({ metric_type: "sleep", value: 8 })
+      expect(invokeResource).toHaveBeenCalledWith('health', 'create', { metric_type: 'sleep', value: 8 })
     })
   })
 
@@ -146,6 +168,17 @@ describe("health.api", () => {
     it("posts medication", async () => {
       const created = await healthApi.createReminder({ name: "Vit D3" })
       expect(created.id).toBeDefined()
+      expect(invokeResource).toHaveBeenCalledWith('medications', 'create', { name: 'Vit D3', user_id: 'user-1' })
+    })
+
+    it("preserves explicit reminder user_id over derived user id", async () => {
+      await healthApi.createReminder({ name: 'Vit D3', user_id: 'user-2' })
+      expect(invokeResource).toHaveBeenCalledWith('medications', 'create', { name: 'Vit D3', user_id: 'user-2' })
+    })
+
+    it("does not inject reminder user_id when auth user is unavailable", async () => {
+      mockGetAuthState.mockReturnValue({ user: null } as any)
+      await healthApi.createReminder({ name: "Vit D3" })
       expect(invokeResource).toHaveBeenCalledWith('medications', 'create', { name: 'Vit D3' })
     })
   })

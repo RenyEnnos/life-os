@@ -1,6 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { financesApi } from '../finances.api'
 
+const { mockGetAuthState } = vi.hoisted(() => ({
+  mockGetAuthState: vi.fn(() => ({ user: { id: 'user-1' } })),
+}))
+
+vi.mock('@/shared/stores/authStore', () => ({
+  useAuthStore: {
+    getState: mockGetAuthState,
+  },
+}))
+
 const invokeResource = vi.fn(async (resource: string, action: string, ...args: unknown[]) => {
   if (resource !== 'finances') {
     throw new Error(`Unexpected resource: ${resource}`)
@@ -30,6 +40,7 @@ const invokeResource = vi.fn(async (resource: string, action: string, ...args: u
 
 beforeEach(() => {
   invokeResource.mockClear()
+  mockGetAuthState.mockReturnValue({ user: { id: 'user-1' } })
   vi.stubGlobal('window', {
     api: {
       invokeResource,
@@ -44,10 +55,21 @@ describe('finances.api', () => {
     expect(invokeResource).toHaveBeenCalledWith('finances', 'getAll')
     expect(txs[0]?.id).toBe('1')
   })
-  it('create uses IPC transaction create', async () => {
+  it('create uses IPC transaction create and applies authenticated user id', async () => {
     const created = await financesApi.create({ description: 'Test', amount: 50, type: 'expense' })
     expect(created.id).toBeDefined()
     expect(created.amount).toBe(50)
+    expect(invokeResource).toHaveBeenCalledWith('finances', 'create', { description: 'Test', amount: 50, type: 'expense', user_id: 'user-1' })
+  })
+
+  it('create preserves explicit payload user_id over derived user id', async () => {
+    await financesApi.create({ description: 'Test', amount: 50, type: 'expense', user_id: 'user-2' })
+    expect(invokeResource).toHaveBeenCalledWith('finances', 'create', { description: 'Test', amount: 50, type: 'expense', user_id: 'user-2' })
+  })
+
+  it('create does not inject user_id when auth user is unavailable', async () => {
+    mockGetAuthState.mockReturnValue({ user: null } as any)
+    await financesApi.create({ description: 'Test', amount: 50, type: 'expense' })
     expect(invokeResource).toHaveBeenCalledWith('finances', 'create', { description: 'Test', amount: 50, type: 'expense' })
   })
   it('update uses IPC transaction update', async () => {
