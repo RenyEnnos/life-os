@@ -31,9 +31,9 @@ export const financesApi = {
     },
 
     create: async (transaction: Partial<Transaction>, userId?: string) => {
-        const payload: Partial<Transaction> = transaction.user_id || !userId
-            ? transaction
-            : { ...transaction, user_id: userId };
+        const payload: Partial<Transaction> = (!transaction.user_id && userId)
+            ? { ...transaction, user_id: userId }
+            : transaction;
 
         const data = await financesIpc.create(payload);
         return data;
