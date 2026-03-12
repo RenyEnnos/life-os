@@ -27,8 +27,12 @@ export const healthApi = {
         });
     },
 
-    createMetric: async (metric: Partial<HealthMetric>) => {
-        const data = await healthMetricsIpc.create(metric);
+    createMetric: async (metric: Partial<HealthMetric>, userId?: string) => {
+        const payload: Partial<HealthMetric> = metric.user_id || !userId
+            ? metric
+            : { ...metric, user_id: userId };
+
+        const data = await healthMetricsIpc.create(payload);
         return data;
     },
 
@@ -46,8 +50,12 @@ export const healthApi = {
         return data.filter((reminder) => reminder.user_id === userId);
     },
 
-    createReminder: async (reminder: Partial<MedicationReminder>) => {
-        const data = await medicationRemindersIpc.create(reminder);
+    createReminder: async (reminder: Partial<MedicationReminder>, userId?: string) => {
+        const payload: Partial<MedicationReminder> = (!reminder.user_id && userId)
+            ? { ...reminder, user_id: userId }
+            : reminder;
+
+        const data = await medicationRemindersIpc.create(payload);
         return data;
     },
 

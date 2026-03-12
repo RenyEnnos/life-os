@@ -111,14 +111,19 @@ describe("health.api", () => {
 
   describe("createMetric", () => {
     it("creates metric through the IPC health resource", async () => {
-      const created = await healthApi.createMetric({ metric_type: "sleep", value: 8, recorded_date: "2024-01-01" })
+      const created = await healthApi.createMetric({ metric_type: "sleep", value: 8, recorded_date: "2024-01-01" }, 'user-1')
       expect(created.id).toBeDefined()
-      expect(invokeResource).toHaveBeenCalledWith('health', 'create', { metric_type: 'sleep', value: 8, recorded_date: '2024-01-01' })
+      expect(invokeResource).toHaveBeenCalledWith('health', 'create', { metric_type: 'sleep', value: 8, recorded_date: '2024-01-01', user_id: 'user-1' })
     })
 
     it("posts metric without recorded_date", async () => {
-      const created = await healthApi.createMetric({ metric_type: "sleep", value: 8 })
+      const created = await healthApi.createMetric({ metric_type: "sleep", value: 8 }, 'user-1')
       expect(created.id).toBeDefined()
+    })
+
+    it("preserves explicit metric user_id over derived user id", async () => {
+      await healthApi.createMetric({ metric_type: "sleep", value: 8, user_id: 'user-2' }, 'user-1')
+      expect(invokeResource).toHaveBeenCalledWith('health', 'create', { metric_type: 'sleep', value: 8, user_id: 'user-2' })
     })
   })
 
@@ -144,9 +149,14 @@ describe("health.api", () => {
 
   describe("createReminder", () => {
     it("posts medication", async () => {
-      const created = await healthApi.createReminder({ name: "Vit D3" })
+      const created = await healthApi.createReminder({ name: "Vit D3" }, 'user-1')
       expect(created.id).toBeDefined()
-      expect(invokeResource).toHaveBeenCalledWith('medications', 'create', { name: 'Vit D3' })
+      expect(invokeResource).toHaveBeenCalledWith('medications', 'create', { name: 'Vit D3', user_id: 'user-1' })
+    })
+
+    it("preserves explicit reminder user_id over derived user id", async () => {
+      await healthApi.createReminder({ name: 'Vit D3', user_id: 'user-2' }, 'user-1')
+      expect(invokeResource).toHaveBeenCalledWith('medications', 'create', { name: 'Vit D3', user_id: 'user-2' })
     })
   })
 
