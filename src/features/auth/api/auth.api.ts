@@ -36,15 +36,14 @@ const buildWebSession = (user: User): Session => ({
   user,
 });
 
-const buildWebAuthResult = (user: User): AuthResult => ({
-  user,
+const buildWebAuthCheckResult = (user: User): AuthCheckResult => ({
   session: buildWebSession(user),
   profile: buildProfileFromUser(user),
 });
 
-const buildWebAuthCheckResult = (user: User): AuthCheckResult => ({
-  session: buildWebSession(user),
-  profile: buildProfileFromUser(user),
+const buildWebAuthResult = (user: User): AuthResult => ({
+  user,
+  ...buildWebAuthCheckResult(user),
 });
 
 interface DesktopAuthBridge {
