@@ -51,9 +51,9 @@ export const healthApi = {
     },
 
     createReminder: async (reminder: Partial<MedicationReminder>, userId?: string) => {
-        const payload: Partial<MedicationReminder> = reminder.user_id || !userId
-            ? reminder
-            : { ...reminder, user_id: userId };
+        const payload: Partial<MedicationReminder> = (!reminder.user_id && userId)
+            ? { ...reminder, user_id: userId }
+            : reminder;
 
         const data = await medicationRemindersIpc.create(payload);
         return data;
