@@ -122,13 +122,13 @@ describe("health.api", () => {
 
   describe("createMetric", () => {
     it("creates metric through the IPC health resource", async () => {
-      const created = await healthApi.createMetric({ metric_type: "sleep", value: 8, recorded_date: "2024-01-01" })
+      const created = await healthApi.createMetric({ metric_type: "sleep", value: 8, recorded_date: "2024-01-01" }, 'user-1')
       expect(created.id).toBeDefined()
       expect(invokeResource).toHaveBeenCalledWith('health', 'create', { metric_type: 'sleep', value: 8, recorded_date: '2024-01-01', user_id: 'user-1' })
     })
 
     it("posts metric without recorded_date", async () => {
-      const created = await healthApi.createMetric({ metric_type: "sleep", value: 8 })
+      const created = await healthApi.createMetric({ metric_type: "sleep", value: 8 }, 'user-1')
       expect(created.id).toBeDefined()
     })
 
@@ -136,7 +136,6 @@ describe("health.api", () => {
       await healthApi.createMetric({ metric_type: "sleep", value: 8, user_id: 'user-2' }, 'user-1')
       expect(invokeResource).toHaveBeenCalledWith('health', 'create', { metric_type: 'sleep', value: 8, user_id: 'user-2' })
     })
-
     it("prefers explicit userId argument for metric create", async () => {
       await healthApi.createMetric({ metric_type: "sleep", value: 8 }, 'user-3')
       expect(invokeResource).toHaveBeenCalledWith('health', 'create', { metric_type: 'sleep', value: 8, user_id: 'user-3' })
@@ -171,7 +170,7 @@ describe("health.api", () => {
 
   describe("createReminder", () => {
     it("posts medication", async () => {
-      const created = await healthApi.createReminder({ name: "Vit D3" })
+      const created = await healthApi.createReminder({ name: "Vit D3" }, 'user-1')
       expect(created.id).toBeDefined()
       expect(invokeResource).toHaveBeenCalledWith('medications', 'create', { name: 'Vit D3', user_id: 'user-1' })
     })
@@ -186,7 +185,7 @@ describe("health.api", () => {
       expect(invokeResource).toHaveBeenCalledWith('medications', 'create', { name: 'Vit D3', user_id: 'user-3' })
     })
 
-    it("does not inject reminder user_id when auth user is unavailable", async () => {
+    it("does not inject user_id when auth user is unavailable", async () => {
       mockGetAuthState.mockReturnValue({ user: null })
       await healthApi.createReminder({ name: "Vit D3" })
       expect(invokeResource).toHaveBeenCalledWith('medications', 'create', { name: 'Vit D3' })

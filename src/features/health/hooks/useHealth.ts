@@ -20,14 +20,14 @@ export function useHealth(filters?: Record<string, string>) {
     });
 
     const createMetric = useMutation({
-        mutationFn: healthApi.createMetric,
+        mutationFn: (metric: Partial<HealthMetric>) => healthApi.createMetric(metric, user?.id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['health-metrics'] });
         },
     });
 
     const createMedication = useMutation({
-        mutationFn: healthApi.createReminder,
+        mutationFn: (reminder: Partial<MedicationReminder>) => healthApi.createReminder(reminder, user?.id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['medications'] });
         },
