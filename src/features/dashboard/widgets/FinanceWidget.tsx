@@ -6,11 +6,13 @@ import { useBudgets } from '@/features/finances/hooks/useBudgets';
 import { cn } from '@/shared/lib/cn';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { financesApi } from '@/features/finances/api/finances.api';
+import { useAuth } from '@/features/auth/contexts/AuthContext';
 
 export function FinanceWidget() {
     const { data: financeData, isLoading: isFinanceLoading } = useDashboardFinance();
     const { budgetStatus, isLoading: isBudgetsLoading } = useBudgets();
     const qc = useQueryClient();
+    const { user } = useAuth();
 
     // Quick Add State
     const [isAdding, setIsAdding] = useState(false);
@@ -26,7 +28,7 @@ export function FinanceWidget() {
             description: desc,
             category: category,
             transaction_date: new Date().toISOString()
-        }),
+        }, user?.id),
         onSettled: () => {
             qc.invalidateQueries({ queryKey: ['finance'] });
             qc.invalidateQueries({ queryKey: ['budgets'] });

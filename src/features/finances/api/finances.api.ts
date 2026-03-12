@@ -30,8 +30,12 @@ export const financesApi = {
         });
     },
 
-    create: async (transaction: Partial<Transaction>) => {
-        const data = await financesIpc.create(transaction);
+    create: async (transaction: Partial<Transaction>, userId?: string) => {
+        const payload: Partial<Transaction> = transaction.user_id || !userId
+            ? transaction
+            : { ...transaction, user_id: userId };
+
+        const data = await financesIpc.create(payload);
         return data;
     },
 

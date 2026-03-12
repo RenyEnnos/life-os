@@ -44,11 +44,16 @@ describe('finances.api', () => {
     expect(invokeResource).toHaveBeenCalledWith('finances', 'getAll')
     expect(txs[0]?.id).toBe('1')
   })
-  it('create uses IPC transaction create', async () => {
-    const created = await financesApi.create({ description: 'Test', amount: 50, type: 'expense' })
+  it('create uses IPC transaction create and applies authenticated user id', async () => {
+    const created = await financesApi.create({ description: 'Test', amount: 50, type: 'expense' }, 'user-1')
     expect(created.id).toBeDefined()
     expect(created.amount).toBe(50)
-    expect(invokeResource).toHaveBeenCalledWith('finances', 'create', { description: 'Test', amount: 50, type: 'expense' })
+    expect(invokeResource).toHaveBeenCalledWith('finances', 'create', { description: 'Test', amount: 50, type: 'expense', user_id: 'user-1' })
+  })
+
+  it('create preserves explicit payload user_id over derived user id', async () => {
+    await financesApi.create({ description: 'Test', amount: 50, type: 'expense', user_id: 'user-2' }, 'user-1')
+    expect(invokeResource).toHaveBeenCalledWith('finances', 'create', { description: 'Test', amount: 50, type: 'expense', user_id: 'user-2' })
   })
   it('update uses IPC transaction update', async () => {
     const updated = await financesApi.update('1', { amount: 200 })
