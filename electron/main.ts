@@ -45,8 +45,11 @@ if (process.defaultApp) {
 const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 
 function createTray() {
-  // Linux does not support SVG icons for system tray – use PNG
-  const iconCandidates = ['icon-192.png', 'icon-512.png', 'favicon.svg']
+  // Linux tray icons: prefer PNGs. SVGs (favicon.svg) are not suitable for Linux tray icons.
+  // If no PNG icons exist on Linux, skip creating the tray with a warning.
+  const iconCandidates = process.platform === 'linux'
+    ? ['icon-192.png', 'icon-512.png']
+    : ['icon-192.png', 'icon-512.png', 'favicon.svg']
   let trayIcon: string | undefined
 
   for (const candidate of iconCandidates) {
@@ -58,6 +61,10 @@ function createTray() {
   }
 
   if (!trayIcon) {
+    if (process.platform === 'linux') {
+      console.warn('Tray PNG icons not found on Linux. Skipping system tray creation.')
+      return
+    }
     console.warn('No tray icon found – system tray disabled')
     return
   }
