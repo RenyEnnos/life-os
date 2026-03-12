@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
     base: './',
     plugins: [
       react(),
-      electron({
+      ...(isElectronMode ? [electron({
       main: {
         // Shortcut of `build.lib.entry`.
         entry: 'electron/main.ts',
@@ -32,7 +32,7 @@ export default defineConfig(({ mode }) => {
       },
       // PWA is not needed in Electron environment
       // developer can toggle it based on process.env
-      }),
+      })] : []),
       VitePWA({
         disable: isElectronMode,
         registerType: 'autoUpdate',
