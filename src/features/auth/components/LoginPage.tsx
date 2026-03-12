@@ -34,6 +34,24 @@ export default function LoginPage() {
     });
 
     const recoveryEmail = watch('email');
+    const recoveryErrorFallback = 'Erro ao enviar link. Tente novamente.';
+
+    const getErrorMessage = (value: unknown): string | null => {
+        if (value instanceof Error) {
+            return value.message.trim() || null;
+        }
+
+        if (
+            typeof value === 'object' &&
+            value !== null &&
+            'message' in value &&
+            typeof value.message === 'string'
+        ) {
+            return value.message.trim() || null;
+        }
+
+        return null;
+    };
 
     // 3D Tilt Effect Logic
     const x = useMotionValue(0);
@@ -128,7 +146,7 @@ export default function LoginPage() {
             logAuthAttempt('RECOVERY_REQUESTED', recoveryEmail);
         } catch (err) {
             console.error(err);
-            setError('Erro ao enviar link. Tente novamente.');
+            setError(getErrorMessage(err) ?? recoveryErrorFallback);
             logAuthAttempt('RECOVERY_FAILED', recoveryEmail);
         } finally {
             setIsSubmitting(false);
