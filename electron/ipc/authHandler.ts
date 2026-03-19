@@ -1,8 +1,10 @@
 import { ipcMain } from 'electron';
 import { type Session, type User } from '@supabase/supabase-js';
+import { createHash } from 'node:crypto';
 import { getDb } from '../db/database';
 import {
   clearDesktopSession,
+  createLocalDesktopSession,
   createDesktopSupabaseClient,
   hydrateDesktopSession,
   persistDesktopSession,
@@ -61,6 +63,41 @@ const toAuthResult = (
   user,
   profile,
 });
+
+const normalizeLocalEmail = (email: string) => email.trim().toLowerCase();
+
+const getLocalUserId = (email: string) =>
+  `local-${createHash('sha256').update(normalizeLocalEmail(email)).digest('hex').slice(0, 24)}`;
+
+const getLocalDisplayName = (credentials: AuthCredentials) => {
+  const providedName = credentials.name?.trim();
+  if (providedName) {
+    return providedName;
+  }
+
+  const normalizedEmail = normalizeLocalEmail(credentials.email);
+  const [localPart] = normalizedEmail.split('@');
+  return localPart || 'Usuário';
+};
+
+const createLocalDesktopAuthResult = (credentials: AuthCredentials) => {
+  const normalizedEmail = normalizeLocalEmail(credentials.email);
+  const userId = getLocalUserId(normalizedEmail);
+  const displayName = getLocalDisplayName(credentials);
+  const session = createLocalDesktopSession({
+    userId,
+    email: normalizedEmail,
+    fullName: displayName,
+  });
+
+  persistDesktopSession(session);
+
+  return toAuthResult(session, session.user, {
+    ...getDefaultProfile(userId),
+    full_name: displayName,
+    nickname: displayName,
+  });
+};
 
 function getStoredAuthSessionForSmoke(): { session: Session; profile: UserProfile } | null {
   // Read latest auth_session row by expiration time
@@ -137,10 +174,9 @@ export const setupAuthHandlers = () => {
         return { session: null, profile: null };
       }
 
-      let profile: UserProfile | null = null;
-      if (client) {
-        profile = await fetchProfile(client, session.user.id);
-      }
+      const profile = client
+        ? await fetchProfile(client, session.user.id)
+        : getDefaultProfile(session.user.id);
       return { session, profile };
     } catch (err) {
       console.error('Failed to check auth', err);
@@ -167,7 +203,7 @@ export const setupAuthHandlers = () => {
 
       const client = createDesktopSupabaseClient();
       if (!client) {
-        throw new Error('Desktop authentication is disabled: Supabase config is not set.');
+        return createLocalDesktopAuthResult(credentials);
       }
       const { data, error } = await client.auth.signInWithPassword({
         email: credentials.email,
@@ -196,7 +232,7 @@ export const setupAuthHandlers = () => {
     try {
       const client = createDesktopSupabaseClient();
       if (!client) {
-        throw new Error('Desktop authentication is disabled: Supabase config is not set.');
+        return createLocalDesktopAuthResult(credentials);
       }
       const { data, error } = await client.auth.signUp({
         email: credentials.email,
