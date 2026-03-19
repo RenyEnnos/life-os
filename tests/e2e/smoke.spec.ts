@@ -438,3 +438,145 @@ test('desktop smoke: post-login create habit from habits page', async () => {
     runSql('DELETE FROM auth_session WHERE user_id = ?', [SEEDED_USER_ID])
   }
 })
+
+test('desktop smoke: navigation and organization routes render key interactions', async () => {
+  runSql(`
+    CREATE TABLE IF NOT EXISTS auth_session (
+      id TEXT PRIMARY KEY,
+      access_token TEXT NOT NULL,
+      refresh_token TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      expires_at INTEGER NOT NULL
+    )
+  `)
+
+  runSql('DELETE FROM auth_session WHERE user_id = ?', [SEEDED_USER_ID])
+  runSql(
+    `INSERT INTO auth_session (id, access_token, refresh_token, user_id, expires_at)
+     VALUES (?, ?, ?, ?, ?)`,
+    [
+      SEEDED_SESSION_ID,
+      'smoke-access',
+      'smoke-refresh',
+      SEEDED_USER_ID,
+      Math.floor(Date.now() / 1000) + 3600,
+    ],
+  )
+
+  let electronApp: Awaited<ReturnType<typeof electron.launch>> | null = null
+
+  try {
+    electronApp = await electron.launch({
+      args: ['.'],
+      env: { ...process.env, PLAYWRIGHT_TEST: '1' },
+    })
+
+    const page = await electronApp.firstWindow()
+    await page.waitForLoadState('domcontentloaded')
+    await page.evaluate(() => {
+      localStorage.setItem('life-os-onboarding-completed', 'true')
+    })
+
+    await page.goto('file://' + path.resolve(process.cwd(), 'dist/index.html') + '#/calendar')
+    await expect(page).toHaveURL(/#\/calendar$/)
+    await expect(page.getByText('Schedule')).toBeVisible()
+    await page.getByText('Month').click()
+    await expect(page.getByText('Up Next')).toBeVisible()
+
+    await page.goto('file://' + path.resolve(process.cwd(), 'dist/index.html') + '#/journal')
+    await expect(page).toHaveURL(/#\/journal$/)
+    await expect(page.getByText('Sua Jornada.')).toBeVisible()
+    await page.getByRole('button', { name: /NOVA ENTRADA/i }).click()
+    await expect(page.locator('textarea').or(page.locator('input[placeholder*="título" i]')).first()).toBeVisible()
+
+    await page.goto('file://' + path.resolve(process.cwd(), 'dist/index.html') + '#/projects')
+    await expect(page).toHaveURL(/#\/projects$/)
+    await expect(page.getByText('Projects').first()).toBeVisible()
+    await page.getByRole('button', { name: /List View/i }).click()
+    await expect(page.getByText('Archived')).toBeVisible()
+
+    await page.goto('file://' + path.resolve(process.cwd(), 'dist/index.html') + '#/university')
+    await expect(page).toHaveURL(/#\/university$/)
+    await expect(page.getByText('University Dashboard')).toBeVisible()
+    await page.getByPlaceholder('Search courses...').fill('math')
+    await expect(page.getByPlaceholder('Search courses...')).toHaveValue('math')
+  } finally {
+    if (electronApp) {
+      await electronApp.close()
+    }
+    runSql('DELETE FROM auth_session WHERE user_id = ?', [SEEDED_USER_ID])
+  }
+})
+
+test('desktop smoke: special routes render key interactions', async () => {
+  runSql(`
+    CREATE TABLE IF NOT EXISTS auth_session (
+      id TEXT PRIMARY KEY,
+      access_token TEXT NOT NULL,
+      refresh_token TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      expires_at INTEGER NOT NULL
+    )
+  `)
+
+  runSql('DELETE FROM auth_session WHERE user_id = ?', [SEEDED_USER_ID])
+  runSql(
+    `INSERT INTO auth_session (id, access_token, refresh_token, user_id, expires_at)
+     VALUES (?, ?, ?, ?, ?)`,
+    [
+      SEEDED_SESSION_ID,
+      'smoke-access',
+      'smoke-refresh',
+      SEEDED_USER_ID,
+      Math.floor(Date.now() / 1000) + 3600,
+    ],
+  )
+
+  let electronApp: Awaited<ReturnType<typeof electron.launch>> | null = null
+
+  try {
+    electronApp = await electron.launch({
+      args: ['.'],
+      env: { ...process.env, PLAYWRIGHT_TEST: '1' },
+    })
+
+    const page = await electronApp.firstWindow()
+    await page.waitForLoadState('domcontentloaded')
+    await page.evaluate(() => {
+      localStorage.setItem('life-os-onboarding-completed', 'true')
+    })
+
+    await page.goto('file://' + path.resolve(process.cwd(), 'dist/index.html') + '#/ai-assistant')
+    await expect(page).toHaveURL(/#\/ai-assistant$/)
+    await expect(page.getByText('AI Assistant').first()).toBeVisible()
+    await page.getByPlaceholder('Message LifeOS AI...').fill('hello')
+    await expect(page.getByPlaceholder('Message LifeOS AI...')).toHaveValue('hello')
+
+    await page.goto('file://' + path.resolve(process.cwd(), 'dist/index.html') + '#/focus')
+    await expect(page).toHaveURL(/#\/focus$/)
+    await page.getByRole('button', { name: /Start/i }).click()
+    await expect(page.getByRole('button', { name: /Pause/i })).toBeVisible()
+
+    await page.goto('file://' + path.resolve(process.cwd(), 'dist/index.html') + '#/gamification')
+    await expect(page).toHaveURL(/#\/gamification$/)
+    await expect(page.getByRole('heading', { name: 'Quest Board' })).toBeVisible()
+    await expect(page.getByRole('button', { name: /New Quest/i })).toBeVisible()
+
+    await page.goto('file://' + path.resolve(process.cwd(), 'dist/index.html') + '#/settings')
+    await expect(page).toHaveURL(/#\/settings$/)
+    await expect(page.getByText('User Hub').first()).toBeVisible()
+    await page.getByRole('button', { name: 'Preferences' }).click()
+    await expect(page.getByRole('button', { name: 'Preferences' })).toBeVisible()
+
+    await page.goto('file://' + path.resolve(process.cwd(), 'dist/index.html') + '#/design')
+    await expect(page).toHaveURL(/#\/design$/)
+    await expect(page.getByText('Botões')).toBeVisible()
+    await page.getByPlaceholder('Digite seu nome').fill('Teste')
+    await expect(page.getByPlaceholder('Digite seu nome')).toHaveValue('Teste')
+  } finally {
+    if (electronApp) {
+      await electronApp.close()
+    }
+    runSql('DELETE FROM auth_session WHERE user_id = ?', [SEEDED_USER_ID])
+  }
+})
