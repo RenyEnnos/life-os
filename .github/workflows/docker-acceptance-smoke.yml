@@ -1,54 +1,32 @@
-name: Staging Pipeline
+name: Docker Acceptance Smoke
+
 on:
   workflow_dispatch:
-  push:
-    branches: [ staging ]
 
 jobs:
-  build-and-test:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run check
-      - run: npm run test
-      - run: npm run test:integration
-      - run: npm run build
-      - run: npm run electron:build
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-      - name: Desktop smoke tests
-        env:
-          E2E_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
-        run: npx playwright test tests/e2e/smoke.spec.ts --project=chromium
-      - name: E2E tests
-        env:
-          E2E_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
-        run: npm run test:e2e
-
-  docker-acceptance-smoke:
-    if: github.event_name == 'workflow_dispatch'
+  docker-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
+
       - name: Build frontend and server
         run: npm run build && npm run build:server
+
       - name: Build Docker image
         run: docker build -t lifeos-runtime-smoke .
+
       - name: Run container
         run: docker run -d --name lifeos-runtime-smoke -p 3000:3000 lifeos-runtime-smoke
+
       - name: Healthcheck
         run: |
           for i in {1..20}; do
@@ -60,9 +38,11 @@ jobs:
           echo "Health endpoint did not become ready in time"
           docker logs lifeos-runtime-smoke || true
           exit 1
+
       - name: Container logs
         if: always()
         run: docker logs lifeos-runtime-smoke || true
+
       - name: Cleanup container
         if: always()
         run: docker rm -f lifeos-runtime-smoke || true

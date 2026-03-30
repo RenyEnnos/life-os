@@ -14,6 +14,15 @@ interface AuthSessionRow {
   expires_at: number;
 }
 
+interface LocalDesktopSessionOptions {
+  userId: string;
+  accessToken?: string;
+  refreshToken?: string;
+  expiresAt?: number;
+  email?: string;
+  fullName?: string;
+}
+
 const ENCRYPTED_TOKEN_PREFIX = 'enc:';
 
 const encodeToken = (value: string): string => {
@@ -78,6 +87,42 @@ const getStoredSession = (): AuthSessionRow | null => {
   );
 };
 
+export const createLocalDesktopSession = ({
+  userId,
+  accessToken = `local-access-${userId}`,
+  refreshToken = `local-refresh-${userId}`,
+  expiresAt = Math.floor(Date.now() / 1000) + 3600,
+  email,
+  fullName,
+}: LocalDesktopSessionOptions): Session => ({
+  access_token: accessToken,
+  refresh_token: refreshToken,
+  token_type: 'bearer',
+  expires_in: Math.max(expiresAt - Math.floor(Date.now() / 1000), 0),
+  expires_at: expiresAt,
+  user: {
+    id: userId,
+    aud: 'authenticated',
+    role: 'authenticated',
+    email,
+    app_metadata: {
+      provider: 'local',
+    },
+    user_metadata: {
+      ...(fullName ? { full_name: fullName, nickname: fullName } : {}),
+    },
+    created_at: new Date(0).toISOString(),
+  },
+});
+
+const restoreLocalDesktopSession = (storedSession: AuthSessionRow): Session =>
+  createLocalDesktopSession({
+    userId: storedSession.user_id,
+    accessToken: decodeToken(storedSession.access_token),
+    refreshToken: decodeToken(storedSession.refresh_token),
+    expiresAt: storedSession.expires_at,
+  });
+
 export const persistDesktopSession = (session: Session, fallback: AuthSessionRow | null = null) => {
   const db = getDb();
   const userId = session.user?.id ?? fallback?.user_id;
@@ -107,11 +152,14 @@ export const clearDesktopSession = () => {
 export const hydrateDesktopSession = async (
   client: ReturnType<typeof createDesktopSupabaseClient> = createDesktopSupabaseClient()
 ): Promise<{ client: ReturnType<typeof createDesktopSupabaseClient> | null; session: Session | null }> => {
-  // If desktop auth is not configured, fail gracefully with no exception.
-  if (!client) {
-    return { client: null, session: null };
-  }
   const storedSession = getStoredSession();
+
+  if (!client) {
+    return {
+      client: null,
+      session: storedSession ? restoreLocalDesktopSession(storedSession) : null,
+    };
+  }
 
   if (!storedSession) {
     return { client, session: null };
