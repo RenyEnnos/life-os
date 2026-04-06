@@ -2,6 +2,10 @@
 
 Obrigado por considerar contribuir para o Life OS! 🎉
 
+## Visão Geral do Projeto
+
+O Life OS é um **aplicativo desktop Electron offline-first** para produtividade e gerenciamento pessoal. Todos os dados são armazenados localmente via SQLite, com sincronização opcional com Supabase.
+
 ## Como Contribuir
 
 ### Reportando Bugs
@@ -12,7 +16,7 @@ Se você encontrou um bug, por favor crie uma issue incluindo:
 - Passos para reproduzir
 - Comportamento esperado vs atual
 - Screenshots (se aplicável)
-- Ambiente (OS, navegador, versão do Node, etc.)
+- Ambiente (OS, versão do Electron, etc.)
 
 ### Sugerindo Melhorias
 
@@ -60,8 +64,8 @@ Exemplos:
 ```
 feat: adiciona filtro por data no dashboard
 fix: corrige cálculo do Life Score
-docs: atualiza README com novos scripts
-refactor: reorganiza estrutura de hooks
+docs: atualiza README com arquitetura Electron
+refactor: migra comunicação de HTTP para IPC
 ```
 
 ### Estilo TypeScript
@@ -88,6 +92,7 @@ async function calculateLifeScore(userId: string): Promise<LifeScore> {
 - Prefira **arrow functions**
 - Extraia lógica complexa em **custom hooks**
 - Use **TypeScript** para props
+- Comunicação via `window.api` para operações de dados
 
 ```typescript
 interface TaskCardProps {
@@ -116,20 +121,20 @@ npm run lint:fix
 ## Estrutura de Pastas
 
 ```
-src/
-├── components/     # Componentes reutilizáveis
-│   └── ui/        # Componentes base (Button, Card, etc.)
-├── pages/         # Páginas/Views
-├── hooks/         # Custom hooks
-├── lib/           # Utilitários e helpers
-├── contexts/      # React contexts
-└── types/         # Tipos TypeScript globais
+electron/
+├── main.ts        # Processo principal Electron
+├── db/            # SQLite local
+├── ipc/           # Handlers IPC
+└── sync/          # Sincronização opcional
 
-api/
-├── routes/        # Rotas Express
-├── services/      # Lógica de negócio
-├── middleware/    # Middlewares
-└── lib/           # Utilitários backend
+src/
+├── app/           # Configuração global e rotas
+├── features/      # Módulos de domínio
+│   └── tasks/    # Feature de tarefas
+├── shared/        # Componentes reutilizáveis
+│   └── ui/       # Componentes base (Button, Card, etc.)
+├── hooks/         # Custom hooks
+└── types/         # Tipos TypeScript globais
 ```
 
 ## Testes
@@ -150,8 +155,9 @@ npm run test:coverage
 ### Escrevendo Testes
 
 - Teste funcionalidades críticas
-- Use mocks para APIs externas
+- Use mocks para APIs externas (Supabase)
 - Mantenha testes simples e focados
+- Teste handlers IPC separadamente
 
 ```typescript
 describe('TaskService', () => {
@@ -173,15 +179,18 @@ npm run check
 # Build de produção
 npm run build
 
-# Preview do build
-npm run preview
+# Build do Electron
+npm run electron:build
 ```
 
-### Deploy
+### Distribuição
 
-O projeto está configurado para:
-- **Frontend**: Vercel (automático via GitHub)
-- **Backend**: Render/Fly.io (manual)
+O projeto gera artefatos nativos para cada plataforma:
+- **Linux**: AppImage
+- **Windows**: NSIS installer
+- **macOS**: DMG
+
+Os builds são gerados na pasta `release/`.
 
 ## Documentação
 
@@ -189,6 +198,7 @@ O projeto está configurado para:
 - Documente mudanças no **CHANGELOG.md**
 - Adicione comentários em código complexo
 - Atualize types no código TypeScript
+- Documente novos handlers IPC
 
 ## Code Review
 
@@ -199,6 +209,7 @@ Pull Requests serão revisados considerando:
 - ✅ Código limpo e legível
 - ✅ Performance
 - ✅ Segurança
+- ✅ Arquitetura Electron adequada
 - ✅ Documentação
 
 ## Dúvidas?

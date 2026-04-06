@@ -1,51 +1,51 @@
-# Life OS (Desktop-First Architecture)
+# Life OS (Electron Desktop - Offline First)
 
-Life OS is a comprehensive personal productivity and management application originally built as a web app, now refactored into a local-first desktop application using Electron.
+Life OS é uma plataforma completa de produtividade e gerenciamento pessoal, arquitetada como um aplicativo desktop **offline-first** usando Electron.
 
-## Visionary Architecture 🚀
+## Arquitetura Visionária 🚀
 
-We moved away from a traditional HTTP REST backend (`/api`) pattern. The current architecture focuses on a local-first desktop experience:
+O projeto foi completamente migrado para uma arquitetura **desktop-first e offline-first**:
 
-1. **Electron Main Process:** Acts as our "Backend".
-2. **Local SQLite (`better-sqlite3`):** App data is written to a local disk database for low-latency desktop usage.
-3. **IPC Communication:** The React frontend communicates directly with the local database via Electron IPC (`window.api`).
-4. **Optional Sync Layer:** Sync code exists in `electron/sync/engine.ts`, but it depends on desktop Supabase session/configuration and should not be treated as guaranteed MVP behavior out of the box.
-5. **MVP Runtime Expectation:** Treat the default MVP as a local-first desktop app unless cloud sync is explicitly configured and validated for your environment.
+1. **Electron Main Process:** Atua como nosso "Backend" local.
+2. **SQLite Local (`better-sqlite3`):** Todos os dados são armazenados localmente no disco para uso desktop de baixa latência.
+3. **Comunicação IPC:** O frontend React se comunica diretamente com o banco de dados local via Electron IPC (`window.api`).
+4. **Sincronização Opcional:** Uma camada de sincronização com Supabase existe em `electron/sync/engine.ts`, mas depende de configuração explícita e não deve ser tratada como comportamento padrão do MVP.
+5. **Expectativa de Runtime MVP:** O Life OS é primariamente um aplicativo desktop **offline-first**. A sincronização com a nuvem só está disponível quando explicitamente configurada e validada.
 
-## Setup & Installation
+## Setup & Instalação
 
-1.  **Clone the repository:**
+1.  **Clone o repositório:**
     ```bash
     git clone <repository-url>
     cd life-os
     ```
 
-2.  **Install dependencies:**
+2.  **Instale as dependências:**
     ```bash
     npm install
-    # Native dependencies like better-sqlite3 will build for your platform
+    # Dependências nativas como better-sqlite3 serão compiladas para sua plataforma
     ```
 
-3.  **Environment Variables:**
-    Create a `.env` file in the root directory if you need Supabase-backed auth or want to validate desktop sync:
+3.  **Variáveis de Ambiente:**
+    Crie um arquivo `.env` na raiz apenas se precisar de autenticação Supabase ou quiser validar a sincronização desktop:
     ```env
-    VITE_SUPABASE_URL=your_supabase_url
-    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+    VITE_SUPABASE_URL=sua_supabase_url
+    VITE_SUPABASE_ANON_KEY=sua_supabase_anon_key
     ```
-    For the current MVP, local desktop usage is the default expectation. Sync is only available when the desktop Supabase flow is configured correctly.
+    Para o MVP atual, o uso desktop offline é o comportamento padrão e esperado.
 
-4.  **Run the Desktop app:**
+4.  **Execute o aplicativo Desktop:**
     ```bash
     npm run dev
     ```
 
-## Development
+## Desenvolvimento
 
-- `src/features/*`: Contains React features fetching data via `window.api`.
-- `electron/main.ts`: Main process entry.
-- `electron/db/database.ts`: SQLite schema and setup.
-- `electron/sync/engine.ts`: Supabase background sync.
-- `electron/ipc/*`: IPC handlers for the frontend.
+- `src/features/*`: Contém features React que buscam dados via `window.api`.
+- `electron/main.ts`: Entry point do processo principal.
+- `electron/db/database.ts`: Schema e setup do SQLite.
+- `electron/sync/engine.ts`: Sincronização background com Supabase (opcional).
+- `electron/ipc/*`: Handlers IPC para o frontend.
 
-## License
+## Licença
 MIT
