@@ -2,13 +2,26 @@
 
 Development guidelines for agentic coding assistants working on the Life OS codebase.
 
+## Project Overview
+
+Life OS is now an **Electron desktop application with offline-first architecture**. All data is stored locally in SQLite via `better-sqlite3`, with optional Supabase cloud sync.
+
+## Architecture
+
+- **Frontend:** React + Vite + TypeScript running in Electron Renderer
+- **Backend:** Electron Main Process with SQLite local database
+- **Communication:** Electron IPC via `window.api` (no direct HTTP REST calls)
+- **Storage:** SQLite (`better-sqlite3`) for local persistence
+- **Sync:** Optional Supabase sync when explicitly configured
+
 ## Essential Commands
 
 ### Development
 ```bash
-npm run dev              # Start both client (5173) and server (3001)
-npm run client:dev       # Frontend only on port 5173
-npm run server:dev       # Backend only on port 3001
+npm run dev              # Start Electron desktop app
+npm run electron:dev     # Alternative: Electron dev mode
+npm run build            # Build for production
+npm run electron:build   # Package Electron app for distribution
 ```
 
 ### Quality Assurance
