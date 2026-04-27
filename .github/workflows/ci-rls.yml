@@ -20,4 +20,6 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           AI_TEST_MODE: mock
+          LIFEOS_SESSION_SECRET: test-secret-for-ci
+          JWT_SECRET: test-secret-for-ci
         run: npm run test -- --coverage

@@ -24,6 +24,9 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run test
+        env:
+          LIFEOS_SESSION_SECRET: test-secret-for-ci
+          JWT_SECRET: test-secret-for-ci
       - run: npm run build
       - run: npm run electron:build
       - name: Install Playwright browsers

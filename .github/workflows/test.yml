@@ -18,6 +18,9 @@ jobs:
         run: npm ci
       - name: Run tests with coverage
         run: npm run test
+        env:
+          LIFEOS_SESSION_SECRET: test-secret-for-ci
+          JWT_SECRET: test-secret-for-ci
       - name: Upload coverage reports
         if: always()
         uses: actions/upload-artifact@v4

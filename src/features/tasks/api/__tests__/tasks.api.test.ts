@@ -14,7 +14,7 @@ describe("tasks.api (bridge-based)", () => {
           completed: false,
           tags: payload?.tags ?? [],
         }),
-        update: async (_id: string, updates: any) => ({ id: "2", ...updates }),
+        update: async (_id: string, updates: any) => ({ id: _id, ...updates }),
         delete: async (_id: string) => {}
       }
     }
