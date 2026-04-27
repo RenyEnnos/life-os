@@ -1,4 +1,5 @@
 import { setupLegacyHandlers } from './ipc/legacyHandler'
+import { setupMvpHandlers } from './ipc/mvpHandler'
 import { setupAuthHandlers } from './ipc/authHandler'
 import { setupTasksHandlers } from './ipc/tasksHandler'
 import { setupResourceHandlers } from './ipc/resourceHandler'
@@ -280,6 +281,7 @@ if (!gotTheLock && !isPlaywrightTest) {
   app.whenReady().then(() => {
     initDb();
     setupLegacyHandlers();
+    setupMvpHandlers();
     setupAuthHandlers();
     setupTasksHandlers();
     setupResourceHandlers();

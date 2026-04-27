@@ -9,16 +9,27 @@ export default defineConfig({
     headless: true
   },
   webServer: {
-    // Start the browser web client, not Electron
+    // Advisory browser coverage still exercises the web client only.
     command: 'npm run client:dev',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: ['**/smoke.spec.ts'] },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] }, testIgnore: ['**/smoke.spec.ts'] },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] }, testIgnore: ['**/smoke.spec.ts'] },
-    { name: 'smoke', testMatch: '**/smoke.spec.ts', use: { browserName: 'chromium' } },
+    {
+      name: 'advisory-chromium',
+      use: { ...devices['Desktop Chrome'] },
+      testIgnore: ['**/smoke.spec.ts'],
+    },
+    {
+      name: 'advisory-firefox',
+      use: { ...devices['Desktop Firefox'] },
+      testIgnore: ['**/smoke.spec.ts'],
+    },
+    {
+      name: 'advisory-webkit',
+      use: { ...devices['Desktop Safari'] },
+      testIgnore: ['**/smoke.spec.ts'],
+    },
   ],
 })

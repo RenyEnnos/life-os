@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Tabs from '@/shared/ui/Tabs';
 import { Button } from '@/shared/ui/Button';
 

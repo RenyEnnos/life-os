@@ -1,4 +1,3 @@
-import React from 'react'
 import { PieChart, Pie, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { chartTheme } from './theme'
 

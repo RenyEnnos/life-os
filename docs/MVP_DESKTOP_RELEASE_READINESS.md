@@ -1,3 +1,7 @@
+> Superseded on 2026-03-20 by `docs/mvp/canonical-mvp.md`.
+>
+> This file captures a previous desktop-only release framing and remains historical context only.
+
 # MVP Desktop Release Readiness
 
 ## Supported MVP Surface

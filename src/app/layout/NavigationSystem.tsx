@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useMediaQuery } from '@/shared/hooks/use-media-query';
+import { useMediaQuery } from '@/shared/hooks/useMediaQuery';
 import { Sidebar } from './Sidebar';
 import { Dock, DockIcon } from '@/shared/ui/premium/Dock';
 import { mobileNav } from './navItems';

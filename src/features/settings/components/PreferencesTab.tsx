@@ -13,9 +13,7 @@ export default function PreferencesTab() {
 
     const [fullName, setFullName] = useState(userProfile?.nickname || userProfile?.full_name || 'Alex Morgan');
     const [username, setUsername] = useState(user?.email?.split('@')[0] || 'alexm');
-    const [bio, setBio] = useState('Product Designer focusing on minimal interfaces and deep work productivity.');
-
-    const email = user?.email || 'alex.morgan@focusdashboard.co';
+    const [_bio, _setBio] = useState('Product Designer focusing on minimal interfaces and deep work productivity.');
 
     const preferenceList = useMemo(() => ([
         {

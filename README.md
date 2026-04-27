@@ -1,51 +1,91 @@
-# Life OS (Desktop-First Architecture)
+# LifeOS
 
-Life OS is a comprehensive personal productivity and management application originally built as a web app, now refactored into a local-first desktop application using Electron.
+LifeOS is currently shipped in this repo as an invite-only weekly operating loop inside the existing React + Express application.
 
-## Visionary Architecture 🚀
+The canonical MVP framing lives in `docs/mvp/canonical-mvp.md`. If another document disagrees with that file, treat the other document as stale unless it explicitly says otherwise.
 
-We moved away from a traditional HTTP REST backend (`/api`) pattern. The current architecture focuses on a local-first desktop experience:
+## Current Product Boundary
 
-1. **Electron Main Process:** Acts as our "Backend".
-2. **Local SQLite (`better-sqlite3`):** App data is written to a local disk database for low-latency desktop usage.
-3. **IPC Communication:** The React frontend communicates directly with the local database via Electron IPC (`window.api`).
-4. **Optional Sync Layer:** Sync code exists in `electron/sync/engine.ts`, but it depends on desktop Supabase session/configuration and should not be treated as guaranteed MVP behavior out of the box.
-5. **MVP Runtime Expectation:** Treat the default MVP as a local-first desktop app unless cloud sync is explicitly configured and validated for your environment.
+In scope for the canonical MVP:
 
-## Setup & Installation
+- invite-gated account creation and login
+- the `/mvp` workspace and its four user-facing loop surfaces:
+  - onboarding
+  - weekly review
+  - today
+  - reflection
+- an internal-only admin analytics surface at `/mvp/admin`
+- the current `/api/mvp/*` contract in `api/app.ts`
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    cd life-os
-    ```
+Out of scope for the canonical MVP:
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    # Native dependencies like better-sqlite3 will build for your platform
-    ```
+- marketing LifeOS as a broad productivity suite
+- treating the dashboard, habits, calendar, journal, health, finances, projects, university, focus, AI assistant, or gamification routes as MVP-defining surfaces
+- claiming Electron is the default shipped runtime
+- sync or cloud-readiness claims beyond the implemented MVP contract
 
-3.  **Environment Variables:**
-    Create a `.env` file in the root directory if you need Supabase-backed auth or want to validate desktop sync:
-    ```env
-    VITE_SUPABASE_URL=your_supabase_url
-    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-    ```
-    For the current MVP, local desktop usage is the default expectation. Sync is only available when the desktop Supabase flow is configured correctly.
+## Runtime
 
-4.  **Run the Desktop app:**
-    ```bash
-    npm run dev
-    ```
+Default development and build flow:
 
-## Development
+- frontend: React 18 + Vite
+- backend: Express
+- auth: file-backed invite registration and session cookies by default
+- MVP persistence: file-backed repository by default, Prisma-backed when `DATABASE_URL` or `LIFEOS_MVP_REPOSITORY=prisma` is configured
 
-- `src/features/*`: Contains React features fetching data via `window.api`.
-- `electron/main.ts`: Main process entry.
-- `electron/db/database.ts`: SQLite schema and setup.
-- `electron/sync/engine.ts`: Supabase background sync.
-- `electron/ipc/*`: IPC handlers for the frontend.
+Important note:
+
+- Electron code exists in this repo, but it is not the canonical MVP runtime because the default scripts, implemented weekly-loop API, and current route shell all center the web workspace.
+
+## Quick Start
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the default app and API:
+
+```bash
+npm run dev
+```
+
+Default local endpoints:
+
+- app: `http://localhost:5173`
+- api: `http://localhost:3001`
+
+## Key Paths
+
+- `src/features/mvp/`: weekly-loop MVP UI
+- `api/app.ts`: implemented auth and MVP server contract
+- `docs/mvp/canonical-mvp.md`: canonical product framing
+- `docs/mvp/route-map.md`: implemented route and API map
+- `plans/2026-03-20-canonical-mvp-doc-rewrite.md`: rewrite decision memo
+
+## Verification
+
+- unit and integration tests: `npm run test`
+- authoritative Electron release smoke: `npm run test:e2e`
+- advisory browser placeholders only: `npm run test:e2e:advisory`
+- type check: `npm run typecheck`
+- lint: `npm run lint`
+
+The release-verification ladder and the distinction between authoritative versus advisory Playwright lanes live in `docs/release-verification-ladder.md`.
+
+## CI Quality Gate Policy
+
+- Canonical package manager is `npm`.
+- The only accepted lockfile is `package-lock.json`.
+- CI must install dependencies with `npm ci` (frozen lockfile behavior).
+- Merge readiness is determined by the `quality-gate` check, which runs:
+  - `npm run typecheck`
+  - `npm run lint`
+  - `npm run test`
+  - `npm run build`
+  - a minimal Electron smoke assertion: `npm run test:e2e -- --grep "desktop smoke: Life OS main window"`
 
 ## License
+
 MIT

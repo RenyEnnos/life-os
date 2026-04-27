@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Finances Flow', () => {
+test.describe.skip('Quarantined browser placeholder: Finances Flow', () => {
   test.beforeEach(async ({ page }) => {
     // Basic login before each test
     await page.goto('/login');

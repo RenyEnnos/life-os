@@ -1,6 +1,4 @@
-import React from 'react';
 import { Task, TaskStatus } from '@/shared/types';
-import { TaskItem } from './TaskItem';
 import { SortableTaskItem } from './SortableTaskItem';
 import { cn } from '@/shared/lib/cn';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -14,7 +12,7 @@ interface KanbanColumnProps {
     className?: string;
 }
 
-export function KanbanColumn({ title, status, tasks, onToggle, onDelete, className }: KanbanColumnProps) {
+export function KanbanColumn({ title, tasks, onToggle, onDelete, className }: KanbanColumnProps) {
     return (
         <div className={cn("flex flex-col h-full min-w-[300px] flex-1", className)}>
             <div className="flex items-center justify-between mb-4 px-2">

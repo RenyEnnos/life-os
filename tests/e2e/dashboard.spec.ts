@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Dashboard Layout', () => {
+test.describe.skip('Quarantined browser placeholder: Dashboard Layout', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
     });

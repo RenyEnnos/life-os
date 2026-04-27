@@ -16,9 +16,9 @@ interface AuthCredentials {
   name?: string;
 }
 
-const PLAYWRIGHT_SMOKE_EMAIL = 'desktop-smoke@example.com';
-const PLAYWRIGHT_SMOKE_PASSWORD = 'DesktopSmoke123!';
-const PLAYWRIGHT_SMOKE_USER_ID = 'desktop-smoke-user';
+const PLAYWRIGHT_SMOKE_EMAIL = process.env.PLAYWRIGHT_SMOKE_EMAIL || '';
+const PLAYWRIGHT_SMOKE_PASSWORD = process.env.PLAYWRIGHT_SMOKE_PASSWORD || '';
+const PLAYWRIGHT_SMOKE_USER_ID = process.env.PLAYWRIGHT_SMOKE_USER_ID || '';
 
 interface UserProfile {
   id: string;
@@ -165,7 +165,7 @@ export const setupAuthHandlers = () => {
       const { client, session } = await hydrateDesktopSession();
 
       if (!session) {
-        if (process.env.PLAYWRIGHT_TEST === '1') {
+        if (process.env.NODE_ENV !== 'production' && process.env.PLAYWRIGHT_TEST === '1') {
           const smoke = getStoredAuthSessionForSmoke();
           if (smoke) {
             return smoke;
@@ -180,7 +180,7 @@ export const setupAuthHandlers = () => {
       return { session, profile };
     } catch (err) {
       console.error('Failed to check auth', err);
-      if (process.env.PLAYWRIGHT_TEST === '1') {
+      if (process.env.NODE_ENV !== 'production' && process.env.PLAYWRIGHT_TEST === '1') {
         const smoke = getStoredAuthSessionForSmoke();
         if (smoke) {
           return smoke;
@@ -194,6 +194,7 @@ export const setupAuthHandlers = () => {
   ipcMain.handle('auth:login', async (_event, credentials: AuthCredentials) => {
     try {
       if (
+        process.env.NODE_ENV !== 'production' &&
         process.env.PLAYWRIGHT_TEST === '1' &&
         credentials.email === PLAYWRIGHT_SMOKE_EMAIL &&
         credentials.password === PLAYWRIGHT_SMOKE_PASSWORD

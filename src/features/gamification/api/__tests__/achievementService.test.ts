@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { getAchievements, getUserAchievements, notifyAchievementUnlock } from "../achievementService"
 import type { Achievement } from "../types"
 import { apiClient } from "@/shared/api/http"
-import { toast } from "react-hot-toast"
+import { toast } from "sonner"
 
 vi.mock("@/shared/api/http", () => ({
   apiClient: {
@@ -10,7 +10,7 @@ vi.mock("@/shared/api/http", () => ({
   },
 }))
 
-vi.mock("react-hot-toast", () => ({
+vi.mock("sonner", () => ({
   toast: {
     success: vi.fn(),
   },

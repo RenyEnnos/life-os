@@ -39,7 +39,7 @@ export function useBudgets() {
             ]);
             return { previousBudgets };
         },
-        onError: (err, newBudget, context) => {
+        onError: (_err, _newBudget, context) => {
             queryClient.setQueryData(['budgets'], context?.previousBudgets);
             toast.error('Erro ao criar orçamento');
         },
@@ -63,7 +63,7 @@ export function useBudgets() {
             );
             return { previousBudgets };
         },
-        onError: (err, variables, context) => {
+        onError: (_err, _variables, context) => {
             queryClient.setQueryData(['budgets'], context?.previousBudgets);
             toast.error('Erro ao atualizar orçamento');
         },
@@ -86,7 +86,7 @@ export function useBudgets() {
             );
             return { previousBudgets };
         },
-        onError: (err, id, context) => {
+        onError: (_err, _id, context) => {
             queryClient.setQueryData(['budgets'], context?.previousBudgets);
             toast.error('Erro ao excluir orçamento');
         },

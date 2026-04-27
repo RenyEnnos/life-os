@@ -9,7 +9,7 @@
  */
 export function calculateLinearRegression(data: { x: number; y: number }[]) {
     const n = data.length;
-    if (n < 2) return { slope: 0, intercept: 0, project: (x: number) => 0 };
+    if (n < 2) return { slope: 0, intercept: 0, project: (_x: number) => 0 };
 
     const sumX = data.reduce((a, b) => a + b.x, 0);
     const sumY = data.reduce((a, b) => a + b.y, 0);

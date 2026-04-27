@@ -6,16 +6,32 @@ import { MemoryRouter } from 'react-router-dom'
 import { AuthProvider } from '../contexts/AuthProvider'
 import { useAuth } from '../contexts/AuthContext'
 import { authApi } from '../api/auth.api'
-import type { User } from '@/shared/types'
+import type { User as SupabaseUser } from '@supabase/supabase-js'
+import { ApiError } from '@/shared/api/ApiError'
+import { getAuthToken } from '@/shared/api/authToken'
+import { useAuthStore } from '@/shared/stores/authStore'
+import { indexedDBStorage } from '@/shared/stores/storage'
 
 vi.mock('../api/auth.api')
 
 const mockUser = {
   id: 'u1',
+  app_metadata: {},
+  user_metadata: {
+    full_name: 'Test User',
+    nickname: 'Test User',
+  },
+  aud: 'authenticated',
+  role: 'authenticated',
   email: 'user@example.com',
   name: 'Test User',
+  phone: '',
+  identities: [],
+  factors: [],
+  confirmed_at: '2024-01-01T00:00:00Z',
+  last_sign_in_at: '2024-01-01T00:00:00Z',
   created_at: '2024-01-01T00:00:00Z'
-} as unknown as User
+} as unknown as SupabaseUser & { name: string }
 
 const TestComponent = () => {
   const { user, login, logout, loading } = useAuth()
@@ -56,6 +72,14 @@ describe('AuthFlow integration', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     localStorage.clear()
+    useAuthStore.setState({
+      user: null,
+      session: null,
+      profile: null,
+      isLoading: true,
+      error: null,
+      _hasHydrated: false,
+    })
   })
 
   it('performs complete login flow', async () => {
@@ -112,7 +136,7 @@ describe('AuthFlow integration', () => {
     })
   })
 
-  it.skip('performs complete logout flow', async () => {
+  it('performs complete logout flow', async () => {
     const mockedAuthApi = vi.mocked(authApi)
     mockedAuthApi.checkSession?.mockResolvedValue({ session: null, profile: null } as any)
     const session = {
@@ -151,6 +175,7 @@ describe('AuthFlow integration', () => {
     await waitFor(() => {
       expect(screen.getByTestId('user-email')).toHaveTextContent('user@example.com')
     })
+    expect(getAuthToken()).toBe('web-session')
 
     // Logout
     const logoutButton = screen.getByTestId('logout-button')
@@ -162,11 +187,14 @@ describe('AuthFlow integration', () => {
     // Verify user is logged out
     await waitFor(() => {
       expect(screen.getByTestId('user-email')).toHaveTextContent('No User')
+      expect(screen.getByTestId('user-name')).toHaveTextContent('No Name')
     })
+    expect(getAuthToken()).toBeNull()
   })
 
-  it.skip('persists session across page reloads', async () => {
+  it('persists auth state through the zustand indexeddb storage contract', async () => {
     const mockedAuthApi = vi.mocked(authApi)
+    const storageSpy = vi.spyOn(indexedDBStorage, 'setItem')
     mockedAuthApi.checkSession?.mockResolvedValue({ session: null, profile: null } as any)
     const session = {
       access_token: 'web-session',
@@ -202,37 +230,59 @@ describe('AuthFlow integration', () => {
       expect(screen.getByTestId('user-email')).toHaveTextContent('user@example.com')
     })
 
-    // Verify localStorage was set
-    expect(localStorage.getItem('auth_user')).toBeTruthy()
-
-    // Unmount (simulate page reload)
-    unmount()
-
-    // Re-render (simulate page reload)
-    renderWithProviders(<TestComponent />)
-
-    // User should be available immediately from localStorage
     await waitFor(() => {
-      expect(screen.getByTestId('user-email')).toHaveTextContent('user@example.com')
-      expect(screen.getByTestId('user-name')).toHaveTextContent('Test User')
+      expect(storageSpy).toHaveBeenCalled()
     })
+
+    const persistedCalls = storageSpy.mock.calls.filter(([key]) => key === 'life-os-auth')
+    expect(persistedCalls.length).toBeGreaterThan(0)
+    const lastPersistedPayload = persistedCalls[persistedCalls.length - 1]?.[1]
+
+    expect(typeof lastPersistedPayload).toBe('string')
+    expect(lastPersistedPayload).toContain('user@example.com')
+    expect(lastPersistedPayload).toContain('web-session')
+    expect(localStorage.getItem('auth_user')).toBeNull()
+
+    unmount()
   })
 
-  it.skip('handles session verification failure', async () => {
+  it('clears stale auth state when session verification returns 401', async () => {
     const mockedAuthApi = vi.mocked(authApi)
-    mockedAuthApi.checkSession.mockRejectedValue(new Error('Session invalid'))
+    localStorage.setItem('auth_token', 'stale-token')
+    useAuthStore.setState({
+      user: mockUser,
+      session: {
+        access_token: 'stale-token',
+        refresh_token: 'stale-token',
+        token_type: 'bearer',
+        expires_in: 3600,
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        user: mockUser,
+      } as any,
+      profile: {
+        id: mockUser.id,
+        full_name: mockUser.name,
+        nickname: mockUser.name,
+        theme: 'dark',
+        onboarding_completed: false,
+      } as any,
+      isLoading: true,
+      error: null,
+      _hasHydrated: false,
+    })
+    mockedAuthApi.checkSession.mockRejectedValue(new ApiError('Unauthorized', 401))
 
     renderWithProviders(<TestComponent />)
 
-    // Should show loaded state even with failed verification
     await waitFor(() => {
       expect(screen.getByTestId('loading-state')).toHaveTextContent('Loaded')
     })
 
-    // Should show no user
     expect(screen.getByTestId('user-email')).toHaveTextContent('No User')
-
-    // localStorage should be cleared
-    expect(localStorage.getItem('auth_user')).toBeNull()
+    expect(screen.getByTestId('user-name')).toHaveTextContent('No Name')
+    expect(getAuthToken()).toBeNull()
+    expect(useAuthStore.getState().session).toBeNull()
+    expect(useAuthStore.getState().profile).toBeNull()
+    expect(useAuthStore.getState().error).toBeNull()
   })
 })

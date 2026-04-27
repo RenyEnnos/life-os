@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { calculateLevel, awardXP, getUserXP, getDailyXP } from "../xpService"
-import type { XPHistoryEntry } from "../types"
 import { AttributeType } from "../types"
 
 const mockGet = vi.fn()

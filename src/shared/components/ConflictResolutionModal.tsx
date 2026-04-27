@@ -1,8 +1,7 @@
-import React from 'react';
-import { useSyncConflictStore, SyncConflict } from '@/shared/stores/useSyncConflictStore';
+import { useSyncConflictStore } from '@/shared/stores/useSyncConflictStore';
 import { Button } from '@/shared/ui/Button';
-import { AlertTriangle, ChevronRight, Server, Smartphone, Check } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AlertTriangle, Server, Smartphone } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { apiClient } from '@/shared/api/http';
 
 export function ConflictResolutionModal() {

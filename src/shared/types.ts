@@ -29,6 +29,7 @@ export interface RegisterRequest {
     email: string;
     password: string;
     name: string;
+    inviteCode: string;
 }
 
 export type DbHabit = Database['public']['Tables']['habits']['Row'];

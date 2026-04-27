@@ -1,4 +1,3 @@
-import React from 'react';
 import { Target, AlertTriangle } from 'lucide-react';
 import { BentoCard } from '@/shared/ui/BentoCard';
 import { BudgetStatus } from '../hooks/useBudgets';

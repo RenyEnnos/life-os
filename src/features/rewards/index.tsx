@@ -1,17 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 import { rewardsApi } from './api/rewards.api'
-import { LifeScore, Achievement } from '@/shared/types'
+import { LifeScore } from '@/shared/types'
 
 
-import { AchievementCard } from './components/AchievementCard'
 import { AchievementGallery } from './components/AchievementGallery'
 import { Trophy, Star, TrendingUp } from 'lucide-react'
 import { PageTitle } from '@/shared/ui/PageTitle'
 import { Card } from '@/shared/ui/Card'
 import { AnimatedCircularProgressBar } from '@/shared/ui/premium/AnimatedCircularProgressBar'
 import { Confetti } from '@/shared/ui/premium/Confetti'
-import { toast } from 'react-hot-toast'
 
 export default function RewardsPage() {
     const { user } = useAuth()

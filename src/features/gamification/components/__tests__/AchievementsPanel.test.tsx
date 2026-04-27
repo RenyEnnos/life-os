@@ -95,7 +95,7 @@ describe('AchievementsPanel', () => {
             () => new Promise(() => { }) // Never resolves
         );
 
-        const { container } = render(<AchievementsPanel />);
+        render(<AchievementsPanel />);
 
         // Check loader icon is displayed
         const loader = screen.getByTestId('icon-loader');

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useFinances } from '../hooks/useFinances';
 import { useBudgets } from '../hooks/useBudgets';
 import { FinanceSummaryCards } from '../components/FinanceSummaryCards';

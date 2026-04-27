@@ -1,36 +1,55 @@
 import '@testing-library/jest-dom/vitest'
 import { beforeAll, afterEach, afterAll } from 'vitest'
 import { server } from './src/test/msw/server'
+import { resetMockMvpWorkspace } from './src/test/msw/handlers'
 
-beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
+beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }))
+afterEach(() => {
+  server.resetHandlers()
+  resetMockMvpWorkspace()
+})
 afterAll(() => server.close())
 
-// Mock matchMedia
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: vi.fn().mockImplementation(query => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(), // deprecated
-    removeListener: vi.fn(), // deprecated
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
-});
+// Mock browser-only globals when the suite runs in jsdom.
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation(query => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(), // deprecated
+      removeListener: vi.fn(), // deprecated
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
 
 // Environment variables
 process.env.VITE_SUPABASE_URL = 'http://localhost:54321';
 process.env.VITE_SUPABASE_ANON_KEY = 'mock-key';
+process.env.VITE_GA_MEASUREMENT_ID = 'G-TEST123456';
 
-// Disable window.api crashing
-window.api = window.api || {
-  auth: { check: vi.fn(), login: vi.fn(), logout: vi.fn() },
-  tasks: { getAll: vi.fn().mockResolvedValue([]), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
-  legacy: { request: vi.fn().mockResolvedValue({}) }
-};
+if (typeof window !== 'undefined') {
+  window.api = window.api || {
+    auth: { check: vi.fn(), login: vi.fn(), logout: vi.fn() },
+    tasks: { getAll: vi.fn().mockResolvedValue([]), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
+    mvp: {
+      getWorkspace: vi.fn(),
+      saveOnboarding: vi.fn(),
+      generateWeeklyPlan: vi.fn(),
+      confirmPlan: vi.fn(),
+      updateActionStatus: vi.fn(),
+      saveDailyCheckIn: vi.fn(),
+      addReflection: vi.fn(),
+      submitFeedback: vi.fn(),
+      resetWorkspace: vi.fn(),
+    },
+    legacy: { request: vi.fn().mockResolvedValue({}) }
+  };
+}
 
 // Stronger mock for supabase auth
 vi.mock('@/shared/lib/supabase', async (importOriginal) => {

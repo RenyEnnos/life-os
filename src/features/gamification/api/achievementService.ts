@@ -1,6 +1,6 @@
 import { apiClient } from '@/shared/api/http';
 import type { Achievement, UserAchievement } from './types';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 
 const REWARDS_API_BASE = '/' + 'api/rewards';
 

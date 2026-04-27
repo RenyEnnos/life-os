@@ -1,8 +1,11 @@
 import { apiClient } from '@/shared/api/http';
+import { IpcClient } from '@/shared/api/ipcClient';
+import { isDesktopApp } from '@/shared/lib/platform';
 import { JournalEntry, JournalInsight } from '@/shared/types';
 
 const JOURNAL_API_BASE = '/' + 'api/journal';
 const RESONANCE_API_BASE = '/' + 'api/resonance';
+const journalIpc = new IpcClient<JournalEntry>('journal');
 
 /**
  * Validates journal entry ID format
@@ -69,6 +72,21 @@ export const journalApi = {
      * @throws {ApiError} If fetch fails
      */
     list: async (_userId?: string, date?: string, page?: number, pageSize?: number): Promise<JournalEntry[]> => {
+        if (isDesktopApp()) {
+            let entries = await journalIpc.getAll();
+
+            if (date) {
+                entries = entries.filter((entry) => entry.entry_date === date);
+            }
+
+            if (page !== undefined && pageSize !== undefined) {
+                const start = (page - 1) * pageSize;
+                entries = entries.slice(start, start + pageSize);
+            }
+
+            return entries;
+        }
+
         const queryParams = new URLSearchParams();
         if (date) queryParams.append('date', date);
         if (page !== undefined) queryParams.append('page', page.toString());
@@ -88,6 +106,16 @@ export const journalApi = {
         // Validate input before making request
         validateEntryData(entry, true);
 
+        if (isDesktopApp()) {
+            const now = new Date().toISOString();
+            const payload: Partial<JournalEntry> = {
+                ...entry,
+                entry_date: entry.entry_date ?? now,
+            };
+
+            return journalIpc.create(payload);
+        }
+
         const data = await apiClient.post<JournalEntry>(JOURNAL_API_BASE, entry);
         return data;
     },
@@ -104,6 +132,10 @@ export const journalApi = {
         validateEntryId(id);
         validateEntryData(updates, false);
 
+        if (isDesktopApp()) {
+            return journalIpc.update(id, updates);
+        }
+
         const data = await apiClient.put<JournalEntry>(`${JOURNAL_API_BASE}/${id}`, updates);
         return data;
     },
@@ -117,6 +149,11 @@ export const journalApi = {
     delete: async (id: string): Promise<void> => {
         // Validate input before making request
         validateEntryId(id);
+
+        if (isDesktopApp()) {
+            await journalIpc.delete(id);
+            return;
+        }
 
         await apiClient.delete(`${JOURNAL_API_BASE}/${id}`);
     },

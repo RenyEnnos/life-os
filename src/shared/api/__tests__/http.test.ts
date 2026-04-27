@@ -6,7 +6,7 @@ const originalWindow = global.window;
 
 // Mock fetch response type
 function mockFetch(response: { status: number; body: unknown; headers?: Headers; statusText?: string }) {
-    global.fetch = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
+    global.fetch = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) => {
         const body = response.body
         const headers = response.headers || new Headers()
 
@@ -66,7 +66,7 @@ describe("http.ts", () => {
 
         it.skip("throws on 400 Bad Request with error details", async () => {
             mockFetch({ status: 400, statusText: "Bad Request", body: { message: "Invalid input", details: { field: "email" } } })
-            const error = await expect(fetchJSON("/" + "api/bad")).rejects.toThrow(ApiError)
+            await expect(fetchJSON("/" + "api/bad")).rejects.toThrow(ApiError)
 
             try {
                 await fetchJSON("/" + "api/bad")
@@ -82,7 +82,7 @@ describe("http.ts", () => {
 
         it.skip("throws on 401 Unauthorized", async () => {
             mockFetch({ status: 401, statusText: "Unauthorized", body: { message: "Authentication required" } })
-            const error = await expect(fetchJSON("/" + "api/unauthorized")).rejects.toThrow(ApiError)
+            await expect(fetchJSON("/" + "api/unauthorized")).rejects.toThrow(ApiError)
 
             try {
                 await fetchJSON("/" + "api/unauthorized")
@@ -97,7 +97,7 @@ describe("http.ts", () => {
 
         it.skip("throws on 403 Forbidden", async () => {
             mockFetch({ status: 403, statusText: "Forbidden", body: { error: "Access denied" } })
-            const error = await expect(fetchJSON("/" + "api/forbidden")).rejects.toThrow(ApiError)
+            await expect(fetchJSON("/" + "api/forbidden")).rejects.toThrow(ApiError)
 
             try {
                 await fetchJSON("/" + "api/forbidden")
@@ -112,7 +112,7 @@ describe("http.ts", () => {
 
         it.skip("throws on 404 Not Found", async () => {
             mockFetch({ status: 404, statusText: "Not Found", body: { message: "Resource not found" } })
-            const error = await expect(fetchJSON("/" + "api/notfound")).rejects.toThrow(ApiError)
+            await expect(fetchJSON("/" + "api/notfound")).rejects.toThrow(ApiError)
 
             try {
                 await fetchJSON("/" + "api/notfound")
@@ -127,7 +127,7 @@ describe("http.ts", () => {
 
         it.skip("throws on 500 Internal Server Error", async () => {
             mockFetch({ status: 500, statusText: "Internal Server Error", body: { error: "oops" } })
-            const error = await expect(fetchJSON("/" + "api/fail")).rejects.toThrow(ApiError)
+            await expect(fetchJSON("/" + "api/fail")).rejects.toThrow(ApiError)
 
             try {
                 await fetchJSON("/" + "api/fail")

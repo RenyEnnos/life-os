@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import { useUser } from '@/features/user/hooks/useUser';
-import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
-import { Check, Palette, Moon, Sun, Monitor, Laptop } from 'lucide-react';
+import { Check, Moon, Sun, Monitor } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 
 const THEMES = [

@@ -2,7 +2,8 @@ import React, { createContext, useContext, useEffect } from 'react';
 import { authApi } from '@/features/auth/api/auth.api';
 import { useAuthStore } from '@/shared/stores/authStore';
 import { useShallow } from 'zustand/react/shallow';
-import { clearAuthToken } from '@/shared/api/authToken';
+import { ApiError } from '@/shared/api/ApiError';
+import { clearAuthToken, setAuthToken } from '@/shared/api/authToken';
 import type { UserProfile } from '@/shared/types/profile';
 
 interface AuthContextValue {
@@ -14,7 +15,7 @@ interface AuthContextValue {
   hasCompletedOnboarding: boolean;
   error: string | null;
   login: (creds: { email: string; password: string }) => Promise<void>;
-  register: (creds: { email: string; password: string; name?: string }) => Promise<void>;
+  register: (creds: { email: string; password: string; name?: string; inviteCode?: string }) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
@@ -36,6 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     id: userId,
     full_name: 'Usuário',
     nickname: 'Usuário',
+    is_invited_partner: false,
     theme: 'dark',
     onboarding_completed: false,
   });
@@ -55,6 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         setLoading(true);
         const { session, profile } = await authApi.checkSession();
+        setError(null);
         setAuth(session);
         if (session?.user) {
           if (profile) {
@@ -66,8 +69,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           clearAuthToken();
         }
       } catch (err: unknown) {
-        console.error('Auth initialization error:', err);
-        setError(err instanceof Error ? err.message : 'Failed to initialize session');
+        if (err instanceof ApiError && err.status === 401) {
+          clearAuthToken();
+          setAuth(null);
+          setProfile(null);
+          setError(null);
+        } else {
+          console.error('Auth initialization error:', err);
+          setError(err instanceof Error ? err.message : 'Failed to initialize session');
+        }
       } finally {
         setLoading(false);
       }
@@ -105,6 +115,7 @@ export const useAuth = () => {
     id: userId,
     full_name: 'Usuário',
     nickname: 'Usuário',
+    is_invited_partner: false,
     theme: 'dark',
     onboarding_completed: false,
   });
@@ -114,6 +125,7 @@ export const useAuth = () => {
     setError(null);
     try {
       const result = await authApi.login(creds);
+      setAuthToken(result.token ?? result.session?.access_token ?? null);
       setAuth(result.session);
       if (result.session?.user?.id) {
         setProfile(result.profile ?? getDefaultProfile(result.session.user.id));
@@ -126,7 +138,7 @@ export const useAuth = () => {
     }
   };
 
-  const register = async (creds: { email: string; password: string; name?: string }) => {
+  const register = async (creds: { email: string; password: string; name?: string; inviteCode?: string }) => {
     setLoading(true);
     setError(null);
     try {
@@ -134,7 +146,9 @@ export const useAuth = () => {
         email: creds.email,
         password: creds.password,
         name: creds.name ?? '',
+        inviteCode: creds.inviteCode ?? '',
       });
+      setAuthToken(result.token ?? result.session?.access_token ?? null);
       setAuth(result.session);
       if (result.session?.user?.id) {
         setProfile(result.profile ?? getDefaultProfile(result.session.user.id));
@@ -159,6 +173,7 @@ export const useAuth = () => {
 
   const updatePassword = async (password: string) => {
     const result = await authApi.updatePassword(password);
+    setAuthToken(result.token ?? result.session?.access_token ?? null);
     setAuth(result.session);
     if (result.session?.user?.id) {
       setProfile(result.profile ?? getDefaultProfile(result.session.user.id));

@@ -1,15 +1,8 @@
-import { useState, useEffect, memo } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, type Transition } from 'framer-motion';
 import { NavigationSystem } from './NavigationSystem';
 import { OnboardingModal } from '@/features/onboarding/OnboardingModal';
-import { SanctuaryOverlay } from '@/shared/ui/sanctuary/SanctuaryOverlay';
-import { useSanctuaryStore } from '@/shared/stores/sanctuaryStore';
-import { FloatingNexus } from '@/features/ai-assistant/components/FloatingNexus';
-import { LevelUpModal } from '@/features/rewards/components/LevelUpModal';
-import { useLevelTracker } from '@/features/rewards/hooks/useLevelTracker';
-
-const MemoizedSanctuaryOverlay = memo(SanctuaryOverlay);
 
 const ScrollToTop = () => {
     const { pathname } = useLocation();
@@ -42,24 +35,6 @@ export function AppLayout() {
         localStorage.setItem('theme', 'dark');
     }, []);
 
-    const { isActive, enter, exit } = useSanctuaryStore();
-    const { showLevelUp, newLevel, dismissLevelUp } = useLevelTracker();
-
-    useEffect(() => {
-        const handleGlobalKeyDown = (e: KeyboardEvent) => {
-            if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.code === 'KeyF') {
-                e.preventDefault();
-                if (isActive) {
-                    exit();
-                } else {
-                    enter('quick-focus', 'Deep Focus');
-                }
-            }
-        };
-        window.addEventListener('keydown', handleGlobalKeyDown);
-        return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-    }, [isActive, enter, exit]);
-
     return (
         <div className="relative min-h-[100dvh] w-full bg-background-dark text-zinc-200 font-display selection:bg-primary/30 flex flex-row overflow-x-hidden">
             <ScrollToTop />
@@ -79,13 +54,13 @@ export function AppLayout() {
 
             {/* Sidebar Navigation - Always Visible on Desktop */}
             <aside className="hidden lg:flex flex-col w-24 h-screen shrink-0 z-50">
-                <NavigationSystem isSanctuaryActive={isActive} />
+                <NavigationSystem />
             </aside>
 
             {/* Mobile Navigation - Always Visible on Mobile */}
             <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pointer-events-none">
                 <div className="pointer-events-auto">
-                    <NavigationSystem isSanctuaryActive={isActive} />
+                    <NavigationSystem />
                 </div>
             </div>
 
@@ -106,13 +81,6 @@ export function AppLayout() {
                 </AnimatePresence>
             </main>
 
-            <MemoizedSanctuaryOverlay />
-            <FloatingNexus />
-            <LevelUpModal 
-                isOpen={showLevelUp} 
-                level={newLevel || 0} 
-                onClose={dismissLevelUp} 
-            />
         </div>
     );
 }

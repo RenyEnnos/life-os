@@ -1,11 +1,147 @@
 import { http, HttpResponse } from 'msw'
 
+import { generateWeeklyPlan } from '@/features/mvp/lib/plan'
+import { createEmptyWorkspace, makeMvpId, pushMvpEvent, withComputedAnalytics } from '@/features/mvp/lib/state'
+import type { MvpDailyCheckIn, MvpOnboardingDraft, MvpReviewDraft } from '@/features/mvp/types'
+
+let mvpWorkspace = createEmptyWorkspace()
+
+export function resetMockMvpWorkspace() {
+  mvpWorkspace = createEmptyWorkspace()
+}
+
+function respondWithWorkspace() {
+  mvpWorkspace = withComputedAnalytics({
+    onboarding: mvpWorkspace.onboarding,
+    review: mvpWorkspace.review,
+    plan: mvpWorkspace.plan,
+    dailyCheckIns: mvpWorkspace.dailyCheckIns,
+    reflections: mvpWorkspace.reflections,
+    feedback: mvpWorkspace.feedback,
+    events: mvpWorkspace.events,
+  })
+  return HttpResponse.json({ success: true, data: mvpWorkspace })
+}
+
 export const handlers = [
-  http.get('/' + 'api/rewards/score', () => {
+  http.get('*/api/mvp/workspace', () => respondWithWorkspace()),
+  http.put('*/api/mvp/onboarding', async ({ request }) => {
+    const input = (await request.json()) as Omit<MvpOnboardingDraft, 'completedAt'>
+    const completedAt = new Date().toISOString()
+    if (!mvpWorkspace.onboarding.completedAt) {
+      mvpWorkspace.events = pushMvpEvent(mvpWorkspace.events, 'onboarding_started', completedAt)
+    }
+    mvpWorkspace.events = pushMvpEvent(mvpWorkspace.events, 'onboarding_completed', completedAt)
+    mvpWorkspace.onboarding = { ...input, completedAt }
+    return respondWithWorkspace()
+  }),
+  http.post('*/api/mvp/weekly-plans/generate', async ({ request }) => {
+    const input = (await request.json()) as Omit<MvpReviewDraft, 'generatedAt' | 'id'>
+    const generatedAt = new Date().toISOString()
+    const review: MvpReviewDraft = { ...input, id: makeMvpId('review'), generatedAt }
+    mvpWorkspace.review = review
+    mvpWorkspace.plan = {
+      ...generateWeeklyPlan(mvpWorkspace.onboarding, review, new Date(generatedAt)),
+      id: makeMvpId('plan'),
+    }
+    mvpWorkspace.events = pushMvpEvent(
+      pushMvpEvent(
+        pushMvpEvent(mvpWorkspace.events, 'weekly_review_started', generatedAt),
+        'weekly_review_completed',
+        generatedAt,
+      ),
+      'weekly_plan_generated',
+      generatedAt,
+    )
+    return respondWithWorkspace()
+  }),
+  http.post('*/api/mvp/weekly-plans/:planId/confirm', ({ params }) => {
+    if (mvpWorkspace.plan.id === params.planId) {
+      const confirmedAt = new Date().toISOString()
+      mvpWorkspace.plan = { ...mvpWorkspace.plan, confirmedAt }
+      mvpWorkspace.events = pushMvpEvent(mvpWorkspace.events, 'weekly_plan_confirmed', confirmedAt)
+    }
+    return respondWithWorkspace()
+  }),
+  http.patch('*/api/mvp/action-items/:actionItemId', async ({ params, request }) => {
+    const patch = (await request.json()) as { status?: 'todo' | 'done' | 'deferred'; note?: string }
+    mvpWorkspace.plan = {
+      ...mvpWorkspace.plan,
+      priorities: mvpWorkspace.plan.priorities.map((priority) => ({
+        ...priority,
+        actions: priority.actions.map((action) =>
+          action.id === params.actionItemId
+            ? { ...action, status: patch.status ?? action.status, note: patch.note ?? action.note }
+            : action,
+        ),
+      })),
+    }
+    return respondWithWorkspace()
+  }),
+  http.post('*/api/mvp/daily-checkins', async ({ request }) => {
+    const input = (await request.json()) as Omit<MvpDailyCheckIn, 'createdAt'>
+    const createdAt = new Date().toISOString()
+    const nextEntry = { ...input, createdAt }
+    const existingIndex = mvpWorkspace.dailyCheckIns.findIndex((entry) => entry.date === input.date)
+    mvpWorkspace.dailyCheckIns =
+      existingIndex >= 0
+        ? mvpWorkspace.dailyCheckIns.map((entry, index) => (index === existingIndex ? nextEntry : entry))
+        : [...mvpWorkspace.dailyCheckIns, nextEntry]
+    mvpWorkspace.events = pushMvpEvent(mvpWorkspace.events, 'daily_checkin_completed', createdAt)
+    return respondWithWorkspace()
+  }),
+  http.post('*/api/mvp/reflections', async ({ request }) => {
+    const input = (await request.json()) as { period: 'daily' | 'weekly'; body: string }
+    mvpWorkspace.reflections = [
+      { id: makeMvpId('reflection'), createdAt: new Date().toISOString(), ...input },
+      ...mvpWorkspace.reflections,
+    ]
+    mvpWorkspace.events = pushMvpEvent(mvpWorkspace.events, 'reflection_completed')
+    return respondWithWorkspace()
+  }),
+  http.post('*/api/mvp/feedback', async ({ request }) => {
+    const input = (await request.json()) as { rating: number; message: string }
+    mvpWorkspace.feedback = [
+      { id: makeMvpId('feedback'), createdAt: new Date().toISOString(), ...input },
+      ...mvpWorkspace.feedback,
+    ]
+    mvpWorkspace.events = pushMvpEvent(mvpWorkspace.events, 'user_feedback_submitted')
+    return respondWithWorkspace()
+  }),
+  http.delete('*/api/mvp/workspace', () => {
+    mvpWorkspace = createEmptyWorkspace()
+    return respondWithWorkspace()
+  }),
+  http.get('*/api/rewards/score', () => {
     return HttpResponse.json({ life_score: 120, level: 3, current_xp: 2500 })
   }),
-  http.get('/' + 'api/rewards/achievements', () => {
+  http.get('*/api/rewards/achievements', () => {
     return HttpResponse.json([{ id: 'a1', title: 'Starter', description: 'Primeira conquista', xp_reward: 50, icon: 'default' }])
+  }),
+  http.get('*/api/rewards/achievements/full', () => {
+    return HttpResponse.json([
+      {
+        id: 'a1',
+        title: 'Starter',
+        description: 'Primeira conquista',
+        xp_reward: 50,
+        icon: 'default',
+        unlocked: true,
+        unlockedAt: '2025-01-01T12:00:00Z',
+      },
+      {
+        id: 'a2',
+        title: 'Consistent',
+        description: 'Mantenha ritmo por 7 dias',
+        xp_reward: 120,
+        icon: 'default',
+        unlocked: false,
+        unlockedAt: null,
+      },
+    ])
+  }),
+  http.get('*/api/resonance/insights', () => {
+    return HttpResponse.json([])
   }),
   http.get('/' + 'api/calendar/events', () => {
     return HttpResponse.json([
@@ -23,7 +159,7 @@ export const handlers = [
   http.get('/' + 'api/tasks', () => {
     return HttpResponse.json([])
   }),
-  http.get('/' + 'api/journal', ({ request }) => {
+  http.get('*/api/journal', ({ request }) => {
     const url = new URL(request.url)
     const page = parseInt(url.searchParams.get('page') || '1', 10)
     const pageSize = parseInt(url.searchParams.get('pageSize') || '10', 10)
@@ -47,20 +183,11 @@ export const handlers = [
       { id: 'j15', user_id: 'u1', entry_date: '2025-01-01', title: 'Fresh Start', content: 'Ready for new beginnings', tags: ['motivation'], created_at: '2025-01-01T08:00:00Z' },
     ]
 
-    const total = allEntries.length
-    const totalPages = Math.ceil(total / pageSize)
     const startIndex = (page - 1) * pageSize
     const endIndex = startIndex + pageSize
     const paginatedEntries = allEntries.slice(startIndex, endIndex)
 
-    // Return paginated response
-    return HttpResponse.json({
-      data: paginatedEntries,
-      total,
-      page,
-      pageSize,
-      totalPages
-    })
+    return HttpResponse.json(paginatedEntries)
   }),
   http.get('/' + 'api/habits', () => {
     return HttpResponse.json([

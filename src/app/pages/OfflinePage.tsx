@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { WifiOff, RefreshCcw, Home } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { motion } from 'framer-motion';

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
   handleError,
-  handleFetchError,
   createErrorHandler,
   shouldReportError,
   shouldNotifyUser,

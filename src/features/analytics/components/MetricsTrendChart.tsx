@@ -11,15 +11,11 @@ import {
 } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { AnalyticsDataPoint } from '../hooks/useAnalyticsData';
-import { useTranslation } from 'react-i18next';
-
 interface MetricsTrendChartProps {
     data: AnalyticsDataPoint[];
 }
 
 export function MetricsTrendChart({ data }: MetricsTrendChartProps) {
-    const { t } = useTranslation();
-
     const formattedData = useMemo(() => {
         return data.map(d => ({
             ...d,

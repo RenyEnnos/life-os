@@ -1,17 +1,51 @@
 import { getDb } from './database';
 import crypto from 'node:crypto';
 
+const ALLOWED_TABLES = new Set([
+    'habits', 'journal_entries', 'transactions', 'health_metrics',
+    'tasks', 'rewards', 'achievements', 'user_sessions', 'users',
+    'university_courses', 'university_assignments', 'medications',
+    'projects', 'profiles', 'sync_queue', 'auth_session',
+]);
+
+const VALID_COLUMN_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+
 export class BaseRepository<T extends { id?: string; user_id?: string }> {
     protected tableName: string;
+    private columnCache: Map<string, Set<string>> = new Map();
 
     constructor(tableName: string) {
+        if (!ALLOWED_TABLES.has(tableName)) {
+            throw new Error(`Table "${tableName}" is not in the allowed tables list`);
+        }
         this.tableName = tableName;
     }
 
-    private hasUserIdColumn(): boolean {
+    private getValidColumns(): Set<string> {
+        if (this.columnCache.has(this.tableName)) {
+            return this.columnCache.get(this.tableName)!;
+        }
         const db = getDb();
         const columns = db.prepare(`PRAGMA table_info(${this.tableName})`).all() as Array<{ name: string }>;
-        return columns.some((column) => column.name === 'user_id');
+        const columnNames = new Set(columns.map(c => c.name));
+        this.columnCache.set(this.tableName, columnNames);
+        return columnNames;
+    }
+
+    private validateColumnName(name: string): void {
+        if (!VALID_COLUMN_RE.test(name)) {
+            throw new Error(`Invalid column name: "${name}"`);
+        }
+        const systemColumns = new Set(['id', 'user_id', 'created_at', 'updated_at', 'is_deleted', 'version']);
+        if (systemColumns.has(name)) return;
+        const validColumns = this.getValidColumns();
+        if (!validColumns.has(name)) {
+            throw new Error(`Column "${name}" does not exist in table "${this.tableName}"`);
+        }
+    }
+
+    private hasUserIdColumn(): boolean {
+        return this.getValidColumns().has('user_id');
     }
 
     private getUserId(): string {
@@ -64,6 +98,7 @@ export class BaseRepository<T extends { id?: string; user_id?: string }> {
         const serialized = this.serialize(record);
 
         const keys = Object.keys(serialized);
+        keys.forEach(k => this.validateColumnName(k));
         const placeholders = keys.map(() => '?').join(', ');
         const values = Object.values(serialized);
 
@@ -91,6 +126,7 @@ export class BaseRepository<T extends { id?: string; user_id?: string }> {
         delete serializedUpdates.created_at;
 
         const keys = Object.keys(serializedUpdates);
+        keys.forEach(k => this.validateColumnName(k));
         if (keys.length === 0) return existing;
 
         const setClause = keys.map(k => `"${k}" = ?`).join(', ') + ', updated_at = ?, version = version + 1';

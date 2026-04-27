@@ -1,11 +1,10 @@
 import { useState, useMemo } from 'react';
-import { CheckCircle2, Circle, Plus, Play, Calendar } from 'lucide-react';
+import { CheckCircle2, Plus, Play } from 'lucide-react';
 import { Widget } from '@/shared/ui/Widget';
 import { useDashboardTasks } from '@/features/dashboard/hooks/useDashboardData';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { tasksApi } from '@/features/tasks/api/tasks.api';
 import { cn } from '@/shared/lib/cn';
-import { Task } from '@/shared/types';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 
 import { useFocusStore } from '@/features/focus/stores/useFocusStore';

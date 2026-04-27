@@ -18,7 +18,7 @@ export const calculateNextLevelXp = (currentLevel: number): number => {
 };
 
 export const awardXP = async (
-    userId: string,
+    _userId: string,
     amount: number,
     category: AttributeType,
     source: string

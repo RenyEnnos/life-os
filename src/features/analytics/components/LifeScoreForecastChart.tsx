@@ -1,4 +1,4 @@
-import React from 'react';
+
 import {
     LineChart,
     Line,
@@ -68,7 +68,7 @@ export const LifeScoreForecastChart = () => {
                                 fontSize: '12px'
                             }}
                             labelFormatter={(label) => new Date(label).toLocaleDateString()}
-                            formatter={(value: any, name: any, props: any) => {
+                            formatter={(_value: any, _name: any, props: any) => {
                                 const payload = props.payload;
                                 return [
                                     <div className="flex flex-col gap-1" key="tooltip-complex">

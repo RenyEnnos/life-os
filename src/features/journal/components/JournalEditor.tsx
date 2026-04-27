@@ -6,9 +6,8 @@ import type { JournalEntry, JournalInsight } from '@/shared/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { journalApi } from '../api/journal.api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 import { InsightCard } from './InsightCard';
-import { cn } from '@/shared/lib/cn';
 
 interface JournalEditorProps {
     entry?: JournalEntry;

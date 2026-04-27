@@ -10,7 +10,7 @@ const languages = [
 ];
 
 export function LanguageSelector({ className }: { className?: string }) {
-  const { i18n, t } = useTranslation();
+  const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const currentLang = i18n.language;

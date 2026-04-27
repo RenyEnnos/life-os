@@ -1,3 +1,7 @@
+> Superseded on 2026-03-20 by `docs/mvp/canonical-mvp.md`.
+>
+> This file remains historical implementation context, not current MVP framing.
+
 # Life OS - Part IA Implementation Summary
 
 ## Overview

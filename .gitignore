@@ -2,6 +2,7 @@
 # Dependencies
 # ===========================
 node_modules/
+.data/
 .pnpm-store/
 
 # ===========================
@@ -9,6 +10,8 @@ node_modules/
 # ===========================
 dist/
 dist-electron/
+dist-server/
+release/
 build/
 .cache/
 .turbo/
@@ -17,6 +20,7 @@ storybook-static/
 # ===========================
 # Environment & Secrets
 # ===========================
+*.db
 .env
 .env.local
 .env.*.local

@@ -1,3 +1,7 @@
+> Superseded on 2026-03-20 by `docs/mvp/canonical-mvp.md`.
+>
+> The backlog assumptions in this file are tied to the previous desktop-first MVP framing.
+
 # Post-MVP Backlog
 
 This document captures work for after the shipped desktop local-first MVP.

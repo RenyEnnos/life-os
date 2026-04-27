@@ -1,3 +1,7 @@
+> Superseded on 2026-03-20 by `docs/mvp/canonical-mvp.md`.
+>
+> This file reflects an older desktop-first framing and should not be used as the current MVP source of truth.
+
 # MVP Readiness
 
 ## Verdict

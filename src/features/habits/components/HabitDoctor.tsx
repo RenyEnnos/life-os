@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
 import { Stethoscope, Sparkles, RefreshCw, AlertTriangle, CheckCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
@@ -6,7 +6,6 @@ import { Habit } from '../types';
 import { Badge } from '@/shared/ui/Badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { habitsApi } from '../api/habits.api';
-import { actionDispatcher } from '@/features/dashboard/lib/actionDispatcher';
 import { useToast } from '@/shared/ui/useToast';
 
 interface HabitDoctorProps {
@@ -23,6 +22,26 @@ export function HabitDoctor({ habits }: HabitDoctorProps) {
         action?: { type: string, habitId?: string, value?: any, label: string }
     } | null>(null);
     const { showToast } = useToast();
+
+    const executeInsightAction = async () => {
+        if (!insight?.action) {
+            return false;
+        }
+
+        switch (insight.action.type) {
+            case 'HABIT_LOG': {
+                if (!insight.action.habitId) {
+                    throw new Error('Habit Doctor returned an invalid habit action');
+                }
+
+                const today = new Date().toISOString().split('T')[0];
+                await habitsApi.log('current-user', insight.action.habitId, Number(insight.action.value) || 1, today);
+                return true;
+            }
+            default:
+                return false;
+        }
+    };
 
     const runDiagnosis = async () => {
         if (!habits.length) return;
@@ -60,17 +79,12 @@ export function HabitDoctor({ habits }: HabitDoctorProps) {
         if (!insight?.action) return;
         setExecutingAction(true);
         try {
-            const success = await actionDispatcher.execute({
-                type: insight.action.type as any,
-                payload: {
-                    habitId: insight.action.habitId,
-                    value: insight.action.value,
-                    label: insight.action.label
-                }
-            });
+            const success = await executeInsightAction();
             if (success) {
                 showToast('Ação executada com sucesso', 'success');
                 setInsight(null);
+            } else {
+                showToast('Ação sugerida fora do escopo do MVP', 'info');
             }
         } catch (error) {
             showToast('Falha ao executar ação', 'error');

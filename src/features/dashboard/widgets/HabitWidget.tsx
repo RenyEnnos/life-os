@@ -10,7 +10,7 @@ export function HabitWidget() {
     const { data: habits, isLoading: habitsLoading } = useDashboardHabits();
     const { data: summary, isLoading: summaryLoading } = useDashboardSummary();
     const { logHabit } = useHabits();
-    const [selectedHabitId, setSelectedHabitId] = useState('');
+    const [_selectedHabitId, _setSelectedHabitId] = useState('');
 
     const habitConsistency = summary?.habitConsistency;
     const isLoading = habitsLoading || summaryLoading;

@@ -1,9 +1,7 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { rewardsApi } from '../api/rewards.api';
 import { AchievementCard } from './AchievementCard';
 import { Trophy, Lock } from 'lucide-react';
-import { Skeleton } from '@/shared/ui/Skeleton';
 
 export function AchievementGallery() {
     const { data: achievements, isLoading } = useQuery({

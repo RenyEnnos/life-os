@@ -4,8 +4,7 @@ import {
     isEvening,
     isMorning,
     filterTasksByDynamicNow,
-    applyDynamicNowFilter,
-    type ActualTimeBlock
+    applyDynamicNowFilter
 } from '../dynamicNow';
 
 // Helper type for test tasks (extends Task with energy_level and time_block)

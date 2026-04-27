@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useHabits } from '../hooks/useHabits';
 import { HabitCard } from '../components/HabitCard';
 import { HabitContributionGraph } from '../components/HabitContributionGraph';

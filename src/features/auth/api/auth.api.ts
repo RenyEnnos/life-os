@@ -1,5 +1,6 @@
 import type { Session, User } from '@supabase/supabase-js';
 import { apiClient } from '@/shared/api/http';
+import { setAuthToken } from '@/shared/api/authToken';
 import type { UserProfile } from '@/shared/types/profile';
 import type { LoginRequest, RegisterRequest } from '@/shared/types';
 
@@ -8,9 +9,11 @@ const AUTH_API_BASE = '/api/auth';
 interface AuthResponse {
   token?: string;
   user: User;
+  profile?: UserProfile | null;
 }
 
 interface AuthResult {
+  token?: string;
   user: User | null;
   session: Session | null;
   profile: UserProfile | null;
@@ -25,26 +28,39 @@ const buildProfileFromUser = (user: User): UserProfile => ({
   id: user.id,
   full_name: (user.user_metadata?.full_name as string | undefined) ?? undefined,
   nickname: (user.user_metadata?.nickname as string | undefined) ?? undefined,
+  invite_code: (user.user_metadata?.invite_code as string | undefined) ?? undefined,
+  is_invited_partner: (user.user_metadata?.is_invited_partner as boolean | undefined) ?? undefined,
+  theme: (user.user_metadata?.theme as string | undefined) ?? undefined,
+  onboarding_completed: (user.user_metadata?.onboarding_completed as boolean | undefined) ?? undefined,
+  created_at: (user.user_metadata?.created_at as string | undefined) ?? undefined,
+  updated_at: (user.user_metadata?.updated_at as string | undefined) ?? undefined,
 });
 
-const buildWebSession = (user: User): Session => ({
-  access_token: 'web-session',
-  refresh_token: 'web-session',
+const buildWebSession = (user: User, accessToken = 'web-session'): Session => ({
+  access_token: accessToken,
+  refresh_token: accessToken,
   token_type: 'bearer',
   expires_in: 3600,
   expires_at: Math.floor(Date.now() / 1000) + 3600,
   user,
 });
 
-const buildWebAuthCheckResult = (user: User): AuthCheckResult => ({
-  session: buildWebSession(user),
-  profile: buildProfileFromUser(user),
+const buildWebAuthCheckResult = (user: User, accessToken?: string, profile?: UserProfile | null): AuthCheckResult => ({
+  session: buildWebSession(user, accessToken),
+  profile: profile ?? buildProfileFromUser(user),
 });
 
-const buildWebAuthResult = (user: User): AuthResult => ({
+const buildWebAuthResult = (user: User, accessToken?: string, profile?: UserProfile | null): AuthResult => ({
+  token: accessToken,
   user,
-  ...buildWebAuthCheckResult(user),
+  ...buildWebAuthCheckResult(user, accessToken, profile),
 });
+
+const persistIssuedToken = (token?: string) => {
+  if (token) {
+    setAuthToken(token);
+  }
+};
 
 interface DesktopAuthBridge {
   check?: () => Promise<AuthCheckResult>;
@@ -92,7 +108,8 @@ export const authApi = {
     }
 
     const data = await apiClient.post<AuthResponse>(`${AUTH_API_BASE}/login`, credentials);
-    return buildWebAuthResult(data.user);
+    persistIssuedToken(data.token);
+    return buildWebAuthResult(data.user, data.token, data.profile);
   },
 
   register: async (credentials: RegisterRequest): Promise<AuthResult> => {
@@ -102,7 +119,8 @@ export const authApi = {
     }
 
     const data = await apiClient.post<AuthResponse>(`${AUTH_API_BASE}/register`, credentials);
-    return buildWebAuthResult(data.user);
+    persistIssuedToken(data.token);
+    return buildWebAuthResult(data.user, data.token, data.profile);
   },
 
   logout: async (): Promise<void> => {

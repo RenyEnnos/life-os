@@ -1,3 +1,7 @@
+> Superseded on 2026-03-28 by `docs/mvp/canonical-mvp.md` and `docs/mvp/route-map.md`.
+>
+> Historical artifact only. This checklist documents a prior desktop launch workflow and is not canonical MVP authority.
+
 # MVP Desktop Launch Checklist
 
 Use this checklist for the final operator handoff. Keep release execution inside the approved desktop local-first MVP scope.

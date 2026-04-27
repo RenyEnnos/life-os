@@ -1,6 +1,6 @@
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { useEffect } from 'react'
-import { toast } from 'react-hot-toast'
+import { toast } from 'sonner'
 import { logger } from '@/shared/lib/logger'
 
 export function PWAManager() {
@@ -18,23 +18,15 @@ export function PWAManager() {
 
     useEffect(() => {
         if (needRefresh) {
-            toast((t) => (
-                <div className="flex flex-col gap-2">
-                    <span>New content available, click on reload button to update.</span>
-                    <button
-                        className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
-                        onClick={() => {
-                            updateServiceWorker(true)
-                            setNeedRefresh(false)
-                            toast.dismiss(t.id)
-                        }}
-                    >
-                        Reload
-                    </button>
-                </div>
-            ), {
+            toast('New content available, click on reload button to update.', {
                 duration: Infinity,
-                position: 'bottom-right',
+                action: {
+                    label: 'Reload',
+                    onClick: () => {
+                        updateServiceWorker(true)
+                        setNeedRefresh(false)
+                    },
+                },
             })
         }
     }, [needRefresh, updateServiceWorker, setNeedRefresh])

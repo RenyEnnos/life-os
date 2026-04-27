@@ -1,3 +1,7 @@
+> Superseded on 2026-03-28 by `docs/mvp/canonical-mvp.md`.
+>
+> Historical broad-suite PRD context. This document is not the canonical MVP framing for current product decisions.
+
 # Product Requirements Document (PRD): Life OS v2.2 (The Ultimate Fusion)
 
 **Version:** 2.2.0  

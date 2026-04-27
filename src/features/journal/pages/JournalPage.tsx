@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useJournal } from '../hooks/useJournal';
 import { JournalEntryList } from '../components/JournalEntryList';
 import { JournalEditor } from '../components/JournalEditor';

@@ -1,3 +1,7 @@
+> Superseded on 2026-03-20 by `docs/mvp/canonical-mvp.md`.
+>
+> This file reflects a historical desktop-only release story and should not be used for current MVP framing.
+
 # MVP Desktop Release Notes
 
 ## Release scope

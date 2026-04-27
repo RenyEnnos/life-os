@@ -1,3 +1,7 @@
+> Superseded on 2026-03-20 by `docs/mvp/canonical-mvp.md` and `docs/architecture-overview.md`.
+>
+> This file describes a broader product story than the current canonical MVP.
+
 # Life OS - Complete Project Documentation
 
 ## 🚀 Overview

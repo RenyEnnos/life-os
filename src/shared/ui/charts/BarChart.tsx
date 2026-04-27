@@ -1,4 +1,3 @@
-import React from 'react'
 import { BarChart as RCBarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { chartTheme } from './theme'
 
