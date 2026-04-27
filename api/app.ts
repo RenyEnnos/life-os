@@ -13,6 +13,8 @@ import { FileBackedAuthRepository, type StoredUser } from './authRepository';
 import { FileBackedMvpRepository } from './mvpRepository';
 import type { MvpRepository } from './mvpRepository.types';
 import { PrismaBackedMvpRepository } from './prismaMvpRepository';
+import { createAiRouter } from './ai/routes';
+import { createSynapseRouter } from './synapse/routes';
 
 type AuthRepository = InstanceType<typeof FileBackedAuthRepository>;
 
@@ -318,6 +320,10 @@ export function createApp(
       next(error);
     }
   });
+
+  // AI & Synapse routes
+  app.use('/api/ai', createAiRouter());
+  app.use('/api/synapse', createSynapseRouter());
 
   app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error('MVP API error:', error);

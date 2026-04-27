@@ -32,5 +32,5 @@ export interface SynapseSuggestion {
     title: string;
     rationale: string;
     action_label: string;
-    source: 'gemini' | 'heuristic' | 'cache';
+    source: 'gemini' | 'heuristic' | 'cache' | 'opencodezen';
 }
