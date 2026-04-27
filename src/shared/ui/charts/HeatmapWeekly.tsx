@@ -1,4 +1,3 @@
-import React from 'react'
 
 type Day = { label: string; value: number }
 type Props = { data: Day[] }

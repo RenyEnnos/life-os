@@ -1,4 +1,3 @@
-import React from 'react';
 import { CourseGrid } from '../components/CourseGrid';
 import { AssignmentList } from '../components/AssignmentList';
 import { ScheduleWidget } from '../components/ScheduleWidget';

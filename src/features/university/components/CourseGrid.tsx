@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useUniversity } from '../hooks/useUniversity';
 import { useGradeCalculation } from '../hooks/useGradeCalculation';
 import { CreateCourseModal } from './CreateCourseModal';
 import { CourseCard } from './CourseCard';
-import { Plus, BookOpen, Calendar, GraduationCap } from 'lucide-react';
+import { Plus, BookOpen, GraduationCap } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 
 export const CourseGrid = () => {

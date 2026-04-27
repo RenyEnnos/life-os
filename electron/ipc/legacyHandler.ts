@@ -1,17 +1,7 @@
 import { ipcMain } from 'electron';
 import { getDb } from '../db/database';
 import crypto from 'node:crypto';
-
-// Strict allowlist mapping REST resources to SQLite tables
-const ALLOWLISTED_TABLES: Record<string, string> = {
-    'habits': 'habits',
-    'journal': 'journal_entries',
-    'finances': 'transactions',
-    'health': 'health_metrics',
-    'projects': 'projects',
-    'rewards': 'rewards',
-    'user': 'user_profiles'
-};
+import { ALLOWED_TABLES } from '../db/allowedTables';
 
 // A dynamic fallback handler for all features that haven't been fully migrated
 // from the old Express REST API to strict IPC handlers yet.
@@ -22,15 +12,26 @@ export const setupLegacyHandlers = () => {
 
         // Extract table name from URL (e.g., /api/habits -> habits)
         const parts = url.split('?')[0].split('/').filter(Boolean);
+        if (parts[0] !== 'api') {
+            throw new Error('Legacy IPC expects /api/* routes.');
+        }
+        if (parts.length > 3) {
+            throw new Error('Legacy IPC only supports top-level resource routes.');
+        }
         const resource = parts[1]; // 'api' is parts[0]
         const id = parts[2];
 
-        if (!resource) return { success: true };
+        if (!resource) {
+            throw new Error('Legacy IPC resource is required.');
+        }
 
-        const tableName = ALLOWLISTED_TABLES[resource];
+        const tableName = ALLOWED_TABLES[resource];
         if (!tableName) {
             console.warn(`[Legacy Fallback Blocked] Resource '${resource}' is not allowlisted.`);
-            return method === 'GET' && !id ? [] : { success: false, error: 'Resource not allowlisted' };
+            if (id) {
+                throw new Error('Legacy IPC only supports top-level resource routes.');
+            }
+            throw new Error(`Legacy IPC resource '${resource}' is not allowlisted.`);
         }
 
         try {
@@ -87,11 +88,10 @@ export const setupLegacyHandlers = () => {
                 return { success: true };
             }
 
-            return { success: true };
+            throw new Error(`Unsupported legacy IPC method: ${method}`);
         } catch (error) {
             console.error(`[Legacy Fallback Error] ${method} ${url}`, error);
-            // Return empty array or object so frontend doesn't crash catastrophically
-            return method === 'GET' && !id ? [] : {};
+            throw error;
         }
     });
 };

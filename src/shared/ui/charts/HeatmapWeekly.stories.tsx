@@ -1,4 +1,3 @@
-import React from 'react'
 import HeatmapWeekly from './HeatmapWeekly'
 
 export default { title: 'Charts/HeatmapWeekly', component: HeatmapWeekly }

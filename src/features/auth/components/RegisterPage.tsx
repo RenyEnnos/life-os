@@ -8,7 +8,7 @@ import { Button } from '@/shared/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
 import { Input } from '@/shared/ui/Input';
 import { motion, useMotionValue, useTransform, useSpring, Variants } from 'framer-motion';
-import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, KeyRound } from 'lucide-react';
 
 export default function RegisterPage() {
     const [error, setError] = useState<React.ReactNode>(null);
@@ -26,6 +26,7 @@ export default function RegisterPage() {
             firstName: '',
             lastName: '',
             email: '',
+            inviteCode: '',
             password: '',
             confirmPassword: '',
         }
@@ -73,12 +74,16 @@ export default function RegisterPage() {
             setLoading(true);
             const normalizedEmail = data.email.trim().toLowerCase();
             const normalizedName = `${data.firstName} ${data.lastName}`.trim();
-            await registerUser({ email: normalizedEmail, password: data.password, name: normalizedName });
+            await registerUser({
+                email: normalizedEmail,
+                password: data.password,
+                name: normalizedName,
+                inviteCode: data.inviteCode.trim(),
+            });
             
-            // Supabase sends a confirmation email by default
             setError(
                 <div className="text-green-400">
-                    Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro antes de entrar.
+                    Convite ativado com sucesso. Sua conta beta ja pode acessar o Life OS.
                 </div>
             );
         } catch (err: any) {
@@ -206,6 +211,22 @@ export default function RegisterPage() {
                                         error={errors.email?.message}
                                     />
                                 </div>
+                            </motion.div>
+                            <motion.div variants={itemVariants} className="space-y-2">
+                                <label className="text-sm font-mono dark:text-gray-300 text-gray-700 font-medium ml-1">Codigo de convite</label>
+                                <div className="relative group">
+                                    <KeyRound className="absolute left-3 top-3 h-5 w-5 dark:text-gray-400 text-gray-500 group-focus-within:text-primary transition-colors z-10" />
+                                    <Input
+                                        type="text"
+                                        className="pl-10 uppercase"
+                                        {...register('inviteCode')}
+                                        placeholder="LIFEOS-INVITE"
+                                        error={errors.inviteCode?.message}
+                                    />
+                                </div>
+                                <p className="text-xs text-gray-500">
+                                    O beta fechado libera acesso apenas para parceiros convidados pela Aevum Labs.
+                                </p>
                             </motion.div>
                             <motion.div variants={itemVariants} className="space-y-2">
                                 <label className="text-sm font-mono dark:text-gray-300 text-gray-700 font-medium ml-1">Senha</label>

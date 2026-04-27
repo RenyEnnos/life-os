@@ -1,0 +1,243 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CommitmentKind {
+  WORK
+  FAMILY
+  HEALTH
+  EDUCATION
+  PERSONAL
+  OTHER
+}
+
+enum WeeklyPlanStatus {
+  DRAFT
+  GENERATED
+  CONFIRMED
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum PriorityStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
+}
+
+enum ActionItemStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  DEFERRED
+  CANCELLED
+}
+
+enum ReflectionPeriod {
+  DAILY
+  WEEKLY
+}
+
+enum MvpEventType {
+  ONBOARDING_STARTED
+  ONBOARDING_COMPLETED
+  WEEKLY_REVIEW_STARTED
+  WEEKLY_REVIEW_COMPLETED
+  WEEKLY_PLAN_GENERATED
+  WEEKLY_PLAN_CONFIRMED
+  DAILY_CHECKIN_COMPLETED
+  REFLECTION_COMPLETED
+  USER_FEEDBACK_SUBMITTED
+}
+
+model User {
+  id                String            @id @default(cuid())
+  email             String            @unique
+  inviteCode        String?           @unique
+  fullName          String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  profile           UserProfile?
+  goals             Goal[]
+  commitments       Commitment[]
+  weeklyReviews     WeeklyReview[]
+  weeklyPlans       WeeklyPlan[]
+  dailyCheckIns     DailyCheckIn[]
+  reflectionEntries ReflectionEntry[]
+  feedbackEntries   FeedbackEntry[]
+  mvpEvents         MvpEventLog[]
+}
+
+model UserProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  displayName       String
+  role              String?
+  lifeSeason        String?
+  planningPain      String?
+  successDefinition String?
+  onboardingConstraints Json?
+  onboardingAt      DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Goal {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  horizon     String?
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Commitment {
+  id          String         @id @default(cuid())
+  userId      String
+  title       String
+  details     String?
+  kind        CommitmentKind @default(OTHER)
+  cadence     String?
+  timeBudget  Int?
+  active      Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WeeklyReview {
+  id                   String   @id @default(cuid())
+  userId               String
+  weekStart            DateTime
+  weekEnd              DateTime
+  wins                 Json?
+  unfinishedWork       Json?
+  constraints          Json?
+  focusArea            String?
+  energyLevel          Int?
+  notes                String?
+  energySummary        String?
+  rawContext           Json?
+  generatedPlanInput   Json?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weeklyPlan           WeeklyPlan?
+
+  @@unique([userId, weekStart])
+}
+
+model WeeklyPlan {
+  id                 String           @id @default(cuid())
+  userId             String
+  weeklyReviewId     String?          @unique
+  weekStart          DateTime
+  weekEnd            DateTime
+  status             WeeklyPlanStatus @default(DRAFT)
+  summary            String?
+  generationSource   String?
+  generationInput    Json?
+  generationOutput   Json?
+  confirmedAt        DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weeklyReview       WeeklyReview?    @relation(fields: [weeklyReviewId], references: [id], onDelete: SetNull)
+  priorities         WeeklyPriority[]
+  dailyCheckIns      DailyCheckIn[]
+
+  @@unique([userId, weekStart])
+}
+
+model WeeklyPriority {
+  id            String         @id @default(cuid())
+  weeklyPlanId  String
+  title         String
+  rationale     String?
+  successMetric String?
+  status        PriorityStatus @default(ACTIVE)
+  sortOrder     Int            @default(0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  weeklyPlan    WeeklyPlan     @relation(fields: [weeklyPlanId], references: [id], onDelete: Cascade)
+  actionItems   ActionItem[]
+}
+
+model ActionItem {
+  id               String           @id @default(cuid())
+  weeklyPriorityId String
+  title            String
+  details          String?
+  status           ActionItemStatus @default(TODO)
+  scheduledFor     DateTime?
+  completedAt      DateTime?
+  deferredAt       DateTime?
+  note             String?
+  sortOrder        Int              @default(0)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  weeklyPriority   WeeklyPriority   @relation(fields: [weeklyPriorityId], references: [id], onDelete: Cascade)
+}
+
+model DailyCheckIn {
+  id            String     @id @default(cuid())
+  userId        String
+  weeklyPlanId  String
+  date          DateTime
+  energy        Int?
+  focus         Int?
+  blockers      String?
+  note          String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weeklyPlan    WeeklyPlan @relation(fields: [weeklyPlanId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+model ReflectionEntry {
+  id          String           @id @default(cuid())
+  userId      String
+  period      ReflectionPeriod
+  title       String?
+  prompts     Json?
+  body        String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FeedbackEntry {
+  id          String   @id @default(cuid())
+  userId      String
+  category    String
+  rating      Int?
+  message     String
+  source      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MvpEventLog {
+  id        String       @id @default(cuid())
+  userId    String
+  type      MvpEventType
+  metadata  Json?
+  createdAt DateTime     @default(now())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}

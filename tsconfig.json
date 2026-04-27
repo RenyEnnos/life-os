@@ -21,11 +21,11 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": false,
-    "forceConsistentCasingInFileNames": false,
+    "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "paths": {
@@ -36,7 +36,8 @@
   },
   "include": [
     "src",
-    "api"
+    "api",
+    "shared"
   ],
   "exclude": [
     "api/tests",

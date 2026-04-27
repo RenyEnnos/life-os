@@ -23,9 +23,8 @@ export function useTasks() {
         isFetchingNextPage,
     } = useInfiniteQuery<Task[], Error>({
         queryKey: ['tasks', user?.id || 'anonymous', 'infinite'],
-        queryFn: async ({ pageParam }) => {
+        queryFn: async ({ pageParam: _pageParam }) => {
             try {
-                const pageNum = typeof pageParam === 'number' ? pageParam : 1;
                 const result = await tasksApi.getAll(); // getPaginated was causing type issues
                 return result;
             } catch (error: any) {

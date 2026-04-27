@@ -1,4 +1,3 @@
-import React from 'react';
 import { useUniversity } from '../hooks/useUniversity';
 import { useGradeCalculation } from '../hooks/useGradeCalculation';
 import { TrendingUp, Award, BarChart3, AlertCircle } from 'lucide-react';

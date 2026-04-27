@@ -1,10 +1,7 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { aiApi } from '@/features/ai-assistant/api/ai.api';
 import { BentoCard } from '@/shared/ui/BentoCard';
 import { Sparkles, ArrowRight, Lightbulb, Zap } from 'lucide-react';
-import { cn } from '@/shared/lib/cn';
-import { Button } from '@/shared/ui/Button';
 
 export function SynapseWidget() {
     const { data, isLoading } = useQuery({

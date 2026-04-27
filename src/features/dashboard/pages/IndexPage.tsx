@@ -1,13 +1,10 @@
-import React from 'react';
+
 import { BentoGrid } from '@/shared/ui/BentoGrid';
 import { BentoCard } from '@/shared/ui/BentoCard';
 import { HabitWidget } from '@/features/dashboard/widgets/HabitWidget';
 import { TaskWidget } from '@/features/dashboard/widgets/TaskWidget';
-import { HealthWidget } from '@/features/dashboard/widgets/HealthWidget';
-import { SynapseWidget } from '@/features/dashboard/widgets/SynapseWidget';
-import { UniversityWidget } from '@/features/university/components/UniversityWidget';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
-import { Rocket, Target, Zap, Clock } from 'lucide-react';
+import { Layers3, Rocket, Scissors, Target, Zap } from 'lucide-react';
 
 export const IndexPage = () => {
   const { profile } = useAuth();
@@ -69,10 +66,28 @@ export const IndexPage = () => {
             <HabitWidget />
             <TaskWidget />
 
-            {/* ZONE 3: CONTEXT (Health & Insights) */}
-            <HealthWidget />
-            
-            <UniversityWidget />
+            <BentoCard title="MVP Surface" icon={Layers3} className="col-span-1 row-span-1">
+              <div className="flex h-full flex-col justify-between py-2">
+                <p className="text-sm text-zinc-300">
+                  O dashboard agora opera apenas com hábitos e tarefas do fluxo principal.
+                </p>
+                <p className="text-[10px] font-mono uppercase tracking-widest text-zinc-500">
+                  Health, university e outros agregadores saíram do runtime inicial.
+                </p>
+              </div>
+            </BentoCard>
+
+            <BentoCard title="Boundary Status" icon={Scissors} className="col-span-1 row-span-1">
+              <div className="flex h-full flex-col justify-between py-2">
+                <div className="space-y-2">
+                  <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Wave 2 cleanup</p>
+                  <p className="text-lg font-semibold text-white">Acoplamento legado reduzido</p>
+                </div>
+                <p className="text-sm text-zinc-400">
+                  Menos fan-out para features fora do MVP, menor risco para a próxima onda de deleção.
+                </p>
+              </div>
+            </BentoCard>
           </BentoGrid>
         </section>
 
@@ -89,7 +104,16 @@ export const IndexPage = () => {
                   <p className="text-[10px] font-mono uppercase tracking-widest text-primary">Relatórios Consolidados</p>
                 </div>
              </BentoCard>
-             <SynapseWidget />
+             <BentoCard title="Manual Insights" icon={Rocket} className="col-span-1 md:col-span-2 row-span-1 border-white/10 bg-white/[0.02]">
+                <div className="flex h-full flex-col justify-between py-2">
+                  <p className="text-sm text-zinc-300">
+                    A camada de insights automáticos saiu da home enquanto o boundary do MVP é consolidado.
+                  </p>
+                  <p className="text-[10px] font-mono uppercase tracking-widest text-zinc-500">
+                    Próximo passo: reintroduzir recomendações apenas quando o fluxo canônico estiver isolado.
+                  </p>
+                </div>
+             </BentoCard>
           </BentoGrid>
         </section>
       </div>

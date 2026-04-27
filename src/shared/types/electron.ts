@@ -58,8 +58,21 @@ export interface TasksBridge {
   delete(id: string): Promise<boolean>;
 }
 
+export interface MvpBridge {
+  getWorkspace(): Promise<unknown>;
+  saveOnboarding(input: unknown): Promise<unknown>;
+  generateWeeklyPlan(input: unknown): Promise<unknown>;
+  confirmPlan(planId: string): Promise<unknown>;
+  updateActionStatus(actionItemId: string, patch: unknown): Promise<unknown>;
+  saveDailyCheckIn(input: unknown): Promise<unknown>;
+  addReflection(input: unknown): Promise<unknown>;
+  submitFeedback(input: { rating: number; message: string }): Promise<unknown>;
+  resetWorkspace(): Promise<unknown>;
+}
+
 export interface BridgeAPI {
   tasks: TasksBridge;
+  mvp: MvpBridge;
   // Generic resource bridge, returns a typed result
   invokeResource: <R = unknown>(resource: string, action: string, ...args: unknown[]) => Promise<R>;
 }

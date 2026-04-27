@@ -1,4 +1,4 @@
-name: CI
+name: Quality Gate
 on:
   push:
     branches: [ main ]
@@ -6,40 +6,36 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  quality-gate:
+    name: quality-gate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 8
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'pnpm'
-      - run: pnpm install --no-frozen-lockfile
-      - run: pnpm run check
-      - run: pnpm run lint
-      - run: pnpm run test
-      - run: pnpm run build
-      - run: pnpm run electron:build
+          node-version: '20'
+          cache: 'npm'
+      - name: Enforce lockfile policy
+        run: |
+          test -f package-lock.json || (echo "Missing package-lock.json"; exit 1)
+          test ! -f pnpm-lock.yaml || (echo "pnpm-lock.yaml is not allowed in CI"; exit 1)
+          test ! -f yarn.lock || (echo "yarn.lock is not allowed in CI"; exit 1)
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run test
+        env:
+          LIFEOS_SESSION_SECRET: test-secret-for-ci
+          JWT_SECRET: test-secret-for-ci
+      - run: npm run build
+      - run: npm run electron:build
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: Minimal smoke gate
+        run: xvfb-run -a npm run test:e2e -- --grep "desktop smoke: Life OS main window"
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-files
           path: dist/
           retention-days: 1
-
-  typecheck:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 8
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'pnpm'
-      - run: pnpm install --no-frozen-lockfile
-      - run: pnpm run typecheck

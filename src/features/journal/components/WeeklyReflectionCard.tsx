@@ -1,5 +1,4 @@
-import React from 'react';
-import { BrainCircuit, Sparkles, Target, Zap, Calendar } from 'lucide-react';
+import { BrainCircuit, Sparkles, Target, Zap } from 'lucide-react';
 import { BentoCard } from '@/shared/ui/BentoCard';
 import { useJournalInsights } from '../hooks/useJournalInsights';
 import { motion } from 'framer-motion';

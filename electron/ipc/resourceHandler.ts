@@ -1,16 +1,6 @@
 import { ipcMain } from 'electron';
 import { BaseRepository } from '../db/BaseRepository';
-
-// Allowlist of allowed resources mapped to their respective DB tables.
-// This prevents arbitrary SQL table injection through the IPC dynamic router.
-const ALLOWED_RESOURCES: Record<string, string> = {
-    'habits': 'habits',
-    'journal': 'journal_entries', // example mapping
-    'finances': 'transactions',
-    'health': 'health_metrics',
-    'medications': 'medication_reminders',
-    // ... add more as we migrate
-};
+import { ALLOWED_RESOURCES } from '../db/allowedTables';
 
 export const setupResourceHandlers = () => {
     ipcMain.handle('resource:invoke', async (_event, resourceName: string, action: string, ...args: any[]) => {

@@ -1,5 +1,3 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { cn } from '@/shared/lib/cn';
 import Activity from 'lucide-react/dist/esm/icons/activity';
 import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
@@ -12,7 +10,6 @@ import { LifeScoreForecastChart } from '../components/LifeScoreForecastChart';
 import { AIInsightsWidget } from '../components/AIInsightsWidget';
 
 export const AnalyticsDashboard = () => {
-    const { t } = useTranslation();
     const { data: metrics = [], isLoading, isFetching, refetch } = useAnalyticsData(30);
 
     const handleExport = () => {

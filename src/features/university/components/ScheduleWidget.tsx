@@ -1,4 +1,3 @@
-import React from 'react';
 
 const SCHEDULE = [
     { day: 'Mon', code: 'CS 401', time: '10:00 AM - 11:30 AM', active: true },

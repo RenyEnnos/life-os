@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import { TaskItem } from '../TaskItem';
 import { Task } from '@/shared/types';
 import { vi, describe, it, expect } from 'vitest';
-import React from 'react';
 
 // Mock Lucide icons
 vi.mock('lucide-react', () => ({

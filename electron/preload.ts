@@ -7,25 +7,6 @@ interface AuthCredentials {
 }
 
 // --------- Expose some API to the Renderer process ---------
-contextBridge.exposeInMainWorld('ipcRenderer', {
-  on(...args: Parameters<typeof ipcRenderer.on>) {
-    const [channel, listener] = args
-    return ipcRenderer.on(channel, (event, ...args) => listener(event, ...args))
-  },
-  off(...args: Parameters<typeof ipcRenderer.off>) {
-    const [channel, ...omit] = args
-    return ipcRenderer.off(channel, ...omit)
-  },
-  send(...args: Parameters<typeof ipcRenderer.send>) {
-    const [channel, ...omit] = args
-    return ipcRenderer.send(channel, ...omit)
-  },
-  invoke(...args: Parameters<typeof ipcRenderer.invoke>) {
-    const [channel, ...omit] = args
-    return ipcRenderer.invoke(channel, ...omit)
-  },
-})
-
 contextBridge.exposeInMainWorld('electron', {
   notify: (options: { title: string; body: string; icon?: string }) => ipcRenderer.send('notify', options),
   scheduleNotification: (options: any) => ipcRenderer.send('schedule-notification', options),
@@ -48,6 +29,18 @@ contextBridge.exposeInMainWorld('api', {
     create: (task: any) => ipcRenderer.invoke('tasks:create', task),
     update: (id: string, updates: any) => ipcRenderer.invoke('tasks:update', id, updates),
     delete: (id: string) => ipcRenderer.invoke('tasks:delete', id)
+  },
+  mvp: {
+    getWorkspace: () => ipcRenderer.invoke('mvp:getWorkspace'),
+    saveOnboarding: (input: unknown) => ipcRenderer.invoke('mvp:saveOnboarding', input),
+    generateWeeklyPlan: (input: unknown) => ipcRenderer.invoke('mvp:generateWeeklyPlan', input),
+    confirmPlan: (planId: string) => ipcRenderer.invoke('mvp:confirmPlan', planId),
+    updateActionStatus: (actionItemId: string, patch: unknown) =>
+      ipcRenderer.invoke('mvp:updateActionStatus', actionItemId, patch),
+    saveDailyCheckIn: (input: unknown) => ipcRenderer.invoke('mvp:saveDailyCheckIn', input),
+    addReflection: (input: unknown) => ipcRenderer.invoke('mvp:addReflection', input),
+    submitFeedback: (input: { rating: number; message: string }) => ipcRenderer.invoke('mvp:submitFeedback', input),
+    resetWorkspace: () => ipcRenderer.invoke('mvp:resetWorkspace'),
   },
   // Scalable Resource Handler for all future refactored features
   invokeResource: (resource: string, action: string, ...args: any[]) => ipcRenderer.invoke('resource:invoke', resource, action, ...args),

@@ -1,8 +1,6 @@
-import React from 'react';
-import { Filter, Calendar, Tag, DollarSign, X } from 'lucide-react';
+import { Filter, Calendar, X } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
-import { cn } from '@/shared/lib/cn';
 
 interface FinanceFilterBarProps {
     filters: Record<string, string>;

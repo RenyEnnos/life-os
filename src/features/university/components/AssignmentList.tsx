@@ -1,6 +1,5 @@
-import React from 'react';
 import { useUniversity } from '../hooks/useUniversity';
-import { CheckCircle2, Circle, Clock, AlertCircle } from 'lucide-react';
+import { CheckCircle2, Circle, Clock } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
 

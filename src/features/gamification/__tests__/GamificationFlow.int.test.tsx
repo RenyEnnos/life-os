@@ -24,7 +24,7 @@ vi.mock('@/features/auth/contexts/AuthContext', () => ({
   useAuth: () => ({ user: { id: 'u1', email: 'user@example.com', name: 'User' } }),
 }))
 
-vi.mock('react-hot-toast', () => ({
+vi.mock('sonner', () => ({
   toast: {
     success: vi.fn(),
   },
@@ -32,7 +32,7 @@ vi.mock('react-hot-toast', () => ({
 
 import { apiClient } from '@/shared/api/http'
 import { rewardsApi } from '@/features/rewards/api/rewards.api'
-import { toast } from 'react-hot-toast'
+import { toast } from 'sonner'
 
 const createQueryClient = () =>
   new QueryClient({

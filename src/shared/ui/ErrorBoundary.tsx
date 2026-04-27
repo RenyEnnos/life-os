@@ -1,5 +1,6 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react'
+import { Component, ErrorInfo, ReactNode } from 'react'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
+import { captureError } from '@/shared/errors'
 
 interface Props {
     children: ReactNode
@@ -21,6 +22,13 @@ export class ErrorBoundary extends Component<Props, State> {
     }
 
     public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+        captureError(error, {
+            component: 'ErrorBoundary',
+            action: 'react_render_failure',
+            metadata: {
+                componentStack: errorInfo.componentStack,
+            },
+        })
         console.error('Uncaught error:', error, errorInfo)
     }
 

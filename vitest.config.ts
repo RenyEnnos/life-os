@@ -61,12 +61,11 @@ export default defineConfig({
       // TODO (Testing): Coverage thresholds were temporarily reduced from 70% to unblock the PR.
       // These should be gradually raised back to 70% as more tests are added for existing features.
       thresholds: {
-        lines: 25,
-        functions: 40,
-        branches: 60,
-        statements: 25,
-        perFile: false,
-        autoUpdate: true
+        lines: 40,
+        functions: 50,
+        branches: 65,
+        statements: 40,
+        perFile: false
       }
     }
   },

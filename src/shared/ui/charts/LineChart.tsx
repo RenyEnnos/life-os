@@ -1,4 +1,3 @@
-import React from 'react'
 import { LineChart as RCLineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { chartTheme } from './theme'
 

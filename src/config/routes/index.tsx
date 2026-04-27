@@ -3,27 +3,22 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { AppLayout } from '@/app/layout/AppLayout';
 import { Loader } from '@/shared/ui/Loader';
+import {
+    DEFAULT_AUTHENTICATED_ROUTE,
+    HIDDEN_MVP_ROUTES,
+    canAccessMvpInviteOnly,
+    getMvpRuntimeAccess,
+} from '@/config/routes/access';
 
 // Lazy load pages
 const LoginPage = lazy(() => import('@/features/auth/components/LoginPage'));
 const RegisterPage = lazy(() => import('@/features/auth/components/RegisterPage'));
 const ResetPasswordPage = lazy(() => import('@/features/auth/components/ResetPasswordPage'));
-const DashboardPage = lazy(() => import('@/features/dashboard'));
-const HabitsPage = lazy(() => import('@/features/habits'));
-const TasksPage = lazy(() => import('@/features/tasks'));
-const CalendarPage = lazy(() => import('@/features/calendar'));
-const JournalPage = lazy(() => import('@/features/journal'));
-const HealthPage = lazy(() => import('@/features/health'));
-const FinancesPage = lazy(() => import('@/features/finances'));
-const ProjectsPage = lazy(() => import('@/features/projects'));
-const UniversityPage = lazy(() => import('@/features/university'));
-
-const AiAssistantPage = lazy(() => import('@/features/ai-assistant'));
-const FocusPage = lazy(() => import('@/features/focus'));
-const GamificationPage = lazy(() => import('@/features/gamification'));
-
+const MvpPage = lazy(() => import('@/features/mvp'));
+const MvpSurfacePage = lazy(() =>
+  import('@/features/mvp/pages/MvpSurfacePage').then((module) => ({ default: module.MvpSurfacePage }))
+);
 const SettingsPage = lazy(() => import('@/features/settings'));
-const DesignSystemPreview = lazy(() => import('@/features/design-system/Preview'));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { user, loading, error } = useAuth();
@@ -65,6 +60,19 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 export function AppRoutes() {
+    const { user, profile } = useAuth();
+    const { canAccessInternalAdmin } = getMvpRuntimeAccess();
+    const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+    const canAccessInviteOnlyMvp = canAccessMvpInviteOnly({
+      dev: import.meta.env.DEV,
+      hostname,
+      inviteCode: profile?.invite_code ?? (user?.user_metadata?.invite_code as string | undefined),
+      invitedPartner: profile?.is_invited_partner ?? (user?.user_metadata?.is_invited_partner as string | boolean | undefined),
+      inviteGateBypassFlag: import.meta.env.VITE_BYPASS_MVP_INVITE_GATE,
+    });
+    const authenticatedLandingRoute = canAccessInviteOnlyMvp ? DEFAULT_AUTHENTICATED_ROUTE : '/settings';
+    const mvpRouteFallback = <Navigate to={authenticatedLandingRoute} replace />;
+
     return (
         <Routes>
             {/* Public Routes */}
@@ -90,81 +98,73 @@ export function AppRoutes() {
                     <AppLayout />
                 </ProtectedRoute>
             }>
-                <Route path="/" element={
-                    <Suspense fallback={<Loader text="LOADING DASHBOARD..." />}>
-                        <DashboardPage />
-                    </Suspense>
-                } />
-                <Route path="/habits" element={
-                    <Suspense fallback={<Loader text="LOADING HABITS..." />}>
-                        <HabitsPage />
-                    </Suspense>
-                } />
-                <Route path="/tasks" element={
-                    <Suspense fallback={<Loader text="LOADING TASKS..." />}>
-                        <TasksPage />
-                    </Suspense>
-                } />
-                <Route path="/calendar" element={
-                    <Suspense fallback={<Loader text="LOADING CALENDAR..." />}>
-                        <CalendarPage />
-                    </Suspense>
-                } />
-                <Route path="/journal" element={
-                    <Suspense fallback={<Loader text="LOADING JOURNAL..." />}>
-                        <JournalPage />
-                    </Suspense>
-                } />
-                <Route path="/health" element={
-                    <Suspense fallback={<Loader text="LOADING HEALTH..." />}>
-                        <HealthPage />
-                    </Suspense>
-                } />
-                <Route path="/finances" element={
-                    <Suspense fallback={<Loader text="LOADING FINANCES..." />}>
-                        <FinancesPage />
-                    </Suspense>
-                } />
-                <Route path="/projects" element={
-                    <Suspense fallback={<Loader text="LOADING PROJECTS..." />}>
-                        <ProjectsPage />
-                    </Suspense>
-                } />
-                <Route path="/ai-assistant" element={
-                    <Suspense fallback={<Loader text="LOADING AI..." />}>
-                        <AiAssistantPage />
-                    </Suspense>
-                } />
-                <Route path="/focus" element={
-                    <Suspense fallback={<Loader text="LOADING FOCUS..." />}>
-                        <FocusPage />
-                    </Suspense>
-                } />
-                <Route path="/gamification" element={
-                    <Suspense fallback={<Loader text="LOADING PROGRESS..." />}>
-                        <GamificationPage />
-                    </Suspense>
-                } />
-
+                <Route path="/" element={<Navigate to={authenticatedLandingRoute} replace />} />
+                {HIDDEN_MVP_ROUTES.map((path) => (
+                    <Route key={path} path={path} element={<Navigate to={authenticatedLandingRoute} replace />} />
+                ))}
                 <Route path="/settings" element={
                     <Suspense fallback={<Loader text="LOADING SETTINGS..." />}>
                         <SettingsPage />
                     </Suspense>
                 } />
-                <Route path="/design" element={
-                    <Suspense fallback={<Loader text="LOADING DESIGN..." />}>
-                        <DesignSystemPreview />
-                    </Suspense>
+                <Route path="/mvp" element={
+                    canAccessInviteOnlyMvp ? (
+                        <Suspense fallback={<Loader text="LOADING MVP..." />}>
+                            <MvpPage />
+                        </Suspense>
+                    ) : (
+                        mvpRouteFallback
+                    )
                 } />
-                <Route path="/university" element={
-                    <Suspense fallback={<Loader text="LOADING ACADEMIC..." />}>
-                        <UniversityPage />
-                    </Suspense>
+                <Route path="/mvp/onboarding" element={
+                    canAccessInviteOnlyMvp ? (
+                        <Suspense fallback={<Loader text="LOADING MVP..." />}>
+                            <MvpSurfacePage surface="onboarding" />
+                        </Suspense>
+                    ) : (
+                        mvpRouteFallback
+                    )
+                } />
+                <Route path="/mvp/weekly-review" element={
+                    canAccessInviteOnlyMvp ? (
+                        <Suspense fallback={<Loader text="LOADING MVP..." />}>
+                            <MvpSurfacePage surface="weekly-review" />
+                        </Suspense>
+                    ) : (
+                        mvpRouteFallback
+                    )
+                } />
+                <Route path="/mvp/today" element={
+                    canAccessInviteOnlyMvp ? (
+                        <Suspense fallback={<Loader text="LOADING MVP..." />}>
+                            <MvpSurfacePage surface="today" />
+                        </Suspense>
+                    ) : (
+                        mvpRouteFallback
+                    )
+                } />
+                <Route path="/mvp/reflection" element={
+                    canAccessInviteOnlyMvp ? (
+                        <Suspense fallback={<Loader text="LOADING MVP..." />}>
+                            <MvpSurfacePage surface="reflection" />
+                        </Suspense>
+                    ) : (
+                        mvpRouteFallback
+                    )
+                } />
+                <Route path="/mvp/admin" element={
+                    canAccessInviteOnlyMvp && canAccessInternalAdmin ? (
+                        <Suspense fallback={<Loader text="LOADING MVP..." />}>
+                            <MvpSurfacePage surface="admin" />
+                        </Suspense>
+                    ) : (
+                        mvpRouteFallback
+                    )
                 } />
                 <Route path="/profile" element={<Navigate to="/settings" replace />} />
             </Route>
 
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to={authenticatedLandingRoute} replace />} />
         </Routes>
     );
 }

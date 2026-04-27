@@ -6,7 +6,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { journalApi } from '@/features/journal/api/journal.api';
 import type { JournalEntry } from '@/shared/types';
 import { cn } from '@/shared/lib/cn';
-import { useUIStore } from '@/shared/stores/uiStore';
 
 export function JournalWidget() {
     const { user } = useDashboardIdentity();
@@ -86,8 +85,7 @@ export function JournalWidget() {
                     {entries.slice(0, 5).map(entry => (
                         <div
                             key={entry.id}
-                            onClick={() => useUIStore.getState().openModal('journal', entry)}
-                            className="group p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all cursor-pointer"
+                            className="group p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all"
                         >
                             <h4 className="text-sm font-medium text-zinc-200 group-hover:text-white transition-colors">{entry.title || 'Sem título'}</h4>
                             <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{entry.content}</p>

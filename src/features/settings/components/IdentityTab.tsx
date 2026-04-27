@@ -3,7 +3,7 @@ import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { useUser } from '@/features/user/hooks/useUser';
 import { useRewards } from '@/features/rewards/hooks/useRewards';
 import { cn } from '@/shared/lib/cn';
-import { Camera, Mail, X, Edit, Check } from 'lucide-react';
+import { Camera, X, Edit, Check } from 'lucide-react';
 
 type Badge = { icon: string; label: string; color?: string };
 

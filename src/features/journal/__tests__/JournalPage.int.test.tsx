@@ -10,17 +10,7 @@ vi.mock('@/features/auth/contexts/AuthContext', () => {
 })
 
 describe('JournalPage integration', () => {
-  it.skip('renders entries from backend', async () => {
-    const client = new QueryClient()
-    render(
-      <QueryClientProvider client={client}>
-        <JournalPage />
-      </QueryClientProvider>
-    )
-    expect(await screen.findByText(/Morning Reflection/)).toBeTruthy()
-  })
-
-  it.skip('displays pagination controls when there are multiple pages', async () => {
+  function renderJournalPage() {
     const client = new QueryClient({
       defaultOptions: {
         queries: {
@@ -28,50 +18,43 @@ describe('JournalPage integration', () => {
         },
       },
     })
+
     render(
       <QueryClientProvider client={client}>
         <JournalPage />
       </QueryClientProvider>
     )
+  }
 
-    // Wait for entries to load
-    await waitFor(() => {
-      expect(screen.getByText(/Morning Reflection/)).toBeInTheDocument()
-    })
+  it('renders entries from backend in compact sidebar list', async () => {
+    renderJournalPage()
 
-    // Check for pagination controls (may not be visible if JournalPage is not fully implemented)
-    const previousButton = screen.queryByRole('button', { name: /Go to previous page/i })
-    const nextButton = screen.queryByRole('button', { name: /Go to next page/i })
-
-    // If pagination controls are present, verify their functionality
-    if (previousButton && nextButton) {
-      expect(previousButton).toBeDisabled() // First page, previous should be disabled
-      expect(nextButton).not.toBeDisabled() // First page, next should be enabled
-    }
+    expect(await screen.findByText('Morning Reflection')).toBeInTheDocument()
+    expect(screen.getByText('Project Ideas')).toBeInTheDocument()
+    expect(screen.getAllByText('#mindfulness').length).toBeGreaterThan(0)
+    expect(screen.queryByText('Nenhuma entrada encontrada.')).not.toBeInTheDocument()
   })
 
-  it.skip('shows correct page indicator', async () => {
-    const client = new QueryClient({
-      defaultOptions: {
-        queries: {
-          retry: false,
-        },
-      },
-    })
-    render(
-      <QueryClientProvider client={client}>
-        <JournalPage />
-      </QueryClientProvider>
-    )
+  it('opens the editor when selecting an existing entry', async () => {
+    renderJournalPage()
+
+    const entryTitle = await screen.findByText('Morning Reflection')
+    fireEvent.click(entryTitle)
+
+    expect(await screen.findByPlaceholderText('Start writing...')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Starting the day with gratitude')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Save Entry/i })).toBeInTheDocument()
+  })
+
+  it('opens creation mode from the primary call-to-action', async () => {
+    renderJournalPage()
+
+    await screen.findByText('Morning Reflection')
+    fireEvent.click(screen.getByRole('button', { name: /NOVA ENTRADA/i }))
 
     await waitFor(() => {
-      expect(screen.getByText(/Morning Reflection/)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText('Untitled Entry')).toBeInTheDocument()
     })
-
-    // Check for page indicator
-    const pageIndicator = screen.queryByText(/Page \d+ of \d+/i)
-    if (pageIndicator) {
-      expect(pageIndicator).toBeInTheDocument()
-    }
+    expect(screen.getByPlaceholderText('Start writing...')).toBeInTheDocument()
   })
 })

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useUniversity } from '../hooks/useUniversity';
 import { BentoCard } from '@/shared/ui/BentoCard';
 import { GraduationCap, Clock, AlertCircle } from 'lucide-react';

@@ -5,29 +5,6 @@
 
 import { onCLS, onFCP, onLCP, onTTFB, onINP, Metric } from 'web-vitals';
 
-// Web Vitals thresholds based on Google's recommendations
-const THRESHOLDS = {
-  CLS: { good: 0.1, poor: 0.25 },
-  FID: { good: 100, poor: 300 },
-  FCP: { good: 1800, poor: 3000 },
-  LCP: { good: 2500, poor: 4000 },
-  TTFB: { good: 800, poor: 1800 },
-  INP: { good: 200, poor: 500 },
-};
-
-type VitalName = 'CLS' | 'FID' | 'FCP' | 'LCP' | 'TTFB' | 'INP';
-
-/**
- * Get rating based on metric value and thresholds
- */
-function getRating(name: VitalName, value: number): 'good' | 'needs-improvement' | 'poor' {
-  const threshold = THRESHOLDS[name];
-  if (!threshold) return 'needs-improvement';
-  
-  if (value <= threshold.good) return 'good';
-  if (value <= threshold.poor) return 'needs-improvement';
-  return 'poor';
-}
 
 /**
  * Send metrics to analytics

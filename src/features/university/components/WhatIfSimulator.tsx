@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Calculator, Sparkles, AlertCircle } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Course, Assignment } from '../types';
