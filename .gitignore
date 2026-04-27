@@ -1,9 +1,16 @@
-# ===========================
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py~
+
 # Dependencies
-# ===========================
 node_modules/
 .data/
 .pnpm-store/
+venv/
+.venv/
 
 # ===========================
 # Build outputs
@@ -23,94 +30,118 @@ storybook-static/
 *.db
 .env
 .env.local
-.env.*.local
-*.env.local
-supabase/.env
-supabase/.env.local
+.env.*
 
-# ===========================
-# IDE & OS
-# ===========================
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
+# Build artifacts
+dist/
+build/
+target/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
 *.swp
 *.swo
 
-# ===========================
-# Test outputs
-# ===========================
+# IDE specific
+.vscode/
+.idea/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Coverage
+.coverage
 coverage/
+htmlcov/
+
+# Test results
 test-results/
-playwright-report/
-screenshots/
-testsprite_tests/
-*.log
 
-# ===========================
-# Debug & Temporary files
-# ===========================
-*.txt
-debug_*.txt
-check_*.txt
-validation*.log
-output.txt
-vite.log
-testsprite_error.log
+# Local development
+local/
 
-# ===========================
-# Reports (generated)
-# ===========================
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
+
+# Reports
 reports/
-*.report.html
-*.report.json
 
-# ===========================
-# Vercel & Deploy
-# ===========================
+# Screenshots
+screenshots/
+
+# Testsprite tests temporary files
+testsprite_tests/tmp/
+
+# Android build artifacts
+android/app/build/
+android/.gradle/
+*.apk
+*.aab
+
+# Gradle
+.gradle/
+
+# Capacitor
+capacitor.config.ts.bak
+
+# Vercel
 .vercel/
 
-# ===========================
-# IDE AI Tools (optional - decide per project)
-# ===========================
-.trae/tmp/
-.trae/cache/
-.trae/sessions/
-.Jules/
-.agent/
+# Nginx
+nginx/logs/
 
-# ===========================
-# Storybook
-# ===========================
-*storybook.log
-storybook-static/
+# Database
+*.db
+*.sqlite
+*.sqlite3
 
-# ===========================
-# Binaries & Executables
-# ===========================
-*.exe
-ngrok.exe
+# Cache directories
+.cache/
+.mypy_cache/
+.pytest_cache/
 
-# ===========================
-# Mock data
-# ===========================
-api/.mock-data/
+# Configuration backups
+*.bak
+*.orig
+*.rej
 
-# ===========================
-# Lock files (choose one)
-# ===========================
-# Uncomment ONE of these based on your package manager:
-# package-lock.json           # If using pnpm
-pnpm-lock.yaml                # If using npm
+# Mobile app resources (generated)
+android/app/src/main/res/drawable-*/splash.png
+android/app/src/main/res/mipmap-*/ic_launcher.png
+android/app/src/main/res/mipmap-*/ic_launcher_foreground.png
+android/app/src/main/res/mipmap-*/ic_launcher_round.png
 
-# Auto Claude data directory
-.auto-claude/
+# Site public assets (generated)
+site/public/*.html
+site/public/*.png
 
-# Auto Claude generated files
-.auto-claude-security.json
-.auto-claude-status
-.claude_settings.json
-.worktrees/
-.security-key
-logs/security/
+# Metadata and temporary files from various tools
+.metadata
+*~
+ehthumbs.db
+Icon?

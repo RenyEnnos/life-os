@@ -1,7 +1,13 @@
-# LifeOS 2.5 Design System
+# LifeOS Design System - Electron Desktop App
 
 **Core Philosophy:**
-A "Digital Cockpit" aesthetic. High contrast, OLED-optimized, focused on data clarity and flow state.
+A "Digital Cockpit" aesthetic. High contrast, OLED-optimized, focused on data clarity and flow state. **Aplicação desktop Electron offline-first**.
+
+## Arquitetura
+- **Runtime:** Electron (Main Process + Renderer)
+- **Armazenamento:** SQLite local via `better-sqlite3`
+- **Comunicação:** IPC (`window.api`) - sem chamadas HTTP REST
+- **Sincronização:** Opcional com Supabase
 
 ## Color Palette
 - **Background:** `OLED Black (#050505)` - Absolute deep black for contrast and battery saving.

@@ -5,35 +5,44 @@
 # Life OS - Complete Project Documentation
 
 ## 🚀 Overview
-Life OS is a premium personal management platform designed to reduce cognitive load and increase productivity through a unified "Deep Glass" interface. It integrates habits, tasks, finances, academic management, and a context-aware AI assistant.
+Life OS é uma plataforma premium de gerenciamento pessoal projetada para reduzir a carga cognitiva e aumentar a produtividade através de uma interface unificada "Deep Glass". Integra hábitos, tarefas, finanças, gerenciamento acadêmico e um assistente de IA com contexto. O projeto agora é um **aplicativo desktop Electron offline-first**.
 
 ## 🛠 Tech Stack
-- **Frontend**: React 18, Vite, TypeScript, Tailwind CSS, Framer Motion.
-- **Backend**: Node.js (Express), Supabase (Auth, DB, RLS).
-- **AI**: Groq (Llama 3), Google Gemini (Flash/Pro) via Neural Nexus engine.
-- **State**: Zustand (Local), React Query (Server Cache).
-- **PWA**: Fully installable with offline fallback.
+- **Desktop Runtime**: Electron (Main Process como backend local)
+- **Frontend**: React 18, Vite, TypeScript, Tailwind CSS, Framer Motion
+- **Local Database**: SQLite (`better-sqlite3`) via Electron Main Process
+- **Cloud Sync**: Supabase (PostgreSQL + Auth) - opcional e explícito
+- **AI**: Groq (Llama 3), Google Gemini (Flash/Pro) via Neural Nexus engine
+- **State**: Zustand (Local), React Query (Cache)
+- **Comunicação**: Electron IPC (`window.api`) - sem HTTP REST direto
 
 ## ✨ Core Features
-1. **Live Executive Dashboard**: Bento Grid layout with real-time widgets.
-2. **Habit Tracking**: Quantified and binary habits with heatmaps and streaks.
-3. **Task Kanban**: Multi-status task management with drag-and-drop.
-4. **Financial Management**: Income/Expense tracking with advanced filtering and budget progress.
-5. **Academic Management**: Course and assignment tracking with automatic GPA calculation.
-6. **AI Assistant (Nexus)**: Universal quick capture, floating chat, and proactive Synapse insights.
-7. **Neural Resonance**: AI-powered journaling with mood and theme analysis.
-8. **Gamification**: Global XP system, leveling, and achievement gallery.
+1. **Live Executive Dashboard**: Layout Bento Grid com widgets em tempo real.
+2. **Habit Tracking**: Hábitos quantificados e binários com heatmaps e streaks.
+3. **Task Kanban**: Gerenciamento de tarefas multi-status com drag-and-drop.
+4. **Financial Management**: Rastreamento de Receitas/Despesas com filtragem avançada e progresso de orçamento.
+5. **Academic Management**: Rastreamento de cursos e tarefas com cálculo automático de GPA.
+6. **AI Assistant (Nexus)**: Captura rápida universal, chat flutuante e insights proativos do Synapse.
+7. **Neural Resonance**: Journaling com análise de humor e tema via IA.
+8. **Gamification**: Sistema global de XP, leveling e galeria de conquistas.
 
 ## 🛡 Security
-- Global and route-specific rate limiting.
-- Strict Row Level Security (RLS) on all database tables.
-- Rigorous Zod input validation.
-- Secure HTTP-only cookies for session management.
+- Rate limiting global e por rota.
+- Row Level Security (RLS) rigoroso em todas as tabelas do banco de dados (quando usando Supabase).
+- Validação rigorosa de entrada Zod.
+- Cookies HTTP-only seguros para gerenciamento de sessão.
 
-## 📱 Installation (PWA)
-1. Open the application in a modern browser.
-2. Click "Install App" in the address bar or browser menu.
-3. Use Life OS as a native application with offline support.
+## 📦 Instalação (Desktop App)
+1. Clone o repositório
+2. Execute `npm install` para instalar dependências
+3. Execute `npm run dev` para iniciar o aplicativo desktop
+4. O aplicativo roda localmente com SQLite - nenhuma configuração de servidor necessária
+
+## ☁️ Sincronização Cloud (Opcional)
+A sincronização com Supabase é um recurso opcional que requer configuração explícita:
+1. Crie um arquivo `.env` na raiz com suas credenciais Supabase
+2. Configure a autenticação no Settings do aplicativo
+3. A sincronização ocorre em background quando habilitada
 
 ---
-*Generated: 2026-03-02*
+*Gerado: 2026-03-02*
