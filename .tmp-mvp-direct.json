@@ -1,0 +1,75 @@
+{
+  "users": {
+    "local-d8bfc10c1a425796ae63eb39": {
+      "onboarding": {
+        "displayName": "QA Local",
+        "role": "QA Automation Engineer",
+        "lifeSeason": "Release hardening",
+        "planningPain": "Legacy release assumptions create false confidence.",
+        "successDefinition": "Validate the MVP loop without legacy drift",
+        "goals": [
+          "Ship MVP release evidence",
+          "Protect regression coverage"
+        ],
+        "commitments": [
+          "Daily verification"
+        ],
+        "constraints": [
+          "No legacy route claims"
+        ],
+        "completedAt": "2026-03-20T21:55:10.419Z"
+      },
+      "review": {
+        "wins": [],
+        "unfinishedWork": [],
+        "constraints": [],
+        "focusArea": "",
+        "energyLevel": 3,
+        "notes": "",
+        "generatedAt": null
+      },
+      "plan": {
+        "summary": "",
+        "weekLabel": "",
+        "priorities": [],
+        "generatedAt": null,
+        "confirmedAt": null
+      },
+      "dailyCheckIns": [],
+      "reflections": [],
+      "feedback": [],
+      "events": [
+        {
+          "id": "onboarding_started-ztb1uzlp",
+          "type": "onboarding_started",
+          "createdAt": "2026-03-20T21:55:10.419Z"
+        },
+        {
+          "id": "onboarding_completed-4dhjvq2d",
+          "type": "onboarding_completed",
+          "createdAt": "2026-03-20T21:55:10.419Z"
+        }
+      ],
+      "analytics": {
+        "onboardingCompleted": true,
+        "weeklyPlanConfirmed": false,
+        "completedActions": 0,
+        "totalActions": 0,
+        "dailyCheckIns": 0,
+        "reflections": 0,
+        "feedbackEntries": 0,
+        "eventCounts": {
+          "onboarding_started": 1,
+          "onboarding_completed": 1,
+          "weekly_review_started": 0,
+          "weekly_review_completed": 0,
+          "weekly_plan_generated": 0,
+          "weekly_plan_confirmed": 0,
+          "daily_checkin_completed": 0,
+          "reflection_completed": 0,
+          "user_feedback_submitted": 0
+        }
+      }
+    }
+  }
+}
