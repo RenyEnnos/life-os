@@ -84,7 +84,7 @@ The release-verification ladder and the distinction between authoritative versus
   - `npm run lint`
   - `npm run test`
   - `npm run build`
-  - a minimal Electron smoke assertion: `npm run test:e2e -- --grep "desktop smoke: Life OS main window"`
+  - an advisory Electron smoke assertion (non-blocking): `npm run test:e2e -- --grep "desktop smoke: Life OS main window"`
 
 ## License
 
