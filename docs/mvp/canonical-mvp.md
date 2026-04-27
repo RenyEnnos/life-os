@@ -1,3 +1,10 @@
+---
+type: reference
+status: active
+last_updated: 2026-04-27
+tags: [mvp, product]
+---
+
 # LifeOS Canonical MVP
 
 Status: active source of truth

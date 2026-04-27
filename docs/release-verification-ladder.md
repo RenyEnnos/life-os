@@ -1,3 +1,10 @@
+---
+type: reference
+status: active
+last_updated: 2026-04-27
+tags: [reference]
+---
+
 # Release Verification Ladder
 
 ## Findings First

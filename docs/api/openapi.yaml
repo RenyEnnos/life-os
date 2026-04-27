@@ -1,0 +1,842 @@
+openapi: 3.0.3
+info:
+  title: LifeOS API
+  description: |
+    LifeOS MVP API — invite-only weekly operating loop.
+    All endpoints except auth require Bearer token authentication.
+  version: 0.3.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3001
+    description: Local development
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: lifeos_session
+
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Validation failed"
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        user_metadata:
+          type: object
+          properties:
+            full_name:
+              type: string
+            nickname:
+              type: string
+            invite_code:
+              type: string
+            is_invited_partner:
+              type: boolean
+            theme:
+              type: string
+              enum: [light, dark]
+            onboarding_completed:
+              type: boolean
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+
+    MvpOnboardingDraft:
+      type: object
+      properties:
+        displayName:
+          type: string
+        role:
+          type: string
+        lifeSeason:
+          type: string
+        planningPain:
+          type: string
+        successDefinition:
+          type: string
+        goals:
+          type: array
+          items:
+            type: string
+        commitments:
+          type: array
+          items:
+            type: string
+        constraints:
+          type: array
+          items:
+            type: string
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    MvpActionItem:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        details:
+          type: string
+        status:
+          type: string
+          enum: [todo, done, deferred]
+        note:
+          type: string
+
+    MvpPriority:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        rationale:
+          type: string
+        successMetric:
+          type: string
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/MvpActionItem'
+
+    MvpPlan:
+      type: object
+      properties:
+        id:
+          type: string
+        summary:
+          type: string
+        weekLabel:
+          type: string
+        priorities:
+          type: array
+          items:
+            $ref: '#/components/schemas/MvpPriority'
+        generatedAt:
+          type: string
+          format: date-time
+          nullable: true
+        confirmedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    MvpDailyCheckIn:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        energy:
+          type: integer
+          minimum: 1
+          maximum: 10
+        focus:
+          type: integer
+          minimum: 1
+          maximum: 10
+        blockers:
+          type: string
+        note:
+          type: string
+
+    MvpReflectionEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        period:
+          type: string
+          enum: [daily, weekly]
+        body:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    MvpFeedbackEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    MvpAnalyticsSnapshot:
+      type: object
+      properties:
+        onboardingCompleted:
+          type: boolean
+        weeklyPlanConfirmed:
+          type: boolean
+        completedActions:
+          type: integer
+        totalActions:
+          type: integer
+        dailyCheckIns:
+          type: integer
+        reflections:
+          type: integer
+        feedbackEntries:
+          type: integer
+
+    MvpWorkspaceSnapshot:
+      type: object
+      properties:
+        onboarding:
+          $ref: '#/components/schemas/MvpOnboardingDraft'
+        review:
+          type: object
+        plan:
+          $ref: '#/components/schemas/MvpPlan'
+        dailyCheckIns:
+          type: array
+          items:
+            $ref: '#/components/schemas/MvpDailyCheckIn'
+        reflections:
+          type: array
+          items:
+            $ref: '#/components/schemas/MvpReflectionEntry'
+        feedback:
+          type: array
+          items:
+            $ref: '#/components/schemas/MvpFeedbackEntry'
+        analytics:
+          $ref: '#/components/schemas/MvpAnalyticsSnapshot'
+
+paths:
+  /api/health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      tags: [System]
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        example: ok
+
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      operationId: register
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, name, inviteCode]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                name:
+                  type: string
+                  minLength: 1
+                inviteCode:
+                  type: string
+                  minLength: 1
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Validation failed or invalid invite code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many attempts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/login:
+    post:
+      summary: Login with email and password
+      operationId: login
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 1
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many attempts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/verify:
+    get:
+      summary: Verify current session
+      operationId: verifySession
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Session is valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/logout:
+    post:
+      summary: Logout current session
+      operationId: logout
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: Logged out
+
+  /api/auth/profile:
+    patch:
+      summary: Update user profile
+      operationId: updateProfile
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                theme:
+                  type: string
+                  enum: [light, dark]
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/mvp/workspace:
+    get:
+      summary: Get full workspace state
+      operationId: getWorkspace
+      tags: [MVP Workspace]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Workspace snapshot
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/MvpWorkspaceSnapshot'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Reset workspace (delete all data)
+      operationId: resetWorkspace
+      tags: [MVP Workspace]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Workspace reset
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/MvpWorkspaceSnapshot'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/mvp/onboarding:
+    put:
+      summary: Save onboarding data
+      operationId: saveOnboarding
+      tags: [MVP Workspace]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [displayName, role, lifeSeason, goals, commitments, constraints]
+              properties:
+                displayName:
+                  type: string
+                role:
+                  type: string
+                lifeSeason:
+                  type: string
+                planningPain:
+                  type: string
+                successDefinition:
+                  type: string
+                goals:
+                  type: array
+                  items:
+                    type: string
+                commitments:
+                  type: array
+                  items:
+                    type: string
+                constraints:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Onboarding saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/MvpWorkspaceSnapshot'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/mvp/weekly-plans/generate:
+    post:
+      summary: Generate a weekly plan
+      operationId: generatePlan
+      tags: [MVP Workspace]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [wins, unfinishedWork, constraints, focusArea, energyLevel, notes]
+              properties:
+                wins:
+                  type: array
+                  items:
+                    type: string
+                unfinishedWork:
+                  type: array
+                  items:
+                    type: string
+                constraints:
+                  type: array
+                  items:
+                    type: string
+                focusArea:
+                  type: string
+                energyLevel:
+                  type: integer
+                  minimum: 1
+                  maximum: 10
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Plan generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/MvpWorkspaceSnapshot'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/mvp/weekly-plans/{planId}/confirm:
+    post:
+      summary: Confirm a generated plan
+      operationId: confirmPlan
+      tags: [MVP Workspace]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Plan confirmed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/MvpWorkspaceSnapshot'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/mvp/action-items/{actionItemId}:
+    patch:
+      summary: Update action item status or note
+      operationId: updateActionItem
+      tags: [MVP Workspace]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: actionItemId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [todo, done, deferred]
+                note:
+                  type: string
+      responses:
+        '200':
+          description: Action item updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/MvpWorkspaceSnapshot'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/mvp/daily-checkins:
+    post:
+      summary: Save a daily check-in
+      operationId: saveDailyCheckIn
+      tags: [MVP Workspace]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date, energy, focus, blockers, note]
+              properties:
+                date:
+                  type: string
+                  format: date
+                energy:
+                  type: integer
+                  minimum: 1
+                  maximum: 10
+                focus:
+                  type: integer
+                  minimum: 1
+                  maximum: 10
+                blockers:
+                  type: string
+                note:
+                  type: string
+      responses:
+        '200':
+          description: Check-in saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/MvpWorkspaceSnapshot'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/mvp/reflections:
+    post:
+      summary: Add a reflection entry
+      operationId: addReflection
+      tags: [MVP Workspace]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [period, body]
+              properties:
+                period:
+                  type: string
+                  enum: [daily, weekly]
+                body:
+                  type: string
+      responses:
+        '200':
+          description: Reflection added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/MvpWorkspaceSnapshot'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/mvp/feedback:
+    post:
+      summary: Submit user feedback
+      operationId: submitFeedback
+      tags: [MVP Workspace]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rating, message]
+              properties:
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                message:
+                  type: string
+      responses:
+        '200':
+          description: Feedback submitted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/MvpWorkspaceSnapshot'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

@@ -1,55 +1,15 @@
+---
+type: guide
+status: active
+last_updated: 2026-04-27
+tags: [ai-agent, code-patterns, conventions]
+---
+
 # AGENTS.md
 
-Development guidelines for agentic coding assistants working on the Life OS codebase.
+Development guidelines for agentic coding assistants working on the LifeOS codebase.
 
-## Project Overview
-
-Life OS is now an **Electron desktop application with offline-first architecture**. All data is stored locally in SQLite via `better-sqlite3`, with optional Supabase cloud sync.
-
-## Architecture
-
-- **Frontend:** React + Vite + TypeScript running in Electron Renderer
-- **Backend:** Electron Main Process with SQLite local database
-- **Communication:** Electron IPC via `window.api` (no direct HTTP REST calls)
-- **Storage:** SQLite (`better-sqlite3`) for local persistence
-- **Sync:** Optional Supabase sync when explicitly configured
-
-## Essential Commands
-
-### Development
-```bash
-npm run dev              # Start Electron desktop app
-npm run electron:dev     # Alternative: Electron dev mode
-npm run build            # Build for production
-npm run electron:build   # Package Electron app for distribution
-```
-
-### Quality Assurance
-```bash
-npm run typecheck        # TypeScript type checking (tsc --noEmit)
-npm run lint            # ESLint - run before committing
-npm run test            # Run all tests with Vitest
-npm run test:watch      # Watch mode for tests
-```
-
-### Running Single Tests
-```bash
-# Test specific file
-npx vitest run path/to/test.test.ts
-
-# Test by pattern
-npx vitest run --pattern "tasks"
-
-# Integration tests only
-npm run test:integration
-```
-
-### Build
-```bash
-npm run build           # Full build with typecheck + lint
-npm run check           # TypeScript check only
-npm run preview         # Preview production build
-```
+> **Quick Reference:** For project overview, commands, and architecture summary, see [CLAUDE.md](./CLAUDE.md). For design system tokens and component specs, see [DESIGN.md](./DESIGN.md).
 
 ## Code Style Guidelines
 
@@ -59,7 +19,7 @@ npm run preview         # Preview production build
 - Group imports: React/external libraries → internal aliases → types
 
 ### TypeScript
-- Strict mode enabled - always type everything, avoid `any` (ESLint error)
+- Strict mode enabled — always type everything, avoid `any` (ESLint error)
 - Use `Record<string, unknown>` or `unknown` for untyped data, not `any`
 - Infer types from database: `DbTask = Database['public']['Tables']['tasks']['Row']`
 - Extend DB types for UI: `interface Task extends Omit<DbTask, 'tags'> { tags?: string[] }`
@@ -69,10 +29,10 @@ npm run preview         # Preview production build
 src/features/[feature-name]/
   api/              # API calls (feature.api.ts)
   components/       # Feature components
-  hooks/           # React Query hooks (useFeature.ts)
-  __tests__/       # Feature tests
-  types.ts         # Feature-specific types
-  index.tsx        # Feature page/entry point
+  hooks/            # React Query hooks (useFeature.ts)
+  __tests__/        # Feature tests
+  types.ts          # Feature-specific types
+  index.tsx         # Feature page/entry point
 ```
 
 ### Component Patterns
@@ -110,14 +70,14 @@ src/features/[feature-name]/
 ### Error Handling
 - Use `try/catch` for async operations
 - Log 4xx errors as warnings, 5xx as errors
-- User-facing errors should be translated/translated strings
+- User-facing errors should be translated strings
 - Return default values gracefully (e.g., `data || defaultValue`)
 - Always invalidate queries on successful mutations
 
 ### Styling (Tailwind)
 - Use semantic color tokens: `bg-background`, `text-foreground`, `border-border`
 - Custom colors defined in tailwind.config.js: `primary`, `oled`, `glass`
-- Dark mode via `class` strategy - components should support both
+- Dark mode via `class` strategy — components should support both
 - Responsive: mobile-first, use `md:`, `lg:` prefixes
 - Animations: use defined animations (`animate-pulse-slow`, `animate-enter`)
 
@@ -135,14 +95,14 @@ src/features/[feature-name]/
 - Mock disabled features instead of leaving TODOs
 
 ### Key Libraries & Patterns
-- **Icons**: `lucide-react` - import specific icons
+- **Icons**: `lucide-react` — import specific icons
 - **Forms**: `zod` for validation, `@radix-ui/*` for accessible primitives
 - **Charts**: `recharts` for data visualization
 - **Animations**: `framer-motion` for UI transitions
 - **Routing**: `react-router-dom` with nested routes
 - **Date handling**: `date-fns` utilities
 
-### Common Patterns to Follow
+## Common Patterns to Follow
 
 **Custom Hook with React Query:**
 ```typescript
@@ -177,3 +137,16 @@ const buttonVariants = cva("base-classes", {
   defaultVariants: { variant: "primary" },
 });
 ```
+
+## Anti-Patterns (DO NOT)
+
+| Anti-Pattern | Why It's Wrong | Do This Instead |
+|--------------|---------------|-----------------|
+| `import * as X from 'lib'` | Tree-shaking breaks, bundle bloat | Import specific exports |
+| `any` type | Defeats TypeScript safety | Use `unknown` or proper types |
+| Business logic in components | Untestable, hard to refactor | Put logic in hooks or api/ |
+| Direct fetch() calls | Bypasses auth injection, no Electron IPC fallback | Use `fetchJSON` / `apiClient` |
+| Importing across features | Creates tight coupling, breaks module boundaries | Use shared/ for cross-feature code |
+| Skipping types.ts | Loses feature encapsulation | Always define feature types |
+| `console.log` in production | Leaks data, clutters output | Use logger from `@/shared/lib/logger` |
+| Inline Tailwind everywhere | Inconsistent design, hard to maintain | Use cva variants + semantic tokens |

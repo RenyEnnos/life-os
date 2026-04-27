@@ -1,3 +1,10 @@
+---
+type: reference
+status: active
+last_updated: 2026-04-27
+tags: [reference]
+---
+
 # Life OS - Developer Setup Guide
 
 Para instalar e executar o Life OS Personal Operating System em seu ambiente local, siga os requisitos abaixo.

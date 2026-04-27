@@ -1,6 +1,24 @@
+---
+type: reference
+status: active
+last_updated: 2026-04-27
+tags: [mvp, product]
+---
+
 # LifeOS MVP Implementation Checklist
 
-Source of truth: `/home/pedro/.paperclip/instances/default/workspaces/aba66bcd-2a37-4871-9854-1b8106f3fe2a/plans/2026-03-19-lifeos-architecture-delivery-plan.md`
+Source of truth: `docs/mvp/canonical-mvp.md`
+
+## Status Summary
+
+| Phase | Progress | Notes |
+|-------|----------|-------|
+| Product Boundary | 100% | All items complete |
+| Phase 0 — Foundation | 60% | Repo/auth done, observability and data gaps remain |
+| Phase 1 — Onboarding to First Plan | 40% | Surfaces scaffolded, core logic partially implemented |
+| Phase 2 — Daily Execution | 25% | Surface scaffolded, action logic pending |
+| Phase 3 — Reflection & Feedback | 25% | Surfaces scaffolded, prompts and capture pending |
+| Phase 4 — Tightening | 20% | Surfaces scaffolded, polish and coverage pending |
 
 ## Product Boundary
 
@@ -16,16 +34,16 @@ Source of truth: `/home/pedro/.paperclip/instances/default/workspaces/aba66bcd-2
 - [x] Create MVP route shell inside the primary workspace
 - [x] Define initial route map for user flows and backend contracts
 - [x] Define initial relational schema for the MVP domain
-- [ ] Add Prisma CLI and client packages to the workspace
-- [ ] Add Prisma migration scripts to `package.json`
-- [ ] Generate first migration against the managed Postgres target
+- [x] Add Prisma CLI and client packages to the workspace
+- [x] Add Prisma migration scripts to `package.json`
+- [x] Generate first migration against the managed Postgres target
 - [ ] Decide whether the existing Vite app remains the delivery vehicle or whether MVP moves to a dedicated Next.js app
 
 ### Auth and environments
 
-- [ ] Confirm the invitation/auth provider for design partners
+- [x] Confirm the invitation/auth provider for design partners (file-backed invites via `LIFEOS_INVITES` env var)
 - [ ] Define required environment variables for auth, analytics, error logging, and AI
-- [ ] Add `.env.example` covering MVP services only
+- [x] Add `.env.example` covering MVP services only
 - [x] Add a protected invite-only gate for onboarding
 
 ### Observability
@@ -41,30 +59,34 @@ Source of truth: `/home/pedro/.paperclip/instances/default/workspaces/aba66bcd-2
 - [ ] Add one internal activation dashboard view
 - [ ] Confirm Sentry release tagging and environment naming
 
+> **Note:** Telemetry event schemas are defined in `docs/mvp/telemetry-event-map.md` but not yet implemented in code.
+
 ### Data and local development
 
 - [ ] Seed one demo user with goals, commitments, review history, and a weekly plan
 - [ ] Add local setup instructions for database bootstrapping
 - [ ] Add a fixture path for AI-free plan generation during local development
 
+> **Note:** `scripts/seed_test_user.ts` exists for test user seeding but is not a full demo dataset.
+
 ## Phase 1 Onboarding To First Plan
 
 ### Onboarding flow
 
 - [x] Scaffold onboarding MVP surface
-- [ ] Capture role and life season
-- [ ] Capture top goals
-- [ ] Capture recurring commitments and constraints
+- [x] Capture role and life season (via onboardingStore goals/focus areas)
+- [x] Capture top goals (via onboardingStore)
+- [x] Capture recurring commitments and constraints (via onboardingStore)
 - [ ] Capture current planning pain and success criteria
-- [ ] Persist onboarding draft state
+- [x] Persist onboarding draft state (via Zustand store with persistence)
 
 ### Weekly review and plan generation
 
 - [x] Scaffold weekly review MVP surface
 - [ ] Summarize open commitments, unfinished work, and constraints
-- [ ] Generate 3 to 5 weekly priorities from structured input
-- [ ] Require explicit user confirmation before plan lock
-- [ ] Persist weekly plan, priorities, and action items
+- [x] Generate 3 to 5 weekly priorities from structured input (via `shared/mvp/plan.ts`)
+- [x] Require explicit user confirmation before plan lock (confirmPlan endpoint)
+- [x] Persist weekly plan, priorities, and action items (Prisma + file-backed)
 - [ ] Record generation inputs and outputs for later review
 
 ### Exit criteria
@@ -74,10 +96,10 @@ Source of truth: `/home/pedro/.paperclip/instances/default/workspaces/aba66bcd-2
 ## Phase 2 Daily Execution Loop
 
 - [x] Scaffold today MVP surface
-- [ ] Show only active weekly priorities and next actions
+- [x] Show only active weekly priorities and next actions
 - [ ] Support complete, defer, and note actions
 - [ ] Add simple carry-forward rules for unfinished action items
-- [ ] Persist daily check-in answers and notes
+- [x] Persist daily check-in answers and notes (dailyCheckins endpoint)
 - [ ] Show week progress on the today surface
 
 ## Phase 3 Reflection And Feedback
@@ -85,7 +107,7 @@ Source of truth: `/home/pedro/.paperclip/instances/default/workspaces/aba66bcd-2
 - [x] Scaffold reflection MVP surface
 - [ ] Add end-of-day reflection prompt
 - [ ] Add end-of-week reflection prompt
-- [ ] Add in-product feedback capture
+- [x] Add in-product feedback capture (feedback endpoint)
 - [ ] Feed reflection and feedback into the internal review surface
 
 ## Phase 4 Tightening
@@ -98,7 +120,8 @@ Source of truth: `/home/pedro/.paperclip/instances/default/workspaces/aba66bcd-2
 
 ## Open Decisions
 
-- Primary delivery stack:
-  Current workspace is Vite + React Router, while the architecture plan recommends Next.js App Router. The MVP route shell added in this task preserves momentum inside the existing codebase, but product leadership should decide whether to keep iterating in-place or migrate before deeper backend work starts.
-- Database ownership:
-  The repository already contains Supabase SQL migrations. The Prisma schema added here defines the MVP model cleanly, but the team still needs to choose whether Prisma becomes the primary migration interface or stays as an application model layered on top of Supabase-managed Postgres.
+1. **Primary delivery stack:** Current workspace is Vite + React Router, while the architecture plan recommends Next.js App Router. The MVP route shell preserves momentum inside the existing codebase, but product leadership should decide whether to keep iterating in-place or migrate before deeper backend work starts.
+
+2. **Database ownership:** The repository already contains Supabase SQL migrations. The Prisma schema defines the MVP model cleanly, but the team still needs to choose whether Prisma becomes the primary migration interface or stays as an application model layered on top of Supabase-managed Postgres.
+
+3. **Telemetry implementation:** Event schemas are defined in `docs/mvp/telemetry-event-map.md` but no events are tracked in code. Decision needed on whether to implement gtag/Sentry now or defer.

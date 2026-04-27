@@ -1,3 +1,10 @@
+---
+type: reference
+status: active
+last_updated: 2026-04-27
+tags: [mvp, product]
+---
+
 # LifeOS MVP Route Map
 
 This file documents the implemented route and API contract for the canonical MVP in `docs/mvp/canonical-mvp.md`.

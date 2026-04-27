@@ -1,3 +1,10 @@
+---
+type: reference
+status: active
+last_updated: 2026-04-27
+tags: [reference]
+---
+
 # LifeOS Architecture Overview
 
 This document reflects the current default runtime and product boundary in the repository. The canonical MVP framing is `docs/mvp/canonical-mvp.md`.

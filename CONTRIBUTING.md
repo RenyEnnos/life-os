@@ -1,33 +1,30 @@
 # Guia de Contribuição
 
-Obrigado por considerar contribuir para o Life OS! 🎉
+Obrigado por considerar contribuir para o LifeOS!
 
 ## Visão Geral do Projeto
 
-O Life OS é um **aplicativo desktop Electron offline-first** para produtividade e gerenciamento pessoal. Todos os dados são armazenados localmente via SQLite, com sincronização opcional com Supabase.
+O LifeOS é um **aplicativo desktop Electron offline-first** para produtividade e gerenciamento pessoal. Todos os dados são armazenados localmente via SQLite, com sincronização opcional com Supabase.
+
+Para detalhes sobre a arquitetura, veja [docs/development/architecture-deep-dive.md](./docs/development/architecture-deep-dive.md).
 
 ## Como Contribuir
 
 ### Reportando Bugs
 
-Se você encontrou um bug, por favor crie uma issue incluindo:
-
-- Descrição clara do problema
+Use o [template de bug report](https://github.com/RenyEnnos/LIfe0S/issues/new?template=bug_report.md) incluindo:
+- Ambiente (OS, versão, runtime)
 - Passos para reproduzir
 - Comportamento esperado vs atual
 - Screenshots (se aplicável)
-- Ambiente (OS, versão do Electron, etc.)
 
 ### Sugerindo Melhorias
 
-Para sugerir novas funcionalidades:
-
-1. Verifique se já não existe uma issue similar
-2. Crie uma issue descrevendo:
-   - Problema que resolve
-   - Solução proposta
-   - Alternativas consideradas
-   - Impacto esperado
+Use o [template de feature request](https://github.com/RenyEnnos/LIfe0S/issues/new?template=feature_request.md) incluindo:
+- Problema que resolve
+- Solução proposta
+- Alternativas consideradas
+- Prioridade MoSCoW
 
 ### Pull Requests
 
@@ -44,7 +41,18 @@ Para sugerir novas funcionalidades:
    ```bash
    git push origin feature/minha-feature
    ```
-5. **Abra um Pull Request**
+5. **Abra um Pull Request** usando o [PR template](./.github/PULL_REQUEST_TEMPLATE.md)
+
+## Development Setup
+
+Instruções completas de setup: [docs/development/getting-started.md](./docs/development/getting-started.md)
+
+```bash
+git clone https://github.com/RenyEnnos/LIfe0S.git
+cd LIfe0S
+npm install
+npm run electron:dev
+```
 
 ## Padrões de Código
 
@@ -60,172 +68,63 @@ Usamos o padrão [Conventional Commits](https://www.conventionalcommits.org/):
 - `test:` Testes
 - `chore:` Tarefas de manutenção
 
-Exemplos:
-```
-feat: adiciona filtro por data no dashboard
-fix: corrige cálculo do Life Score
-docs: atualiza README com arquitetura Electron
-refactor: migra comunicação de HTTP para IPC
-```
+### Code Patterns
 
-### Estilo TypeScript
-
-- Use **TypeScript** em todo código novo
-- Evite `any`, prefira tipos explícitos
-- Use interfaces para objetos complexos
-- Documente funções públicas com JSDoc
-
-```typescript
-/**
- * Calcula o Life Score baseado em métricas do usuário
- * @param userId - ID do usuário
- * @returns Objeto com score e tendência
- */
-async function calculateLifeScore(userId: string): Promise<LifeScore> {
-  // implementação
-}
-```
-
-### Estilo React
-
-- Use **function components** com hooks
-- Prefira **arrow functions**
-- Extraia lógica complexa em **custom hooks**
-- Use **TypeScript** para props
-- Comunicação via `window.api` para operações de dados
-
-```typescript
-interface TaskCardProps {
-  task: Task
-  onComplete: (id: string) => void
-  onDelete: (id: string) => void
-}
-
-const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete }) => {
-  // implementação
-}
-```
-
-### Formatação
-
-O projeto usa ESLint e Prettier:
-
-```bash
-# Verificar
-npm run lint
-
-# Corrigir automaticamente
-npm run lint:fix
-```
-
-## Estrutura de Pastas
-
-```
-electron/
-├── main.ts        # Processo principal Electron
-├── db/            # SQLite local
-├── ipc/           # Handlers IPC
-└── sync/          # Sincronização opcional
-
-src/
-├── app/           # Configuração global e rotas
-├── features/      # Módulos de domínio
-│   └── tasks/    # Feature de tarefas
-├── shared/        # Componentes reutilizáveis
-│   └── ui/       # Componentes base (Button, Card, etc.)
-├── hooks/         # Custom hooks
-└── types/         # Tipos TypeScript globais
-```
+Para padrões de código, convenções, exemplos e anti-patterns, veja [AGENTS.md](./AGENTS.md).
 
 ## Testes
 
-### Executando Testes
+```bash
+npm run test             # Todos os testes
+npm run test:watch       # Modo watch
+npm run test:integration # Apenas testes de integração
+npm run test:e2e         # Playwright smoke (autoritativo)
+```
+
+Guia completo de testes: [docs/development/testing-guide.md](./docs/development/testing-guide.md)
+
+## Build e Distribuição
 
 ```bash
-# Todos os testes
-npm run test
-
-# Modo watch
-npm run test:watch
-
-# Com coverage
-npm run test:coverage
+npm run typecheck    # TypeScript
+npm run lint         # ESLint
+npm run build        # Build de produção
+npm run electron:build  # Pacote Electron (AppImage, NSIS, DMG)
 ```
-
-### Escrevendo Testes
-
-- Teste funcionalidades críticas
-- Use mocks para APIs externas (Supabase)
-- Mantenha testes simples e focados
-- Teste handlers IPC separadamente
-
-```typescript
-describe('TaskService', () => {
-  it('should create a new task', async () => {
-    const task = await taskService.create(userId, taskData)
-    expect(task.title).toBe(taskData.title)
-  })
-})
-```
-
-## Build e Deploy
-
-### Build Local
-
-```bash
-# TypeScript compilation
-npm run check
-
-# Build de produção
-npm run build
-
-# Build do Electron
-npm run electron:build
-```
-
-### Distribuição
-
-O projeto gera artefatos nativos para cada plataforma:
-- **Linux**: AppImage
-- **Windows**: NSIS installer
-- **macOS**: DMG
-
-Os builds são gerados na pasta `release/`.
 
 ## Documentação
 
-- Mantenha o **README.md** atualizado
-- Documente mudanças no **CHANGELOG.md**
-- Adicione comentários em código complexo
-- Atualize types no código TypeScript
-- Documente novos handlers IPC
+Ao contribuir com documentação:
+- Docs técnicos em **inglês** (para AI agents)
+- Docs user-facing em **português**
+- Adicione frontmatter YAML (type, status, last_updated, tags)
+- Veja [docs/AI_CONTEXT_MAP.md](./AI_CONTEXT_MAP.md) para navegação
+
+## Segurança
+
+Para reportar vulnerabilidades de segurança, veja [SECURITY.md](./SECURITY.md).
 
 ## Code Review
 
 Pull Requests serão revisados considerando:
 
-- ✅ Funcionalidade correta
-- ✅ Testes adequados
-- ✅ Código limpo e legível
-- ✅ Performance
-- ✅ Segurança
-- ✅ Arquitetura Electron adequada
-- ✅ Documentação
+- Funcionalidade correta
+- Testes adequados
+- Código limpo e legível
+- Performance
+- Segurança
+- Arquitetura Electron adequada
+- Documentação atualizada
 
 ## Dúvidas?
 
-Se tiver dúvidas sobre como contribuir:
-
 1. Leia a documentação existente
-2. Procure em issues fechadas
-3. Abra uma issue com sua dúvida
-4. Contate os mantenedores
+2. Consulte [AGENTS.md](./AGENTS.md) para padrões de código
+3. Procure em issues fechadas
+4. Abra uma issue com sua dúvida
 
 ## Código de Conduta
 
-- Seja respeitoso e inclusivo
-- Aceite críticas construtivas
-- Foque no que é melhor para o projeto
-- Mantenha discussões profissionais
+Este projeto segue o [Contributor Covenant Code of Conduct](./CODE_OF_CONDUCT.md). Ao participar, você concorda em respeitar estas diretrizes.
 
-Obrigado por contribuir! 🚀
+Obrigado por contribuir!

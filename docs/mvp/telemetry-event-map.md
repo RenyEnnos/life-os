@@ -1,3 +1,10 @@
+---
+type: reference
+status: active
+last_updated: 2026-04-27
+tags: [mvp, product]
+---
+
 # MVP Telemetry Event Map
 
 This document defines the production telemetry contract for the shipped LifeOS MVP loop.
