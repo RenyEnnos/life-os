@@ -1,0 +1,74 @@
+name: Implementation task
+description: A bounded code, configuration, or behavior change
+title: "[IMPLEMENTATION] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Implementation is not authorized until this issue satisfies the Definition of Ready and receives `status:ready`.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and expected outcome
+      description: Describe current behavior and the measurable desired outcome.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Paths, symbols, tests, logs, issues, PRs, or user evidence.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Included scope
+    validations:
+      required: true
+  - type: textarea
+    id: exclusions
+    attributes:
+      label: Explicit exclusions
+    validations:
+      required: true
+  - type: textarea
+    id: decisions
+    attributes:
+      label: Approved decisions and ADRs
+      description: Link product, architecture, and security decisions.
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Data, security, regression, and migration risks
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Required validation
+      description: Tests, typecheck, lint, build, runtime checks, and review evidence.
+    validations:
+      required: true
+  - type: textarea
+    id: rollback
+    attributes:
+      label: Rollback or reversibility
+    validations:
+      required: true
+  - type: textarea
+    id: docs
+    attributes:
+      label: Documentation impact
+    validations:
+      required: true

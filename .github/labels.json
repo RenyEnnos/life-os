@@ -1,0 +1,252 @@
+[
+  {
+    "name": "type:tracking",
+    "color": "5319E7",
+    "description": "Program or umbrella issue; does not authorize implementation"
+  },
+  {
+    "name": "type:audit",
+    "color": "0E8A16",
+    "description": "Read-only investigation, inventory, or evidence"
+  },
+  {
+    "name": "type:decision",
+    "color": "8250DF",
+    "description": "Human decision or ADR preparation"
+  },
+  {
+    "name": "type:bug",
+    "color": "D73A4A",
+    "description": "Approved behavior is broken"
+  },
+  {
+    "name": "type:security",
+    "color": "B60205",
+    "description": "Security, privacy, abuse, or trust boundary"
+  },
+  {
+    "name": "type:refactor",
+    "color": "1D76DB",
+    "description": "Behavior-preserving structural change"
+  },
+  {
+    "name": "type:feature",
+    "color": "A2EEEF",
+    "description": "New approved user or system capability"
+  },
+  {
+    "name": "type:test",
+    "color": "BFDADC",
+    "description": "Test coverage or verification"
+  },
+  {
+    "name": "type:docs",
+    "color": "0075CA",
+    "description": "Documentation-only change"
+  },
+  {
+    "name": "type:governance",
+    "color": "0052CC",
+    "description": "Repository process or AI governance"
+  },
+  {
+    "name": "type:chore",
+    "color": "D4C5F9",
+    "description": "Maintenance without product behavior change"
+  },
+  {
+    "name": "priority:P0",
+    "color": "B60205",
+    "description": "Fundamental blocker, integrity, or critical decision"
+  },
+  {
+    "name": "priority:P1",
+    "color": "D93F0B",
+    "description": "Required for the next program gate"
+  },
+  {
+    "name": "priority:P2",
+    "color": "FBCA04",
+    "description": "Important but not blocking the next gate"
+  },
+  {
+    "name": "priority:P3",
+    "color": "C5DEF5",
+    "description": "Future opportunity"
+  },
+  {
+    "name": "status:needs-triage",
+    "color": "EDEDED",
+    "description": "Classification is incomplete"
+  },
+  {
+    "name": "status:needs-decision",
+    "color": "F9D0C4",
+    "description": "Human choice is required"
+  },
+  {
+    "name": "status:blocked",
+    "color": "B60205",
+    "description": "Known dependency prevents progress"
+  },
+  {
+    "name": "status:ready",
+    "color": "0E8A16",
+    "description": "Definition of Ready is complete"
+  },
+  {
+    "name": "status:in-progress",
+    "color": "1D76DB",
+    "description": "Actively being worked"
+  },
+  {
+    "name": "status:in-review",
+    "color": "5319E7",
+    "description": "Deliverable or PR is under review"
+  },
+  {
+    "name": "status:changes-requested",
+    "color": "D93F0B",
+    "description": "Review requires changes"
+  },
+  {
+    "name": "status:validated",
+    "color": "006B75",
+    "description": "Acceptance criteria independently validated"
+  },
+  {
+    "name": "status:superseded",
+    "color": "FFFFFF",
+    "description": "Historical and no longer actionable"
+  },
+  {
+    "name": "area:product",
+    "color": "7057FF",
+    "description": "Product scope, value, or requirements"
+  },
+  {
+    "name": "area:brand",
+    "color": "C2E0C6",
+    "description": "Positioning, naming, voice, or identity"
+  },
+  {
+    "name": "area:ux",
+    "color": "F9D0C4",
+    "description": "User journeys, interaction, or information architecture"
+  },
+  {
+    "name": "area:frontend",
+    "color": "1D76DB",
+    "description": "Frontend application"
+  },
+  {
+    "name": "area:backend",
+    "color": "0052CC",
+    "description": "Server or backend services"
+  },
+  {
+    "name": "area:auth",
+    "color": "B60205",
+    "description": "Authentication or authorization"
+  },
+  {
+    "name": "area:data",
+    "color": "006B75",
+    "description": "Persistence, schemas, migration, or data integrity"
+  },
+  {
+    "name": "area:electron",
+    "color": "9B59B6",
+    "description": "Electron runtime"
+  },
+  {
+    "name": "area:web",
+    "color": "2EA44F",
+    "description": "Browser/web runtime"
+  },
+  {
+    "name": "area:infra",
+    "color": "5319E7",
+    "description": "Deployment, Docker, hosting, or runtime infrastructure"
+  },
+  {
+    "name": "area:ci",
+    "color": "FBCA04",
+    "description": "Continuous integration and release checks"
+  },
+  {
+    "name": "area:docs",
+    "color": "0075CA",
+    "description": "Documentation system"
+  },
+  {
+    "name": "area:governance",
+    "color": "0052CC",
+    "description": "Issues, PRs, policies, and agent control"
+  },
+  {
+    "name": "risk:low",
+    "color": "C2E0C6",
+    "description": "Low impact and easily reversible"
+  },
+  {
+    "name": "risk:medium",
+    "color": "FBCA04",
+    "description": "Meaningful regression or maintenance risk"
+  },
+  {
+    "name": "risk:high",
+    "color": "D93F0B",
+    "description": "High impact, migration, or security risk"
+  },
+  {
+    "name": "risk:critical",
+    "color": "B60205",
+    "description": "Critical data, security, or irreversible risk"
+  },
+  {
+    "name": "size:XS",
+    "color": "C2E0C6",
+    "description": "Trivial local change"
+  },
+  {
+    "name": "size:S",
+    "color": "BFDADC",
+    "description": "One bounded unit of behavior"
+  },
+  {
+    "name": "size:M",
+    "color": "FBCA04",
+    "description": "Small vertical slice"
+  },
+  {
+    "name": "size:L",
+    "color": "D93F0B",
+    "description": "Must be decomposed before ready"
+  },
+  {
+    "name": "size:XL",
+    "color": "B60205",
+    "description": "Program-scale; never one implementation ticket"
+  },
+  {
+    "name": "agent:analysis",
+    "color": "0E8A16",
+    "description": "Assigned to a read-only analysis agent"
+  },
+  {
+    "name": "agent:implementation",
+    "color": "1D76DB",
+    "description": "Assigned to an implementation agent"
+  },
+  {
+    "name": "agent:review",
+    "color": "5319E7",
+    "description": "Assigned to an independent review agent"
+  },
+  {
+    "name": "human:decision",
+    "color": "8250DF",
+    "description": "Requires explicit human authority"
+  }
+]

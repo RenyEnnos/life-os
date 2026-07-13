@@ -1,231 +1,92 @@
-# Guia de Contribuição
+# Contributing to LifeOS
 
-Obrigado por considerar contribuir para o Life OS! 🎉
+Status: canonical  
+Authority: contribution workflow  
+Owner: repository maintainer  
+Last reviewed: 2026-07-12
 
-## Visão Geral do Projeto
+LifeOS is currently undergoing a controlled recovery program. Contributions are issue-driven and must respect the decisions and gates tracked in #82.
 
-O Life OS é um **aplicativo desktop Electron offline-first** para produtividade e gerenciamento pessoal. Todos os dados são armazenados localmente via SQLite, com sincronização opcional com Supabase.
+## Before contributing
 
-## Como Contribuir
+1. Read `AGENTS.md`.
+2. Read `docs/governance/README.md`.
+3. Find or create an issue using the appropriate issue form.
+4. Confirm the issue has one type, priority, and status label.
+5. Do not implement until the issue is `status:ready`.
+6. For architecture, runtime, persistence, authentication, synchronization, or structural dependencies, confirm that an approved ADR exists.
 
-### Reportando Bugs
+## Contribution modes
 
-Se você encontrou um bug, por favor crie uma issue incluindo:
+### Audit
 
-- Descrição clara do problema
-- Passos para reproduzir
-- Comportamento esperado vs atual
-- Screenshots (se aplicável)
-- Ambiente (OS, versão do Electron, etc.)
+Read-only investigation. Deliver evidence, classifications, risks, and recommendations. Do not edit product files.
 
-### Sugerindo Melhorias
+### Decision
 
-Para sugerir novas funcionalidades:
+Compare options and prepare a human choice. A decision issue does not authorize implementation. The final choice must be recorded by a maintainer or accepted ADR.
 
-1. Verifique se já não existe uma issue similar
-2. Crie uma issue descrevendo:
-   - Problema que resolve
-   - Solução proposta
-   - Alternativas consideradas
-   - Impacto esperado
+### Documentation and governance
 
-### Pull Requests
+Documentation may be changed only when the issue explicitly authorizes the named files. Do not use documentation work to make an unapproved product or architecture decision.
 
-1. **Fork** o repositório
-2. **Crie uma branch** para sua feature:
-   ```bash
-   git checkout -b feature/minha-feature
-   ```
-3. **Faça commits** semânticos:
-   ```bash
-   git commit -m "feat: adiciona nova funcionalidade X"
-   ```
-4. **Push** para a branch:
-   ```bash
-   git push origin feature/minha-feature
-   ```
-5. **Abra um Pull Request**
+### Implementation
 
-## Padrões de Código
+Implementation requires a `status:ready` issue that satisfies the Definition of Ready. The PR must remain within that issue's scope.
 
-### Commits Semânticos
+## Branches
 
-Usamos o padrão [Conventional Commits](https://www.conventionalcommits.org/):
+Use a branch for every change. Suggested names:
 
-- `feat:` Nova funcionalidade
-- `fix:` Correção de bug
-- `docs:` Documentação
-- `style:` Formatação (sem mudança de código)
-- `refactor:` Refatoração de código
-- `test:` Testes
-- `chore:` Tarefas de manutenção
+- `audit/<scope>`
+- `decision/<scope>`
+- `docs/<scope>`
+- `fix/<scope>`
+- `refactor/<scope>`
+- `feature/<scope>`
+- `governance/<scope>`
 
-Exemplos:
-```
-feat: adiciona filtro por data no dashboard
-fix: corrige cálculo do Life Score
-docs: atualiza README com arquitetura Electron
-refactor: migra comunicação de HTTP para IPC
-```
+Do not commit directly to `main` unless a maintainer records an emergency exception.
 
-### Estilo TypeScript
+## Commits
 
-- Use **TypeScript** em todo código novo
-- Evite `any`, prefira tipos explícitos
-- Use interfaces para objetos complexos
-- Documente funções públicas com JSDoc
+Use focused Conventional Commits where practical:
 
-```typescript
-/**
- * Calcula o Life Score baseado em métricas do usuário
- * @param userId - ID do usuário
- * @returns Objeto com score e tendência
- */
-async function calculateLifeScore(userId: string): Promise<LifeScore> {
-  // implementação
-}
-```
+- `docs:` documentation only;
+- `governance:` repository policy, templates, or agent instructions;
+- `fix:` defect correction;
+- `refactor:` behavior-preserving structural change;
+- `test:` test-only change;
+- `feat:` approved new behavior;
+- `chore:` bounded maintenance.
 
-### Estilo React
+A commit message does not authorize scope beyond the issue.
 
-- Use **function components** com hooks
-- Prefira **arrow functions**
-- Extraia lógica complexa em **custom hooks**
-- Use **TypeScript** para props
-- Comunicação via `window.api` para operações de dados
+## Pull requests
 
-```typescript
-interface TaskCardProps {
-  task: Task
-  onComplete: (id: string) => void
-  onDelete: (id: string) => void
-}
+Use `.github/pull_request_template.md` and include:
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete }) => {
-  // implementação
-}
-```
+- authorizing issue;
+- objective and exclusions;
+- files or areas changed;
+- acceptance criteria status;
+- actual validation commands and outcomes;
+- risks, limitations, and rollback;
+- documentation impact;
+- AI assistance declaration when applicable.
 
-### Formatação
+Open AI-authored PRs as draft until self-review and applicable checks complete. Human review is required before merge.
 
-O projeto usa ESLint e Prettier:
+## Review standard
 
-```bash
-# Verificar
-npm run lint
+Reviewers verify:
 
-# Corrigir automaticamente
-npm run lint:fix
-```
+- authorization and scope;
+- evidence rather than unsupported claims;
+- product and architecture neutrality where decisions are pending;
+- tests and validation appropriate to the affected runtime;
+- data, security, migration, and rollback risk;
+- documentation consistency;
+- absence of unrelated cleanup or dependency additions.
 
-## Estrutura de Pastas
-
-```
-electron/
-├── main.ts        # Processo principal Electron
-├── db/            # SQLite local
-├── ipc/           # Handlers IPC
-└── sync/          # Sincronização opcional
-
-src/
-├── app/           # Configuração global e rotas
-├── features/      # Módulos de domínio
-│   └── tasks/    # Feature de tarefas
-├── shared/        # Componentes reutilizáveis
-│   └── ui/       # Componentes base (Button, Card, etc.)
-├── hooks/         # Custom hooks
-└── types/         # Tipos TypeScript globais
-```
-
-## Testes
-
-### Executando Testes
-
-```bash
-# Todos os testes
-npm run test
-
-# Modo watch
-npm run test:watch
-
-# Com coverage
-npm run test:coverage
-```
-
-### Escrevendo Testes
-
-- Teste funcionalidades críticas
-- Use mocks para APIs externas (Supabase)
-- Mantenha testes simples e focados
-- Teste handlers IPC separadamente
-
-```typescript
-describe('TaskService', () => {
-  it('should create a new task', async () => {
-    const task = await taskService.create(userId, taskData)
-    expect(task.title).toBe(taskData.title)
-  })
-})
-```
-
-## Build e Deploy
-
-### Build Local
-
-```bash
-# TypeScript compilation
-npm run check
-
-# Build de produção
-npm run build
-
-# Build do Electron
-npm run electron:build
-```
-
-### Distribuição
-
-O projeto gera artefatos nativos para cada plataforma:
-- **Linux**: AppImage
-- **Windows**: NSIS installer
-- **macOS**: DMG
-
-Os builds são gerados na pasta `release/`.
-
-## Documentação
-
-- Mantenha o **README.md** atualizado
-- Documente mudanças no **CHANGELOG.md**
-- Adicione comentários em código complexo
-- Atualize types no código TypeScript
-- Documente novos handlers IPC
-
-## Code Review
-
-Pull Requests serão revisados considerando:
-
-- ✅ Funcionalidade correta
-- ✅ Testes adequados
-- ✅ Código limpo e legível
-- ✅ Performance
-- ✅ Segurança
-- ✅ Arquitetura Electron adequada
-- ✅ Documentação
-
-## Dúvidas?
-
-Se tiver dúvidas sobre como contribuir:
-
-1. Leia a documentação existente
-2. Procure em issues fechadas
-3. Abra uma issue com sua dúvida
-4. Contate os mantenedores
-
-## Código de Conduta
-
-- Seja respeitoso e inclusivo
-- Aceite críticas construtivas
-- Foque no que é melhor para o projeto
-- Mantenha discussões profissionais
-
-Obrigado por contribuir! 🚀
+Green CI does not replace review. Existing CI is itself under audit in #86.
