@@ -66,7 +66,7 @@ Stop editing and report when:
 - security boundaries are unclear;
 - required credentials or environments are unavailable;
 - validation reveals unrelated systemic failure that would tempt broad repair;
-- the issue would require a size `L` or `XL` diff.
+- the issue would require a `size:L` or `size:XL` diff.
 
 Stopping is a correct outcome when continuing would require invention.
 
