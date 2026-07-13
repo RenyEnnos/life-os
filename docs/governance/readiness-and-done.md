@@ -23,8 +23,9 @@ An implementation issue may receive `status:ready` only when all material items 
 - required tests and validation;
 - documentation impact;
 - rollback or reversibility plan when applicable;
-- one priority, one type, one status, area, risk, and size labels;
-- size `XS`, `S`, or `M`.
+- exactly one `priority:*`, one `type:*`, one `status:*`, one `risk:*`, and one `size:*` label;
+- at least one `area:*` label;
+- size `size:XS`, `size:S`, or `size:M`.
 
 ### Not ready
 
