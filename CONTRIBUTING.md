@@ -1,6 +1,6 @@
 # Contributing to LifeOS
 
-Status: active governance document  
+Status: canonical  
 Authority: contribution workflow  
 Owner: repository maintainer  
 Last reviewed: 2026-07-12
@@ -18,81 +18,75 @@ LifeOS is currently undergoing a controlled recovery program. Contributions are 
 
 ## Contribution modes
 
-### Audit or discovery
+### Audit
 
-Produces evidence, inventories, risk analysis, or recommendations. It does not authorize implementation.
+Read-only investigation. Deliver evidence, classifications, risks, and recommendations. Do not edit product files.
 
 ### Decision
 
-Compares alternatives and records a human decision. A recommendation from an agent is not an approved decision.
+Compare options and prepare a human choice. A decision issue does not authorize implementation. The final choice must be recorded by a maintainer or accepted ADR.
 
-### Documentation or governance
+### Documentation and governance
 
-May update repository process and canonical documentation when explicitly authorized. It must not smuggle product or architecture decisions into wording changes.
+Documentation may be changed only when the issue explicitly authorizes the named files. Do not use documentation work to make an unapproved product or architecture decision.
 
 ### Implementation
 
-Changes behavior, code, configuration, dependencies, data, or release paths. It requires a complete Definition of Ready.
+Implementation requires a `status:ready` issue that satisfies the Definition of Ready. The PR must remain within that issue's scope.
 
 ## Branches
 
-Use short-lived branches:
+Use a branch for every change. Suggested names:
 
-- `audit/<topic>`
-- `decision/<topic>`
-- `docs/<topic>`
-- `governance/<topic>`
-- `fix/<topic>`
-- `refactor/<topic>`
-- `feature/<topic>`
+- `audit/<scope>`
+- `decision/<scope>`
+- `docs/<scope>`
+- `fix/<scope>`
+- `refactor/<scope>`
+- `feature/<scope>`
+- `governance/<scope>`
 
-Do not commit directly to `main`. One implementation issue should map to one branch and one PR.
+Do not commit directly to `main` unless a maintainer records an emergency exception.
 
 ## Commits
 
-Use Conventional Commit prefixes when practical:
+Use focused Conventional Commits where practical:
 
-- `docs:`
-- `chore:`
-- `fix:`
-- `refactor:`
-- `test:`
-- `feat:`
-- `ci:`
+- `docs:` documentation only;
+- `governance:` repository policy, templates, or agent instructions;
+- `fix:` defect correction;
+- `refactor:` behavior-preserving structural change;
+- `test:` test-only change;
+- `feat:` approved new behavior;
+- `chore:` bounded maintenance.
 
-Commit messages must describe the actual change, not the agent used to create it.
+A commit message does not authorize scope beyond the issue.
 
 ## Pull requests
 
-A PR must:
+Use `.github/pull_request_template.md` and include:
 
-- link the authorizing issue;
-- state what changed and what did not;
-- identify risk and rollback;
-- list validation commands and actual results;
-- answer each acceptance criterion;
-- declare documentation impact;
-- remain draft while incomplete;
-- avoid unrelated changes.
+- authorizing issue;
+- objective and exclusions;
+- files or areas changed;
+- acceptance criteria status;
+- actual validation commands and outcomes;
+- risks, limitations, and rollback;
+- documentation impact;
+- AI assistance declaration when applicable.
 
-PRs created by agents require human review before merge unless the maintainer explicitly records another rule.
+Open AI-authored PRs as draft until self-review and applicable checks complete. Human review is required before merge.
 
-## Dependencies
+## Review standard
 
-No new dependency may be added without the assessment required by `docs/governance/policies.md`.
+Reviewers verify:
 
-## Documentation
+- authorization and scope;
+- evidence rather than unsupported claims;
+- product and architecture neutrality where decisions are pending;
+- tests and validation appropriate to the affected runtime;
+- data, security, migration, and rollback risk;
+- documentation consistency;
+- absence of unrelated cleanup or dependency additions.
 
-Do not create a second source of truth. Historical documents must be marked and moved according to the documentation policy, not silently rewritten as current requirements.
-
-## Security and data
-
-Never include real secrets, credentials, user data, production exports, or identifying fixtures. Security-sensitive findings should use a private channel when public disclosure would create risk.
-
-## Validation
-
-Run checks applicable to the changed scope. Record exact commands and results. A passing command is evidence only for what that command actually covers.
-
-## Code of conduct
-
-Be direct, respectful, evidence-based, and willing to stop when the repository does not contain enough information for a safe decision.
+Green CI does not replace review. Existing CI is itself under audit in #86.
