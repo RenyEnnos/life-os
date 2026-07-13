@@ -1,0 +1,49 @@
+name: Audit or discovery
+description: Read-only evidence collection, inventory, or risk analysis
+title: "[AUDIT] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This issue does not authorize product-code changes.
+  - type: textarea
+    id: question
+    attributes:
+      label: Question to answer
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and known contradictions
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Minimum sources to inspect
+    validations:
+      required: true
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: Required deliverables
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence standard
+      description: Define how facts, inferences, recommendations, and human decisions will be separated.
+    validations:
+      required: true
+  - type: textarea
+    id: exclusions
+    attributes:
+      label: Prohibited actions
+      value: |
+        - Do not edit product code.
+        - Do not open an implementation PR.
+        - Do not turn recommendations into decisions.
+    validations:
+      required: true
