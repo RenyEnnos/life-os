@@ -1,7 +1,11 @@
 name: Human decision
-description: Compare options and record a decision that agents may not make alone
+description: Compare options and prepare a choice that agents may not approve alone
 title: "[DECISION] "
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Opening this issue does not approve a decision. A human maintainer must record the final choice in the issue or an accepted ADR before implementation begins.
   - type: textarea
     id: decision
     attributes:
@@ -38,10 +42,10 @@ body:
       label: Consequences, migration, and rollback
     validations:
       required: true
-  - type: checkboxes
-    id: approval
+  - type: textarea
+    id: recommendation
     attributes:
-      label: Approval
-      options:
-        - label: A human maintainer has recorded the final choice before implementation begins.
-          required: true
+      label: Recommendation, uncertainty, and dissent
+      description: Agents may recommend an option but must identify uncertainty and alternatives.
+    validations:
+      required: true
