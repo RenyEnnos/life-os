@@ -1,0 +1,47 @@
+name: Human decision
+description: Compare options and record a decision that agents may not make alone
+title: "[DECISION] "
+body:
+  - type: textarea
+    id: decision
+    attributes:
+      label: Decision required
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and constraints
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Observed evidence
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Options to compare
+    validations:
+      required: true
+  - type: textarea
+    id: drivers
+    attributes:
+      label: Decision drivers
+    validations:
+      required: true
+  - type: textarea
+    id: consequences
+    attributes:
+      label: Consequences, migration, and rollback
+    validations:
+      required: true
+  - type: checkboxes
+    id: approval
+    attributes:
+      label: Approval
+      options:
+        - label: A human maintainer has recorded the final choice before implementation begins.
+          required: true
