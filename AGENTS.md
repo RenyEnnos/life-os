@@ -1,179 +1,105 @@
 # AGENTS.md
 
-Development guidelines for agentic coding assistants working on the Life OS codebase.
+Status: canonical governance entrypoint  
+Authority: repository-wide operating rules for AI agents  
+Owner: repository maintainer  
+Last reviewed: 2026-07-12  
+Related: issues #82, #84, #85, #91
 
-## Project Overview
+## Purpose
 
-Life OS is now an **Electron desktop application with offline-first architecture**. All data is stored locally in SQLite via `better-sqlite3`, with optional Supabase cloud sync.
+This file defines how AI agents may work in the LifeOS repository. It is intentionally short. Detailed rules live in `docs/governance/`.
 
-## Architecture
+## Current freeze
 
-- **Frontend:** React + Vite + TypeScript running in Electron Renderer
-- **Backend:** Electron Main Process with SQLite local database
-- **Communication:** Electron IPC via `window.api` (no direct HTTP REST calls)
-- **Storage:** SQLite (`better-sqlite3`) for local persistence
-- **Sync:** Optional Supabase sync when explicitly configured
+LifeOS is under product, architecture, security, documentation, and debloat review.
 
-## Essential Commands
+Until a human-approved decision or implementation issue says otherwise, agents must not:
 
-### Development
-```bash
-npm run dev              # Start Electron desktop app
-npm run electron:dev     # Alternative: Electron dev mode
-npm run build            # Build for production
-npm run electron:build   # Package Electron app for distribution
-```
+- choose web, Electron, PWA, Android, or another runtime as canonical;
+- treat legacy code or the newest code as the desired architecture;
+- add features or dependencies;
+- perform broad rewrites, migrations, renames, or cleanup;
+- remove code only because it appears unused;
+- turn proposals, old PRDs, comments, or historical plans into requirements;
+- begin a second issue after completing the assigned one.
 
-### Quality Assurance
-```bash
-npm run typecheck        # TypeScript type checking (tsc --noEmit)
-npm run lint            # ESLint - run before committing
-npm run test            # Run all tests with Vitest
-npm run test:watch      # Watch mode for tests
-```
+## Authority order
 
-### Running Single Tests
-```bash
-# Test specific file
-npx vitest run path/to/test.test.ts
+When sources conflict, use this order:
 
-# Test by pattern
-npx vitest run --pattern "tasks"
+1. explicit human decision recorded in an issue or PR;
+2. approved ADR;
+3. implementation issue marked ready;
+4. canonical product and contract documentation;
+5. applicable tests and schemas;
+6. current code;
+7. comments, historical plans, generated summaries, and agent inference.
 
-# Integration tests only
-npm run test:integration
-```
+A conflict between higher-authority sources is a stop condition. Report it; do not resolve it silently.
 
-### Build
-```bash
-npm run build           # Full build with typecheck + lint
-npm run check           # TypeScript check only
-npm run preview         # Preview production build
-```
+## Required execution contract
 
-## Code Style Guidelines
+Every agent must:
 
-### Imports & Aliases
-- Always use `@/*` alias for src imports: `@/features/tasks/hooks/useTasks`
-- External packages: import specific exports, not entire libraries: `import { Button } from 'lucide-react'`
-- Group imports: React/external libraries → internal aliases → types
+1. read the assigned issue and linked decisions;
+2. restate the objective, scope, exclusions, and stop conditions;
+3. inspect relevant files before editing;
+4. identify contradictions, risks, and unknowns;
+5. propose a short plan and expected file list;
+6. keep the diff limited to the issue;
+7. add or update tests for behavior changes;
+8. run applicable validation;
+9. report commands, results, limitations, and unperformed work;
+10. stop when the issue is complete.
 
-### TypeScript
-- Strict mode enabled - always type everything, avoid `any` (ESLint error)
-- Use `Record<string, unknown>` or `unknown` for untyped data, not `any`
-- Infer types from database: `DbTask = Database['public']['Tables']['tasks']['Row']`
-- Extend DB types for UI: `interface Task extends Omit<DbTask, 'tags'> { tags?: string[] }`
+## Issue authorization
 
-### File Organization (Feature-Based Architecture)
-```
-src/features/[feature-name]/
-  api/              # API calls (feature.api.ts)
-  components/       # Feature components
-  hooks/           # React Query hooks (useFeature.ts)
-  __tests__/       # Feature tests
-  types.ts         # Feature-specific types
-  index.tsx        # Feature page/entry point
-```
+Only an issue labeled `status:ready` and satisfying the Definition of Ready may authorize implementation.
 
-### Component Patterns
-- Use `React.forwardRef` for components needing ref forwarding
-- Use `class-variance-authority` for variant props (see Button.tsx)
-- Combine Tailwind classes with `cn()` utility: `className={cn("base-class", isActive && "active-class")}`
-- Export interfaces for props separately for clarity
+These issue types never authorize product code by themselves:
 
-### State Management & Data Fetching
-- **API calls**: Use `@tanstack/react-query` via custom hooks (e.g., `useTasks`, `useHabits`)
-- **Global state**: Use Zustand stores in `src/shared/stores/`
-- **Local form state**: React `useState`
-- **Server mutations**: `useMutation` with `queryClient.invalidateQueries` on success
+- `type:tracking`
+- `type:audit`
+- `type:decision`
+- `type:governance` when explicitly documentary
+- research or discovery issues
 
-### API Layer
-- All API calls go through `apiClient` from `@/shared/api/http`
-- Use typed methods: `apiClient.get<T>(), apiClient.post<T>(url, data)`
-- Error handling: `ApiError` class includes status and details
-- Always handle 4xx client errors gracefully (warnings), 5xx server errors critically
+## Permanent prohibitions
 
-### Testing
-- Test files: `*.test.ts` or `*.test.tsx` in `__tests__/` directories
-- Mock external dependencies: `vi.mock('@/shared/api/http', ...)`
-- Use globals: `describe, it, expect` from vitest (no import needed)
-- Component tests: `@testing-library/react` for rendering
-- API tests: Mock http client, test returned data shape
+Agents must not:
 
-### Naming Conventions
-- **Components**: PascalCase (`TaskWidget`, `HabitCard`)
-- **Hooks**: camelCase with `use` prefix (`useTasks`, `useDashboardStats`)
-- **Files**: camelCase for modules, PascalCase for components (`tasks.api.ts`, `TaskWidget.tsx`)
-- **Constants**: UPPER_SNAKE_CASE (`API_BASE_URL`, `MAX_RETRIES`)
-- **DB tables**: snake_case (PostgreSQL convention)
+- commit secrets, credentials, personal data, or production tokens;
+- disable tests or weaken assertions merely to obtain a green check;
+- add silent fallbacks that hide infrastructure failure;
+- claim support, security, compatibility, performance, or readiness without evidence;
+- mix feature work with unrelated refactoring;
+- add abstractions for hypothetical future use;
+- install dependencies without an approved dependency assessment;
+- change snapshots without explaining the user-visible behavior;
+- modify generated or lock files unless the issue requires it;
+- merge their own PR unless explicitly authorized by the maintainer.
 
-### Error Handling
-- Use `try/catch` for async operations
-- Log 4xx errors as warnings, 5xx as errors
-- User-facing errors should be translated/translated strings
-- Return default values gracefully (e.g., `data || defaultValue`)
-- Always invalidate queries on successful mutations
+## Validation baseline
 
-### Styling (Tailwind)
-- Use semantic color tokens: `bg-background`, `text-foreground`, `border-border`
-- Custom colors defined in tailwind.config.js: `primary`, `oled`, `glass`
-- Dark mode via `class` strategy - components should support both
-- Responsive: mobile-first, use `md:`, `lg:` prefixes
-- Animations: use defined animations (`animate-pulse-slow`, `animate-enter`)
+Use only commands that exist in `package.json` and apply to the changed scope. Do not copy commands from historical documentation.
 
-### Backend (Express + Supabase)
-- Routes in `api/routes/`, services in `api/services/`
-- All routes require `authenticateToken` middleware except auth endpoints
-- Use Supabase client: `import { supabase } from '../lib/supabase'`
-- Return JSON responses: `{ success: boolean, data?, error? }`
-- Log errors with context: `console.error('Error creating task:', error)`
+Minimum expectations for code changes normally include:
 
-### Git Workflow
-- Run `npm run lint` and `npm run typecheck` before committing
-- Follow conventional commits: `feat:`, `fix:`, `refactor:`, `test:`
-- Never commit `.env` files or secrets
-- Mock disabled features instead of leaving TODOs
+- `npm run typecheck`
+- `npm run lint`
+- relevant tests
+- `npm run build`
 
-### Key Libraries & Patterns
-- **Icons**: `lucide-react` - import specific icons
-- **Forms**: `zod` for validation, `@radix-ui/*` for accessible primitives
-- **Charts**: `recharts` for data visualization
-- **Animations**: `framer-motion` for UI transitions
-- **Routing**: `react-router-dom` with nested routes
-- **Date handling**: `date-fns` utilities
+Runtime-specific checks are governed by the approved runtime ADR. Until issue #85 is decided, do not present one runtime's smoke test as proof for another.
 
-### Common Patterns to Follow
+## Detailed governance
 
-**Custom Hook with React Query:**
-```typescript
-export function useTasks() {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const { data, isLoading } = useQuery<Task[]>({
-    queryKey: ['tasks', user?.id],
-    queryFn: () => tasksApi.getAll(),
-    enabled: !!user,
-  });
-  const createTask = useMutation({
-    mutationFn: tasksApi.create,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
-  });
-  return { tasks: data || [], isLoading, createTask };
-}
-```
+Read:
 
-**API Service Function:**
-```typescript
-export const tasksApi = {
-  getAll: async () => apiClient.get<Task[]>('/api/tasks'),
-  create: async (task: Partial<Task>) => apiClient.post<Task>('/api/tasks', task),
-};
-```
-
-**Component with Variants:**
-```typescript
-const buttonVariants = cva("base-classes", {
-  variants: { variant: { primary: "...", secondary: "..." } },
-  defaultVariants: { variant: "primary" },
-});
-```
+- `docs/governance/README.md`
+- `docs/governance/agent-protocol.md`
+- `docs/governance/readiness-and-done.md`
+- `docs/governance/policies.md`
+- `docs/governance/labels.md`
+- `docs/adr/README.md`
