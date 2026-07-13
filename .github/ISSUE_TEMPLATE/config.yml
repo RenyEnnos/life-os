@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Recovery program
+    url: https://github.com/RenyEnnos/life-os/issues/82
+    about: Read the current gates and recovery context before proposing work.
