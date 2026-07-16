@@ -93,5 +93,8 @@ describe('release gate contract', () => {
     expect(dockerfile.indexOf('RUN npm run prisma:generate')).toBeLessThan(
       dockerfile.indexOf('RUN npm run build'),
     )
+    expect(dockerfile).toContain(
+      'COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma',
+    )
   })
 })
