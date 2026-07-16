@@ -67,4 +67,21 @@ describe('release gate contract', () => {
       expect(smokeSpec).not.toContain(route)
     }
   })
+
+  it('keeps container acceptance aligned with the canonical single-process runtime', () => {
+    const compose = readFileSync(`${process.cwd()}/docker-compose.yml`, 'utf8')
+    const workflow = readFileSync(
+      `${process.cwd()}/.github/workflows/docker-acceptance-smoke.yml`,
+      'utf8',
+    )
+
+    expect(compose).toContain('"3001:3001"')
+    expect(compose).toContain('LIFEOS_SESSION_SECRET')
+    expect(compose).toContain('LIFEOS_MVP_REPOSITORY=file')
+    expect(compose).not.toMatch(/^\s{2}(redis|nginx):/m)
+    expect(workflow).toContain('.State.Health.Status')
+    expect(workflow).not.toContain('--health-cmd')
+    expect(workflow).toContain('http://127.0.0.1:3001/mvp/today')
+    expect(workflow).toContain('http://127.0.0.1:3001/api/auth/verify')
+  })
 })
