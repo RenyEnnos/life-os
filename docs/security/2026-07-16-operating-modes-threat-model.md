@@ -82,7 +82,7 @@ Electron is experimental under ADR-0001. When Supabase is configured it uses Sup
 | Known fallback invite `partner@lifeos.local` / `LIFEOS-INVITE` | permitted with disposable loopback data | prohibited | prohibited | make fallback development-only and fail closed elsewhere |
 | Explicit `LIFEOS_INVITES` seeds | permitted | permitted only with unique, rotated, email-bound seeds | beta requires managed invite lifecycle | validate configuration and avoid logging values |
 | `VITE_BYPASS_MVP_INVITE_GATE` | permitted | prohibited | prohibited | release/build check must reject true |
-| `VITE_ENABLE_INTERNAL_MVP_ADMIN` / DEV / localhost admin | permitted as UI convenience | prohibited as authority | prohibited | replace privileged operations with server authorization before beta |
+| `VITE_ENABLE_INTERNAL_MVP_ADMIN` / `DEV` / `localhost` admin | permitted as UI convenience | prohibited as authority | prohibited | replace privileged operations with server authorization before beta |
 | File-backed auth and MVP JSON | permitted single-process | permitted only for disposable, single-instance demo | prohibited for persistent multi-user beta | migrate or add proved atomicity, locking, backup and recovery |
 | Automatic Prisma selection from `DATABASE_URL` | optional local test | explicit only | decision required | require an explicit supported persistence mode and migration evidence |
 | Electron local auth fallback | permitted in experimental local runtime | prohibited for shared demo | prohibited | retain only as explicit offline-development mode or remove via scoped issue |
