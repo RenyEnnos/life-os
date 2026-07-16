@@ -71,6 +71,7 @@ describe('release gate contract', () => {
   it('keeps container acceptance aligned with the canonical single-process runtime', () => {
     const compose = readFileSync(`${process.cwd()}/docker-compose.yml`, 'utf8')
     const dockerignore = readFileSync(`${process.cwd()}/.dockerignore`, 'utf8')
+    const dockerfile = readFileSync(`${process.cwd()}/Dockerfile`, 'utf8')
     const workflow = readFileSync(
       `${process.cwd()}/.github/workflows/docker-acceptance-smoke.yml`,
       'utf8',
@@ -88,5 +89,9 @@ describe('release gate contract', () => {
     expect(dockerignore).toContain('.git')
     expect(dockerignore).toContain('dist')
     expect(dockerignore).toContain('.data')
+    expect(dockerfile).toContain('RUN npm run prisma:generate')
+    expect(dockerfile.indexOf('RUN npm run prisma:generate')).toBeLessThan(
+      dockerfile.indexOf('RUN npm run build'),
+    )
   })
 })
