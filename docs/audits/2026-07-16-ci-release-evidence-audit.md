@@ -39,9 +39,9 @@ Electron, PWA, Storybook, performance and accessibility may provide useful advis
 
 | Workflow/job | Trigger | Actual command/capability | Runtime proved | Classification | Evidence gap/action |
 |---|---|---|---|---|---|
-| `ci.yml` / `quality-gate` | push and PR to `main` | Intended lockfile, install, typecheck, lint, Vitest, web build, Electron build and Electron smoke | none today | **cenographic/broken** | YAML line 35 contains an unquoted colon in the `run` scalar; GitHub creates a failed run with zero jobs and names it by file path |
-| `test.yml` / `test` | push/PR to `main`, `staging` | `npm ci`; `npm run test`; upload `coverage/` | Node/jsdom plus in-process API tests | **functional but artifact misleading** | Vitest is not invoked with coverage, so upload does not establish coverage; duplicates the intended CI test lane |
-| `ci-rls.yml` / `rls` | push/PR to `main` | `npm ci`; full `npm run test -- --coverage` with Supabase env names | same general Node/jsdom/API suite | **functional command, false name/duplicate** | current Actions secret-name list and run values are empty; test setup mocks Supabase; no RLS/policy test or live operation exists |
+| `ci.yml` / `quality-gate` | push and PR to `main` | Intended lockfile, install, typecheck, lint, `Vitest`, web build, `Electron` build and `Electron` smoke | none today | **cenographic/broken** | YAML line 35 contains an unquoted colon in the `run` scalar; GitHub creates a failed run with zero jobs and names it by file path |
+| `test.yml` / `test` | push/PR to `main`, `staging` | `npm ci`; `npm run test`; upload `coverage/` | `Node`/`jsdom` plus in-process API tests | **functional but artifact misleading** | `Vitest` is not invoked with coverage, so upload does not establish coverage; duplicates the intended CI test lane |
+| `ci-rls.yml` / `rls` | push/PR to `main` | `npm ci`; full `npm run test -- --coverage` with `Supabase` env names | same general `Node`/`jsdom`/API suite | **functional command, false name/duplicate** | current Actions secret-name list and run values are empty; test setup mocks `Supabase`; no RLS/policy test or live operation exists |
 | `docker-acceptance-smoke.yml` / `docker-smoke` | manual | builds, runs image as `3000:3000`, curls `/api/health` | intended API container only | **manual and broken** | image defaults to 3001; session secret is absent; browser assets are not served; no workflow execution was found |
 | `lighthouse-scheduled.yml` / `lighthouse` | impossible cron plus manual | build; global LHCI install; missing production config | intended browser performance | **scheduled cenographic/disabled by inactivity; manual broken** | remote workflow is disabled for inactivity; `0 2 31 2 *` means 31 February; `lighthouserc.production.json` is absent; no served URL starts |
 | `sync-labels.yml` / `sync-labels` | manual | validates and applies `.github/labels.json` through GitHub API | governance only | **manual and functional; dispatch succeeded** | useful, but never a product/release check |
@@ -63,25 +63,25 @@ Issue #100 already owns branch protection, required checks and agent environment
 
 | Command | Intended owner | What it currently proves | What it does not prove | State |
 |---|---|---|---|---|
-| `npm run dev` / `dev:web` | local web development | starts Express watcher and Vite dev server | release artifact or shared-safe mode | functional local path |
+| `npm run dev` / `dev:web` | local web development | starts `Express` watcher and `Vite` dev server | release artifact or shared-safe mode | functional local path |
 | `server:dev` | local API | TypeScript API watcher | client, artifact or persistence readiness | functional local path |
-| `client:dev` | local browser | Vite dev client on all interfaces | server/auth or safe host policy | functional but local-only |
+| `client:dev` | local browser | `Vite` dev client on all interfaces | server/auth or safe host policy | functional but local-only |
 | `build` | web build | declares TypeScript project build plus Vite/PWA browser assets; #83 recorded a successful historical run on unchanged source | runnable full-stack artifact | declared command with historical build evidence; not rerun here |
 | `build:server` | server build | declares compiled CommonJS server artifact; #83 recorded a successful historical run on unchanged source | static web serving or deployment readiness | declared command with historical build evidence; not rerun here |
 | `typecheck` / `check` | static | TypeScript no-emit checking | runtime behavior | duplicate aliases |
-| `lint` | static | configured ESLint rules | correctness/release | functional static lane |
-| `test` | Node/jsdom/API | configured Vitest suite | browser, Electron package, live DB/RLS or deployment | functional development evidence |
-| `test:integration` | selected jsdom | feature integration files matching the glob | all integration tests or server/browser integration | narrow manual lane |
-| `test:e2e` / `test:e2e:smoke` | Electron | declares `smoke.spec.ts` through Electron IPC/local fallback | web HTTP/auth, container or browser runtime | declared experimental lane; current execution unverified; duplicate aliases |
-| `test:e2e:advisory` | browser | starts Vite client only | nothing today because all selected describes are skipped; also no Express server | quarantined/non-evidence |
-| `electron:dev` / `electron:full` | experimental Electron | Vite Electron-mode development | packaged release | local experimental; duplicate alias |
-| `electron:build` | experimental Electron | TypeScript/Vite plus installer packaging | canonical web release | advisory after independent repair |
-| `android:dev` / `android:build` | unsupported Android | invokes Capacitor after web build | usable Android project/config | broken/incomplete; no `capacitor.config.*` |
-| `prisma:generate` | optional persistence | Prisma client generation | migration or live database correctness | manual tooling |
-| `prisma:migrate:dev` / `prisma:migrate:deploy` | optional persistence | Prisma migration commands | safe migration/rollback | manual; environment-dependent |
-| `storybook` / `build-storybook` | component tooling | configured Storybook dev/static build when run | product route/release | manual advisory; ownership decision needed |
-| `test:seed-perf-data` / `test:perf` | performance tooling | seed helper; latter redirects to Electron release config with a path | canonical web performance | misrouted/broken for web target |
-| `lh` | performance tooling | references `scripts/lighthouse.js` | any Lighthouse result | broken; script absent |
+| `lint` | static | configured `ESLint` rules | correctness/release | functional static lane |
+| `test` | `Node`/`jsdom`/API | configured `Vitest` suite | browser, `Electron` package, live DB/RLS or deployment | functional development evidence |
+| `test:integration` | selected `jsdom` | feature integration files matching the glob | all integration tests or server/browser integration | narrow manual lane |
+| `test:e2e` / `test:e2e:smoke` | `Electron` | declares `smoke.spec.ts` through `Electron` IPC/local fallback | web HTTP/auth, container or browser runtime | declared experimental lane; current execution unverified; duplicate aliases |
+| `test:e2e:advisory` | browser | starts `Vite` client only | nothing today because all selected describes are skipped; also no `Express` server | quarantined/non-evidence |
+| `electron:dev` / `electron:full` | experimental `Electron` | `Vite` `Electron`-mode development | packaged release | local experimental; duplicate alias |
+| `electron:build` | experimental `Electron` | TypeScript/`Vite` plus installer packaging | canonical web release | advisory after independent repair |
+| `android:dev` / `android:build` | unsupported Android | invokes `Capacitor` after web build | usable Android project/config | broken/incomplete; no `capacitor.config.*` |
+| `prisma:generate` | optional persistence | `Prisma` client generation | migration or live database correctness | manual tooling |
+| `prisma:migrate:dev` / `prisma:migrate:deploy` | optional persistence | `Prisma` migration commands | safe migration/rollback | manual; environment-dependent |
+| `storybook` / `build-storybook` | component tooling | configured `Storybook` dev/static build when run | product route/release | manual advisory; ownership decision needed |
+| `test:seed-perf-data` / `test:perf` | performance tooling | seed helper; latter redirects to `Electron` release config with a path | canonical web performance | misrouted/broken for web target |
+| `lh` | performance tooling | references `scripts/lighthouse.js` | any `Lighthouse` result | broken; script absent |
 | `analyze` | build tooling | references bundle analysis script | release | unverified manual tool |
 | SEO generation commands | web tooling | sitemap/robots generation scripts | app runtime or deployment | manual, non-gating |
 | `types:generate` | Supabase tooling | invokes Supabase CLI and writes generated types | RLS or live schema compatibility | manual/destructive-to-generated-file; explicit project required |
@@ -92,18 +92,18 @@ Issue #100 already owns branch protection, required checks and agent environment
 |---|---|---|---|---|
 | TypeScript contracts compile | `typecheck`; also build commands | source/static | available locally; absent from any executing PR quality lane | repair/consolidate pipeline |
 | Lint rules pass | `lint` | source/static | available locally; absent from executing PR quality lane | repair/consolidate pipeline |
-| Domain and UI units behave | Vitest | Node/jsdom | green on PRs | classification by canonical versus legacy surface; no runtime proof |
-| Express invite/auth/MVP contract behaves | `api/__tests__/auth.test.ts`, `mvp.test.ts` | in-process Express | included in Vitest with test secret | boundary fixture, live server and durable store evidence |
-| MVP loop composes in UI state | `MvpLoop.int.test.tsx` | jsdom/mocked API | included in Vitest | real HTTP/browser/auth boundary |
-| Browser weekly loop works | all browser Playwright describes skipped | Chromium/Firefox/WebKit | **no evidence** | authoritative browser E2E with Express and fixture |
-| Electron opens | first Electron smoke test | compiled Electron app launched from the checkout | present but current workflow cannot start; installer is not exercised | repaired advisory Electron lane |
-| Electron MVP loop persists | second smoke test through IPC/local JSON | Electron | script exists; CI intended grep selects only main-window test | advisory full smoke if explicitly run |
-| Supabase RLS isolates tenants | environment variables plus general Vitest | none/live Supabase not contacted | **false signal** | selected RLS policy tests against disposable Supabase/Postgres fixture |
+| Domain and UI units behave | `Vitest` | `Node`/`jsdom` | green on PRs | classification by canonical versus legacy surface; no runtime proof |
+| `Express` invite/auth/MVP contract behaves | `api/__tests__/auth.test.ts`, `mvp.test.ts` | in-process `Express` | included in `Vitest` with test secret | boundary fixture, live server and durable store evidence |
+| MVP loop composes in UI state | `MvpLoop.int.test.tsx` | `jsdom`/mocked API | included in `Vitest` | real HTTP/browser/auth boundary |
+| Browser weekly loop works | all browser `Playwright` describes skipped | Chromium/Firefox/WebKit | **no evidence** | authoritative browser E2E with `Express` and fixture |
+| `Electron` opens | first `Electron` smoke test | compiled `Electron` app launched from the checkout | present but current workflow cannot start; installer is not exercised | repaired advisory `Electron` lane |
+| `Electron` MVP loop persists | second smoke test through IPC/local JSON | `Electron` | script exists; CI intended grep selects only main-window test | advisory full smoke if explicitly run |
+| `Supabase` RLS isolates tenants | environment variables plus general `Vitest` | none/live `Supabase` not contacted | **false signal** | selected RLS policy tests against disposable `Supabase`/`Postgres` fixture |
 | Docker API starts | manual health curl | container/API | workflow broken before meaningful proof | correct env/port and run the container |
 | Docker serves browser product | copied `dist/` only | container/web | **no evidence and current process does not serve it** | one web-serving topology and browser smoke |
-| PWA builds | VitePWA output from web build | browser artifact | build-only evidence | install/update/offline tests before support claim |
-| Accessibility | component tests and Storybook addon references | jsdom/tooling | partial/manual | agreed canonical-route checks; advisory until owned |
-| Performance | missing Lighthouse config/script; Electron-misrouted perf command | none | **no evidence** | only add after a deployed/served canonical fixture exists |
+| PWA builds | `VitePWA` output from web build | browser artifact | build-only evidence | install/update/offline tests before support claim |
+| Accessibility | component tests and `Storybook` addon references | `jsdom`/tooling | partial/manual | agreed canonical-route checks; advisory until owned |
+| Performance | missing `Lighthouse` config/script; `Electron`-misrouted perf command | none | **no evidence** | only add after a deployed/served canonical fixture exists |
 
 `src/shared/lib/__tests__/releaseGate.test.ts` protects the current Electron-release versus browser-advisory wiring. That regression test is real, but after ADR-0001 it preserves the wrong authority and must change with the pipeline rather than being cited as product evidence.
 
