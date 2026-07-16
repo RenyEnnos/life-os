@@ -40,5 +40,17 @@ describe('static SPA routing', () => {
     const unknownApi = await request(app).get('/api/not-a-route');
     expect(unknownApi.status).toBe(404);
     expect(unknownApi.text).not.toContain(marker);
+
+    for (const apiPath of ['/API', '/Api/not-a-route', '/%61pi/not-a-route']) {
+      const apiVariant = await request(app).get(apiPath);
+      expect(apiVariant.status).toBe(404);
+      expect(apiVariant.text).not.toContain(marker);
+    }
+
+    for (const assetPath of ['/assets/missing.js', '/favicon.ico', '/missing.css']) {
+      const missingAsset = await request(app).get(assetPath);
+      expect(missingAsset.status).toBe(404);
+      expect(missingAsset.text).not.toContain(marker);
+    }
   });
 });

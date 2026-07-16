@@ -329,7 +329,17 @@ export function createApp(
   if (options.staticDir) {
     app.use(express.static(options.staticDir));
     app.get(/.*/, (req, res, next) => {
-      if (req.path === '/api' || req.path.startsWith('/api/')) {
+      let requestPath: string;
+      try {
+        requestPath = decodeURIComponent(req.path).toLowerCase();
+      } catch {
+        return next();
+      }
+      if (
+        requestPath === '/api' ||
+        requestPath.startsWith('/api/') ||
+        path.extname(requestPath)
+      ) {
         return next();
       }
 
