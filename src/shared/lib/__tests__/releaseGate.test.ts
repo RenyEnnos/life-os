@@ -70,6 +70,7 @@ describe('release gate contract', () => {
 
   it('keeps container acceptance aligned with the canonical single-process runtime', () => {
     const compose = readFileSync(`${process.cwd()}/docker-compose.yml`, 'utf8')
+    const dockerignore = readFileSync(`${process.cwd()}/.dockerignore`, 'utf8')
     const workflow = readFileSync(
       `${process.cwd()}/.github/workflows/docker-acceptance-smoke.yml`,
       'utf8',
@@ -83,5 +84,9 @@ describe('release gate contract', () => {
     expect(workflow).not.toContain('--health-cmd')
     expect(workflow).toContain('http://127.0.0.1:3001/mvp/today')
     expect(workflow).toContain('http://127.0.0.1:3001/api/auth/verify')
+    expect(dockerignore).toContain('node_modules')
+    expect(dockerignore).toContain('.git')
+    expect(dockerignore).toContain('dist')
+    expect(dockerignore).toContain('.data')
   })
 })
