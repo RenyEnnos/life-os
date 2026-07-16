@@ -1,0 +1,14 @@
+node_modules
+.git
+.github
+.superpowers
+.omx
+.data
+dist
+dist-server
+coverage
+playwright-report
+test-results
+*.log
+.env
+.env.*
