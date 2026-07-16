@@ -12,12 +12,15 @@ ADRs record decisions that are costly to reverse. They explain context and trade
 ## Lifecycle
 
 - `proposed` — drafted for discussion;
+- `provisional` — active, reversible decision made under an explicit autonomous mandate; requires later maintainer ratification, rejection, or replacement;
 - `accepted` — approved by the maintainer;
 - `rejected` — considered and declined;
 - `superseded` — replaced by another ADR;
 - `deprecated` — no longer recommended but not yet removed.
 
 Only a human maintainer may mark an ADR accepted.
+
+A provisional ADR may direct ongoing recovery work only when an explicit maintainer mandate authorizes provisional decisions. It must name its rollback trigger and may not represent itself as human-ratified.
 
 ## Naming
 

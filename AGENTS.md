@@ -16,13 +16,14 @@ LifeOS is under product, architecture, security, documentation, and debloat revi
 
 Until a human-approved decision or implementation issue says otherwise, agents must not:
 
-- choose web, Electron, PWA, Android, or another runtime as canonical;
 - treat legacy code or the newest code as the desired architecture;
 - add features or dependencies;
 - perform broad rewrites, migrations, renames, or cleanup;
 - remove code only because it appears unused;
 - turn proposals, old PRDs, comments, or historical plans into requirements;
 - begin a second issue after completing the assigned one.
+
+Runtime exception: `docs/adr/0001-canonical-runtime.md` is the active provisional runtime decision under the maintainer's autonomous recovery mandate. Agents must treat web/HTTP as canonical, Electron as experimental, PWA as experimental, and Android as unsupported. This does not authorize removing non-canonical runtimes; removal still requires a ready implementation issue and migration evidence.
 
 ## Authority order
 
@@ -91,7 +92,7 @@ Minimum expectations for code changes normally include:
 - relevant tests
 - `npm run build`
 
-Runtime-specific checks are governed by the approved runtime ADR. Until issue #85 is decided, do not present one runtime's smoke test as proof for another.
+Runtime-specific checks are governed by the active runtime ADR. Until #86 reconciles CI, do not present Electron smoke as evidence for the canonical web release or browser checks as evidence for Electron.
 
 ## Detailed governance
 
