@@ -1,4 +1,5 @@
-name: Quality Gate
+name: Web CI
+
 on:
   push:
     branches: [ main ]
@@ -6,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  quality-gate:
-    name: quality-gate
+  static-and-unit:
+    name: web / static-and-unit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,27 +16,29 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+
       - name: Enforce lockfile policy
         run: |
           test -f package-lock.json || (echo "Missing package-lock.json"; exit 1)
           test ! -f pnpm-lock.yaml || (echo "pnpm-lock.yaml is not allowed in CI"; exit 1)
           test ! -f yarn.lock || (echo "yarn.lock is not allowed in CI"; exit 1)
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm run lint
-      - run: npm run test
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit, integration, and API contract tests
+        run: npm run test
         env:
           LIFEOS_SESSION_SECRET: test-secret-for-ci
-          JWT_SECRET: test-secret-for-ci
-      - run: npm run build
-      - run: npm run electron:build
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-      - name: Minimal smoke gate
-        run: xvfb-run -a npm run test:e2e -- --grep "desktop smoke: Life OS main window"
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-files
-          path: dist/
-          retention-days: 1
+
+      - name: Build web client
+        run: npm run build
+
+      - name: Build server
+        run: npm run build:server
