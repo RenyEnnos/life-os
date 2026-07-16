@@ -1,3 +1,5 @@
+import path from 'node:path';
+
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
@@ -15,6 +17,10 @@ import type { MvpRepository } from './mvpRepository.types';
 import { PrismaBackedMvpRepository } from './prismaMvpRepository';
 
 type AuthRepository = InstanceType<typeof FileBackedAuthRepository>;
+
+export interface CreateAppOptions {
+  staticDir?: string;
+}
 
 const SESSION_COOKIE = 'lifeos_session';
 const SESSION_SECRET: string = process.env.LIFEOS_SESSION_SECRET || process.env.JWT_SECRET || '';
@@ -85,7 +91,8 @@ function clearSessionCookie(res: express.Response) {
 
 export function createApp(
   repository: MvpRepository = createDefaultMvpRepository(),
-  authRepository: AuthRepository = new FileBackedAuthRepository()
+  authRepository: AuthRepository = new FileBackedAuthRepository(),
+  options: CreateAppOptions = {}
 ) {
   const app = express();
 
@@ -318,6 +325,17 @@ export function createApp(
       next(error);
     }
   });
+
+  if (options.staticDir) {
+    app.use(express.static(options.staticDir));
+    app.get(/.*/, (req, res, next) => {
+      if (req.path === '/api' || req.path.startsWith('/api/')) {
+        return next();
+      }
+
+      return res.sendFile(path.join(options.staticDir!, 'index.html'));
+    });
+  }
 
   app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error('MVP API error:', error);
