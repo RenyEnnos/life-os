@@ -329,8 +329,8 @@ File counts are scope indicators only. State follows reachability and concrete c
 | `react`, `react-dom`, `react-router-dom`, `vite`, `@vitejs/plugin-react`, `vite-tsconfig-paths`, `typescript`, `tsx` | Many source/config consumers | Core build/runtime | USED_AND_NECESSARY | Successful core checks before any change |
 | `express`, `cookie-parser`, `cors`, `helmet`, `express-rate-limit`, `jsonwebtoken`, `bcryptjs`, `axios`, `supertest`, `@types/*` for these | API/server/tests/imports | Web server/auth/tests | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | Web support decision; server test |
 | `electron`, `electron-builder`, `vite-plugin-electron`, `electron-store`, `electron-window-state`, `better-sqlite3`, related types | Electron source/config/tests | Desktop runtime/build | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | Runtime decision and packaged test |
-| `@prisma/client`, `prisma` | API/schema/migration/config | Server persistence/generation | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | DB-backed build/test and persistence decision |
-| `@supabase/supabase-js`, `@supabase/auth-helpers-react`, `supabase` CLI | Auth/sync/shared types/migrations/scripts/docs | Auth/sync/RLS/type generation | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | Provider/identity decision and secret-free integration test |
+| `@prisma/client`, `prisma` | Exact client imports plus `package.json#scripts.prisma:*` CLI commands | Server persistence/generation | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | DB-backed build/test and persistence decision |
+| `@supabase/supabase-js`, `@supabase/auth-helpers-react`, `supabase` CLI | Exact JS client imports; CLI consumer is only `package.json#scripts.types:generate`; auth-helper consumer not proved | Auth/sync/RLS/type generation | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | Provider/identity decision and secret-free integration test |
 | `@google/generative-ai` | No static non-doc consumer found | No proven runtime consumer | APPARENTLY_UNUSED, not removal-approved | Search dynamic/config/generated consumers; AI decision |
 | `groq-sdk` | Vite manual chunk and source/docs references | AI path/config-dependent | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | Trace AI call path and secret boundary |
 | `googleapis` | Only unrelated `fonts.googleapis.com` hostname matches were found | No proven package consumer | APPARENTLY_UNUSED, not removal-approved | Rule out dynamic/generated/external integration |
@@ -340,7 +340,7 @@ File counts are scope indicators only. State follows reachability and concrete c
 | `@dnd-kit/*`, `@headlessui/react`, `@radix-ui/*`, `@remixicon/react`, `cmdk`, `tremor` | Some packages have no direct source consumer | Legacy UI/possible broad suite | DECISION_REQUIRED | Build graph and reachable-surface decision |
 | `recharts`, `date-fns`, `framer-motion`, `canvas-confetti`, `sonner`, `lucide-react`, form/i18n/markdown packages | Multiple source consumers | Active/hidden UI features | USED_ONLY_BY_REMOVAL_CANDIDATE or IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST per section 7.2 | Per-feature reachability before consolidation |
 | `@chromatic-com/storybook`, Storybook addons, `storybook`, `eslint-plugin-storybook` | Config/story references; some addon names not directly found | Storybook tooling | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | Run build-storybook in Node 20 and decide tooling support |
-| `@playwright/test`, `playwright`, `@vitest/*`, `vitest`, Testing Library, `msw`, `coverage-v8` | Tests/config/scripts | Validation tooling | USED_AND_NECESSARY or DUPLICATED_OR_COMPLEMENTARY_UNVERIFIED per section 7.2 | Node 20 install and full test matrix |
+| `@playwright/test`, `playwright`, `@vitest/*`, `vitest`, Testing Library, `msw`, `coverage-v8` | Exact imports and CLI scripts where listed in section 7.2; otherwise consumer not proved | Validation tooling | USED_AND_NECESSARY or DUPLICATED_OR_COMPLEMENTARY_UNVERIFIED per section 7.2 | Node 20 install and full test matrix |
 | `lighthouse`, `web-vitals` | Script/config/source references; `scripts/lighthouse.js` absent in file list | Performance/manual measurement | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | Confirm script existence and CI ownership |
 | `concurrently`, `dotenv`, `node-schedule`, `fractional-indexing`, `react-helmet-async`, `class-variance-authority`, `clsx`, Tailwind/PostCSS plugins | Source/config/script consumers vary | Tooling or feature-specific | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | Per-package consumer and build trace |
 | `@types/*` packages with zero text matches | Type declarations may be ambient/transitive | Compile support possible | DECISION_REQUIRED | Node 20 typecheck; do not remove by grep |
@@ -351,31 +351,31 @@ Direct package counts: **69** `dependencies`, **55** `devDependencies` (124 tota
 
 ### 7.2 Direct dependency itemization
 
-Every direct dependency declared in `package.json` has an issue-#83 disposition. `APPARENTLY_UNUSED`, `USED_ONLY_BY_REMOVAL_CANDIDATE`, and `DUPLICATED_OR_COMPLEMENTARY_UNVERIFIED` are audit classifications, never removal authorization. `IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST` preserves uncertainty where the owning runtime, feature, generated consumer, or build lane is unresolved. Locators below are fixed-string search candidates, not proof that the exact package is imported or executed; only an exact import, config key, or script declaration supports a consumer claim. Substring-only matches (for example package names embedded in hostnames, filenames, comments, or larger identifiers) remain explicitly unproven.
+Every direct dependency declared in `package.json` has an issue-#83 disposition. `APPARENTLY_UNUSED`, `USED_ONLY_BY_REMOVAL_CANDIDATE`, and `DUPLICATED_OR_COMPLEMENTARY_UNVERIFIED` are audit classifications, never removal authorization. `IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST` preserves uncertainty where the owning runtime, feature, generated consumer, or build lane is unresolved. Evidence below is limited to exact imports, exact package configuration, or a real script/CLI declaration. A hostname, filename, comment, documentation mention, larger identifier, or reference to a differently scoped package is not consumer evidence. Where none of the accepted forms was found, the row says **consumidor não comprovado**.
 
-| Direct dependency | Runtime/role | Criticality | Issue #83 disposition | Static locator candidate | Evidence required before removal or retention decision |
+| Direct dependency | Runtime/role | Criticality | Issue #83 disposition | Exact consumer evidence | Evidence required before removal or retention decision |
 |---|---|---|---|---|---|
-| `@chromatic-com/storybook` | tooling | low | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | run owning tooling command and decide lane ownership |
+| `@chromatic-com/storybook` | tooling | low | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | run owning tooling command and decide lane ownership |
 | `@dnd-kit/core` | hidden/legacy feature | low | USED_ONLY_BY_REMOVAL_CANDIDATE | `src/features/tasks/components/KanbanBoard.tsx,src/features/tasks/index.tsx` | owning feature decision and consumer/runtime test |
 | `@dnd-kit/sortable` | hidden/legacy feature | low | USED_ONLY_BY_REMOVAL_CANDIDATE | `src/features/tasks/components/KanbanColumn.tsx,src/features/tasks/components/TaskItem.tsx` | owning feature decision and consumer/runtime test |
 | `@dnd-kit/utilities` | hidden/legacy feature | low | USED_ONLY_BY_REMOVAL_CANDIDATE | `src/features/university/components/AssignmentKanban.tsx,src/features/tasks/components/TaskItem.tsx` | owning feature decision and consumer/runtime test |
 | `@eslint/js` | current core/build | high | USED_AND_NECESSARY | `eslint.config.js` | successful Node 20 typecheck/lint/build plus current-route test |
-| `@google/generative-ai` | unproven | low | APPARENTLY_UNUSED | `none in bounded scan` | rule out dynamic/generated/config use |
-| `@headlessui/react` | unproven | low | APPARENTLY_UNUSED | `none in bounded scan` | rule out dynamic/generated/config use |
+| `@google/generative-ai` | unproven | low | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/config use |
+| `@headlessui/react` | unproven | low | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/config use |
 | `@hookform/resolvers` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `src/features/auth/components/LoginPage.tsx,src/features/auth/components/RegisterPage.tsx` | trace supported consumer and run owning lane |
-| `@playwright/test` | E2E tooling | high | DUPLICATED_OR_COMPLEMENTARY_UNVERIFIED | `playwright.release.config.ts,playwright.config.ts` | dependency graph plus release/advisory Playwright runs |
-| `@prisma/client` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `api/prisma.ts,api/prismaMvpRepository.ts` | trace supported consumer and run owning lane |
+| `@playwright/test` | E2E tooling | high | DUPLICATED_OR_COMPLEMENTARY_UNVERIFIED | exact imports: `playwright.release.config.ts`, `playwright.config.ts`, `tests/e2e/smoke.spec.ts` | dependency graph plus release/advisory Playwright runs |
+| `@prisma/client` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact imports: `api/prisma.ts`, `api/prismaMvpRepository.ts` | trace supported consumer and run owning lane |
 | `@radix-ui/react-separator` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `src/shared/ui/Separator.tsx` | trace supported consumer and run owning lane |
 | `@radix-ui/react-slot` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `src/shared/ui/Button.tsx` | trace supported consumer and run owning lane |
-| `@remixicon/react` | unproven | low | APPARENTLY_UNUSED | `none in bounded scan` | rule out dynamic/generated/config use |
-| `@sentry/node` | unproven | low | APPARENTLY_UNUSED | `none in bounded scan` | rule out dynamic/generated/config use |
+| `@remixicon/react` | unproven | low | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/config use |
+| `@sentry/node` | unproven | low | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/config use |
 | `@sentry/react` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `src/app/main.tsx` | trace supported consumer and run owning lane |
-| `@storybook/addon-a11y` | tooling | low | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `.storybook/vitest.setup.ts` | run owning tooling command and decide lane ownership |
-| `@storybook/addon-docs` | tooling | low | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | run owning tooling command and decide lane ownership |
-| `@storybook/addon-onboarding` | tooling | low | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | run owning tooling command and decide lane ownership |
-| `@storybook/react-vite` | tooling | low | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `.storybook/main.ts,.storybook/vitest.setup.ts` | run owning tooling command and decide lane ownership |
-| `@supabase/auth-helpers-react` | unproven | low | APPARENTLY_UNUSED | `none in bounded scan` | rule out dynamic/generated/config use |
-| `@supabase/supabase-js` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `electron/auth/desktopSession.ts,vite.config.ts` | trace supported consumer and run owning lane |
+| `@storybook/addon-a11y` | tooling | low | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact import: `.storybook/vitest.setup.ts` | run owning tooling command and decide lane ownership |
+| `@storybook/addon-docs` | tooling | low | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | run owning tooling command and decide lane ownership |
+| `@storybook/addon-onboarding` | tooling | low | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | run owning tooling command and decide lane ownership |
+| `@storybook/react-vite` | tooling | low | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact imports/config: `.storybook/main.ts`, `.storybook/vitest.setup.ts`, `src/shared/ui/Input.stories.tsx` | run owning tooling command and decide lane ownership |
+| `@supabase/auth-helpers-react` | unproven | low | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/config use |
+| `@supabase/supabase-js` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact imports: `electron/auth/desktopSession.ts`, `electron/ipc/authHandler.ts`, `src/shared/lib/supabase.ts` | trace supported consumer and run owning lane |
 | `@tailwindcss/container-queries` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `tailwind.config.js` | trace supported consumer and run owning lane |
 | `@tailwindcss/forms` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `tailwind.config.js` | trace supported consumer and run owning lane |
 | `@tanstack/query-async-storage-persister` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `src/shared/lib/react-query.ts` | trace supported consumer and run owning lane |
@@ -385,100 +385,100 @@ Every direct dependency declared in `package.json` has an issue-#83 disposition.
 | `@testing-library/react` | test | medium | USED_AND_NECESSARY | `src/__tests__/LineChart.test.tsx,src/features/rewards/__tests__/RewardsPage.int.test.tsx` | successful configured test lane |
 | `@testing-library/user-event` | test | medium | USED_AND_NECESSARY | `src/features/auth/__tests__/AuthFlow.int.test.tsx,src/features/finances/__tests__/FinancesPage.int.test.tsx` | successful configured test lane |
 | `@tremor/react` | hidden/legacy feature | low | USED_ONLY_BY_REMOVAL_CANDIDATE | `tailwind.config.js,src/features/finances/components/FinanceCharts.tsx` | owning feature decision and consumer/runtime test |
-| `@types/bcryptjs` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | successful Node 20 typecheck plus owning package decision |
-| `@types/better-sqlite3` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | successful Node 20 typecheck plus owning package decision |
-| `@types/canvas-confetti` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | successful Node 20 typecheck plus owning package decision |
-| `@types/cookie-parser` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | successful Node 20 typecheck plus owning package decision |
-| `@types/cors` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | successful Node 20 typecheck plus owning package decision |
-| `@types/electron-window-state` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | successful Node 20 typecheck plus owning package decision |
-| `@types/express` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | successful Node 20 typecheck plus owning package decision |
-| `@types/express-rate-limit` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | successful Node 20 typecheck plus owning package decision |
-| `@types/jsonwebtoken` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | successful Node 20 typecheck plus owning package decision |
-| `@types/node` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | successful Node 20 typecheck plus owning package decision |
-| `@types/node-schedule` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | successful Node 20 typecheck plus owning package decision |
-| `@types/react` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | successful Node 20 typecheck plus owning package decision |
-| `@types/react-dom` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | successful Node 20 typecheck plus owning package decision |
-| `@types/supertest` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | successful Node 20 typecheck plus owning package decision |
+| `@types/bcryptjs` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | successful Node 20 typecheck plus owning package decision |
+| `@types/better-sqlite3` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | successful Node 20 typecheck plus owning package decision |
+| `@types/canvas-confetti` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | successful Node 20 typecheck plus owning package decision |
+| `@types/cookie-parser` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | successful Node 20 typecheck plus owning package decision |
+| `@types/cors` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | successful Node 20 typecheck plus owning package decision |
+| `@types/electron-window-state` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | successful Node 20 typecheck plus owning package decision |
+| `@types/express` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | successful Node 20 typecheck plus owning package decision |
+| `@types/express-rate-limit` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | successful Node 20 typecheck plus owning package decision |
+| `@types/jsonwebtoken` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | successful Node 20 typecheck plus owning package decision |
+| `@types/node` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | successful Node 20 typecheck plus owning package decision |
+| `@types/node-schedule` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | successful Node 20 typecheck plus owning package decision |
+| `@types/react` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | successful Node 20 typecheck plus owning package decision |
+| `@types/react-dom` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | successful Node 20 typecheck plus owning package decision |
+| `@types/supertest` | typecheck | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | successful Node 20 typecheck plus owning package decision |
 | `@vitejs/plugin-react` | current core/build | high | USED_AND_NECESSARY | `vite.config.ts` | successful Node 20 typecheck/lint/build plus current-route test |
-| `@vitest/browser` | test | medium | USED_AND_NECESSARY | `vitest.shims.d.ts` | successful configured test lane |
-| `@vitest/coverage-v8` | test | medium | USED_AND_NECESSARY | `none in bounded source/config/script scan` | successful configured test lane |
+| `@vitest/browser` | test | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | **consumidor não comprovado** | prove exact configured consumer before retention decision |
+| `@vitest/coverage-v8` | test | medium | USED_AND_NECESSARY | exact coverage provider config: `vitest.config.ts` (`provider: 'v8'`) | successful configured test lane |
 | `autoprefixer` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `postcss.config.js` | trace supported consumer and run owning lane |
-| `axios` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts,scripts/verify_login.ts` | trace supported consumer and run owning lane |
-| `babel-plugin-react-dev-locator` | unproven | low | APPARENTLY_UNUSED | `none in bounded scan` | rule out dynamic/generated/config use |
-| `baseline-browser-mapping` | unproven | low | APPARENTLY_UNUSED | `none in bounded scan` | rule out dynamic/generated/config use |
+| `axios` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact import: `scripts/verify_login.ts` | trace supported consumer and run owning lane |
+| `babel-plugin-react-dev-locator` | unproven | low | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/config use |
+| `baseline-browser-mapping` | unproven | low | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/config use |
 | `bcryptjs` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `api/app.ts,scripts/seed_test_user.ts` | trace supported consumer and run owning lane |
-| `better-sqlite3` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `DESIGN.md,vite.config.ts` | trace supported consumer and run owning lane |
+| `better-sqlite3` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact Vite externalization/config: `vite.config.ts` | trace supported consumer and run owning lane |
 | `canvas-confetti` | hidden/legacy feature | low | USED_ONLY_BY_REMOVAL_CANDIDATE | `src/features/habits/components/HabitItem.tsx,src/features/focus/components/FocusOverlay.tsx` | owning feature decision and consumer/runtime test |
-| `class-variance-authority` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts,src/shared/ui/Button.tsx` | trace supported consumer and run owning lane |
-| `clsx` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts,src/shared/lib/cn.ts` | trace supported consumer and run owning lane |
-| `cmdk` | unproven | low | APPARENTLY_UNUSED | `none in bounded scan` | rule out dynamic/generated/config use |
+| `class-variance-authority` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact import: `src/shared/ui/Button.tsx` | trace supported consumer and run owning lane |
+| `clsx` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact import: `src/shared/lib/cn.ts` | trace supported consumer and run owning lane |
+| `cmdk` | unproven | low | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/config use |
 | `concurrently` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `package.json#scripts.dev:web` | trace supported consumer and run owning lane |
 | `cookie-parser` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `api/app.ts` | trace supported consumer and run owning lane |
 | `cors` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `api/app.ts` | trace supported consumer and run owning lane |
-| `date-fns` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `src/features/habits/components/HabitContributionGraph.tsx,vite.config.ts` | trace supported consumer and run owning lane |
+| `date-fns` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact import: `src/features/habits/components/HabitContributionGraph.tsx` | trace supported consumer and run owning lane |
 | `dotenv` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `scripts/seed_test_user.ts` | trace supported consumer and run owning lane |
-| `electron` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts,electron/main.ts` | trace supported consumer and run owning lane |
+| `electron` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact imports: `electron/main.ts`, `electron/preload.ts`, `electron/ipc/authHandler.ts` | trace supported consumer and run owning lane |
 | `electron-builder` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `package.json#scripts.electron:build` | trace supported consumer and run owning lane |
-| `electron-store` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `electron/auth/desktopSession.ts,vite.config.ts` | trace supported consumer and run owning lane |
-| `electron-window-state` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts,electron/main.ts` | trace supported consumer and run owning lane |
-| `eslint` | current core/build | high | USED_AND_NECESSARY | `eslint.config.js,src/features/tasks/components/__tests__/PremiumTaskCard.test.tsx` | successful Node 20 typecheck/lint/build plus current-route test |
+| `electron-store` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact import: `electron/auth/desktopSession.ts` | trace supported consumer and run owning lane |
+| `electron-window-state` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact import: `electron/main.ts` | trace supported consumer and run owning lane |
+| `eslint` | current core/build | high | USED_AND_NECESSARY | CLI: `package.json#scripts.lint` | successful Node 20 typecheck/lint/build plus current-route test |
 | `eslint-plugin-react-hooks` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `eslint.config.js` | trace supported consumer and run owning lane |
 | `eslint-plugin-react-refresh` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `eslint.config.js` | trace supported consumer and run owning lane |
 | `eslint-plugin-storybook` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `eslint.config.js` | trace supported consumer and run owning lane |
-| `express` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `api/app.ts,.git/hooks/fsmonitor-watchman.sample` | trace supported consumer and run owning lane |
+| `express` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact imports: `api/app.ts`, `api/response.ts`, `api/server.ts` | trace supported consumer and run owning lane |
 | `express-rate-limit` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `api/app.ts` | trace supported consumer and run owning lane |
 | `fractional-indexing` | hidden/legacy feature | low | USED_ONLY_BY_REMOVAL_CANDIDATE | `src/features/tasks/components/KanbanBoard.tsx,src/features/tasks/index.tsx` | owning feature decision and consumer/runtime test |
-| `framer-motion` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts,src/features/rewards/components/LevelUpModal.tsx` | trace supported consumer and run owning lane |
-| `globals` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts,vitest.config.ts` | trace supported consumer and run owning lane |
-| `googleapis` | unproven integration | low | APPARENTLY_UNUSED | `fonts.googleapis.com matches are unrelated hostnames` | rule out dynamic/generated/external integration |
+| `framer-motion` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact import: `src/features/rewards/components/LevelUpModal.tsx` | trace supported consumer and run owning lane |
+| `globals` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact import: `eslint.config.js` | trace supported consumer and run owning lane |
+| `googleapis` | unproven integration | low | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/external integration |
 | `groq-sdk` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts` | trace supported consumer and run owning lane |
-| `helmet` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `api/app.ts,src/features/legal/PrivacyPage.tsx` | trace supported consumer and run owning lane |
+| `helmet` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact import: `api/app.ts` | trace supported consumer and run owning lane |
 | `i18next` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts,src/app/App.tsx` | trace supported consumer and run owning lane |
 | `i18next-browser-languagedetector` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts,src/shared/i18n/index.ts` | trace supported consumer and run owning lane |
 | `idb-keyval` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `src/shared/stores/useSyncLogStore.ts,src/shared/stores/storage.ts` | trace supported consumer and run owning lane |
 | `jsdom` | test | medium | USED_AND_NECESSARY | `vitest.config.ts,vitest.setup.ts` | successful configured test lane |
 | `jsonwebtoken` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `api/app.ts` | trace supported consumer and run owning lane |
 | `lighthouse` | tooling | low | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `.github/workflows/lighthouse-scheduled.yml` | run owning tooling command and decide lane ownership |
-| `lucide-react` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts,src/lucide-react.d.ts` | trace supported consumer and run owning lane |
+| `lucide-react` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact imports: `src/features/rewards/components/AchievementCard.tsx`, `src/features/rewards/components/AchievementGallery.tsx` | trace supported consumer and run owning lane |
 | `msw` | test | medium | USED_AND_NECESSARY | `vitest.setup.ts,api/__tests__/mvp.test.ts` | successful configured test lane |
-| `node-schedule` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts,electron/main.ts` | trace supported consumer and run owning lane |
-| `playwright` | E2E tooling | high | DUPLICATED_OR_COMPLEMENTARY_UNVERIFIED | `playwright.release.config.ts,playwright.config.ts` | dependency graph plus release/advisory Playwright runs |
+| `node-schedule` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact import: `electron/main.ts` | trace supported consumer and run owning lane |
+| `playwright` | E2E tooling | high | DUPLICATED_OR_COMPLEMENTARY_UNVERIFIED | exact imports: `scripts/generate-png-icons.js`, `scripts/electron-auth-smoke.mjs`; CLI: `package.json#scripts.test:e2e`, `test:e2e:smoke`, `test:e2e:advisory` | dependency graph plus release/advisory Playwright runs |
 | `postcss` | web build convention | high | USED_AND_NECESSARY | `postcss.config.js` | successful web build and direct-declaration check |
-| `prisma` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `prisma/schema.prisma,README.md` | trace supported consumer and run owning lane |
-| `react` | current core/build | high | USED_AND_NECESSARY | `vite.config.ts,tailwind.config.js` | successful Node 20 typecheck/lint/build plus current-route test |
-| `react-dom` | current core/build | high | USED_AND_NECESSARY | `vite.config.ts,src/shared/ui/Modal.tsx` | successful Node 20 typecheck/lint/build plus current-route test |
+| `prisma` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | CLI: `package.json#scripts.prisma:generate`, `prisma:migrate:dev`, `prisma:migrate:deploy` | trace supported consumer and run owning lane |
+| `react` | current core/build | high | USED_AND_NECESSARY | exact imports: `src/app/main.tsx`, `src/app/App.tsx` | successful Node 20 typecheck/lint/build plus current-route test |
+| `react-dom` | current core/build | high | USED_AND_NECESSARY | exact imports: `src/app/main.tsx`, `src/shared/ui/Modal.tsx` | successful Node 20 typecheck/lint/build plus current-route test |
 | `react-helmet-async` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `src/shared/seo/MetaTags.tsx,src/shared/seo/SEOProvider.tsx` | trace supported consumer and run owning lane |
 | `react-hook-form` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `src/features/tasks/components/CreateTaskForm.tsx,src/features/finances/components/TransactionForm.tsx` | trace supported consumer and run owning lane |
-| `react-i18next` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts,src/shared/components/LanguageSelector.tsx` | trace supported consumer and run owning lane |
+| `react-i18next` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact import: `src/shared/components/LanguageSelector.tsx` | trace supported consumer and run owning lane |
 | `react-markdown` | hidden/legacy feature | low | USED_ONLY_BY_REMOVAL_CANDIDATE | `src/features/analytics/components/AIInsightsWidget.tsx` | owning feature decision and consumer/runtime test |
-| `react-router-dom` | current core/build | high | USED_AND_NECESSARY | `vite.config.ts,src/config/routes/index.tsx` | successful Node 20 typecheck/lint/build plus current-route test |
-| `recharts` | hidden/legacy feature | low | USED_ONLY_BY_REMOVAL_CANDIDATE | `vite.config.ts,src/__tests__/LineChart.test.tsx` | owning feature decision and consumer/runtime test |
+| `react-router-dom` | current core/build | high | USED_AND_NECESSARY | exact import: `src/config/routes/index.tsx` | successful Node 20 typecheck/lint/build plus current-route test |
+| `recharts` | hidden/legacy feature | low | USED_ONLY_BY_REMOVAL_CANDIDATE | exact imports: `src/__tests__/LineChart.test.tsx`, `src/shared/ui/charts/BarChart.tsx` | owning feature decision and consumer/runtime test |
 | `sonner` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `src/app/App.tsx,src/features/journal/components/JournalEditor.tsx` | trace supported consumer and run owning lane |
-| `storybook` | tooling | low | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `eslint.config.js,.storybook/main.ts` | run owning tooling command and decide lane ownership |
-| `supabase` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vitest.setup.ts,electron/auth/desktopSession.ts` | trace supported consumer and run owning lane |
+| `storybook` | tooling | low | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | CLI: `package.json#scripts.storybook`, `package.json#scripts.build-storybook` | run owning tooling command and decide lane ownership |
+| `supabase` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | CLI: `package.json#scripts.types:generate` | trace supported consumer and run owning lane |
 | `supertest` | test | medium | USED_AND_NECESSARY | `api/__tests__/mvp.test.ts,api/__tests__/auth.test.ts` | successful configured test lane |
-| `tailwind-merge` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts,src/shared/lib/cn.ts` | trace supported consumer and run owning lane |
+| `tailwind-merge` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact import: `src/shared/lib/cn.ts` | trace supported consumer and run owning lane |
 | `tailwindcss` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `postcss.config.js,tailwind.config.js` | trace supported consumer and run owning lane |
 | `tailwindcss-animate` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `tailwind.config.js` | trace supported consumer and run owning lane |
 | `tsx` | developer scripts | medium | USED_AND_NECESSARY | `package.json#scripts.server:dev,package.json#scripts.test:seed-perf-data` | run owning scripts with fixtures |
-| `typescript` | current core/build | high | USED_AND_NECESSARY | `eslint.config.js,src/features/tasks/components/__tests__/PremiumTaskCard.test.tsx` | successful Node 20 typecheck/lint/build plus current-route test |
-| `typescript-eslint` | current core/build | high | USED_AND_NECESSARY | `eslint.config.js,src/features/tasks/components/__tests__/PremiumTaskCard.test.tsx` | successful Node 20 typecheck/lint/build plus current-route test |
-| `vite` | current core/build | high | USED_AND_NECESSARY | `vitest.config.ts,eslint.config.js` | successful Node 20 typecheck/lint/build plus current-route test |
+| `typescript` | current core/build | high | USED_AND_NECESSARY | CLI: `package.json#scripts.check`, `package.json#scripts.typecheck`, `package.json#scripts.build` (`tsc`) | successful Node 20 typecheck/lint/build plus current-route test |
+| `typescript-eslint` | current core/build | high | USED_AND_NECESSARY | exact import/config: `eslint.config.js` | successful Node 20 typecheck/lint/build plus current-route test |
+| `vite` | current core/build | high | USED_AND_NECESSARY | exact import: `vite.config.ts`; CLI: `package.json#scripts.client:dev`, `build`, `preview` | successful Node 20 typecheck/lint/build plus current-route test |
 | `vite-plugin-electron` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts` | trace supported consumer and run owning lane |
 | `vite-plugin-pwa` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite-env.d.ts,vite.config.ts` | trace supported consumer and run owning lane |
 | `vite-plugin-trae-solo-badge` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts` | trace supported consumer and run owning lane |
 | `vite-tsconfig-paths` | current core/build | high | USED_AND_NECESSARY | `vite.config.ts` | successful Node 20 typecheck/lint/build plus current-route test |
 | `vitest` | test | medium | USED_AND_NECESSARY | `vitest.config.ts,vitest.setup.ts` | successful configured test lane |
 | `web-vitals` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `src/shared/performance/index.ts` | trace supported consumer and run owning lane |
-| `workbox-background-sync` | decision-dependent | medium | APPARENTLY_UNUSED | `none in bounded source/config/script scan` | rule out dynamic/generated/external use |
-| `workbox-cacheable-response` | decision-dependent | medium | APPARENTLY_UNUSED | `none in bounded source/config/script scan` | rule out dynamic/generated/external use |
-| `workbox-expiration` | decision-dependent | medium | APPARENTLY_UNUSED | `none in bounded source/config/script scan` | rule out dynamic/generated/external use |
-| `workbox-precaching` | decision-dependent | medium | APPARENTLY_UNUSED | `none in bounded source/config/script scan` | rule out dynamic/generated/external use |
-| `workbox-routing` | decision-dependent | medium | APPARENTLY_UNUSED | `none in bounded source/config/script scan` | rule out dynamic/generated/external use |
-| `workbox-strategies` | decision-dependent | medium | APPARENTLY_UNUSED | `none in bounded source/config/script scan` | rule out dynamic/generated/external use |
-| `workbox-window` | decision-dependent | medium | APPARENTLY_UNUSED | `none in bounded source/config/script scan` | rule out dynamic/generated/external use |
-| `zod` | current core/build | high | USED_AND_NECESSARY | `vite.config.ts,api/app.ts` | successful Node 20 typecheck/lint/build plus current-route test |
-| `zustand` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `vite.config.ts,src/features/mvp/store/useMvpStore.ts` | trace supported consumer and run owning lane |
+| `workbox-background-sync` | decision-dependent | medium | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/external use |
+| `workbox-cacheable-response` | decision-dependent | medium | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/external use |
+| `workbox-expiration` | decision-dependent | medium | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/external use |
+| `workbox-precaching` | decision-dependent | medium | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/external use |
+| `workbox-routing` | decision-dependent | medium | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/external use |
+| `workbox-strategies` | decision-dependent | medium | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/external use |
+| `workbox-window` | decision-dependent | medium | APPARENTLY_UNUSED | **consumidor não comprovado** | rule out dynamic/generated/external use |
+| `zod` | current core/build | high | USED_AND_NECESSARY | exact imports: `api/app.ts`, `src/shared/schemas/auth.ts` | successful Node 20 typecheck/lint/build plus current-route test |
+| `zustand` | decision-dependent | medium | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | exact imports: `src/features/mvp/store/useMvpStore.ts`, `src/shared/stores/accessibilityStore.ts` | trace supported consumer and run owning lane |
 
 ## 8. Workflows and Release Evidence Matrix
 
@@ -866,7 +866,8 @@ Commands come from the clean read-only review checkout and from concurrent maint
 | `rg --files api electron src tests \| rg '(test|spec)\.(ts|tsx|js|mjs)$'` | 0 | `82` paths | Bounded test-file inventory | Which tests execute in a lane | Static listing |
 | `rg --files docs plans` | 0 | `27` paths | Bounded document/plan inventory | Authority correctness | Static listing |
 | `rg --files src/features \| sed 's#src/features/##' \| cut -d/ -f1 \| sort \| uniq -c` | 0 | `21` top-level feature modules | Feature scope/count input | Reachability or value | Static listing |
-| `for dependency in $(node -e "const p=require('./package.json'); for(const k of Object.keys({...p.dependencies,...p.devDependencies}).sort()) console.log(k)"); do rg --hidden -l -F --glob '!package.json' --glob '!package-lock.json' --glob '!docs/**' --glob '!plans/**' --glob '!CHANGELOG.md' -- "$dependency" .; done` | Loop 0; individual `rg` is 0 when matched and 1 when unmatched | Bounded fixed-string locator candidates used in section 7.2 | Exact-package consumption, dynamic/generated use, or actual execution | Substrings can match hostnames, comments, filenames, or larger identifiers; each locator requires exact import/config/script verification before a consumer claim |
+| `for dependency in $(node -e "const p=require('./package.json'); for(const k of Object.keys({...p.dependencies,...p.devDependencies}).sort()) console.log(k)"); do rg --hidden -l -F --glob '!package.json' --glob '!package-lock.json' --glob '!docs/**' --glob '!plans/**' --glob '!CHANGELOG.md' -- "$dependency" .; done` | Loop 0; individual `rg` is 0 when matched and 1 when unmatched | Discovery candidates only; not used as consumer evidence | Exact-package consumption, dynamic/generated use, or actual execution | Substring collisions make this command insufficient for disposition evidence |
+| Targeted exact-import/config/script review for all section 7.2 locators, including scoped/unscoped collision families (`supabase`, `playwright`, `storybook`, `prisma`) | 0 | Each retained locator was confirmed as an exact import, exact configuration, or real script/CLI declaration; zero-match rows say `consumidor não comprovado` | Static consumer evidence at the cited location | Dynamic/generated use or successful execution | Static review; no package was removed or executed by this step |
 | `find . -maxdepth 3 -type d \( -name '.trae' -o -name '.gemini' -o -name '.codex' -o -name '.github' -o -name '.storybook' \) -print` | 0 | `.github` and `.storybook` found; no source-tree `.trae`, `.gemini`, or `.codex` | Bounded tool-directory inventory | Remote GitHub App/config state or history | Depth-limited static scan |
 | `git status --short` after inspection/install attempts | 0 | No tracked changes outside report before edit | Workspace safety before report edit | Remote branch state | Ignored temp files are not shown |
 
@@ -900,6 +901,7 @@ An independent read-only reviewer inspected the branch, PR metadata, issue #83, 
 | The second review found noncanonical dependency dispositions, incomplete unified decision fields, one allegedly missing script, abbreviated commands, and stale review prose. | Observed gap | Package dispositions now use #83 categories; unified feature/service/script/workflow ledgers were added; all 35 scripts including `seo:generate` were counted; command rows were made explicit; this section was reconciled. |
 | The final review found nine incorrectly extracted document titles and one escaped script declaration mismatch. | Observed gap | All nine H1 titles and the exact `build:server` declaration were corrected; follow-up review passed. |
 | Maintainer review on predecessor head `3dd1180` found substring locators presented as consumers, stale per-file test states, `ci.yml`/`test.yml` evidence conflation, and ambiguous historical head references. | Observed gap | Section 7.2 now limits locators to search candidates; section 8.2 records aggregate Vitest/API execution without per-file claims; sections 8 and 8.3 map checks to their actual workflows; all hard-coded SHAs are explicitly historical or identify the audited product tree. |
+| Inline review found that unscoped CLI packages could still inherit locators from similarly named scoped packages. | Observed gap | Section 7.2 now accepts only exact import, exact configuration, or real script/CLI evidence; `supabase`, `playwright`, `storybook`, and `prisma` cite their own CLI/import consumers, while unresolved packages say `consumidor não comprovado`. |
 | Gemini's only review targeted stale commit `50245ce`, was `COMMENTED`, and supplied no approval or inline findings. | Observed fact | Not counted as the required independent human review. |
 | Explicit maintainer merge authorization is absent. | Observed fact | Merge remains prohibited. |
 
