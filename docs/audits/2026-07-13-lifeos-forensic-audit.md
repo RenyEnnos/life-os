@@ -351,9 +351,9 @@ Direct package counts: **69** `dependencies`, **55** `devDependencies` (124 tota
 
 ### 7.2 Direct dependency itemization
 
-Every direct dependency declared in `package.json` has an issue-#83 disposition. `APPARENTLY_UNUSED`, `USED_ONLY_BY_REMOVAL_CANDIDATE`, and `DUPLICATED_OR_COMPLEMENTARY_UNVERIFIED` are audit classifications, never removal authorization. `IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST` preserves uncertainty where the owning runtime, feature, generated consumer, or build lane is unresolved.
+Every direct dependency declared in `package.json` has an issue-#83 disposition. `APPARENTLY_UNUSED`, `USED_ONLY_BY_REMOVAL_CANDIDATE`, and `DUPLICATED_OR_COMPLEMENTARY_UNVERIFIED` are audit classifications, never removal authorization. `IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST` preserves uncertainty where the owning runtime, feature, generated consumer, or build lane is unresolved. Locators below are fixed-string search candidates, not proof that the exact package is imported or executed; only an exact import, config key, or script declaration supports a consumer claim. Substring-only matches (for example package names embedded in hostnames, filenames, comments, or larger identifiers) remain explicitly unproven.
 
-| Direct dependency | Runtime/role | Criticality | Issue #83 disposition | Concrete locator | Evidence required before removal or retention decision |
+| Direct dependency | Runtime/role | Criticality | Issue #83 disposition | Static locator candidate | Evidence required before removal or retention decision |
 |---|---|---|---|---|---|
 | `@chromatic-com/storybook` | tooling | low | IMPOSSIBLE_TO_DECIDE_WITHOUT_TEST | `none in bounded source/config/script scan` | run owning tooling command and decide lane ownership |
 | `@dnd-kit/core` | hidden/legacy feature | low | USED_ONLY_BY_REMOVAL_CANDIDATE | `src/features/tasks/components/KanbanBoard.tsx,src/features/tasks/index.tsx` | owning feature decision and consumer/runtime test |
@@ -484,9 +484,9 @@ Every direct dependency declared in `package.json` has an issue-#83 disposition.
 
 | Workflow/command | Trigger | Runtime | Proves when green | Does not prove | Observed state | Recommendation |
 |---|---|---|---|---|---|---|
-| `.github/workflows/ci.yml` quality gate | Push/PR to main | Node 20, compile/lint/build as configured | CI lane executes declared quality commands if secrets/tooling are available | Product intent, runtime parity, production deployment | Full lane not reproduced locally; concurrent Node22 typecheck/lint/web/server steps passed, Electron build/smoke not run | Recommendation: make lane authority explicit |
+| `.github/workflows/ci.yml` quality gate | Push/PR to main | Node 20, compile/lint/build as configured | CI lane executes declared quality commands if secrets/tooling are available | Product intent, runtime parity, production deployment | No `quality-gate` check appeared on PR #101; the Node22 typecheck/lint/web/server results were local maintainer verification, not `ci.yml` evidence | Recommendation: make lane authority explicit |
 | `.github/workflows/ci-rls.yml` | Push/PR to main | Node 20 + Supabase secrets | Test suite under configured RLS environment | Local fallback, Electron, actual remote health, absence of secrets | Not run; requires secrets | Recommendation: document secret and data isolation contract |
-| `.github/workflows/test.yml` | Push/PR main/staging | Node 20 unit tests/coverage | Unit/integration test execution | Browser/Electron packaged behavior | Concurrent Node22 broad test exited 1 without required secret; API subset passed with synthetic secrets; workflow itself succeeded on prior head `7d8093f` | Recommendation: distinguish test confidence from release confidence |
+| `.github/workflows/test.yml` | Push/PR main/staging | Node 20 unit tests/coverage | Unit/integration test execution | Browser/Electron packaged behavior | Concurrent Node22 broad test exited 1 without required secret; API subset passed with synthetic secrets; PR check `test` succeeded on reviewed predecessor head `3dd1180` | Recommendation: distinguish test confidence from release confidence |
 | `.github/workflows/docker-acceptance-smoke.yml` | Workflow-defined/manual or PR | Docker production image | Intended container acceptance path | Local container can pass while port wiring is wrong without actual run | Not run; Docker not verified in this environment | Recommendation: run only with non-production fixtures after port decision |
 | `.github/workflows/lighthouse-scheduled.yml` | Schedule | Browser/performance tooling | Scheduled performance measurement if script/config exists | Functional correctness, supported runtime, release readiness | Not run; script reference needs verification | Recommendation: classify advisory vs blocking |
 | `.github/workflows/sync-labels.yml` | Manual dispatch | GitHub API | Governance label synchronization | Product behavior | Governance-only | Keep separate from product release authority |
@@ -500,10 +500,10 @@ Every direct dependency declared in `package.json` has an issue-#83 disposition.
 | `npm run test:e2e:advisory` | Manual | Browser Chromium/Firefox/WebKit | Would exercise browser client if server/tooling available | Backend auth/persistence when only client server is started; release readiness | Test files are skipped/quarantined | Recommendation: either restore contract or label historical |
 | `npm run android:build` | Manual | Web build + Capacitor CLI | Would prove packaging command only | Android device behavior and supported product | Not run; no config found | Human supported-target decision first |
 | `npm run storybook` / `build-storybook` | Manual | Storybook | Component documentation/build | Product route/runtime | Not run | Tooling-only unless explicitly made a gate |
-| PR #101 check `test` | Pull request | GitHub Actions | The repository test workflow completed successfully for head `7d8093f` | Independent review, runtime release behavior, or correctness of every audit claim | Success on 2026-07-13 | Retain as lane-specific CI evidence |
-| PR #101 check `rls` | Pull request | GitHub Actions/RLS lane | The configured RLS workflow completed successfully for head `7d8093f` | Production Supabase security or unrelated runtime behavior | Success on 2026-07-13 | Retain as lane-specific CI evidence |
+| PR #101 check `test` | Pull request | GitHub Actions | The repository `test.yml` workflow completed successfully for reviewed predecessor head `3dd1180` | `ci.yml` quality-gate execution, independent review, runtime release behavior, or correctness of every audit claim | Success on 2026-07-16 | Retain as historical lane-specific CI evidence; refresh after each report revision |
+| PR #101 check `rls` | Pull request | GitHub Actions/RLS lane | The configured RLS workflow completed successfully for reviewed predecessor head `3dd1180` | Production Supabase security or unrelated runtime behavior | Success on 2026-07-16 | Retain as historical lane-specific CI evidence; refresh after each report revision |
 | PR #101 check `Sourcery review` | Pull request | Review bot | Nothing; the check did not run | Review quality or approval | Skipped | Do not count as review evidence |
-| PR #101 status `TestSprite Pre-Check` | Pull request | External status | The status provider reported `No tests detected` | That repository tests are absent or failing | Failure on head `7d8093f` | Treat as an external status/configuration limitation; do not fix in #101 |
+| PR #101 status `TestSprite Pre-Check` | Pull request | External status | The status provider reported `No tests detected` | That repository tests are absent or failing | Failure on reviewed predecessor head `3dd1180` | Treat as historical external status/configuration evidence; refresh after each report revision |
 
 **Observed fact.** Dockerfile EXPOSE/healthcheck **3001**; compose publishes **3000:3000** and healthchecks **3000**; docker smoke runs `-p 3000:3000` without setting `PORT`; server defaults to **3001**. **Inference.** Default compose/smoke path is very likely unhealthy unless an unobserved entrypoint overrides port.
 
@@ -551,98 +551,104 @@ Every script in `package.json` is classified with the same preliminary decision 
 
 ### 8.2 Test-file inventory
 
-Every `*.test.*` and `*.spec.*` file under `api/`, `electron/`, `src/`, and `tests/` is listed. The successful PR `test` check proves its configured command completed, not that every runtime or quarantined E2E file executed.
+Every `*.test.*` and `*.spec.*` file under `api/`, `electron/`, `src/`, and `tests/` is listed. `INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE` means the configured broad Node22 Vitest run included the file set; its retained output is aggregate (607 tests passed, 62 skipped, and two API suites failed because session secrets were absent), so no per-file pass is claimed. `api/__tests__/**` was then run directly with synthetic secrets (139 passed, 41 skipped, exit 0). `NOT_RUN_PLAYWRIGHT` means the Playwright file was inventoried but not executed. The successful PR `test` check on reviewed predecessor head `3dd1180` proves `test.yml` completed, not that Electron or quarantined browser E2E ran.
 
-| Test file | Lane | Audit state | Proof boundary |
+| Path group | Current execution evidence | Boundary |
+|---|---|---|
+| `api/__tests__/**` | Broad Vitest run included the suites but failed two suites without secrets; direct API rerun with synthetic secrets exited 0 with 139 passed and 41 skipped | Aggregate output does not assign pass/skip to individual files |
+| `electron/**/*.test.*`, `src/**/*.test.*`, `src/**/*.spec.*` | Included by the configured broad Vitest run; aggregate result was 607 passed, 62 skipped, with the two reported failures confined to missing-secret API suites | Aggregate output does not prove every listed file had a passing test |
+| `tests/e2e/**` | Not executed | File presence and Playwright configuration only |
+
+| Test file | Lane | Execution state | Proof boundary |
 |---|---|---|---|
-| `api/__tests__/auth.test.ts` | API | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `api/__tests__/mvp.test.ts` | API | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `electron/auth/__tests__/desktopSession.test.ts` | ELECTRON_UNIT_OR_INTEGRATION | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `electron/ipc/__tests__/authHandler.test.ts` | ELECTRON_UNIT_OR_INTEGRATION | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `electron/ipc/__tests__/legacyHandler.test.ts` | ELECTRON_UNIT_OR_INTEGRATION | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `electron/ipc/__tests__/mvpHandler.test.ts` | ELECTRON_UNIT_OR_INTEGRATION | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/__tests__/HeatmapWeekly.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/__tests__/LineChart.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/config/routes/access.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/ai-assistant/api/__tests__/ai.api.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/ai-assistant/hooks/__tests__/useAI.extended.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/ai-assistant/hooks/__tests__/useAI.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/auth/__tests__/AuthFlow.int.test.tsx` | RENDERER_INTEGRATION | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/auth/__tests__/LoginPage.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/auth/__tests__/ThemePersistence.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/auth/api/__tests__/auth.api.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/auth/contexts/__tests__/AuthContext.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/calendar/__tests__/CalendarPage.int.test.tsx` | RENDERER_INTEGRATION | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/dashboard/__tests__/Dashboard.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/dashboard/__tests__/DashboardPage.int.test.tsx` | RENDERER_INTEGRATION | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/finances/__tests__/FinancesPage.int.test.tsx` | RENDERER_INTEGRATION | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/finances/api/__tests__/finances.api.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/gamification/__tests__/GamificationFlow.int.test.tsx` | RENDERER_INTEGRATION | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/gamification/api/__tests__/achievementService.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/gamification/api/__tests__/xpService.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/gamification/components/__tests__/AchievementCard.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/gamification/components/__tests__/AchievementsPanel.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/gamification/components/__tests__/ArchetypeCard.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/gamification/components/__tests__/VisualLegacy.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/gamification/components/__tests__/XPBar.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/gamification/hooks/__tests__/useUserXP.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/gamification/logic/__tests__/archetypes.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/habits/api/__tests__/habits.api.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/habits/hooks/__tests__/useHabits.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/habits/logic/__tests__/streak.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/health/api/__tests__/health.api.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/journal/__tests__/JournalPage.int.test.tsx` | RENDERER_INTEGRATION | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/journal/api/__tests__/journal.api.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/journal/components/__tests__/InsightCard.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/journal/components/__tests__/JournalEntryList.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/mvp/__tests__/MvpLoop.int.test.tsx` | RENDERER_INTEGRATION | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/mvp/__tests__/plan.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/mvp/api/__tests__/mvp.api.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/onboarding/__tests__/OnboardingModal.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/rewards/__tests__/RewardsPage.int.test.tsx` | RENDERER_INTEGRATION | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/rewards/api/__tests__/rewards.api.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/settings/__tests__/SettingsPage.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/tasks/api/__tests__/tasks.api.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/tasks/components/__tests__/PremiumTaskCard.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/tasks/components/__tests__/TaskItem.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/features/university/api/__tests__/university.api.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/api/__tests__/authToken.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/api/__tests__/http.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/lib/__tests__/audio.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/lib/__tests__/cn.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/lib/__tests__/conflictResolver.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/lib/__tests__/dynamicNow.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/lib/__tests__/errorHandler.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/lib/__tests__/errorMessages.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/lib/__tests__/normalize.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/lib/__tests__/releaseGate.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/schemas/__tests__/auth.schema.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/schemas/__tests__/calendar.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/schemas/__tests__/dashboard.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/schemas/__tests__/habit.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/schemas/__tests__/journal.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/schemas/__tests__/project.test.ts` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/ui/__tests__/Button.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/ui/__tests__/ErrorBoundary.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/ui/__tests__/ThemeToggle.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/ui/__tests__/button.accessibility.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/ui/__tests__/modal.accessibility.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/ui/__tests__/tabs.advanced.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/ui/charts/__tests__/LineChart.snapshot.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `src/shared/ui/sanctuary/__tests__/SanctuaryOverlay.test.tsx` | UNIT_OR_COMPONENT | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `tests/e2e/auth.spec.ts` | E2E | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `tests/e2e/dashboard.spec.ts` | E2E | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `tests/e2e/features.spec.ts` | E2E | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `tests/e2e/finances.spec.ts` | E2E | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `tests/e2e/habits.spec.ts` | E2E | DECLARED_NOT_RUN_LOCALLY | File presence/config inclusion only; not standalone pass evidence |
-| `tests/e2e/smoke.spec.ts` | E2E | NOT_RUN_ON_CURRENT_HEAD; the successful `test` check runs Vitest, and no `quality-gate` check appeared | File presence/config inclusion only; not standalone pass evidence |
+| `api/__tests__/auth.test.ts` | API | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `api/__tests__/mvp.test.ts` | API | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `electron/auth/__tests__/desktopSession.test.ts` | ELECTRON_UNIT_OR_INTEGRATION | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `electron/ipc/__tests__/authHandler.test.ts` | ELECTRON_UNIT_OR_INTEGRATION | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `electron/ipc/__tests__/legacyHandler.test.ts` | ELECTRON_UNIT_OR_INTEGRATION | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `electron/ipc/__tests__/mvpHandler.test.ts` | ELECTRON_UNIT_OR_INTEGRATION | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/__tests__/HeatmapWeekly.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/__tests__/LineChart.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/config/routes/access.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/ai-assistant/api/__tests__/ai.api.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/ai-assistant/hooks/__tests__/useAI.extended.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/ai-assistant/hooks/__tests__/useAI.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/auth/__tests__/AuthFlow.int.test.tsx` | RENDERER_INTEGRATION | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/auth/__tests__/LoginPage.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/auth/__tests__/ThemePersistence.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/auth/api/__tests__/auth.api.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/auth/contexts/__tests__/AuthContext.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/calendar/__tests__/CalendarPage.int.test.tsx` | RENDERER_INTEGRATION | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/dashboard/__tests__/Dashboard.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/dashboard/__tests__/DashboardPage.int.test.tsx` | RENDERER_INTEGRATION | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/finances/__tests__/FinancesPage.int.test.tsx` | RENDERER_INTEGRATION | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/finances/api/__tests__/finances.api.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/gamification/__tests__/GamificationFlow.int.test.tsx` | RENDERER_INTEGRATION | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/gamification/api/__tests__/achievementService.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/gamification/api/__tests__/xpService.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/gamification/components/__tests__/AchievementCard.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/gamification/components/__tests__/AchievementsPanel.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/gamification/components/__tests__/ArchetypeCard.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/gamification/components/__tests__/VisualLegacy.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/gamification/components/__tests__/XPBar.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/gamification/hooks/__tests__/useUserXP.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/gamification/logic/__tests__/archetypes.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/habits/api/__tests__/habits.api.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/habits/hooks/__tests__/useHabits.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/habits/logic/__tests__/streak.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/health/api/__tests__/health.api.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/journal/__tests__/JournalPage.int.test.tsx` | RENDERER_INTEGRATION | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/journal/api/__tests__/journal.api.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/journal/components/__tests__/InsightCard.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/journal/components/__tests__/JournalEntryList.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/mvp/__tests__/MvpLoop.int.test.tsx` | RENDERER_INTEGRATION | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/mvp/__tests__/plan.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/mvp/api/__tests__/mvp.api.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/onboarding/__tests__/OnboardingModal.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/rewards/__tests__/RewardsPage.int.test.tsx` | RENDERER_INTEGRATION | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/rewards/api/__tests__/rewards.api.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/settings/__tests__/SettingsPage.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/tasks/api/__tests__/tasks.api.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/tasks/components/__tests__/CreateTaskDialog.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/tasks/components/__tests__/PremiumTaskCard.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/tasks/components/__tests__/TaskItem.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/features/university/api/__tests__/university.api.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/api/__tests__/authToken.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/api/__tests__/http.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/lib/__tests__/audio.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/lib/__tests__/cn.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/lib/__tests__/conflictResolver.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/lib/__tests__/dynamicNow.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/lib/__tests__/errorHandler.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/lib/__tests__/errorMessages.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/lib/__tests__/normalize.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/lib/__tests__/releaseGate.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/schemas/__tests__/auth.schema.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/schemas/__tests__/calendar.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/schemas/__tests__/dashboard.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/schemas/__tests__/habit.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/schemas/__tests__/journal.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/schemas/__tests__/project.test.ts` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/ui/__tests__/Button.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/ui/__tests__/ErrorBoundary.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/ui/__tests__/ThemeToggle.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/ui/__tests__/button.accessibility.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/ui/__tests__/modal.accessibility.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/ui/__tests__/tabs.advanced.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/ui/charts/__tests__/LineChart.snapshot.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `src/shared/ui/sanctuary/__tests__/SanctuaryOverlay.test.tsx` | UNIT_OR_COMPONENT | INCLUDED_IN_BROAD_VITEST_RUN_AGGREGATE | Aggregate Vitest inclusion; not standalone per-file pass evidence |
+| `tests/e2e/auth.spec.ts` | E2E | NOT_RUN_PLAYWRIGHT | File presence/config inclusion only; not standalone pass evidence |
+| `tests/e2e/dashboard.spec.ts` | E2E | NOT_RUN_PLAYWRIGHT | File presence/config inclusion only; not standalone pass evidence |
+| `tests/e2e/features.spec.ts` | E2E | NOT_RUN_PLAYWRIGHT | File presence/config inclusion only; not standalone pass evidence |
+| `tests/e2e/finances.spec.ts` | E2E | NOT_RUN_PLAYWRIGHT | File presence/config inclusion only; not standalone pass evidence |
+| `tests/e2e/habits.spec.ts` | E2E | NOT_RUN_PLAYWRIGHT | File presence/config inclusion only; not standalone pass evidence |
+| `tests/e2e/smoke.spec.ts` | E2E | NOT_RUN_PLAYWRIGHT | File presence/config inclusion only; not standalone pass evidence |
 
 ### 8.3 Workflow decision ledger
 
 | Workflow | Purpose/evidence | State and justification | Dependencies | Risk | Required test | Order |
 |---|---|---|---|---|---|---:|
-| `ci.yml` | Node 20 quality commands on push/PR | KEEP: current successful PR test evidence, but authority needs #86 | #86 gate contract | High | Clean PR run with command-to-check map | 2 |
+| `ci.yml` | Node 20 quality commands on push/PR | KEEP: configured quality lane, but no `quality-gate` check appeared on PR #101 and authority needs #86 | #86 gate contract | High | Clean PR run with command-to-check map | 2 |
 | `ci-rls.yml` | RLS-configured test lane | KEEP: current check succeeds; production security not proven | #87 and isolated secrets/data policy | Critical | Disposable Supabase project/RLS assertions | 2 |
 | `test.yml` | Unit/integration coverage lane | SIMPLIFY: overlaps CI naming/scope until #86 maps checks | #86 | Medium | Compare exact commands/artifacts with ci.yml | 3 |
 | `docker-acceptance-smoke.yml` | Production-image container smoke | DECISION_REQUIRED: runtime/port contract unresolved | #85 and #86 | High | Build/run/health fixture on chosen port/process | 5 |
@@ -737,7 +743,7 @@ This is the bounded inventory of every file under `docs/` and `plans/` in the au
 | Historical Trae material is referenced by the changelog but no `.trae` directory exists in the audited checkout. | Observed fact | `CHANGELOG.md:29`; `find` over top-level tool directories | Historical claim is not a current artifact inventory. |
 | Repository-local agent governance exists, but no `.codex`, `.gemini`, or prompt bundle was found in the audited source tree. | Observed fact | `AGENTS.md`, `docs/governance/**`; bounded directory/file search | Does not rule out GitHub Apps, external agent settings, branch-only artifacts, or remote prompts. |
 | Sourcery review-guide output and Gemini review text exist only in PR metadata, not product source. | Observed fact | PR #101 comments/reviews | Retrieval noise for reviewers; not shipped product bloat. |
-| TestSprite contributes a failing external status (`No tests detected`) despite successful repository `test` and `rls` checks. | Observed fact | Commit status and check-runs APIs for `7d8093f` | Tooling/gate ambiguity; #101 cannot change integration configuration. |
+| TestSprite contributed a failing external status (`No tests detected`) despite successful repository `test` and `rls` checks. | Historical observed fact | Commit status and check-runs APIs for historical head `7d8093f`; section 8 records the reviewed predecessor head separately | Tooling/gate ambiguity; #101 cannot change integration configuration. |
 | `babel-plugin-react-dev-locator` and the Trae badge plugin are direct tool-origin dependencies. | Observed fact | `package.json`; Vite config for the badge | The dev locator's actual consumer still requires an exact build/config trace before classification. |
 | No orphan prompt files or agent-specific source directories were found by the bounded filename/directory scan. | Observed fact | `find` for `.trae`, `.gemini`, `.codex`, and prompt/agent filenames | Absence from this scan is not proof of absence in GitHub configuration or history. |
 
@@ -819,7 +825,7 @@ Commands come from the clean read-only review checkout and from concurrent maint
 | Command | Exit | Result summary | Proves | Does not prove | Limitation |
 |---|---:|---|---|---|---|
 | `pwd && git status --short --branch` in the supplied workspace | 128 | Supplied `lifeOS` directory had an empty `.git`; not a usable checkout | Local workspace mismatch | Anything about remote repository state | Required clone to `/tmp` |
-| `git ls-remote https://github.com/RenyEnnos/life-os.git 'refs/heads/agent/forensic-audit-83' 'refs/pull/101/head' 'refs/pull/101/merge'` | 0 | At the original audit snapshot, branch and PR head were `50245cec`; the public API on 2026-07-16 reports current head `7d8093f` | Historical and current remote refs | PR approval/merge readiness | Network required escalation |
+| `git ls-remote https://github.com/RenyEnnos/life-os.git 'refs/heads/agent/forensic-audit-83' 'refs/pull/101/head' 'refs/pull/101/merge'` | 0 | Historical snapshots observed `50245cec` and `7d8093f`; maintainer review targeted predecessor report head `3dd1180` | Historical remote refs at recorded verification points | PR approval or the head after later report revisions | Network required escalation |
 | `git clone --branch agent/forensic-audit-83 https://github.com/RenyEnnos/life-os.git /tmp/life-os-forensic` | 0 | Checkout created | Source availability and branch | Clean production environment | Clone is temporary |
 | `curl -sS 'https://api.github.com/repos/RenyEnnos/life-os/issues/82'` | 0 | Issue body and labels read | #82 scope and freeze | Hidden maintainer decisions | Public API/network access |
 | `curl -sS 'https://api.github.com/repos/RenyEnnos/life-os/issues/83'` | 0 | Issue contract read | #83 scope and acceptance criteria | Runtime behavior | Public API/network access |
@@ -831,8 +837,8 @@ Commands come from the clean read-only review checkout and from concurrent maint
 | `curl -sS 'https://api.github.com/repos/RenyEnnos/life-os/pulls/101/reviews?per_page=100'` | 0 | Reviews read | Gemini COMMENTED review and absence of approval | Hidden/private review state | Public API/network access |
 | `curl -sS 'https://api.github.com/repos/RenyEnnos/life-os/pulls/101/comments?per_page=100'` | 0 | Empty inline-review-comment list read | No public inline comments | General conversation comments | Public API/network access |
 | `git status --short --branch` | 0 | Branch/worktree state read | Checkout and tracked modifications | Remote branch state | None material |
-| `git rev-parse HEAD` | 0 | `7d8093f...` | Local head | Remote PR head | None material |
-| `git log --oneline --decorate --graph -12` | 0 | Recent branch history read | Four commits above base and relevant merges | Full repository history | Bounded history |
+| `git rev-parse HEAD` | 0 | Historical audit-tree checkout returned `7d8093f...`; maintainer review targeted predecessor report head `3dd1180...` | Local revision at recorded verification points | PR approval or future report-head identity | Report-only commits after `7d8093f` do not change the audited product tree |
+| `git log --oneline --decorate --graph -12` | 0 | Recent branch history read through predecessor report head `3dd1180` | Bounded branch history and report-only revisions above the audited tree | Full repository history or future report-head identity | Bounded history |
 | `rg --files` | 0 | Tracked/searchable tree enumerated | File inventory input | Runtime use | Static listing |
 | `rg -n 'createBrowserRouter|RouteObject|path:|Navigate' src/config src/features src/app` | 0 | Routes, redirects, and matching consumers found | Static route/consumer map | Dynamic or external links | Static search |
 | `node -e "const p=require('./package.json'); console.log(p.scripts,p.dependencies,p.devDependencies)"` | 0 | Declared scripts and direct dependencies read | Declared build/runtime/tool surface | Actual execution or transitive use | None material |
@@ -860,7 +866,7 @@ Commands come from the clean read-only review checkout and from concurrent maint
 | `rg --files api electron src tests \| rg '(test|spec)\.(ts|tsx|js|mjs)$'` | 0 | `82` paths | Bounded test-file inventory | Which tests execute in a lane | Static listing |
 | `rg --files docs plans` | 0 | `27` paths | Bounded document/plan inventory | Authority correctness | Static listing |
 | `rg --files src/features \| sed 's#src/features/##' \| cut -d/ -f1 \| sort \| uniq -c` | 0 | `21` top-level feature modules | Feature scope/count input | Reachability or value | Static listing |
-| `for dependency in $(node -e "const p=require('./package.json'); for(const k of Object.keys({...p.dependencies,...p.devDependencies}).sort()) console.log(k)"); do rg --hidden -l -F --glob '!package.json' --glob '!package-lock.json' --glob '!docs/**' --glob '!plans/**' --glob '!CHANGELOG.md' -- "$dependency" .; done` | Loop 0; individual `rg` is 0 when matched and 1 when unmatched | Bounded locators used in section 7.2 | Text/config reference candidates | Dynamic/generated use or actual execution | Fixed-string heuristic; unrelated substrings were manually corrected for `googleapis`, `postcss`, and `tsx` |
+| `for dependency in $(node -e "const p=require('./package.json'); for(const k of Object.keys({...p.dependencies,...p.devDependencies}).sort()) console.log(k)"); do rg --hidden -l -F --glob '!package.json' --glob '!package-lock.json' --glob '!docs/**' --glob '!plans/**' --glob '!CHANGELOG.md' -- "$dependency" .; done` | Loop 0; individual `rg` is 0 when matched and 1 when unmatched | Bounded fixed-string locator candidates used in section 7.2 | Exact-package consumption, dynamic/generated use, or actual execution | Substrings can match hostnames, comments, filenames, or larger identifiers; each locator requires exact import/config/script verification before a consumer claim |
 | `find . -maxdepth 3 -type d \( -name '.trae' -o -name '.gemini' -o -name '.codex' -o -name '.github' -o -name '.storybook' \) -print` | 0 | `.github` and `.storybook` found; no source-tree `.trae`, `.gemini`, or `.codex` | Bounded tool-directory inventory | Remote GitHub App/config state or history | Depth-limited static scan |
 | `git status --short` after inspection/install attempts | 0 | No tracked changes outside report before edit | Workspace safety before report edit | Remote branch state | Ignored temp files are not shown |
 
@@ -893,6 +899,7 @@ An independent read-only reviewer inspected the branch, PR metadata, issue #83, 
 | The product map did not explicitly enumerate implicit audience and claims. | Observed gap | Resolved in section 3.2. |
 | The second review found noncanonical dependency dispositions, incomplete unified decision fields, one allegedly missing script, abbreviated commands, and stale review prose. | Observed gap | Package dispositions now use #83 categories; unified feature/service/script/workflow ledgers were added; all 35 scripts including `seo:generate` were counted; command rows were made explicit; this section was reconciled. |
 | The final review found nine incorrectly extracted document titles and one escaped script declaration mismatch. | Observed gap | All nine H1 titles and the exact `build:server` declaration were corrected; follow-up review passed. |
+| Maintainer review on predecessor head `3dd1180` found substring locators presented as consumers, stale per-file test states, `ci.yml`/`test.yml` evidence conflation, and ambiguous historical head references. | Observed gap | Section 7.2 now limits locators to search candidates; section 8.2 records aggregate Vitest/API execution without per-file claims; sections 8 and 8.3 map checks to their actual workflows; all hard-coded SHAs are explicitly historical or identify the audited product tree. |
 | Gemini's only review targeted stale commit `50245ce`, was `COMMENTED`, and supplied no approval or inline findings. | Observed fact | Not counted as the required independent human review. |
 | Explicit maintainer merge authorization is absent. | Observed fact | Merge remains prohibited. |
 
