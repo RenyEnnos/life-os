@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
   const isElectronMode = mode === 'electron'
 
   return {
-    base: './',
+    base: isElectronMode ? './' : '/',
     plugins: [
       react(),
       ...(isElectronMode ? [electron({

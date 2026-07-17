@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 
 import advisoryPlaywrightConfig from '../../../../playwright.config'
+import electronPlaywrightConfig from '../../../../playwright.electron.config'
 import releasePlaywrightConfig from '../../../../playwright.release.config'
 
 function readPackageJsonScripts() {
@@ -14,6 +15,7 @@ function readPackageJsonScripts() {
 describe('release gate contract', () => {
   it('uses one honest web static-and-unit workflow', () => {
     const workflow = readFileSync(`${process.cwd()}/.github/workflows/ci.yml`, 'utf8')
+    const staticJob = workflow.split(/^ {2}canonical-e2e:/m)[0]
 
     expect(workflow).toContain('name: Web CI')
     expect(workflow).toContain('name: web / static-and-unit')
@@ -22,8 +24,17 @@ describe('release gate contract', () => {
     expect(workflow).toContain('npm run test')
     expect(workflow).toContain('npm run build')
     expect(workflow).toContain('npm run build:server')
-    expect(workflow).not.toContain('electron:build')
-    expect(workflow).not.toContain('test:e2e')
+    expect(staticJob).not.toContain('electron:build')
+    expect(staticJob).not.toContain('test:e2e')
+  })
+
+  it('publishes canonical browser evidence as a separate stable job', () => {
+    const workflow = readFileSync(`${process.cwd()}/.github/workflows/ci.yml`, 'utf8')
+
+    expect(workflow).toContain('name: web / canonical-e2e')
+    expect(workflow).toContain('npx playwright install --with-deps chromium')
+    expect(workflow).toContain('npm run test:e2e')
+    expect(workflow).toMatch(/if:\s*always\(\)[\s\S]*rm -rf test-results\/canonical/)
   })
 
   it('removes duplicate generic-test and false-RLS workflow ownership', () => {
@@ -35,16 +46,26 @@ describe('release gate contract', () => {
     const scripts = readPackageJsonScripts()
 
     expect(scripts['test:e2e']).toBe('playwright test -c playwright.release.config.ts')
-    expect(scripts['test:e2e:smoke']).toBe('playwright test -c playwright.release.config.ts')
+    expect(scripts['test:e2e:electron-advisory']).toBe(
+      'playwright test -c playwright.electron.config.ts',
+    )
     expect(scripts['test:e2e:advisory']).toBe('playwright test -c playwright.config.ts')
   })
 
   it('keeps the experimental Electron config smoke-only and browser-free', () => {
+    const electronProjects = (electronPlaywrightConfig.projects ?? []) as Array<{ name?: string }>
+
+    expect(electronPlaywrightConfig.testMatch).toBe('**/smoke.spec.ts')
+    expect(electronPlaywrightConfig.webServer).toBeUndefined()
+    expect(electronProjects.map((project) => project.name)).toEqual(['advisory-electron'])
+  })
+
+  it('owns the canonical browser journey in one Chromium project', () => {
     const releaseProjects = (releasePlaywrightConfig.projects ?? []) as Array<{ name?: string }>
 
-    expect(releasePlaywrightConfig.testMatch).toBe('**/smoke.spec.ts')
-    expect(releasePlaywrightConfig.webServer).toBeUndefined()
-    expect(releaseProjects.map((project) => project.name)).toEqual(['smoke'])
+    expect(releasePlaywrightConfig.testMatch).toBe('**/canonical.spec.ts')
+    expect(releasePlaywrightConfig.webServer).toBeDefined()
+    expect(releaseProjects.map((project) => project.name)).toEqual(['canonical-chromium'])
   })
 
   it('labels browser projects as advisory and keeps smoke out of that lane', () => {
@@ -60,6 +81,11 @@ describe('release gate contract', () => {
     ).toBe(true)
     expect(
       advisoryProjects.every((project) => project.testIgnore?.includes('**/smoke.spec.ts') === true),
+    ).toBe(true)
+    expect(
+      advisoryProjects.every(
+        (project) => project.testIgnore?.includes('**/canonical.spec.ts') === true,
+      ),
     ).toBe(true)
   })
 

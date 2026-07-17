@@ -30,7 +30,7 @@ interface AuthState {
 }
 
 function defaultFilePath() {
-  return path.join(process.cwd(), '.data', 'auth-state.json');
+  return process.env.LIFEOS_AUTH_DATA_FILE || path.join(process.cwd(), '.data', 'auth-state.json');
 }
 
 function normalizeEmail(email: string) {

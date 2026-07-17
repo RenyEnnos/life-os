@@ -28,6 +28,7 @@ describe('static SPA routing', () => {
     const root = await request(app).get('/');
     expect(root.status).toBe(200);
     expect(root.text).toContain(marker);
+    expect(root.headers['content-security-policy']).not.toContain('upgrade-insecure-requests');
 
     const clientRoute = await request(app).get('/mvp/today');
     expect(clientRoute.status).toBe(200);

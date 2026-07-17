@@ -19,17 +19,17 @@ export default defineConfig({
     {
       name: 'advisory-chromium',
       use: { ...devices['Desktop Chrome'] },
-      testIgnore: ['**/smoke.spec.ts'],
+      testIgnore: ['**/smoke.spec.ts', '**/canonical.spec.ts'],
     },
     {
       name: 'advisory-firefox',
       use: { ...devices['Desktop Firefox'] },
-      testIgnore: ['**/smoke.spec.ts'],
+      testIgnore: ['**/smoke.spec.ts', '**/canonical.spec.ts'],
     },
     {
       name: 'advisory-webkit',
       use: { ...devices['Desktop Safari'] },
-      testIgnore: ['**/smoke.spec.ts'],
+      testIgnore: ['**/smoke.spec.ts', '**/canonical.spec.ts'],
     },
   ],
 })
