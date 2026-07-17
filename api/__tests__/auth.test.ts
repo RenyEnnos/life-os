@@ -88,4 +88,54 @@ describe('auth and invite access control', () => {
     expect(login.status).toBe(200);
     expect(login.body.token).toBeTruthy();
   });
+
+  it('rejects a persisted fallback invite in controlled-demo', async () => {
+    const previousMode = process.env.LIFEOS_OPERATING_MODE;
+    process.env.LIFEOS_OPERATING_MODE = 'controlled-demo';
+    await fs.writeFile(authFile, JSON.stringify({
+      invites: [{
+        email: 'partner@lifeos.local',
+        code: 'LIFEOS-INVITE',
+        claimedAt: null,
+        claimedByUserId: null,
+      }],
+      users: [],
+    }));
+
+    try {
+      const repository = new FileBackedAuthRepository(authFile, [
+        { email: 'demo@example.test', code: 'DEMO-UNIQUE' },
+      ]);
+      await expect(repository.findUserByEmail('demo@example.test')).rejects.toThrow('LIFEOS_INVITES');
+    } finally {
+      if (previousMode === undefined) delete process.env.LIFEOS_OPERATING_MODE;
+      else process.env.LIFEOS_OPERATING_MODE = previousMode;
+    }
+  });
+
+  it('allows only the configured CORS origin in controlled-demo', async () => {
+    const previousMode = process.env.LIFEOS_OPERATING_MODE;
+    const previousOrigin = process.env.ALLOWED_ORIGIN;
+    process.env.LIFEOS_OPERATING_MODE = 'controlled-demo';
+    process.env.ALLOWED_ORIGIN = 'https://demo.example.test';
+
+    try {
+      const app = createApp(
+        new FileBackedMvpRepository(mvpFile),
+        new FileBackedAuthRepository(authFile, [{ email: 'demo@example.test', code: 'DEMO-UNIQUE' }]),
+      );
+      const allowed = await request(app).get('/api/health').set('Origin', 'https://demo.example.test');
+      const localhost = await request(app).get('/api/health').set('Origin', 'http://localhost:5173');
+
+      expect(allowed.status).toBe(200);
+      expect(allowed.headers['access-control-allow-origin']).toBe('https://demo.example.test');
+      expect(localhost.status).toBe(500);
+      expect(localhost.headers['access-control-allow-origin']).toBeUndefined();
+    } finally {
+      if (previousMode === undefined) delete process.env.LIFEOS_OPERATING_MODE;
+      else process.env.LIFEOS_OPERATING_MODE = previousMode;
+      if (previousOrigin === undefined) delete process.env.ALLOWED_ORIGIN;
+      else process.env.ALLOWED_ORIGIN = previousOrigin;
+    }
+  });
 });

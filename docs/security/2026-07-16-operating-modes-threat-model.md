@@ -4,11 +4,11 @@ Status: provisional
 Date: 2026-07-16
 Decision owner: repository maintainer
 Operational author: Codex under the autonomous recovery mandate
-Related issues: #82, #83, #85, #86, #87, #89
+Related issues: #82, #83, #85, #86, #87, #89, #106
 
 ## Decision
 
-LifeOS currently supports one operating mode: **local-dev** — one operator, disposable data and loopback access.
+LifeOS currently supports one operating mode: **local-dev** — one operator, disposable data and loopback access. The repository enforces an explicit `LIFEOS_OPERATING_MODE` at build/startup and contains a fail-closed **controlled-demo candidate profile**, but repository enforcement alone does not make a deployed demo supported.
 
 **controlled-demo** is the next supportable mode: a short-lived, access-limited demonstration using synthetic or explicitly non-sensitive data. It remains unsupported until its gate in this document passes. **partner-beta** and **public-production** are also unsupported until their gates are implemented and verified. A Docker target, production build, public URL, PWA artifact, or green development suite does not change those classifications.
 
@@ -99,18 +99,20 @@ Unknown or contradictory environment configuration must fail closed. No producti
 
 | Configuration | local-dev | controlled-demo | partner-beta | public-production |
 |---|---|---|---|---|
-| `NODE_ENV` | `development` | `production` | `production` | `production` |
+| `NODE_ENV` | `development` at runtime; production builds permitted | `production` | `production` | `production` |
 | `LIFEOS_SESSION_SECRET` | required, throwaway | required, strong and unique | required, managed and rotatable | required, managed and rotatable |
 | `ALLOWED_ORIGIN` | optional loopback | required exact HTTPS origin | required exact HTTPS origin | required exact HTTPS origin(s) |
 | `LIFEOS_INVITES` | optional; known fallback allowed | required unique seeds | required managed lifecycle until replaced | self-service/managed policy required by new decision |
 | bypass/admin Vite flags | may be true | must be absent/false | must be absent/false | must be absent/false |
 | `LIFEOS_MVP_REPOSITORY` | explicit preferred | explicit `file` only for disposable single-instance demo | explicit durable store | explicit durable store |
-| `DATABASE_URL` | optional | only if selected and tested | required for Prisma mode, secret-managed | required, secret-managed |
+| `DATABASE_URL` | optional | prohibited while the candidate profile requires `file` | required for Prisma mode, secret-managed | required, secret-managed |
 | Supabase URL/anon key | optional experimental Electron | not part of canonical demo | explicit architecture decision | explicit architecture decision |
 | service-role key | not needed by observed canonical Express path | must not be supplied without a proved server consumer | least-privilege secret only if required | least-privilege secret only if required |
 | analytics/Sentry | off preferred | off unless explicitly reviewed | documented minimization/retention | documented minimization/retention |
 
 The existing fail-fast requirement for `LIFEOS_SESSION_SECRET` or `JWT_SECRET` is retained. `LIFEOS_SESSION_SECRET` is the canonical name; the JWT alias is migration compatibility, not a second policy.
+
+The shared validator in `shared/operatingMode.ts` is used by Vite and the Express startup path. For `controlled-demo`, it enforces the production environment, exact HTTPS origin, canonical strong session-secret input, explicit unique non-fallback invites, explicit file persistence, disabled UI bypasses, and absent unreviewed vendor/service-role variables. Vite additionally omits public source maps and the development badge, and the built-artifact verifier rejects those release markers. It cannot prove that an operator generated a never-before-used value or performed rotation, expiry, host restriction, backup, or wipe; those remain deployment evidence in the gate below.
 
 ## API, validation and abuse controls
 
@@ -214,4 +216,4 @@ This decision is validated when:
 - active documentation does not claim partner-beta or public-production support;
 - #86 maps CI/Docker evidence to the supported modes without weakening these gates.
 
-Until the controlled-demo implementation slices and gate pass, only local-dev is supported.
+Until the controlled-demo deployment gate passes against an actual fixture, only local-dev is supported.

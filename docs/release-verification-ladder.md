@@ -1,56 +1,49 @@
 # Release Verification Ladder
 
-## Findings First
+## Evidence lanes
 
-1. Browser Playwright coverage is quarantined and is not release evidence.
-   - Fresh reproduction on 2026-03-20: `npx playwright test tests/e2e/auth.spec.ts --project=advisory-chromium` failed because register/login never left `/register` and `/login`, and logout timed out waiting for a nonexistent `Logout` button.
-   - Those browser specs are now explicitly marked as quarantined placeholders in `tests/e2e/*.spec.ts` and moved behind the advisory lane.
+- `npm run test:e2e` is the authoritative release lane. It builds the browser SPA and Express server, then runs `tests/e2e/canonical.spec.ts` in Chromium against the canonical `/mvp` journey.
+- `npm run test:e2e:electron-advisory` is advisory Electron smoke. Electron is not the canonical runtime.
+- `npm run test:e2e:advisory` contains broader browser coverage that is useful for triage but is not merge evidence.
+- `npm run test`, `npm run typecheck`, `npm run lint`, `npm run build`, and `npm run build:server` protect behavior, static correctness, and buildability.
 
-2. The authoritative Playwright release gate is Electron smoke only.
-   - `npm run test:e2e` now routes to `playwright.release.config.ts`.
-   - The release config runs `tests/e2e/smoke.spec.ts` only and does not boot the browser web server.
-   - That smoke lane is now constrained to the canonical `/mvp` loop and no longer treats broader-suite routes as release proof.
+`src/shared/lib/__tests__/releaseGate.test.ts` protects this wiring. Do not promote advisory output or raw Playwright pass counts into release evidence.
 
-3. A regression test now protects the gate wiring.
-   - `src/shared/lib/__tests__/releaseGate.test.ts` fails if `npm run test:e2e` is pointed back at the browser config or if smoke leaks into the advisory lane.
+## Local development ladder
 
-## Lane Definitions
+The package scripts select `local-dev` explicitly. Run:
 
-- `npm run test:e2e`
-  - Authoritative release evidence.
-  - Runs the Electron smoke lane only.
-  - Must stay green before any release claim that depends on desktop runtime verification.
-  - Only proves the MVP loop: login, onboarding, weekly planning, daily execution, and reflection.
+1. `npm run typecheck`
+2. `npm run lint`
+3. `npm run test`
+4. `npm run build`
+5. `npm run build:server`
+6. `npm run test:e2e`
 
-- `npm run test:e2e:advisory`
-  - Non-blocking browser placeholder lane.
-  - Exists for triage and future rewrite work.
-  - Must not be cited as release confidence.
+`npm run build` still requires `LIFEOS_OPERATING_MODE=local-dev` when invoked directly outside a script or CI environment.
 
-- `npm run test`
-  - Unit and integration coverage.
-  - Required for regression protection around business logic and release-gate wiring.
+## Controlled-demo configuration evidence
 
-- `npm run typecheck`
-  - Required static verification.
+A controlled-demo candidate must fail closed unless all required runtime values are supplied. Build and inspect the public artifact with:
 
-- `npm run lint`
-  - Required static verification.
+```bash
+LIFEOS_OPERATING_MODE=controlled-demo npm run build
+npm run verify:controlled-demo-artifact
+```
 
-## Release Ladder
+At runtime, also provide:
 
-Run these in order:
+- `NODE_ENV=production`
+- one exact HTTPS `ALLOWED_ORIGIN`
+- a unique `LIFEOS_SESSION_SECRET` of at least 32 characters
+- explicit, unique, email-bound `LIFEOS_INVITES`
+- `LIFEOS_MVP_REPOSITORY=file`
+- no `DATABASE_URL`
 
-1. `npm run test:e2e`
-2. `npm run test`
-3. `npm run typecheck`
-4. `npm run lint`
+The controlled-demo policy rejects the known fallback invite, client bypass/admin flags, unreviewed vendor configuration, a service-role key, implicit persistence, public source maps, and the development badge. Error diagnostics name the invalid variable without printing its value.
 
-Do not upgrade advisory browser output, skipped browser placeholders, or weak assertions into release evidence.
+The artifact check and a rendered Compose configuration prove only repository configuration. They do not prove HTTPS termination, host access control, secret uniqueness, expiry, rotation, wipe/backup execution, or a deployed canonical journey.
 
-## Current Recommendations
+## Readiness boundary
 
-- Rewrite quarantined browser specs only after the browser surface has seeded auth, deterministic fixtures, and assertions that prove user-visible behavior.
-- Keep release conversations anchored to the authoritative lane, not to total Playwright pass counts.
-- Treat any future attempt to merge smoke and browser placeholders back into one default command as a release-risk regression.
-- Treat any future attempt to reintroduce `tasks`, `habits`, or other broader-suite routes into authoritative smoke as a release-risk regression.
+Only `local-dev` is currently supported. A controlled demo remains unsupported until every controlled-demo gate in `docs/security/2026-07-16-operating-modes-threat-model.md` is evidenced for the actual deployment. Partner beta and public production require separate gates and are not implied by a green build or CI run.

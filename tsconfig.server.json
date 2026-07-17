@@ -20,5 +20,5 @@
     }
   },
   "include": ["api/**/*.ts", "shared/**/*.ts"],
-  "exclude": ["api/**/*.test.ts", "api/**/__tests__/**"]
+  "exclude": ["api/**/*.test.ts", "api/**/__tests__/**", "shared/**/*.test.ts"]
 }

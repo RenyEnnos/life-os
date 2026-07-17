@@ -48,7 +48,13 @@ npm install
 Run the default app and API:
 
 ```bash
-npm run dev
+LIFEOS_SESSION_SECRET="$(openssl rand -hex 32)" npm run dev
+```
+
+The development scripts select `LIFEOS_OPERATING_MODE=local-dev`. Direct builds must select it explicitly:
+
+```bash
+LIFEOS_OPERATING_MODE=local-dev npm run build
 ```
 
 Default local endpoints:
@@ -74,6 +80,19 @@ Default local endpoints:
 - lint: `npm run lint`
 
 The release-verification ladder and the distinction between authoritative versus advisory Playwright lanes live in `docs/release-verification-ladder.md`.
+
+## Operating Modes
+
+`local-dev` is the only currently supported mode. The repository also contains a fail-closed `controlled-demo` candidate profile. It requires production mode, an exact HTTPS origin, a unique session secret, explicit unique invite seeds, and explicit file persistence; it rejects known fallback credentials, UI bypasses, unreviewed vendors, service-role injection, public source maps, and development branding.
+
+Build and inspect that candidate with:
+
+```bash
+LIFEOS_OPERATING_MODE=controlled-demo npm run build
+npm run verify:controlled-demo-artifact
+```
+
+This does not authorize a shared deployment by itself. The actual host must also pass the expiry, access, rotation, wipe/backup, and deployed-browser evidence in `docs/security/2026-07-16-operating-modes-threat-model.md`. Partner beta and public production remain unsupported.
 
 ## CI Quality Gate Policy
 

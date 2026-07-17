@@ -15,8 +15,13 @@ jobs:
 
       - name: Run container
         run: |
+          session_secret="$(openssl rand -hex 32)"
           docker run -d --name lifeos-runtime-smoke -p 3001:3001 \
-            -e LIFEOS_SESSION_SECRET=synthetic-docker-smoke-secret \
+            -e NODE_ENV=production \
+            -e LIFEOS_OPERATING_MODE=controlled-demo \
+            -e ALLOWED_ORIGIN=https://demo.example.test \
+            -e LIFEOS_SESSION_SECRET="$session_secret" \
+            -e 'LIFEOS_INVITES=[{"email":"demo@example.test","code":"DOCKER-SMOKE-UNIQUE"}]' \
             -e LIFEOS_MVP_REPOSITORY=file \
             lifeos-runtime-smoke
 

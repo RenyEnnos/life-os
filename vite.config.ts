@@ -1,13 +1,16 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tsconfigPaths from "vite-tsconfig-paths";
 import { traeBadgePlugin } from 'vite-plugin-trae-solo-badge';
 import { VitePWA } from 'vite-plugin-pwa'
 import electron from 'vite-plugin-electron/simple'
+import { validateBuildOperatingMode } from './shared/operatingMode'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const isElectronMode = mode === 'electron'
+  const env = { ...process.env, ...loadEnv(mode, process.cwd(), '') }
+  const operatingMode = validateBuildOperatingMode(env)
 
   return {
     base: isElectronMode ? './' : '/',
@@ -85,7 +88,7 @@ export default defineConfig(({ mode }) => {
         ]
       }
       }),
-      traeBadgePlugin({
+      ...(operatingMode === 'local-dev' ? [traeBadgePlugin({
       variant: 'dark',
       position: 'bottom-right',
       prodOnly: true,
@@ -93,7 +96,7 @@ export default defineConfig(({ mode }) => {
       clickUrl: 'https://www.trae.ai/solo?showJoin=1',
       autoTheme: true,
       autoThemeTarget: '#root'
-      }),
+      })] : []),
       tsconfigPaths(),
     ],
     build: {
@@ -144,7 +147,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     // Enable source maps for debugging
-    sourcemap: true,
+    sourcemap: operatingMode === 'local-dev',
     // Optimize build size
     minify: 'terser',
     terserOptions: {
