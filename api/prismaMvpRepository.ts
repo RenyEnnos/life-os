@@ -6,7 +6,7 @@ import { prisma as defaultPrisma } from './prisma';
 import type { MvpRepository } from './mvpRepository.types';
 
 import { generateWeeklyPlan } from '../shared/mvp/plan';
-import { createEmptyWorkspace, initialOnboardingDraft, initialReviewDraft, pushMvpEvent, withComputedAnalytics } from '../shared/mvp/state';
+import { createEmptyWorkspace, initialOnboardingDraft, initialReviewDraft, withComputedAnalytics } from '../shared/mvp/state';
 import type {
   MvpDailyCheckIn,
   MvpEvent,
@@ -17,6 +17,16 @@ import type {
   MvpReviewDraft,
   MvpWorkspaceSnapshot,
 } from '../shared/mvp/types';
+import {
+  createWorkspaceExport,
+  digestWorkspace,
+  normalizeWorkspace,
+  workspaceExportSchema,
+  type MvpWorkspaceExport,
+  type MvpWorkspaceRecovery,
+} from './workspaceRecovery';
+
+type WorkspaceDb = PrismaClient | Prisma.TransactionClient;
 
 function startOfWeek(date: Date) {
   const next = new Date(date);
@@ -115,6 +125,8 @@ function toJsonObject(value: unknown): Prisma.InputJsonValue {
 }
 
 export class PrismaBackedMvpRepository implements MvpRepository {
+  private readonly mutationQueues = new Map<string, Promise<void>>();
+
   constructor(private readonly db: PrismaClient = defaultPrisma) {}
 
   async ensureUser(user: StoredUser): Promise<void> {
@@ -139,6 +151,46 @@ export class PrismaBackedMvpRepository implements MvpRepository {
   }
 
   async saveOnboarding(userId: string, input: Omit<MvpOnboardingDraft, 'completedAt'>): Promise<MvpWorkspaceSnapshot> {
+    return this.runUserMutation(userId, () => this.saveOnboardingUnlocked(userId, input));
+  }
+
+  async generatePlan(userId: string, input: Omit<MvpReviewDraft, 'generatedAt' | 'id'>): Promise<MvpWorkspaceSnapshot> {
+    return this.runUserMutation(userId, () => this.generatePlanUnlocked(userId, input));
+  }
+
+  async confirmPlan(userId: string, planId: string): Promise<MvpWorkspaceSnapshot> {
+    return this.runUserMutation(userId, () => this.confirmPlanUnlocked(userId, planId));
+  }
+
+  async updateActionItem(
+    userId: string,
+    actionItemId: string,
+    patch: { status?: 'todo' | 'done' | 'deferred'; note?: string }
+  ): Promise<MvpWorkspaceSnapshot> {
+    return this.runUserMutation(userId, () => this.updateActionItemUnlocked(userId, actionItemId, patch));
+  }
+
+  async saveDailyCheckIn(userId: string, input: Omit<MvpDailyCheckIn, 'createdAt'>): Promise<MvpWorkspaceSnapshot> {
+    return this.runUserMutation(userId, () => this.saveDailyCheckInUnlocked(userId, input));
+  }
+
+  async addReflection(userId: string, input: Pick<MvpReflectionEntry, 'period' | 'body'>): Promise<MvpWorkspaceSnapshot> {
+    return this.runUserMutation(userId, () => this.addReflectionUnlocked(userId, input));
+  }
+
+  async submitFeedback(userId: string, input: { rating: number; message: string }): Promise<MvpWorkspaceSnapshot> {
+    return this.runUserMutation(userId, () => this.submitFeedbackUnlocked(userId, input));
+  }
+
+  async resetWorkspace(userId: string, preparedInput: MvpWorkspaceExport) {
+    return this.runUserMutation(userId, () => this.resetWorkspaceUnlocked(userId, preparedInput));
+  }
+
+  async restoreWorkspace(userId: string, portableExportInput: MvpWorkspaceExport): Promise<MvpWorkspaceSnapshot> {
+    return this.runUserMutation(userId, () => this.restoreWorkspaceUnlocked(userId, portableExportInput));
+  }
+
+  private async saveOnboardingUnlocked(userId: string, input: Omit<MvpOnboardingDraft, 'completedAt'>): Promise<MvpWorkspaceSnapshot> {
     const now = new Date();
     const existingProfile = await this.db.userProfile.findUnique({
       where: { userId },
@@ -224,7 +276,7 @@ export class PrismaBackedMvpRepository implements MvpRepository {
     return this.buildWorkspace(userId);
   }
 
-  async generatePlan(userId: string, input: Omit<MvpReviewDraft, 'generatedAt' | 'id'>): Promise<MvpWorkspaceSnapshot> {
+  private async generatePlanUnlocked(userId: string, input: Omit<MvpReviewDraft, 'generatedAt' | 'id'>): Promise<MvpWorkspaceSnapshot> {
     const onboarding = (await this.buildWorkspace(userId)).onboarding.completedAt
       ? (await this.buildWorkspace(userId)).onboarding
       : initialOnboardingDraft;
@@ -348,7 +400,7 @@ export class PrismaBackedMvpRepository implements MvpRepository {
     return this.buildWorkspace(userId);
   }
 
-  async confirmPlan(userId: string, planId: string): Promise<MvpWorkspaceSnapshot> {
+  private async confirmPlanUnlocked(userId: string, planId: string): Promise<MvpWorkspaceSnapshot> {
     const plan = await this.db.weeklyPlan.findFirst({
       where: {
         id: planId,
@@ -382,7 +434,7 @@ export class PrismaBackedMvpRepository implements MvpRepository {
     return this.buildWorkspace(userId);
   }
 
-  async updateActionItem(
+  private async updateActionItemUnlocked(
     userId: string,
     actionItemId: string,
     patch: { status?: 'todo' | 'done' | 'deferred'; note?: string }
@@ -419,7 +471,7 @@ export class PrismaBackedMvpRepository implements MvpRepository {
     return this.buildWorkspace(userId);
   }
 
-  async saveDailyCheckIn(userId: string, input: Omit<MvpDailyCheckIn, 'createdAt'>): Promise<MvpWorkspaceSnapshot> {
+  private async saveDailyCheckInUnlocked(userId: string, input: Omit<MvpDailyCheckIn, 'createdAt'>): Promise<MvpWorkspaceSnapshot> {
     const latestPlan = await this.db.weeklyPlan.findFirst({
       where: { userId },
       orderBy: [{ confirmedAt: 'desc' }, { updatedAt: 'desc' }],
@@ -476,7 +528,7 @@ export class PrismaBackedMvpRepository implements MvpRepository {
     return this.buildWorkspace(userId);
   }
 
-  async addReflection(userId: string, input: Pick<MvpReflectionEntry, 'period' | 'body'>): Promise<MvpWorkspaceSnapshot> {
+  private async addReflectionUnlocked(userId: string, input: Pick<MvpReflectionEntry, 'period' | 'body'>): Promise<MvpWorkspaceSnapshot> {
     const now = new Date();
     await this.db.$transaction([
       this.db.reflectionEntry.create({
@@ -502,7 +554,7 @@ export class PrismaBackedMvpRepository implements MvpRepository {
     return this.buildWorkspace(userId);
   }
 
-  async submitFeedback(userId: string, input: { rating: number; message: string }): Promise<MvpWorkspaceSnapshot> {
+  private async submitFeedbackUnlocked(userId: string, input: { rating: number; message: string }): Promise<MvpWorkspaceSnapshot> {
     const now = new Date();
     await this.db.$transaction([
       this.db.feedbackEntry.create({
@@ -531,29 +583,224 @@ export class PrismaBackedMvpRepository implements MvpRepository {
     return this.buildWorkspace(userId);
   }
 
-  async resetWorkspace(userId: string): Promise<MvpWorkspaceSnapshot> {
-    await this.db.$transaction([
-      this.db.mvpEventLog.deleteMany({ where: { userId } }),
-      this.db.dailyCheckIn.deleteMany({ where: { userId } }),
-      this.db.reflectionEntry.deleteMany({ where: { userId } }),
-      this.db.feedbackEntry.deleteMany({ where: { userId } }),
-      this.db.weeklyPlan.deleteMany({ where: { userId } }),
-      this.db.weeklyReview.deleteMany({ where: { userId } }),
-      this.db.goal.deleteMany({ where: { userId } }),
-      this.db.commitment.deleteMany({ where: { userId } }),
-      this.db.userProfile.deleteMany({ where: { userId } }),
-    ]);
-
-    return createEmptyWorkspace();
+  async exportWorkspace(userId: string): Promise<MvpWorkspaceExport> {
+    return createWorkspaceExport(await this.buildWorkspace(userId));
   }
 
-  private async buildWorkspace(userId: string): Promise<MvpWorkspaceSnapshot> {
-    const [profile, goals, commitments, review, plan, dailyCheckIns, reflections, feedback, events] = await this.db.$transaction([
-      this.db.userProfile.findUnique({ where: { userId } }),
-      this.db.goal.findMany({ where: { userId, active: true }, orderBy: { sortOrder: 'asc' } }),
-      this.db.commitment.findMany({ where: { userId, active: true }, orderBy: { createdAt: 'asc' } }),
-      this.db.weeklyReview.findFirst({ where: { userId }, orderBy: { updatedAt: 'desc' } }),
-      this.db.weeklyPlan.findFirst({
+  private async resetWorkspaceUnlocked(userId: string, preparedInput: MvpWorkspaceExport) {
+    const parsed = workspaceExportSchema.parse(preparedInput);
+    const prepared = createWorkspaceExport(parsed.workspace, parsed.exportedAt);
+    return this.db.$transaction(async (tx) => {
+      const current = await this.buildWorkspace(userId, tx);
+      if (digestWorkspace(current) !== digestWorkspace(prepared.workspace as MvpWorkspaceSnapshot)) {
+        throw new Error('Workspace changed after export');
+      }
+
+      const recovery = await tx.mvpWorkspaceRecovery.create({
+        data: {
+          userId,
+          format: prepared.format,
+          version: prepared.version,
+          exportedAt: new Date(prepared.exportedAt),
+          payload: toJsonObject(prepared),
+        },
+      });
+
+      await this.deleteWorkspace(userId, tx);
+      const expired = await tx.mvpWorkspaceRecovery.findMany({
+        where: { userId, id: { not: recovery.id } },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        skip: 4,
+        select: { id: true },
+      });
+      if (expired.length > 0) {
+        await tx.mvpWorkspaceRecovery.deleteMany({
+          where: { id: { in: expired.map(({ id }) => id) }, userId },
+        });
+      }
+
+      return { workspace: createEmptyWorkspace(), recoveryId: recovery.id, export: prepared };
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+  }
+
+  async getLatestRecovery(userId: string): Promise<MvpWorkspaceRecovery | null> {
+    const recovery = await this.db.mvpWorkspaceRecovery.findFirst({
+      where: { userId },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    });
+    if (!recovery) return null;
+    return { id: recovery.id, export: workspaceExportSchema.parse(recovery.payload) };
+  }
+
+  private async restoreWorkspaceUnlocked(userId: string, portableExportInput: MvpWorkspaceExport): Promise<MvpWorkspaceSnapshot> {
+    const portableExport = workspaceExportSchema.parse(portableExportInput);
+    const workspace = normalizeWorkspace(portableExport.workspace as MvpWorkspaceSnapshot);
+    return this.db.$transaction(async (tx) => {
+      await this.deleteWorkspace(userId, tx);
+      await this.createWorkspace(userId, workspace, tx);
+      return this.buildWorkspace(userId, tx);
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+  }
+
+  private async deleteWorkspace(userId: string, tx: Prisma.TransactionClient) {
+    await tx.mvpEventLog.deleteMany({ where: { userId } });
+    await tx.dailyCheckIn.deleteMany({ where: { userId } });
+    await tx.reflectionEntry.deleteMany({ where: { userId } });
+    await tx.feedbackEntry.deleteMany({ where: { userId } });
+    await tx.weeklyPlan.deleteMany({ where: { userId } });
+    await tx.weeklyReview.deleteMany({ where: { userId } });
+    await tx.goal.deleteMany({ where: { userId } });
+    await tx.commitment.deleteMany({ where: { userId } });
+    await tx.userProfile.deleteMany({ where: { userId } });
+  }
+
+  private runUserMutation<T>(userId: string, operation: () => Promise<T>): Promise<T> {
+    const queued = this.mutationQueues.get(userId) ?? Promise.resolve();
+    const result = queued.then(operation, operation);
+    const settled = result.then(() => undefined, () => undefined);
+    this.mutationQueues.set(userId, settled);
+    void settled.then(() => {
+      if (this.mutationQueues.get(userId) === settled) {
+        this.mutationQueues.delete(userId);
+      }
+    });
+    return result;
+  }
+
+  private async createWorkspace(userId: string, workspace: MvpWorkspaceSnapshot, tx: Prisma.TransactionClient) {
+    const now = new Date();
+    await tx.userProfile.create({ data: {
+      userId,
+      displayName: workspace.onboarding.displayName,
+      role: workspace.onboarding.role || null,
+      lifeSeason: workspace.onboarding.lifeSeason || null,
+      planningPain: workspace.onboarding.planningPain || null,
+      successDefinition: workspace.onboarding.successDefinition || null,
+      onboardingConstraints: workspace.onboarding.constraints,
+      onboardingAt: workspace.onboarding.completedAt ? new Date(workspace.onboarding.completedAt) : null,
+    } });
+    if (workspace.onboarding.goals.length) {
+      await tx.goal.createMany({ data: workspace.onboarding.goals.map((title, sortOrder) => ({ userId, title, sortOrder })) });
+    }
+    if (workspace.onboarding.commitments.length) {
+      await tx.commitment.createMany({ data: workspace.onboarding.commitments.map((title) => ({ userId, title, kind: parseCommitmentKind(title) })) });
+    }
+
+    const reviewCreatedAt = workspace.review.generatedAt ? new Date(workspace.review.generatedAt) : now;
+    const weekStart = startOfWeek(reviewCreatedAt);
+    const weekEnd = endOfWeek(reviewCreatedAt);
+    let reviewId: string | undefined;
+    if (workspace.review.generatedAt) {
+      const review = await tx.weeklyReview.create({ data: {
+        id: workspace.review.id,
+        userId,
+        weekStart,
+        weekEnd,
+        wins: workspace.review.wins,
+        unfinishedWork: workspace.review.unfinishedWork,
+        constraints: workspace.review.constraints,
+        focusArea: workspace.review.focusArea || null,
+        energyLevel: workspace.review.energyLevel,
+        notes: workspace.review.notes || null,
+        createdAt: reviewCreatedAt,
+        updatedAt: reviewCreatedAt,
+      } });
+      reviewId = review.id;
+    }
+
+    if (workspace.plan.id) {
+      const planCreatedAt = workspace.plan.generatedAt ? new Date(workspace.plan.generatedAt) : now;
+      const planWeekStart = startOfWeek(planCreatedAt);
+      await tx.weeklyPlan.create({ data: {
+        id: workspace.plan.id,
+        userId,
+        weeklyReviewId: reviewId,
+        weekStart: planWeekStart,
+        weekEnd: endOfWeek(planCreatedAt),
+        status: workspace.plan.confirmedAt ? WeeklyPlanStatus.CONFIRMED : WeeklyPlanStatus.GENERATED,
+        summary: workspace.plan.summary,
+        generationSource: 'workspace_restore',
+        generationOutput: toJsonObject(workspace.plan),
+        confirmedAt: workspace.plan.confirmedAt ? new Date(workspace.plan.confirmedAt) : null,
+        createdAt: planCreatedAt,
+        updatedAt: planCreatedAt,
+        priorities: { create: workspace.plan.priorities.map((priority, sortOrder) => ({
+          id: priority.id,
+          title: priority.title,
+          rationale: priority.rationale || null,
+          successMetric: priority.successMetric || null,
+          status: PriorityStatus.ACTIVE,
+          sortOrder,
+          actionItems: { create: priority.actions.map((action, actionSortOrder) => ({
+            id: action.id,
+            title: action.title,
+            details: action.details || null,
+            status: toActionStatus(action.status),
+            note: action.note || null,
+            sortOrder: actionSortOrder,
+            createdAt: planCreatedAt,
+            updatedAt: planCreatedAt,
+          })) },
+        })) },
+      } });
+
+      if (workspace.dailyCheckIns.length) {
+        await tx.dailyCheckIn.createMany({ data: workspace.dailyCheckIns.map((entry) => ({
+          userId,
+          weeklyPlanId: workspace.plan.id!,
+          date: new Date(`${entry.date}T00:00:00.000Z`),
+          energy: entry.energy,
+          focus: entry.focus,
+          blockers: entry.blockers || null,
+          note: entry.note || null,
+          createdAt: new Date(entry.createdAt),
+          updatedAt: new Date(entry.createdAt),
+        })) });
+      }
+    }
+
+    if (workspace.reflections.length) {
+      await tx.reflectionEntry.createMany({ data: workspace.reflections.map((entry) => ({
+        id: entry.id,
+        userId,
+        period: entry.period === 'weekly' ? ReflectionPeriod.WEEKLY : ReflectionPeriod.DAILY,
+        body: entry.body,
+        createdAt: new Date(entry.createdAt),
+        updatedAt: new Date(entry.createdAt),
+      })) });
+    }
+    if (workspace.feedback.length) {
+      await tx.feedbackEntry.createMany({ data: workspace.feedback.map((entry) => ({
+        id: entry.id,
+        userId,
+        category: 'general',
+        rating: entry.rating,
+        message: entry.message,
+        source: 'workspace_restore',
+        createdAt: new Date(entry.createdAt),
+        updatedAt: new Date(entry.createdAt),
+      })) });
+    }
+    if (workspace.events.length) {
+      await tx.mvpEventLog.createMany({ data: workspace.events.map((event) => ({
+        id: event.id,
+        userId,
+        type: toMvpEventType(event.type),
+        createdAt: new Date(event.createdAt),
+      })) });
+    }
+  }
+
+  private async buildWorkspace(userId: string, db?: WorkspaceDb): Promise<MvpWorkspaceSnapshot> {
+    if (!db) {
+      return this.db.$transaction((tx) => this.buildWorkspace(userId, tx));
+    }
+    const [profile, goals, commitments, review, plan, dailyCheckIns, reflections, feedback, events] = await Promise.all([
+      db.userProfile.findUnique({ where: { userId } }),
+      db.goal.findMany({ where: { userId, active: true }, orderBy: { sortOrder: 'asc' } }),
+      db.commitment.findMany({ where: { userId, active: true }, orderBy: { createdAt: 'asc' } }),
+      db.weeklyReview.findFirst({ where: { userId }, orderBy: { updatedAt: 'desc' } }),
+      db.weeklyPlan.findFirst({
         where: { userId },
         orderBy: [{ confirmedAt: 'desc' }, { updatedAt: 'desc' }],
         include: {
@@ -567,10 +814,10 @@ export class PrismaBackedMvpRepository implements MvpRepository {
           },
         },
       }),
-      this.db.dailyCheckIn.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
-      this.db.reflectionEntry.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
-      this.db.feedbackEntry.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
-      this.db.mvpEventLog.findMany({ where: { userId }, orderBy: { createdAt: 'asc' } }),
+      db.dailyCheckIn.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
+      db.reflectionEntry.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
+      db.feedbackEntry.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
+      db.mvpEventLog.findMany({ where: { userId }, orderBy: { createdAt: 'asc' } }),
     ]);
 
     const onboarding: MvpOnboardingDraft = profile
@@ -654,10 +901,11 @@ export class PrismaBackedMvpRepository implements MvpRepository {
         message: entry.message,
         createdAt: entry.createdAt.toISOString(),
       })),
-      events: events.reduce<MvpEvent[]>((accumulator, event) => {
-        const type = fromMvpEventType(event.type);
-        return pushMvpEvent(accumulator, type, event.createdAt.toISOString());
-      }, []),
+      events: events.map<MvpEvent>((event) => ({
+        id: event.id,
+        type: fromMvpEventType(event.type),
+        createdAt: event.createdAt.toISOString(),
+      })),
     };
 
     return withComputedAnalytics(workspaceWithoutAnalytics);

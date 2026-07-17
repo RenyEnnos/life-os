@@ -119,16 +119,18 @@ The shared validator in `shared/operatingMode.ts` is used by Vite and the Expres
 
 Observed controls: Helmet, credentialed CORS with an origin allowlist, strict bounded Zod schemas on every canonical auth/profile/MVP write, a 32 KiB JSON limit, bcrypt, signed expiring versioned JWTs, exact-Origin enforcement for unsafe cookie-authenticated methods, a 10-per-15-minute direct-peer auth limiter, a 120-per-15-minute per-user write limiter, and a 20-per-hour per-user plan-generation limiter. Bearer authorization is explicit authority rather than ambient browser state. Express intentionally keeps `trust proxy=false`; forwarded client-IP headers do not influence these limits in the supported direct topology.
 
+Observed destructive-recovery controls: canonical reset is two-step and password-reauthenticated, exact phrases are required, the prepared export is a strict versioned envelope, reset retains recovery atomically with deletion, stale preparation is rejected, and restore replaces the workspace transactionally. Reset and recovery have independent per-user throttles. The bodyless web reset surface is removed.
+
+The supported Prisma topology for this control is one Node.js application process. Workspace mutations are serialized per user inside that process; coordination across multiple processes or repository instances remains part of #109's durable concurrency decision and is not claimed here.
+
 Gaps that block partner-beta:
 
-- destructive reset still lacks password reauthentication, exact confirmation, a stricter destructive limiter, and a recoverable export contract; #124 owns this remaining parent requirement;
-- workspace reset immediately replaces the user's workspace and has no export, grace period or recovery contract;
 - the bearer-token response expands exposure beyond an HTTP-only cookie, although persisted global logout now revokes copied tokens;
 - the read-only admin overview uses an exact server-side email allowlist, but managed role lifecycle and cross-user/cohort administration are not implemented;
 - authentication errors reveal whether an invite is missing, claimed, or an account is registered; this is acceptable only for controlled invitation flows after abuse review;
 - auth file persistence can lose concurrent writes or expose a partial file after process interruption;
 - the MVP file repository treats any read or JSON parse failure as an empty store, so corruption can appear as data loss before a later write persists the empty state;
-- Prisma workspace reset is already grouped in a database transaction, but still lacks a user-facing confirmation, reauthentication and recovery contract.
+- retained workspace recovery covers the canonical visible MVP snapshot, not archived relational history, full account export/deletion, retention, or Electron data; #110 and #111 own those broader contracts.
 
 Before beta, validate every path/body/enum/string/date/rating at the HTTP boundary; set request-size and per-route rate limits; keep repository checks as defense in depth; require explicit confirmation plus a recoverable backup/export for workspace reset; and add CSRF protection appropriate to cookie-authenticated writes. Do not add a generic validation framework: Zod and `express-rate-limit` are already installed.
 

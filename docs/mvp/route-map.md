@@ -119,5 +119,9 @@ These routes exist in `src/config/routes/index.tsx`, but they are not canonical 
 - Logout increments a persisted per-user session version, invalidating existing cookie and bearer tokens for that account.
 - Authentication is limited to 10 attempts per 15 minutes by direct peer, ordinary authenticated writes to 120 per 15 minutes per user, and plan generation to 20 per hour per user.
 - Express intentionally keeps `trust proxy=false`; forwarded client IP headers are not accepted in the supported direct deployment.
-- The current reset route is not yet the recoverable contract: #124 must replace it before parent #108 can close.
+- `POST /api/mvp/workspace/reset/export` requires password reauthentication plus exact `RESET MY WORKSPACE` confirmation and returns a versioned portable export with a ten-minute digest-bound reset token.
+- `POST /api/mvp/workspace/reset` repeats password and exact confirmation, verifies the prepared token, rejects changed workspaces with `409`, and retains recovery in the same repository mutation that clears the workspace.
+- `GET /api/mvp/workspace/recovery/latest` retrieves the latest retained user-scoped export; `POST /api/mvp/workspace/recovery` requires password plus exact `RESTORE MY WORKSPACE` and transactionally replaces the workspace from a strict envelope.
+- Reset and recovery each use an independent limit of three attempts per hour per user, including failed reauthentication or validation attempts. Recovery/reset payload routes allow at most 10 MiB after authentication/CSRF/limiting, with the strict envelope capped at 8 MiB, so a portable workspace can exceed the ordinary 32 KiB write limit without raising that global boundary.
+- The former bodyless `DELETE /api/mvp/workspace` and silent canonical web client/store reset are removed. Electron's separate reset bridge is non-canonical and remains explicitly owned by #111.
 - The route map should be treated as executable contract documentation, not as a proposal list. If a route is not implemented, do not document it here as current behavior.

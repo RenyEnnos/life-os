@@ -166,4 +166,12 @@ describe('setupMvpHandlers', () => {
 
     expect(persisted.users?.['restored-desktop-user']?.onboarding?.displayName).toBe('Recovered')
   });
+
+  it('confines destructive desktop reset to the recovery work tracked in #111', async () => {
+    const resetWorkspace = mockState.handlers.get('mvp:resetWorkspace');
+
+    await expect(resetWorkspace?.({})).rejects.toThrow(
+      'Desktop workspace reset is disabled until the #111 recovery contract is implemented.',
+    );
+  });
 });

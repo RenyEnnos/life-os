@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 
 import { MvpSurfacePage } from '@/features/mvp/pages/MvpSurfacePage';
 import { useMvpStore } from '@/features/mvp/store/useMvpStore';
+import { createEmptyWorkspace } from '@/features/mvp/lib/state';
 
 function renderSurface(surface: Parameters<typeof MvpSurfacePage>[0]['surface']) {
   return render(
@@ -15,10 +16,10 @@ function renderSurface(surface: Parameters<typeof MvpSurfacePage>[0]['surface'])
 }
 
 describe('MVP loop integration', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     localStorage.clear();
     window.gtag = vi.fn() as typeof window.gtag;
-    await useMvpStore.getState().resetWorkspace();
+    useMvpStore.setState({ ...createEmptyWorkspace(), isHydrating: false, error: null });
   });
 
   it('moves through the MVP loop and emits production telemetry events', { timeout: 15000 }, async () => {

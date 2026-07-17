@@ -181,7 +181,7 @@ describe.sequential('canonical HTTP request boundary', () => {
 
     expect(logout.status).toBe(400);
     expect(confirm.status).toBe(400);
-    expect(reset.status).toBe(400);
+    expect(reset.status).toBe(404);
     expect((await client.get('/api/auth/verify')).status).toBe(200);
   });
 

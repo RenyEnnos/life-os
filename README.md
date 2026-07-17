@@ -55,6 +55,8 @@ The admin route is only presentation until the server authorizes the signed-in i
 
 The canonical HTTP server rejects JSON bodies above 32 KiB and validates every auth/profile/MVP write with strict bounded schemas. Cookie-authenticated unsafe requests require an exact allowed `Origin`; bearer tokens are explicit request authority. Logout revokes all existing web tokens for the account through a persisted session version. Express deliberately does not trust proxy headers in the supported direct single-process topology.
 
+Canonical workspace reset is a two-step recovery operation, never a bodyless delete: password reauthentication plus the exact `RESET MY WORKSPACE` phrase prepares a versioned portable export and short-lived authorization; commit retains the recovery in the same repository mutation that clears data. `RESTORE MY WORKSPACE` restores a validated envelope, and the latest retained recovery remains available if the reset response is lost. This covers the canonical web workspace only; full account lifecycle is #110 and Electron recovery is #111.
+
 The development scripts select `LIFEOS_OPERATING_MODE=local-dev`. Direct builds must select it explicitly:
 
 ```bash

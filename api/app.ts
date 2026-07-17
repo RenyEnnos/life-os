@@ -27,8 +27,14 @@ import {
   profileRequestSchema,
   reflectionRequestSchema,
   registerRequestSchema,
+  resetCommitRequestSchema,
+  resetPreparationRequestSchema,
   weeklyReviewRequestSchema,
+  workspaceRecoveryRequestSchema,
 } from './requestSchemas';
+import {
+  digestWorkspaceExport,
+} from './workspaceRecovery';
 
 type AuthRepository = InstanceType<typeof FileBackedAuthRepository>;
 
@@ -47,6 +53,12 @@ interface SessionClaims {
   sub: string;
   email: string;
   sv: number;
+}
+
+interface WorkspaceResetClaims {
+  sub: string;
+  kind: 'workspace-reset';
+  digest: string;
 }
 
 interface AuthenticatedRequest extends express.Request {
@@ -175,7 +187,13 @@ export function createApp(
     })
   );
   app.use(cookieParser());
-  app.use(express.json({ limit: '32kb', strict: true }));
+  const ordinaryJsonParser = express.json({ limit: '32kb', strict: true });
+  const portableWorkspaceJsonParser = express.json({ limit: '10mb', strict: true });
+  app.use((req, res, next) => {
+    const portableWorkspacePath = req.path === '/api/mvp/workspace/reset'
+      || req.path === '/api/mvp/workspace/recovery';
+    return portableWorkspacePath ? next() : ordinaryJsonParser(req, res, next);
+  });
 
   app.get('/api/health', (_req, res) => {
     ok(res, { status: 'ok' });
@@ -202,6 +220,22 @@ export function createApp(
   const planGenerationLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
     max: 20,
+    keyGenerator: (req) => (req as AuthenticatedRequest).authUser!.id,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  const destructiveResetLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 3,
+    keyGenerator: (req) => (req as AuthenticatedRequest).authUser!.id,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  const recoveryLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 3,
     keyGenerator: (req) => (req as AuthenticatedRequest).authUser!.id,
     standardHeaders: true,
     legacyHeaders: false,
@@ -416,14 +450,73 @@ export function createApp(
     }
   });
 
-  app.delete('/api/mvp/workspace', async (req: AuthenticatedRequest, res, next) => {
+  app.post('/api/mvp/workspace/reset/export', destructiveResetLimiter, async (req: AuthenticatedRequest, res, next) => {
     try {
-      const body = parseEmptyRequest(req, res);
-      if (!body) return;
+      const input = parseRequest(resetPreparationRequestSchema, req.body, res);
+      if (!input) return;
+      if (!(await bcrypt.compare(input.password, req.authUser!.passwordHash))) {
+        return fail(res, 'Password reauthentication failed', 401);
+      }
       await repository.ensureUser(req.authUser!);
-      ok(res, await repository.resetWorkspace(req.authUser!.id));
+      const portableExport = await repository.exportWorkspace(req.authUser!.id);
+      const resetToken = jwt.sign({
+        kind: 'workspace-reset',
+        digest: digestWorkspaceExport(portableExport),
+      }, SESSION_SECRET, { subject: req.authUser!.id, expiresIn: 10 * 60 });
+      return ok(res, { export: portableExport, resetToken });
     } catch (error) {
-      next(error);
+      return next(error);
+    }
+  });
+
+  app.post('/api/mvp/workspace/reset', destructiveResetLimiter, portableWorkspaceJsonParser, async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const input = parseRequest(resetCommitRequestSchema, req.body, res);
+      if (!input) return;
+      if (!(await bcrypt.compare(input.password, req.authUser!.passwordHash))) {
+        return fail(res, 'Password reauthentication failed', 401);
+      }
+      const claims = jwt.verify(input.resetToken, SESSION_SECRET) as jwt.JwtPayload & WorkspaceResetClaims;
+      if (claims.sub !== req.authUser!.id || claims.kind !== 'workspace-reset') {
+        return fail(res, 'Invalid reset authorization', 401);
+      }
+      if (claims.digest !== digestWorkspaceExport(input.export)) {
+        return fail(res, 'Invalid reset authorization', 401);
+      }
+      await repository.ensureUser(req.authUser!);
+      return ok(res, await repository.resetWorkspace(req.authUser!.id, input.export));
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Workspace changed after export') {
+        return fail(res, error.message, 409);
+      }
+      if (error instanceof jwt.JsonWebTokenError || error instanceof jwt.TokenExpiredError) {
+        return fail(res, 'Invalid reset authorization', 401);
+      }
+      return next(error);
+    }
+  });
+
+  app.get('/api/mvp/workspace/recovery/latest', async (req: AuthenticatedRequest, res, next) => {
+    try {
+      await repository.ensureUser(req.authUser!);
+      const recovery = await repository.getLatestRecovery(req.authUser!.id);
+      return recovery ? ok(res, recovery) : fail(res, 'No workspace recovery available', 404);
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  app.post('/api/mvp/workspace/recovery', recoveryLimiter, portableWorkspaceJsonParser, async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const input = parseRequest(workspaceRecoveryRequestSchema, req.body, res);
+      if (!input) return;
+      if (!(await bcrypt.compare(input.password, req.authUser!.passwordHash))) {
+        return fail(res, 'Password reauthentication failed', 401);
+      }
+      await repository.ensureUser(req.authUser!);
+      return ok(res, await repository.restoreWorkspace(req.authUser!.id, input.export));
+    } catch (error) {
+      return next(error);
     }
   });
 

@@ -7,6 +7,7 @@ import type {
   MvpReviewDraft,
   MvpWorkspaceSnapshot,
 } from '@/features/mvp/types';
+import type { MvpWorkspaceExport, MvpWorkspaceRecovery } from './workspaceRecovery';
 
 export interface MvpRepository {
   ensureUser(user: StoredUser): Promise<void>;
@@ -22,5 +23,11 @@ export interface MvpRepository {
   saveDailyCheckIn(userId: string, input: Omit<MvpDailyCheckIn, 'createdAt'>): Promise<MvpWorkspaceSnapshot>;
   addReflection(userId: string, input: Pick<MvpReflectionEntry, 'period' | 'body'>): Promise<MvpWorkspaceSnapshot>;
   submitFeedback(userId: string, input: { rating: number; message: string }): Promise<MvpWorkspaceSnapshot>;
-  resetWorkspace(userId: string): Promise<MvpWorkspaceSnapshot>;
+  exportWorkspace(userId: string): Promise<MvpWorkspaceExport>;
+  resetWorkspace(
+    userId: string,
+    prepared: MvpWorkspaceExport,
+  ): Promise<{ workspace: MvpWorkspaceSnapshot; recoveryId: string; export: MvpWorkspaceExport }>;
+  getLatestRecovery(userId: string): Promise<MvpWorkspaceRecovery | null>;
+  restoreWorkspace(userId: string, portableExport: MvpWorkspaceExport): Promise<MvpWorkspaceSnapshot>;
 }

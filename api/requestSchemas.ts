@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { workspaceExportSchema } from './workspaceRecovery';
 
 const shortText = (max: number) => z.string().trim().max(max);
 const requiredText = (max: number) => shortText(max).min(1);
@@ -76,3 +77,21 @@ export const feedbackRequestSchema = z.object({
 }).strict();
 
 export const emptyRequestSchema = z.object({}).strict();
+
+export const resetPreparationRequestSchema = z.object({
+  password: bcryptPassword(1),
+  confirmation: z.literal('RESET MY WORKSPACE'),
+}).strict();
+
+export const resetCommitRequestSchema = z.object({
+  password: bcryptPassword(1),
+  confirmation: z.literal('RESET MY WORKSPACE'),
+  resetToken: z.string().min(1).max(4_096),
+  export: workspaceExportSchema,
+}).strict();
+
+export const workspaceRecoveryRequestSchema = z.object({
+  password: bcryptPassword(1),
+  confirmation: z.literal('RESTORE MY WORKSPACE'),
+  export: workspaceExportSchema,
+}).strict();

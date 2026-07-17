@@ -31,7 +31,6 @@ export interface MvpStoreState extends MvpWorkspaceSnapshot {
   saveDailyCheckIn: (input: Omit<MvpDailyCheckIn, 'createdAt'>) => Promise<void>;
   addReflection: (period: 'daily' | 'weekly', body: string) => Promise<void>;
   submitFeedback: (rating: number, message: string) => Promise<void>;
-  resetWorkspace: () => Promise<void>;
   getAnalytics: () => MvpAnalyticsSnapshot;
 }
 
@@ -185,19 +184,6 @@ export const useMvpStore = create<MvpStoreState>()((set, get) => ({
       const detail = error instanceof Error ? error.message : 'Failed to submit feedback.';
       captureMvpError(error, 'submit_feedback', { rating });
       set({ error: detail });
-    }
-  },
-
-  resetWorkspace: async () => {
-    try {
-      const snapshot = await mvpApi.resetWorkspace();
-      set(applyWorkspace(snapshot));
-    } catch {
-      set({
-        ...createInitialState(),
-        isHydrating: false,
-        error: null,
-      });
     }
   },
 
