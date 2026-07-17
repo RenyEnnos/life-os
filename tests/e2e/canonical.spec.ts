@@ -167,7 +167,10 @@ test('invited weekly loop persists and isolates each user', async ({ browser, pl
     expect(JSON.stringify(firstWorkspace)).toContain(`${marker}-reflection`)
     expect(JSON.stringify(firstWorkspace)).toContain(`${marker}-feedback`)
 
-    secondUserContext = await playwright.request.newContext({ baseURL: apiBase })
+    secondUserContext = await playwright.request.newContext({
+      baseURL: apiBase,
+      extraHTTPHeaders: { Origin: 'http://app.lifeos.test:3001' },
+    })
     const secondRegistration = await secondUserContext.post('/api/auth/register', {
       data: {
         email: 'canonical-b@example.test',
