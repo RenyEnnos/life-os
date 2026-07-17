@@ -64,6 +64,7 @@ describe('release gate contract', () => {
     const releaseProjects = (releasePlaywrightConfig.projects ?? []) as Array<{ name?: string }>
 
     expect(releasePlaywrightConfig.testMatch).toBe('**/canonical.spec.ts')
+    expect(releasePlaywrightConfig.outputDir).toBe('test-results/canonical/playwright')
     expect(releasePlaywrightConfig.webServer).toBeDefined()
     expect(releaseProjects.map((project) => project.name)).toEqual(['canonical-chromium'])
   })

@@ -183,6 +183,15 @@ test('invited weekly loop persists and isolates each user', async ({ browser, pl
     expect(secondWorkspace.plan.priorities).toEqual([])
     expect(JSON.stringify(secondWorkspace)).not.toContain(marker)
 
+    const foreignActionAttempt = await secondUserContext.patch(
+      `/api/mvp/action-items/${actionId}`,
+      { data: { status: 'deferred' } },
+    )
+    expect(foreignActionAttempt.status()).toBe(200)
+    const secondWorkspaceAfterAttempt = (await foreignActionAttempt.json()).data
+    expect(secondWorkspaceAfterAttempt.plan.priorities).toEqual([])
+    expect(JSON.stringify(secondWorkspaceAfterAttempt)).not.toContain(marker)
+
     const unchangedFirstResponse = await page.evaluate(async () => {
       const response = await fetch('/api/mvp/workspace', { credentials: 'include' })
       return { status: response.status, body: await response.json() }
@@ -193,9 +202,11 @@ test('invited weekly loop persists and isolates each user', async ({ browser, pl
     expect(JSON.stringify(unchangedFirst)).toContain(`${marker}-reflection`)
     expect(JSON.stringify(unchangedFirst)).toContain(`${marker}-feedback`)
   } finally {
-    await secondUserContext?.dispose()
-    await userContext?.close()
-    await registrationContext?.close()
+    await Promise.allSettled([
+      secondUserContext?.dispose(),
+      userContext?.close(),
+      registrationContext?.close(),
+    ])
     await Promise.all([
       rm('test-results/canonical/auth-state.json', { force: true }),
       rm('test-results/canonical/mvp-workspace.json', { force: true }),
