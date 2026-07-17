@@ -26,12 +26,12 @@ It contains no user ID, credential, invite, token, or password hash. The authent
 The exact reset phrase is `RESET MY WORKSPACE`; the exact restore phrase is `RESTORE MY WORKSPACE`. Matching is case-sensitive and whitespace-sensitive.
 
 1. `POST /api/mvp/workspace/reset/export` accepts password plus reset phrase, reauthenticates with bcrypt, and returns the envelope plus a short-lived signed reset token bound to the user and envelope digest.
-2. `POST /api/mvp/workspace/reset` accepts password, reset phrase, and reset token. It reauthenticates, verifies the token, and asks the repository to compare the prepared digest with the current workspace before resetting.
+2. `POST /api/mvp/workspace/reset` accepts password, reset phrase, reset token, and the prepared export. It reauthenticates, verifies that the token digest matches that envelope, and asks the repository to compare the prepared digest with the current workspace before resetting.
 3. In the same repository mutation/transaction, reset persists a retained recovery record and replaces the workspace with an empty snapshot. The response returns the empty workspace, recovery ID, and retained export.
 4. `GET /api/mvp/workspace/recovery/latest` returns the latest retained envelope after authentication.
 5. `POST /api/mvp/workspace/recovery` accepts password, restore phrase, and a portable envelope. It replaces the current workspace transactionally.
 
-Cookie requests inherit the exact-Origin policy from #123. Bearer requests remain explicit authority. Reset preparation/commit share a strict per-user limiter; recovery has a separate limiter. The recovery route alone receives a bounded 1 MiB JSON parser before the general 32 KiB parser because a complete history can exceed ordinary write size. Every nested value remains strictly validated.
+Cookie requests inherit the exact-Origin policy from #123. Bearer requests remain explicit authority. Reset preparation/commit share a strict per-user limiter; recovery has a separate limiter. Reset commit and recovery receive a bounded 10 MiB parser only after authentication, CSRF, and rate limiting because a complete history can exceed ordinary write size; the envelope itself is capped at 8 MiB and every nested value remains strictly validated. The general 32 KiB parser remains unchanged.
 
 ## Repository guarantees
 

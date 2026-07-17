@@ -3,6 +3,14 @@ import path from 'node:path';
 
 import type { StoredUser } from './authRepository';
 import type { MvpRepository } from './mvpRepository.types';
+import {
+  createWorkspaceExport,
+  digestWorkspace,
+  normalizeWorkspace,
+  workspaceExportSchema,
+  type MvpWorkspaceExport,
+  type MvpWorkspaceRecovery,
+} from './workspaceRecovery';
 
 import { generateWeeklyPlan } from '../shared/mvp/plan';
 import {
@@ -22,6 +30,7 @@ import type {
 
 interface PersistedMvpStore {
   users: Record<string, MvpWorkspaceSnapshot>;
+  recoveries: Record<string, MvpWorkspaceRecovery[]>;
 }
 
 const DEFAULT_DATA_FILE = path.join(process.cwd(), '.data', 'mvp-workspace.json');
@@ -37,7 +46,15 @@ function buildSnapshot(snapshot: MvpWorkspaceSnapshot): MvpWorkspaceSnapshot {
 }
 
 export class FileBackedMvpRepository implements MvpRepository {
+  private mutationQueue: Promise<void> = Promise.resolve();
+
   constructor(private readonly dataFilePath = process.env.MVP_DATA_FILE || DEFAULT_DATA_FILE) {}
+
+  private runMutation<T>(operation: () => Promise<T>): Promise<T> {
+    const result = this.mutationQueue.then(operation, operation);
+    this.mutationQueue = result.then(() => undefined, () => undefined);
+    return result;
+  }
 
   async ensureUser(_user: StoredUser): Promise<void> {
     return Promise.resolve();
@@ -209,28 +226,69 @@ export class FileBackedMvpRepository implements MvpRepository {
     }));
   }
 
-  async resetWorkspace(userId: string): Promise<MvpWorkspaceSnapshot> {
-    return this.updateWorkspace(userId, () => defaultWorkspace());
+  async exportWorkspace(userId: string): Promise<MvpWorkspaceExport> {
+    return createWorkspaceExport(await this.getWorkspace(userId));
+  }
+
+  async resetWorkspace(userId: string, preparedInput: MvpWorkspaceExport) {
+    return this.runMutation(async () => {
+      const parsed = workspaceExportSchema.parse(preparedInput);
+      const prepared = createWorkspaceExport(parsed.workspace, parsed.exportedAt);
+      const store = await this.readStore();
+      const current = buildSnapshot(store.users[userId] ?? defaultWorkspace());
+      if (digestWorkspace(current) !== digestWorkspace(prepared.workspace)) {
+        throw new Error('Workspace changed after export');
+      }
+
+      const recovery: MvpWorkspaceRecovery = {
+        id: makeMvpId('recovery'),
+        export: prepared,
+      };
+      store.recoveries[userId] = [recovery, ...(store.recoveries[userId] ?? [])].slice(0, 5);
+      const workspace = defaultWorkspace();
+      store.users[userId] = workspace;
+      await this.writeStore(store);
+      return { workspace, recoveryId: recovery.id, export: recovery.export };
+    });
+  }
+
+  async getLatestRecovery(userId: string): Promise<MvpWorkspaceRecovery | null> {
+    const store = await this.readStore();
+    return store.recoveries[userId]?.[0] ?? null;
+  }
+
+  async restoreWorkspace(userId: string, portableExportInput: MvpWorkspaceExport) {
+    return this.runMutation(async () => {
+      const portableExport = workspaceExportSchema.parse(portableExportInput);
+      const restored = normalizeWorkspace(portableExport.workspace);
+      const store = await this.readStore();
+      store.users[userId] = restored;
+      await this.writeStore(store);
+      return restored;
+    });
   }
 
   private async updateWorkspace(
     userId: string,
     update: (workspace: MvpWorkspaceSnapshot) => MvpWorkspaceSnapshot
   ): Promise<MvpWorkspaceSnapshot> {
-    const store = await this.readStore();
-    const current = store.users[userId] ?? defaultWorkspace();
-    const next = buildSnapshot(update(current));
-    store.users[userId] = next;
-    await this.writeStore(store);
-    return next;
+    return this.runMutation(async () => {
+      const store = await this.readStore();
+      const current = store.users[userId] ?? defaultWorkspace();
+      const next = buildSnapshot(update(current));
+      store.users[userId] = next;
+      await this.writeStore(store);
+      return next;
+    });
   }
 
   private async readStore(): Promise<PersistedMvpStore> {
     try {
       const raw = await fs.readFile(this.dataFilePath, 'utf-8');
-      return JSON.parse(raw) as PersistedMvpStore;
+      const parsed = JSON.parse(raw) as Partial<PersistedMvpStore>;
+      return { users: parsed.users ?? {}, recoveries: parsed.recoveries ?? {} };
     } catch {
-      return { users: {} };
+      return { users: {}, recoveries: {} };
     }
   }
 

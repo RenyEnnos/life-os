@@ -37,7 +37,6 @@ function getDesktopMvpBridge() {
     saveDailyCheckIn: (input: Omit<MvpDailyCheckIn, 'createdAt'>) => Promise<MvpWorkspaceSnapshot>;
     addReflection: (input: Omit<MvpReflectionEntry, 'id' | 'createdAt'>) => Promise<MvpWorkspaceSnapshot>;
     submitFeedback: (input: { rating: number; message: string }) => Promise<MvpWorkspaceSnapshot>;
-    resetWorkspace: () => Promise<MvpWorkspaceSnapshot>;
   };
 }
 
@@ -122,12 +121,4 @@ export const mvpApi = {
     return unwrap(await apiClient.post<ApiResponse<MvpWorkspaceSnapshot>>('/api/mvp/feedback', input));
   },
 
-  resetWorkspace: async () => {
-    const desktopBridge = getDesktopMvpBridge();
-    if (desktopBridge) {
-      return desktopBridge.resetWorkspace();
-    }
-
-    return unwrap(await apiClient.delete<ApiResponse<MvpWorkspaceSnapshot>>('/api/mvp/workspace'));
-  },
 };

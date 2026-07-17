@@ -102,7 +102,7 @@ export const setupMvpHandlers = (
     withDesktopWorkspace(repository, resolveUser, (repo, user) => repo.submitFeedback(user.id, input)),
   );
 
-  ipcMain.handle('mvp:resetWorkspace', async () =>
-    withDesktopWorkspace(repository, resolveUser, (repo, user) => repo.resetWorkspace(user.id)),
-  );
+  ipcMain.handle('mvp:resetWorkspace', async () => {
+    throw new Error('Desktop workspace reset is disabled until the #111 recovery contract is implemented.');
+  });
 };

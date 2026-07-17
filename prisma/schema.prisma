@@ -72,6 +72,20 @@ model User {
   reflectionEntries ReflectionEntry[]
   feedbackEntries   FeedbackEntry[]
   mvpEvents         MvpEventLog[]
+  workspaceRecoveries MvpWorkspaceRecovery[]
+}
+
+model MvpWorkspaceRecovery {
+  id         String   @id @default(cuid())
+  userId     String
+  format     String
+  version    Int
+  exportedAt DateTime
+  payload    Json
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
 
 model UserProfile {
