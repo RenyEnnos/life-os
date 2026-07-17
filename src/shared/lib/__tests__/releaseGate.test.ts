@@ -125,9 +125,17 @@ describe('release gate contract', () => {
 
     expect(compose).toContain('"3001:3001"')
     expect(compose).toContain('LIFEOS_SESSION_SECRET')
+    expect(compose).toContain('LIFEOS_OPERATING_MODE=controlled-demo')
+    expect(compose).toContain('ALLOWED_ORIGIN=${ALLOWED_ORIGIN:?ALLOWED_ORIGIN is required}')
+    expect(compose).toContain('LIFEOS_INVITES=${LIFEOS_INVITES:?LIFEOS_INVITES is required}')
     expect(compose).toContain('LIFEOS_MVP_REPOSITORY=file')
+    expect(compose).not.toContain('SUPABASE_SERVICE_ROLE_KEY')
+    expect(compose).not.toContain('lifeosredis')
     expect(compose).not.toMatch(/^\s{2}(redis|nginx):/m)
     expect(workflow).toContain('.State.Health.Status')
+    expect(workflow).toContain('LIFEOS_OPERATING_MODE=controlled-demo')
+    expect(workflow).toContain('-e NODE_ENV=production')
+    expect(workflow).toContain('session_secret="$(openssl rand -hex 32)"')
     expect(workflow).not.toContain('--health-cmd')
     expect(workflow).toContain('http://127.0.0.1:3001/mvp/today')
     expect(workflow).toContain('http://127.0.0.1:3001/api/auth/verify')
@@ -136,11 +144,28 @@ describe('release gate contract', () => {
     expect(dockerignore).toContain('dist')
     expect(dockerignore).toContain('.data')
     expect(dockerfile).toContain('RUN npm run prisma:generate')
+    expect(dockerfile).toContain('ENV LIFEOS_OPERATING_MODE=controlled-demo')
     expect(dockerfile.indexOf('RUN npm run prisma:generate')).toBeLessThan(
       dockerfile.indexOf('RUN npm run build'),
     )
     expect(dockerfile).toContain(
       'COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma',
+    )
+  })
+
+  it('enforces the operating mode at build, startup, and canonical CI boundaries', () => {
+    const vite = readFileSync(`${process.cwd()}/vite.config.ts`, 'utf8')
+    const server = readFileSync(`${process.cwd()}/api/server.ts`, 'utf8')
+    const workflow = readFileSync(`${process.cwd()}/.github/workflows/ci.yml`, 'utf8')
+    const releaseConfig = readFileSync(`${process.cwd()}/playwright.release.config.ts`, 'utf8')
+    const scripts = readPackageJsonScripts()
+
+    expect(vite).toContain('validateBuildOperatingMode')
+    expect(server).toContain('validateServerOperatingMode')
+    expect(workflow).toContain('LIFEOS_OPERATING_MODE: local-dev')
+    expect(releaseConfig).toContain("LIFEOS_OPERATING_MODE: 'local-dev'")
+    expect(scripts['verify:controlled-demo-artifact']).toBe(
+      'node scripts/verify-controlled-demo-artifact.mjs dist',
     )
   })
 })

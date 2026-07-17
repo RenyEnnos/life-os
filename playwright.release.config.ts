@@ -19,6 +19,7 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 240_000,
     env: {
+      LIFEOS_OPERATING_MODE: 'local-dev',
       LIFEOS_SESSION_SECRET: 'canonical-e2e-synthetic-secret',
       LIFEOS_MVP_REPOSITORY: 'file',
       LIFEOS_AUTH_DATA_FILE: 'test-results/canonical/auth-state.json',

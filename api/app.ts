@@ -96,11 +96,9 @@ export function createApp(
 ) {
   const app = express();
 
-  const ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://localhost:3001',
-    process.env.ALLOWED_ORIGIN,
-  ].filter(Boolean);
+  const ALLOWED_ORIGINS = process.env.LIFEOS_OPERATING_MODE === 'controlled-demo'
+    ? [process.env.ALLOWED_ORIGIN].filter(Boolean)
+    : ['http://localhost:5173', 'http://localhost:3001', process.env.ALLOWED_ORIGIN].filter(Boolean);
 
   app.use(
     cors({
@@ -365,9 +363,12 @@ export function createApp(
 }
 
 function createDefaultMvpRepository(): MvpRepository {
-  const wantsPrisma =
-    process.env.LIFEOS_MVP_REPOSITORY === 'prisma' ||
-    (typeof process.env.DATABASE_URL === 'string' && process.env.DATABASE_URL.trim().length > 0);
+  const configuredRepository = process.env.LIFEOS_MVP_REPOSITORY;
+  const wantsPrisma = configuredRepository === 'prisma' || (
+    !configuredRepository &&
+    typeof process.env.DATABASE_URL === 'string' &&
+    process.env.DATABASE_URL.trim().length > 0
+  );
 
   return wantsPrisma ? new PrismaBackedMvpRepository() : new FileBackedMvpRepository();
 }

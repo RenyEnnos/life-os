@@ -1,6 +1,6 @@
 # Fail-Closed Operating Mode Design
 
-Issue: #106  
+Issue: #106
 Decision source: `docs/security/2026-07-16-operating-modes-threat-model.md`
 
 ## Decision
@@ -11,7 +11,7 @@ A single pure module in `shared/operatingMode.ts` owns the policy. Vite invokes 
 
 ## Mode contracts
 
-`local-dev` preserves the existing loopback development path and fallback invite. It must use `NODE_ENV=development` when that variable is supplied.
+`local-dev` preserves the existing loopback development path and fallback invite. Its server normally runs with `NODE_ENV=development`; production-mode Vite builds remain permitted because build optimization is not a shared-deployment classification.
 
 `controlled-demo` requires:
 
@@ -35,4 +35,3 @@ Unit tests exercise every rejection without embedding real secrets. Release-cont
 ## Scope
 
 This change does not add server-side admin authorization, session/CSRF redesign, durable persistence, data lifecycle, Electron confinement, TLS termination, or partner-beta support. Those remain in #107–#111.
-

@@ -10,6 +10,8 @@ jobs:
   static-and-unit:
     name: web / static-and-unit
     runs-on: ubuntu-latest
+    env:
+      LIFEOS_OPERATING_MODE: local-dev
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -46,6 +48,8 @@ jobs:
   canonical-e2e:
     name: web / canonical-e2e
     runs-on: ubuntu-latest
+    env:
+      LIFEOS_OPERATING_MODE: local-dev
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

@@ -220,7 +220,7 @@ export default function RegisterPage() {
                                         type="text"
                                         className="pl-10 uppercase"
                                         {...register('inviteCode')}
-                                        placeholder="LIFEOS-INVITE"
+                                        placeholder="INVITE-CODE"
                                         error={errors.inviteCode?.message}
                                     />
                                 </div>

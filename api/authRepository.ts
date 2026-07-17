@@ -1,11 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-export interface InviteSeed {
-  code: string;
-  email: string;
-  fullName?: string;
-}
+import { parseInviteSeeds, type InviteSeed } from '../shared/operatingMode';
 
 interface StoredInvite extends InviteSeed {
   claimedAt: string | null;
@@ -41,41 +37,6 @@ function createId(prefix: string) {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function parseInviteSeeds(raw?: string): InviteSeed[] {
-  if (!raw?.trim()) {
-    return [];
-  }
-
-  try {
-    const parsed = JSON.parse(raw) as InviteSeed[];
-    if (Array.isArray(parsed)) {
-      return parsed
-        .filter((invite) => invite?.email && invite?.code)
-        .map((invite) => ({
-          code: invite.code.trim(),
-          email: normalizeEmail(invite.email),
-          fullName: invite.fullName?.trim() || undefined,
-        }));
-    }
-  } catch {
-    // Fall through to compact string parsing.
-  }
-
-  return raw
-    .split(',')
-    .map((segment) => segment.trim())
-    .filter(Boolean)
-    .map((segment) => {
-      const [email, code, ...nameParts] = segment.split(':').map((part) => part.trim());
-      return {
-        email: normalizeEmail(email),
-        code,
-        fullName: nameParts.join(':') || undefined,
-      };
-    })
-    .filter((invite) => invite.email && invite.code);
-}
-
 export class FileBackedAuthRepository {
   private filePath: string;
   private seedInvites: InviteSeed[];
@@ -109,10 +70,22 @@ export class FileBackedAuthRepository {
   }
 
   private async withSeededInvites(state: AuthState): Promise<AuthState> {
+    const controlledDemo = process.env.LIFEOS_OPERATING_MODE === 'controlled-demo';
+    if (
+      controlledDemo &&
+      state.invites.some((invite) =>
+        normalizeEmail(invite.email) === 'partner@lifeos.local' || invite.code === 'LIFEOS-INVITE'
+      )
+    ) {
+      throw new Error('Invalid operating-mode persisted state: LIFEOS_INVITES');
+    }
+
     const fallbackInvite =
       this.seedInvites.length > 0
         ? this.seedInvites
-        : [{ email: 'partner@lifeos.local', code: 'LIFEOS-INVITE', fullName: 'Design Partner' }];
+        : controlledDemo
+          ? []
+          : [{ email: 'partner@lifeos.local', code: 'LIFEOS-INVITE', fullName: 'Design Partner' }];
 
     const byEmailCode = new Set(state.invites.map((invite) => `${invite.email}::${invite.code}`));
     const mergedInvites = [...state.invites];

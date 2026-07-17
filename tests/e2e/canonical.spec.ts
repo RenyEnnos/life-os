@@ -32,7 +32,7 @@ test('invited weekly loop persists and isolates each user', async ({ browser, pl
     await registrationPage.getByPlaceholder('Nome', { exact: true }).fill('Canonical')
     await registrationPage.getByPlaceholder('Sobrenome').fill('A')
     await registrationPage.getByPlaceholder('seu@email.com').fill('canonical-a@example.test')
-    await registrationPage.getByPlaceholder('LIFEOS-INVITE').fill('INVITE-A')
+    await registrationPage.getByPlaceholder('INVITE-CODE').fill('INVITE-A')
     await registrationPage.getByPlaceholder('••••••••').nth(0).fill(password)
     await registrationPage.getByPlaceholder('••••••••').nth(1).fill(password)
     const registrationResponse = registrationPage.waitForResponse(

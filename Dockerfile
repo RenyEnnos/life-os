@@ -6,6 +6,8 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /app
 
+ENV LIFEOS_OPERATING_MODE=controlled-demo
+
 # Install dependencies
 COPY package*.json ./
 RUN npm ci
@@ -16,6 +18,7 @@ COPY . .
 # Build the application
 RUN npm run prisma:generate
 RUN npm run build
+RUN npm run verify:controlled-demo-artifact
 RUN npm run build:server
 
 # Stage 2: Production server
