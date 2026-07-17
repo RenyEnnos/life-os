@@ -114,4 +114,10 @@ These routes exist in `src/config/routes/index.tsx`, but they are not canonical 
 
 - There is no implemented `POST /api/mvp/auth/invite/accept` endpoint. Invite acceptance currently happens through `POST /api/auth/register`.
 - Development mode, localhost, Vite flags, invite metadata, and UI visibility never authorize the backend admin endpoint.
+- All auth/profile/MVP writes use strict bounded Zod schemas; unknown fields and invalid values return `400`, malformed JSON returns `400`, and bodies above 32 KiB return `413`.
+- Cookie-authenticated unsafe methods require an exact configured `Origin`. Authorization bearer tokens are explicit authority and do not depend on browser CSRF protections.
+- Logout increments a persisted per-user session version, invalidating existing cookie and bearer tokens for that account.
+- Authentication is limited to 10 attempts per 15 minutes by direct peer, ordinary authenticated writes to 120 per 15 minutes per user, and plan generation to 20 per hour per user.
+- Express intentionally keeps `trust proxy=false`; forwarded client IP headers are not accepted in the supported direct deployment.
+- The current reset route is not yet the recoverable contract: #124 must replace it before parent #108 can close.
 - The route map should be treated as executable contract documentation, not as a proposal list. If a route is not implemented, do not document it here as current behavior.

@@ -15,6 +15,20 @@ import { FileBackedAuthRepository, type StoredUser } from './authRepository';
 import { FileBackedMvpRepository } from './mvpRepository';
 import type { MvpRepository } from './mvpRepository.types';
 import { PrismaBackedMvpRepository } from './prismaMvpRepository';
+import {
+  actionItemIdSchema,
+  actionUpdateRequestSchema,
+  dailyCheckInRequestSchema,
+  emptyRequestSchema,
+  feedbackRequestSchema,
+  loginRequestSchema,
+  onboardingRequestSchema,
+  planIdSchema,
+  profileRequestSchema,
+  reflectionRequestSchema,
+  registerRequestSchema,
+  weeklyReviewRequestSchema,
+} from './requestSchemas';
 
 type AuthRepository = InstanceType<typeof FileBackedAuthRepository>;
 
@@ -32,10 +46,12 @@ const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 interface SessionClaims {
   sub: string;
   email: string;
+  sv: number;
 }
 
 interface AuthenticatedRequest extends express.Request {
   authUser?: StoredUser;
+  authSource?: 'bearer' | 'cookie';
 }
 
 function serializeUser(user: StoredUser) {
@@ -56,20 +72,30 @@ function serializeUser(user: StoredUser) {
 }
 
 function issueSessionToken(user: StoredUser) {
-  return jwt.sign({ email: user.email }, SESSION_SECRET, {
+  return jwt.sign({ email: user.email, sv: user.sessionVersion }, SESSION_SECRET, {
     subject: user.id,
     expiresIn: SESSION_TTL_SECONDS,
   });
 }
 
-function extractSessionToken(req: express.Request) {
+async function resolveAuthenticatedUser(req: express.Request, authRepository: AuthRepository) {
+  const session = extractSession(req);
+  if (!session) return null;
+
+  const claims = jwt.verify(session.token, SESSION_SECRET) as jwt.JwtPayload & SessionClaims;
+  const user = await authRepository.findUserById(claims.sub);
+  if (!user || claims.sv !== user.sessionVersion) return null;
+  return { user, source: session.source };
+}
+
+function extractSession(req: express.Request) {
   const authHeader = req.header('authorization');
   if (authHeader?.startsWith('Bearer ')) {
-    return authHeader.slice('Bearer '.length).trim();
+    return { token: authHeader.slice('Bearer '.length).trim(), source: 'bearer' as const };
   }
 
   const cookieToken = req.cookies?.[SESSION_COOKIE];
-  return typeof cookieToken === 'string' ? cookieToken : null;
+  return typeof cookieToken === 'string' ? { token: cookieToken, source: 'cookie' as const } : null;
 }
 
 function setSessionCookie(res: express.Response, token: string) {
@@ -98,12 +124,32 @@ function isConfiguredAdministrator(email: string) {
   return configuredEmails.includes(email.trim().toLowerCase());
 }
 
+function parseRequest<T>(schema: z.ZodType<T>, value: unknown, res: express.Response): T | null {
+  const parsed = schema.safeParse(value);
+  if (!parsed.success) {
+    fail(res, 'Validation failed', 400);
+    return null;
+  }
+  return parsed.data;
+}
+
+function parseEmptyRequest(req: express.Request, res: express.Response) {
+  const declaresBody = req.header('transfer-encoding') !== undefined
+    || Number(req.header('content-length') ?? '0') > 0;
+  if (req.body === undefined && declaresBody) {
+    fail(res, 'Validation failed', 400);
+    return null;
+  }
+  return parseRequest(emptyRequestSchema, req.body ?? {}, res);
+}
+
 export function createApp(
   repository: MvpRepository = createDefaultMvpRepository(),
   authRepository: AuthRepository = new FileBackedAuthRepository(),
   options: CreateAppOptions = {}
 ) {
   const app = express();
+  app.set('trust proxy', false);
 
   const ALLOWED_ORIGINS = process.env.LIFEOS_OPERATING_MODE === 'controlled-demo'
     ? [process.env.ALLOWED_ORIGIN].filter(Boolean)
@@ -129,7 +175,7 @@ export function createApp(
     })
   );
   app.use(cookieParser());
-  app.use(express.json());
+  app.use(express.json({ limit: '32kb', strict: true }));
 
   app.get('/api/health', (_req, res) => {
     ok(res, { status: 'ok' });
@@ -141,27 +187,51 @@ export function createApp(
     message: { error: 'Too many attempts, please try again later' },
     standardHeaders: true,
     legacyHeaders: false,
+    validate: { xForwardedForHeader: false },
   });
 
-  const registerSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(8),
-    name: z.string().min(1),
-    inviteCode: z.string().min(1),
+  const authenticatedWriteLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 120,
+    keyGenerator: (req) => (req as AuthenticatedRequest).authUser!.id,
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req) => ['GET', 'HEAD', 'OPTIONS'].includes(req.method),
   });
 
-  const loginSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(1),
+  const planGenerationLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 20,
+    keyGenerator: (req) => (req as AuthenticatedRequest).authUser!.id,
+    standardHeaders: true,
+    legacyHeaders: false,
   });
+
+  const requireAuthentication = async (req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) => {
+    try {
+      const session = await resolveAuthenticatedUser(req, authRepository);
+      if (!session) return fail(res, 'Authentication required', 401);
+      req.authUser = session.user;
+      req.authSource = session.source;
+      return next();
+    } catch {
+      return fail(res, 'Authentication required', 401);
+    }
+  };
+
+  const requireCookieWriteOrigin = (req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) => {
+    if (['GET', 'HEAD', 'OPTIONS'].includes(req.method) || req.authSource === 'bearer') return next();
+    const origin = req.header('origin');
+    return origin && ALLOWED_ORIGINS.includes(origin)
+      ? next()
+      : fail(res, 'Origin verification failed', 403);
+  };
 
   app.post('/api/auth/register', authLimiter, async (req, res, next) => {
     try {
-      const parsed = registerSchema.safeParse(req.body);
-      if (!parsed.success) {
-        return fail(res, 'Validation failed');
-      }
-      const { email, password, name, inviteCode } = parsed.data;
+      const parsed = parseRequest(registerRequestSchema, req.body, res);
+      if (!parsed) return;
+      const { email, password, name, inviteCode } = parsed;
 
       const user = await authRepository.registerWithInvite({
         email,
@@ -182,11 +252,9 @@ export function createApp(
 
   app.post('/api/auth/login', authLimiter, async (req, res, next) => {
     try {
-      const parsed = loginSchema.safeParse(req.body);
-      if (!parsed.success) {
-        return fail(res, 'Validation failed');
-      }
-      const { email, password } = parsed.data;
+      const parsed = parseRequest(loginRequestSchema, req.body, res);
+      if (!parsed) return;
+      const { email, password } = parsed;
 
       const user = await authRepository.findUserByEmail(email);
       if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
@@ -203,39 +271,36 @@ export function createApp(
 
   app.get('/api/auth/verify', async (req, res) => {
     try {
-      const token = extractSessionToken(req);
-      if (!token) {
+      const session = await resolveAuthenticatedUser(req, authRepository);
+      if (!session) {
         return fail(res, 'Authentication required', 401);
       }
 
-      const claims = jwt.verify(token, SESSION_SECRET) as jwt.JwtPayload & SessionClaims;
-      const user = await authRepository.findUserById(claims.sub);
-      if (!user) {
-        return fail(res, 'Authentication required', 401);
-      }
-
-      return res.json(serializeUser(user));
+      return res.json(serializeUser(session.user));
     } catch {
       return fail(res, 'Authentication required', 401);
     }
   });
 
-  app.post('/api/auth/logout', (_req, res) => {
-    clearSessionCookie(res);
-    return ok(res, { message: 'Logged out' });
+  app.post('/api/auth/logout', requireAuthentication, requireCookieWriteOrigin, authenticatedWriteLimiter, async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const body = parseEmptyRequest(req, res);
+      if (!body) return;
+      await authRepository.revokeSessions(req.authUser!.id);
+      clearSessionCookie(res);
+      return ok(res, { message: 'Logged out' });
+    } catch (error) {
+      return next(error);
+    }
   });
 
-  app.patch('/api/auth/profile', async (req, res) => {
+  app.patch('/api/auth/profile', requireAuthentication, requireCookieWriteOrigin, authenticatedWriteLimiter, async (req: AuthenticatedRequest, res) => {
     try {
-      const token = extractSessionToken(req);
-      if (!token) {
-        return fail(res, 'Authentication required', 401);
-      }
-
-      const claims = jwt.verify(token, SESSION_SECRET) as jwt.JwtPayload & SessionClaims;
-      const user = await authRepository.updateUser(claims.sub, {
-        fullName: typeof req.body?.name === 'string' ? req.body.name : undefined,
-        theme: req.body?.theme === 'light' || req.body?.theme === 'dark' ? req.body.theme : undefined,
+      const patch = parseRequest(profileRequestSchema, req.body, res);
+      if (!patch) return;
+      const user = await authRepository.updateUser(req.authUser!.id, {
+        fullName: patch.name,
+        theme: patch.theme,
       });
 
       return res.json({ user: serializeUser(user) });
@@ -244,29 +309,11 @@ export function createApp(
     }
   });
 
-  app.use('/api/mvp', async (req: AuthenticatedRequest, res, next) => {
-    try {
-      const token = extractSessionToken(req);
-      if (!token) {
-        return fail(res, 'Authentication required', 401);
-      }
-
-      const claims = jwt.verify(token, SESSION_SECRET) as jwt.JwtPayload & SessionClaims;
-      const user = await authRepository.findUserById(claims.sub);
-      if (!user) {
-        return fail(res, 'Authentication required', 401);
-      }
-
-      await repository.ensureUser(user);
-      req.authUser = user;
-      return next();
-    } catch {
-      return fail(res, 'Authentication required', 401);
-    }
-  });
+  app.use('/api/mvp', requireAuthentication, requireCookieWriteOrigin, authenticatedWriteLimiter);
 
   app.get('/api/mvp/workspace', async (req: AuthenticatedRequest, res, next) => {
     try {
+      await repository.ensureUser(req.authUser!);
       ok(res, await repository.getWorkspace(req.authUser!.id));
     } catch (error) {
       next(error);
@@ -279,6 +326,7 @@ export function createApp(
     }
 
     try {
+      await repository.ensureUser(req.authUser!);
       const workspace = await repository.getWorkspace(req.authUser!.id);
       const { analytics, events, feedback } = workspace;
       return ok(res, { analytics, events, feedback });
@@ -289,7 +337,10 @@ export function createApp(
 
   app.put('/api/mvp/onboarding', async (req: AuthenticatedRequest, res, next) => {
     try {
-      const snapshot = await repository.saveOnboarding(req.authUser!.id, req.body);
+      const input = parseRequest(onboardingRequestSchema, req.body, res);
+      if (!input) return;
+      await repository.ensureUser(req.authUser!);
+      const snapshot = await repository.saveOnboarding(req.authUser!.id, input);
       await authRepository.updateUser(req.authUser!.id, { onboardingCompleted: true });
       ok(res, snapshot);
     } catch (error) {
@@ -297,9 +348,12 @@ export function createApp(
     }
   });
 
-  app.post('/api/mvp/weekly-plans/generate', async (req: AuthenticatedRequest, res, next) => {
+  app.post('/api/mvp/weekly-plans/generate', planGenerationLimiter, async (req: AuthenticatedRequest, res, next) => {
     try {
-      ok(res, await repository.generatePlan(req.authUser!.id, req.body));
+      const input = parseRequest(weeklyReviewRequestSchema, req.body, res);
+      if (!input) return;
+      await repository.ensureUser(req.authUser!);
+      ok(res, await repository.generatePlan(req.authUser!.id, input));
     } catch (error) {
       next(error);
     }
@@ -307,7 +361,11 @@ export function createApp(
 
   app.post('/api/mvp/weekly-plans/:planId/confirm', async (req: AuthenticatedRequest, res, next) => {
     try {
-      ok(res, await repository.confirmPlan(req.authUser!.id, String(req.params.planId)));
+      const planId = parseRequest(planIdSchema, req.params.planId, res);
+      const body = parseEmptyRequest(req, res);
+      if (!planId || !body) return;
+      await repository.ensureUser(req.authUser!);
+      ok(res, await repository.confirmPlan(req.authUser!.id, planId));
     } catch (error) {
       next(error);
     }
@@ -315,7 +373,11 @@ export function createApp(
 
   app.patch('/api/mvp/action-items/:actionItemId', async (req: AuthenticatedRequest, res, next) => {
     try {
-      ok(res, await repository.updateActionItem(req.authUser!.id, String(req.params.actionItemId), req.body));
+      const actionItemId = parseRequest(actionItemIdSchema, req.params.actionItemId, res);
+      const patch = parseRequest(actionUpdateRequestSchema, req.body, res);
+      if (!actionItemId || !patch) return;
+      await repository.ensureUser(req.authUser!);
+      ok(res, await repository.updateActionItem(req.authUser!.id, actionItemId, patch));
     } catch (error) {
       next(error);
     }
@@ -323,7 +385,10 @@ export function createApp(
 
   app.post('/api/mvp/daily-checkins', async (req: AuthenticatedRequest, res, next) => {
     try {
-      ok(res, await repository.saveDailyCheckIn(req.authUser!.id, req.body));
+      const input = parseRequest(dailyCheckInRequestSchema, req.body, res);
+      if (!input) return;
+      await repository.ensureUser(req.authUser!);
+      ok(res, await repository.saveDailyCheckIn(req.authUser!.id, input));
     } catch (error) {
       next(error);
     }
@@ -331,7 +396,10 @@ export function createApp(
 
   app.post('/api/mvp/reflections', async (req: AuthenticatedRequest, res, next) => {
     try {
-      ok(res, await repository.addReflection(req.authUser!.id, req.body));
+      const input = parseRequest(reflectionRequestSchema, req.body, res);
+      if (!input) return;
+      await repository.ensureUser(req.authUser!);
+      ok(res, await repository.addReflection(req.authUser!.id, input));
     } catch (error) {
       next(error);
     }
@@ -339,7 +407,10 @@ export function createApp(
 
   app.post('/api/mvp/feedback', async (req: AuthenticatedRequest, res, next) => {
     try {
-      ok(res, await repository.submitFeedback(req.authUser!.id, req.body));
+      const input = parseRequest(feedbackRequestSchema, req.body, res);
+      if (!input) return;
+      await repository.ensureUser(req.authUser!);
+      ok(res, await repository.submitFeedback(req.authUser!.id, input));
     } catch (error) {
       next(error);
     }
@@ -347,6 +418,9 @@ export function createApp(
 
   app.delete('/api/mvp/workspace', async (req: AuthenticatedRequest, res, next) => {
     try {
+      const body = parseEmptyRequest(req, res);
+      if (!body) return;
+      await repository.ensureUser(req.authUser!);
       ok(res, await repository.resetWorkspace(req.authUser!.id));
     } catch (error) {
       next(error);
@@ -375,6 +449,16 @@ export function createApp(
   }
 
   app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    const bodyError = error as { status?: number; type?: string };
+    if (bodyError.status === 413 || bodyError.type === 'entity.too.large') {
+      return fail(res, 'Payload too large', 413);
+    }
+    if (bodyError.status === 400 || bodyError.type === 'entity.parse.failed') {
+      return fail(res, 'Malformed JSON', 400);
+    }
+    if (error instanceof Error && error.message === 'Not allowed by CORS') {
+      return fail(res, 'Origin verification failed', 403);
+    }
     console.error('MVP API error:', error);
     const message = process.env.NODE_ENV === 'production'
       ? 'Internal server error'

@@ -53,6 +53,8 @@ LIFEOS_SESSION_SECRET="$(openssl rand -hex 32)" npm run dev
 
 The admin route is only presentation until the server authorizes the signed-in identity. To authorize exact accounts, set a comma-separated allowlist such as `LIFEOS_ADMIN_EMAILS=operator@example.com`. An empty or malformed allowlist denies every account; client flags, localhost, invite metadata, and Electron do not grant administrator authority.
 
+The canonical HTTP server rejects JSON bodies above 32 KiB and validates every auth/profile/MVP write with strict bounded schemas. Cookie-authenticated unsafe requests require an exact allowed `Origin`; bearer tokens are explicit request authority. Logout revokes all existing web tokens for the account through a persisted session version. Express deliberately does not trust proxy headers in the supported direct single-process topology.
+
 The development scripts select `LIFEOS_OPERATING_MODE=local-dev`. Direct builds must select it explicitly:
 
 ```bash

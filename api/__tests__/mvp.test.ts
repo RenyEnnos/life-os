@@ -53,6 +53,7 @@ describe('MVP API contract', () => {
 
     const onboarding = await client
       .put('/api/mvp/onboarding')
+      .set('Origin', 'http://localhost:5173')
       .send({
         displayName: 'Pedro',
         role: 'Founding Engineer',
@@ -69,6 +70,7 @@ describe('MVP API contract', () => {
 
     const generated = await client
       .post('/api/mvp/weekly-plans/generate')
+      .set('Origin', 'http://localhost:5173')
       .send({
         wins: ['Shipped MVP shell'],
         unfinishedWork: ['Replace browser persistence'],
@@ -85,17 +87,19 @@ describe('MVP API contract', () => {
     const planId = generated.body.data.plan.id as string;
     const actionId = generated.body.data.plan.priorities[0].actions[0].id as string;
 
-    const confirmed = await client.post(`/api/mvp/weekly-plans/${planId}/confirm`).send();
+    const confirmed = await client.post(`/api/mvp/weekly-plans/${planId}/confirm`).set('Origin', 'http://localhost:5173').send();
     expect(confirmed.body.data.plan.confirmedAt).toBeTruthy();
 
     const updatedAction = await client
       .patch(`/api/mvp/action-items/${actionId}`)
+      .set('Origin', 'http://localhost:5173')
       .send({ status: 'done', note: 'Moved to complete during the test.' });
 
     expect(updatedAction.body.data.analytics.completedActions).toBe(1);
 
     const dailyCheckIn = await client
       .post('/api/mvp/daily-checkins')
+      .set('Origin', 'http://localhost:5173')
       .send({
         date: '2026-03-19',
         energy: 4,
@@ -108,11 +112,13 @@ describe('MVP API contract', () => {
 
     const reflection = await client
       .post('/api/mvp/reflections')
+      .set('Origin', 'http://localhost:5173')
       .send({ period: 'daily', body: 'The loop felt tighter with server state.' });
     expect(reflection.body.data.reflections).toHaveLength(1);
 
     const feedback = await client
       .post('/api/mvp/feedback')
+      .set('Origin', 'http://localhost:5173')
       .send({ rating: 5, message: 'Persistence now survives reloads.' });
     expect(feedback.body.data.feedback).toHaveLength(1);
 

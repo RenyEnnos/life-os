@@ -76,6 +76,6 @@ describe.sequential('server-authorized MVP admin overview', () => {
     const admin = request.agent(app())
     await register(admin, 'admin@example.test', 'ADMIN-INVITE')
 
-    expect((await admin.delete('/api/mvp/admin/overview')).status).toBe(404)
+    expect((await admin.delete('/api/mvp/admin/overview').set('Origin', 'http://localhost:5173')).status).toBe(404)
   })
 })
