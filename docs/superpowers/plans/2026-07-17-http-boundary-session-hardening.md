@@ -86,4 +86,3 @@
 - [ ] Request an independent security review; fix every material finding and rerun affected checks.
 - [ ] Commit with Lore trailers, push a draft PR closing #123, pass canonical GitHub gates, merge, and mark #123 validated.
 - [ ] Unblock #124 and continue the #108 parent without closing it.
-

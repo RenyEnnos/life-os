@@ -133,6 +133,16 @@ function parseRequest<T>(schema: z.ZodType<T>, value: unknown, res: express.Resp
   return parsed.data;
 }
 
+function parseEmptyRequest(req: express.Request, res: express.Response) {
+  const declaresBody = req.header('transfer-encoding') !== undefined
+    || Number(req.header('content-length') ?? '0') > 0;
+  if (req.body === undefined && declaresBody) {
+    fail(res, 'Validation failed', 400);
+    return null;
+  }
+  return parseRequest(emptyRequestSchema, req.body ?? {}, res);
+}
+
 export function createApp(
   repository: MvpRepository = createDefaultMvpRepository(),
   authRepository: AuthRepository = new FileBackedAuthRepository(),
@@ -272,16 +282,15 @@ export function createApp(
     }
   });
 
-  app.post('/api/auth/logout', requireAuthentication, requireCookieWriteOrigin, authenticatedWriteLimiter, async (req: AuthenticatedRequest, res) => {
+  app.post('/api/auth/logout', requireAuthentication, requireCookieWriteOrigin, authenticatedWriteLimiter, async (req: AuthenticatedRequest, res, next) => {
     try {
-      const body = parseRequest(emptyRequestSchema, req.body ?? {}, res);
+      const body = parseEmptyRequest(req, res);
       if (!body) return;
       await authRepository.revokeSessions(req.authUser!.id);
       clearSessionCookie(res);
       return ok(res, { message: 'Logged out' });
-    } catch {
-      clearSessionCookie(res);
-      return fail(res, 'Authentication required', 401);
+    } catch (error) {
+      return next(error);
     }
   });
 
@@ -353,7 +362,7 @@ export function createApp(
   app.post('/api/mvp/weekly-plans/:planId/confirm', async (req: AuthenticatedRequest, res, next) => {
     try {
       const planId = parseRequest(planIdSchema, req.params.planId, res);
-      const body = parseRequest(emptyRequestSchema, req.body ?? {}, res);
+      const body = parseEmptyRequest(req, res);
       if (!planId || !body) return;
       await repository.ensureUser(req.authUser!);
       ok(res, await repository.confirmPlan(req.authUser!.id, planId));
@@ -409,7 +418,7 @@ export function createApp(
 
   app.delete('/api/mvp/workspace', async (req: AuthenticatedRequest, res, next) => {
     try {
-      const body = parseRequest(emptyRequestSchema, req.body ?? {}, res);
+      const body = parseEmptyRequest(req, res);
       if (!body) return;
       await repository.ensureUser(req.authUser!);
       ok(res, await repository.resetWorkspace(req.authUser!.id));

@@ -160,6 +160,55 @@ describe.sequential('canonical HTTP request boundary', () => {
     expect(oversized.status).toBe(413);
   });
 
+  it('rejects unparsed non-JSON bytes on routes with an empty-object contract', async () => {
+    const { client } = await registeredSession();
+
+    const logout = await client
+      .post('/api/auth/logout')
+      .set('Origin', origin)
+      .set('Content-Type', 'text/plain')
+      .send('unexpected');
+    const confirm = await client
+      .post('/api/mvp/weekly-plans/plan-id/confirm')
+      .set('Origin', origin)
+      .set('Content-Type', 'text/plain')
+      .send('unexpected');
+    const reset = await client
+      .delete('/api/mvp/workspace')
+      .set('Origin', origin)
+      .set('Content-Type', 'text/plain')
+      .send('unexpected');
+
+    expect(logout.status).toBe(400);
+    expect(confirm.status).toBe(400);
+    expect(reset.status).toBe(400);
+    expect((await client.get('/api/auth/verify')).status).toBe(200);
+  });
+
+  it('keeps the session valid and reports a server error when logout revocation cannot persist', async () => {
+    const authRepository = new FileBackedAuthRepository(
+      authFile,
+      [{ email: 'boundary@example.test', code: 'BOUNDARY-INVITE' }],
+    );
+    const app = createApp(new FileBackedMvpRepository(mvpFile), authRepository);
+    const client = request.agent(app);
+    const registration = await client.post('/api/auth/register').send({
+      email: 'boundary@example.test',
+      password: 'Password123!',
+      name: 'Boundary User',
+      inviteCode: 'BOUNDARY-INVITE',
+    });
+    vi.spyOn(authRepository, 'revokeSessions').mockRejectedValueOnce(new Error('disk unavailable'));
+
+    const logout = await client.post('/api/auth/logout').set('Origin', origin).send({});
+
+    expect(logout.status).toBe(500);
+    expect((await client.get('/api/auth/verify')).status).toBe(200);
+    expect((await request(app)
+      .get('/api/auth/verify')
+      .set('Authorization', `Bearer ${registration.body.token as string}`)).status).toBe(200);
+  });
+
   it('requires an exact allowed Origin for cookie writes but not bearer writes', async () => {
     const { app, client, token } = await registeredSession();
     const payload = { rating: 4, message: 'Boundary signal' };
