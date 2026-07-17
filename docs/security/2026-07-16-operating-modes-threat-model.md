@@ -35,8 +35,8 @@ Trust boundaries:
 |---|---|---|
 | Browser to Express | HTTP, CORS allowlist, JWT bearer or signed cookie | Canonical remote trust boundary; server authentication is meaningful, client route visibility is not authorization |
 | Express to auth JSON | `FileBackedAuthRepository` | Stores hashes, invite claims and user metadata; process-local file access is the trust boundary |
-| Express to MVP JSON | `FileBackedMvpRepository` | User-keyed workspaces; current read-modify-write has no observed lock or atomic replace |
-| Express to Prisma/Postgres | `PrismaBackedMvpRepository` | Optional relational boundary selected by environment; deployment and migration evidence is still required |
+| Express to MVP JSON | `FileBackedMvpRepository` | User-keyed workspaces; strict reads and atomic replacement are serialized per path inside one Node process |
+| Express to Prisma/Postgres | `PrismaBackedMvpRepository` | Explicit relational boundary selected only by `LIFEOS_MVP_REPOSITORY=prisma`; live deployment evidence is still required |
 | Electron renderer to main | preload bridge and IPC handlers | Experimental local boundary; renderer input remains untrusted even without a network hop |
 | Electron to Supabase | anon client plus persisted session tokens | Optional cloud identity/data boundary; RLS evidence does not make every desktop path canonical |
 | Electron to SQLite/JSON | `lifeos.db`, desktop MVP JSON, `safeStorage` when available | Local-device boundary; plaintext fallback tokens are observed when OS encryption is unavailable |
@@ -83,8 +83,8 @@ Electron is experimental under ADR-0001. When Supabase is configured it uses Sup
 | Explicit `LIFEOS_INVITES` seeds | permitted | permitted only with unique, rotated, email-bound seeds | beta requires managed invite lifecycle | validate configuration and avoid logging values |
 | `VITE_BYPASS_MVP_INVITE_GATE` | permitted | prohibited | prohibited | release/build check must reject true |
 | `VITE_ENABLE_INTERNAL_MVP_ADMIN` / `DEV` / `localhost` admin | permitted as UI convenience | prohibited as authority | prohibited | replace privileged operations with server authorization before beta |
-| File-backed auth and MVP JSON | permitted single-process | permitted only for disposable, single-instance demo | prohibited for persistent multi-user beta | migrate or add proved atomicity, locking, backup and recovery |
-| Automatic Prisma selection from `DATABASE_URL` | optional local test | explicit only | decision required | require an explicit supported persistence mode and migration evidence |
+| File-backed auth and MVP JSON | permitted single-process with strict/atomic files | permitted only for disposable, single-instance demo | prohibited for persistent multi-user beta | use the tested file-to-Prisma migration |
+| Automatic Prisma selection from `DATABASE_URL` | prohibited | prohibited | prohibited | `LIFEOS_MVP_REPOSITORY` is the only selector |
 | Electron local auth fallback | permitted in experimental local runtime | prohibited for shared demo | prohibited | retain only as explicit offline-development mode or remove via scoped issue |
 | Plaintext Electron token fallback when `safeStorage` is unavailable | avoid | prohibited | prohibited | fail closed for any supported shared/persistent mode |
 | Synthetic smoke credentials | permitted in isolated tests | prohibited in deployed data | prohibited | test-only environment gate; never seed release data |
@@ -129,7 +129,7 @@ Gaps that block partner-beta:
 - the read-only admin overview uses an exact server-side email allowlist, but managed role lifecycle and cross-user/cohort administration are not implemented;
 - authentication errors reveal whether an invite is missing, claimed, or an account is registered; this is acceptable only for controlled invitation flows after abuse review;
 - auth file persistence can lose concurrent writes or expose a partial file after process interruption;
-- the MVP file repository treats any read or JSON parse failure as an empty store, so corruption can appear as data loss before a later write persists the empty state;
+- JSON files remain intentionally limited to one Node process; sharing a file across processes has no OS-level lock and is unsupported;
 - retained workspace recovery covers the canonical visible MVP snapshot, not archived relational history, full account export/deletion, retention, or Electron data; #110 and #111 own those broader contracts.
 
 Before beta, validate every path/body/enum/string/date/rating at the HTTP boundary; set request-size and per-route rate limits; keep repository checks as defense in depth; require explicit confirmation plus a recoverable backup/export for workspace reset; and add CSRF protection appropriate to cookie-authenticated writes. Do not add a generic validation framework: Zod and `express-rate-limit` are already installed.

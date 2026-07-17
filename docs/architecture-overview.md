@@ -51,7 +51,8 @@ Default backend runtime:
 Persistence behavior:
 
 - file-backed repositories are the default local path
-- Prisma-backed MVP storage becomes active when `DATABASE_URL` is configured or `LIFEOS_MVP_REPOSITORY=prisma`
+- Prisma-backed MVP storage becomes active only with `LIFEOS_MVP_REPOSITORY=prisma` and a non-empty `DATABASE_URL`; `DATABASE_URL` alone never changes repository mode
+- File-backed auth and MVP stores use strict schemas, a process-wide queue per resolved path, and same-directory fsync/rename replacement with a last-known-good backup. They remain single-process/local-only; Prisma is the durable MVP target.
 
 ## Canonical MVP Surface
 

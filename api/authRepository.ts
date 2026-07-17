@@ -1,7 +1,8 @@
-import fs from 'node:fs/promises';
 import path from 'node:path';
+import { z } from 'zod';
 
 import { parseInviteSeeds, type InviteSeed } from '../shared/operatingMode';
+import { mutateJsonFile, readJsonFile } from './atomicJsonFile';
 
 interface StoredInvite extends InviteSeed {
   claimedAt: string | null;
@@ -21,9 +22,28 @@ export interface StoredUser {
   updatedAt: string;
 }
 
-interface AuthState {
+export interface AuthState {
   invites: StoredInvite[];
   users: StoredUser[];
+}
+
+const inviteSchema = z.object({
+  email: z.string(), code: z.string(), fullName: z.string().optional(),
+  claimedAt: z.string().nullable(), claimedByUserId: z.string().nullable(),
+}).strict();
+const userSchema = z.object({
+  id: z.string(), email: z.string(), passwordHash: z.string(), fullName: z.string(), inviteCode: z.string(),
+  theme: z.enum(['dark', 'light']), onboardingCompleted: z.boolean(), sessionVersion: z.number().int().nonnegative().optional(),
+  createdAt: z.string(), updatedAt: z.string(),
+}).strict();
+export const authStateSchema = z.object({ invites: z.array(inviteSchema), users: z.array(userSchema) }).strict()
+  .transform((state): AuthState => ({
+    invites: state.invites,
+    users: state.users.map((user) => ({ ...user, sessionVersion: user.sessionVersion ?? 0 })),
+  })) as z.ZodType<AuthState>;
+
+function emptyAuthState(): AuthState {
+  return { invites: [], users: [] };
 }
 
 function defaultFilePath() {
@@ -41,40 +61,14 @@ function createId(prefix: string) {
 export class FileBackedAuthRepository {
   private filePath: string;
   private seedInvites: InviteSeed[];
-  private mutationQueue: Promise<void> = Promise.resolve();
 
   constructor(filePath = defaultFilePath(), seedInvites?: InviteSeed[]) {
     this.filePath = filePath;
     this.seedInvites = seedInvites ?? parseInviteSeeds(process.env.LIFEOS_INVITES);
   }
 
-  private runMutation<T>(operation: () => Promise<T>): Promise<T> {
-    const result = this.mutationQueue.then(operation, operation);
-    this.mutationQueue = result.then(() => undefined, () => undefined);
-    return result;
-  }
-
   private async readState(): Promise<AuthState> {
-    try {
-      const raw = await fs.readFile(this.filePath, 'utf-8');
-      const parsed = JSON.parse(raw) as Partial<AuthState>;
-      return await this.withSeededInvites({
-        invites: Array.isArray(parsed.invites) ? parsed.invites : [],
-        users: Array.isArray(parsed.users) ? parsed.users : [],
-      });
-    } catch (error) {
-      const emptyState = await this.withSeededInvites({ invites: [], users: [] });
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-        await this.writeState(emptyState);
-        return emptyState;
-      }
-      throw error;
-    }
-  }
-
-  private async writeState(state: AuthState) {
-    await fs.mkdir(path.dirname(this.filePath), { recursive: true });
-    await fs.writeFile(this.filePath, JSON.stringify(state, null, 2), 'utf-8');
+    return this.withSeededInvites(await readJsonFile(this.filePath, authStateSchema, emptyAuthState));
   }
 
   private async withSeededInvites(state: AuthState): Promise<AuthState> {
@@ -129,8 +123,8 @@ export class FileBackedAuthRepository {
     fullName: string;
     inviteCode: string;
   }) {
-    return this.runMutation(async () => {
-      const state = await this.readState();
+    return mutateJsonFile(this.filePath, authStateSchema, emptyAuthState, async (stored) => {
+      const state = await this.withSeededInvites(stored);
       const email = normalizeEmail(input.email);
       const inviteCode = input.inviteCode.trim();
 
@@ -165,8 +159,7 @@ export class FileBackedAuthRepository {
       invite.claimedAt = now;
       invite.claimedByUserId = user.id;
       state.users.push(user);
-      await this.writeState(state);
-      return user;
+      return { state, result: user };
     });
   }
 
@@ -181,8 +174,8 @@ export class FileBackedAuthRepository {
   }
 
   async updateUser(userId: string, patch: Partial<Pick<StoredUser, 'fullName' | 'theme' | 'onboardingCompleted'>>) {
-    return this.runMutation(async () => {
-      const state = await this.readState();
+    return mutateJsonFile(this.filePath, authStateSchema, emptyAuthState, async (stored) => {
+      const state = await this.withSeededInvites(stored);
       const user = state.users.find((entry) => entry.id === userId);
       if (!user) {
         throw new Error('User not found');
@@ -199,14 +192,13 @@ export class FileBackedAuthRepository {
       }
       user.updatedAt = new Date().toISOString();
 
-      await this.writeState(state);
-      return user;
+      return { state, result: user };
     });
   }
 
   async revokeSessions(userId: string) {
-    return this.runMutation(async () => {
-      const state = await this.readState();
+    return mutateJsonFile(this.filePath, authStateSchema, emptyAuthState, async (stored) => {
+      const state = await this.withSeededInvites(stored);
       const user = state.users.find((entry) => entry.id === userId);
       if (!user) {
         throw new Error('User not found');
@@ -214,8 +206,7 @@ export class FileBackedAuthRepository {
 
       user.sessionVersion += 1;
       user.updatedAt = new Date().toISOString();
-      await this.writeState(state);
-      return user;
+      return { state, result: user };
     });
   }
 }

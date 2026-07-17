@@ -31,7 +31,7 @@ Default development and build flow:
 - frontend: React 18 + Vite
 - backend: Express
 - auth: file-backed invite registration and session cookies by default
-- MVP persistence: file-backed repository by default, Prisma-backed when `DATABASE_URL` or `LIFEOS_MVP_REPOSITORY=prisma` is configured
+- MVP persistence: explicitly selected with `LIFEOS_MVP_REPOSITORY=file|prisma`; Prisma also requires `DATABASE_URL`, which never selects a repository by itself
 
 Important note:
 
@@ -62,6 +62,8 @@ The development scripts select `LIFEOS_OPERATING_MODE=local-dev`. Direct builds 
 ```bash
 LIFEOS_OPERATING_MODE=local-dev npm run build
 ```
+
+Direct server starts must also select persistence explicitly. `LIFEOS_MVP_REPOSITORY=file` is local, single-process storage with strict corruption errors, atomic replacement, and a last-known-good `.bak`; `prisma` additionally requires `DATABASE_URL`. File-to-Prisma dry-run, backup, apply, verification, and guarded rollback are documented in `docs/data/file-to-prisma-migration.md`.
 
 Default local endpoints:
 
