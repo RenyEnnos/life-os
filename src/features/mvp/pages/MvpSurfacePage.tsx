@@ -3,9 +3,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 
 import { getMvpSurfaces } from '@/features/mvp/data';
+import { mvpApi } from '@/features/mvp/api/mvp.api';
 import { useMvpStore } from '@/features/mvp/store/useMvpStore';
 import { trackMvpSurfaceViewed } from '@/features/mvp/lib/telemetry';
-import type { MvpSurface } from '@/features/mvp/types';
+import type { MvpAdminOverview, MvpSurface } from '@/features/mvp/types';
 import { PageTitle } from '@/shared/ui/PageTitle';
 import { Card, CardHeader, CardTitle } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
@@ -447,11 +448,32 @@ function ReflectionSurface() {
 }
 
 function AdminSurface() {
-  const getAnalytics = useMvpStore((state) => state.getAnalytics);
-  const analytics = getAnalytics();
-  const events = useMvpStore((state) => state.events);
-  const feedback = useMvpStore((state) => state.feedback);
-  const resetWorkspace = useMvpStore((state) => state.resetWorkspace);
+  const [overview, setOverview] = useState<MvpAdminOverview | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void mvpApi.getAdminOverview()
+      .then((result) => {
+        if (active) setOverview(result);
+      })
+      .catch((requestError: unknown) => {
+        if (active) setError(requestError instanceof Error ? requestError.message : 'Administrative access denied.');
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (error) {
+    return <Card className="p-5 text-sm text-rose-300">Administrative overview unavailable: {error}</Card>;
+  }
+
+  if (!overview) {
+    return <Card className="p-5 text-sm text-zinc-300">Loading protected administrative overview…</Card>;
+  }
+
+  const { analytics, events, feedback } = overview;
 
   return (
     <div className="space-y-4">
@@ -514,10 +536,6 @@ function AdminSurface() {
             <p className="text-sm text-zinc-400">No feedback entries yet.</p>
           )}
         </div>
-
-        <Button variant="destructive" onClick={() => resetWorkspace()}>
-          Reset MVP workspace
-        </Button>
       </Card>
     </div>
   );
@@ -537,8 +555,10 @@ export function MvpSurfacePage({ surface }: MvpSurfacePageProps) {
   const analytics = getAnalytics();
 
   useEffect(() => {
-    void hydrateWorkspace();
-  }, [hydrateWorkspace]);
+    if (surface !== 'admin') {
+      void hydrateWorkspace();
+    }
+  }, [hydrateWorkspace, surface]);
 
   useEffect(() => {
     trackMvpSurfaceViewed(surface);
@@ -549,7 +569,7 @@ export function MvpSurfacePage({ surface }: MvpSurfacePageProps) {
     'weekly-review': analytics.weeklyPlanConfirmed ? 'Confirmed' : analytics.eventCounts.weekly_plan_generated > 0 ? 'Generated' : 'Pending',
     today: analytics.totalActions > 0 ? `${analytics.completedActions}/${analytics.totalActions} done` : 'Pending',
     reflection: analytics.reflections > 0 ? `${analytics.reflections} saved` : 'Pending',
-    admin: `${analytics.feedbackEntries} feedback`,
+    admin: 'Protected',
   } satisfies Record<MvpSurface['slug'], string>;
 
   const content = {
@@ -562,10 +582,10 @@ export function MvpSurfacePage({ surface }: MvpSurfacePageProps) {
 
   return (
     <div className="space-y-8">
-      {isHydrating ? (
+      {surface !== 'admin' && isHydrating ? (
         <Card className="p-4 text-sm text-zinc-300">Syncing MVP workspace…</Card>
       ) : null}
-      {error ? (
+      {surface !== 'admin' && error ? (
         <Card className="p-4 text-sm text-rose-300">Workspace sync failed: {error}</Card>
       ) : null}
       <PageTitle

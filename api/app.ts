@@ -89,6 +89,15 @@ function clearSessionCookie(res: express.Response) {
   });
 }
 
+function isConfiguredAdministrator(email: string) {
+  const configuredEmails = (process.env.LIFEOS_ADMIN_EMAILS ?? '')
+    .split(',')
+    .map((candidate) => candidate.trim().toLowerCase())
+    .filter((candidate) => z.string().email().safeParse(candidate).success);
+
+  return configuredEmails.includes(email.trim().toLowerCase());
+}
+
 export function createApp(
   repository: MvpRepository = createDefaultMvpRepository(),
   authRepository: AuthRepository = new FileBackedAuthRepository(),
@@ -261,6 +270,20 @@ export function createApp(
       ok(res, await repository.getWorkspace(req.authUser!.id));
     } catch (error) {
       next(error);
+    }
+  });
+
+  app.get('/api/mvp/admin/overview', async (req: AuthenticatedRequest, res, next) => {
+    if (!isConfiguredAdministrator(req.authUser!.email)) {
+      return fail(res, 'Administrator access required', 403);
+    }
+
+    try {
+      const workspace = await repository.getWorkspace(req.authUser!.id);
+      const { analytics, events, feedback } = workspace;
+      return ok(res, { analytics, events, feedback });
+    } catch (error) {
+      return next(error);
     }
   });
 

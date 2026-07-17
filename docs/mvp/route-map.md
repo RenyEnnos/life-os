@@ -18,8 +18,8 @@ This file documents the implemented route and API contract for the canonical MVP
   Purpose: save reflection and product feedback
 - `GET /mvp/admin`
   Purpose: internal analytics surface
-  Current state: accepted for internal/local/dev use via non-role controls (environment, invite, and operator process controls)
-  Production policy: role-based authorization is required before any partner-production rollout
+  Current state: client routing is only presentation; data loads from the server-authorized admin endpoint
+  Authorization: the authenticated email must exactly match `LIFEOS_ADMIN_EMAILS`
 
 ### Legacy broader-suite routes still present in the shell
 
@@ -70,6 +70,14 @@ These routes exist in `src/config/routes/index.tsx`, but they are not canonical 
 - `DELETE /api/mvp/workspace`
   Output: reset workspace state for the authenticated user
 
+### Internal administration
+
+- `GET /api/mvp/admin/overview`
+  Authorization: authenticated email must exactly match a valid comma-separated entry in `LIFEOS_ADMIN_EMAILS`
+  Output: the administrator's analytics, event stream, and feedback only
+  Failure: `401` without a valid session; `403` for authenticated non-administrators
+  Destructive operations: none; workspace reset remains a user-scoped endpoint pending the recovery controls tracked in #108
+
 ### Onboarding
 
 - `PUT /api/mvp/onboarding`
@@ -105,5 +113,5 @@ These routes exist in `src/config/routes/index.tsx`, but they are not canonical 
 ## Important Contract Notes
 
 - There is no implemented `POST /api/mvp/auth/invite/accept` endpoint. Invite acceptance currently happens through `POST /api/auth/register`.
-- There is no dedicated backend admin overview endpoint. The `/mvp/admin` surface currently reads from workspace state rather than a separate analytics API.
+- Development mode, localhost, Vite flags, invite metadata, and UI visibility never authorize the backend admin endpoint.
 - The route map should be treated as executable contract documentation, not as a proposal list. If a route is not implemented, do not document it here as current behavior.

@@ -51,6 +51,8 @@ Run the default app and API:
 LIFEOS_SESSION_SECRET="$(openssl rand -hex 32)" npm run dev
 ```
 
+The admin route is only presentation until the server authorizes the signed-in identity. To authorize exact accounts, set a comma-separated allowlist such as `LIFEOS_ADMIN_EMAILS=operator@example.com`. An empty or malformed allowlist denies every account; client flags, localhost, invite metadata, and Electron do not grant administrator authority.
+
 The development scripts select `LIFEOS_OPERATING_MODE=local-dev`. Direct builds must select it explicitly:
 
 ```bash

@@ -2,6 +2,7 @@ import { apiClient } from '@/shared/api/http';
 import { isDesktopApp } from '@/shared/lib/platform';
 import type {
   MvpDailyCheckIn,
+  MvpAdminOverview,
   MvpOnboardingDraft,
   MvpReflectionEntry,
   MvpReviewDraft,
@@ -41,6 +42,14 @@ function getDesktopMvpBridge() {
 }
 
 export const mvpApi = {
+  getAdminOverview: async () => {
+    if (getDesktopMvpBridge()) {
+      throw new Error('The administrative overview requires the authenticated web server.');
+    }
+
+    return unwrap(await apiClient.get<ApiResponse<MvpAdminOverview>>('/api/mvp/admin/overview'));
+  },
+
   getWorkspace: async () => {
     const desktopBridge = getDesktopMvpBridge();
     if (desktopBridge) {
