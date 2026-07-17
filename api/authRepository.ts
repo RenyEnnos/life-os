@@ -16,6 +16,7 @@ export interface StoredUser {
   inviteCode: string;
   theme: 'dark' | 'light';
   onboardingCompleted: boolean;
+  sessionVersion: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -40,10 +41,17 @@ function createId(prefix: string) {
 export class FileBackedAuthRepository {
   private filePath: string;
   private seedInvites: InviteSeed[];
+  private mutationQueue: Promise<void> = Promise.resolve();
 
   constructor(filePath = defaultFilePath(), seedInvites?: InviteSeed[]) {
     this.filePath = filePath;
     this.seedInvites = seedInvites ?? parseInviteSeeds(process.env.LIFEOS_INVITES);
+  }
+
+  private runMutation<T>(operation: () => Promise<T>): Promise<T> {
+    const result = this.mutationQueue.then(operation, operation);
+    this.mutationQueue = result.then(() => undefined, () => undefined);
+    return result;
   }
 
   private async readState(): Promise<AuthState> {
@@ -108,7 +116,10 @@ export class FileBackedAuthRepository {
 
     return {
       invites: mergedInvites,
-      users: state.users,
+      users: state.users.map((user) => ({
+        ...user,
+        sessionVersion: Number.isInteger(user.sessionVersion) && user.sessionVersion >= 0 ? user.sessionVersion : 0,
+      })),
     };
   }
 
@@ -118,42 +129,45 @@ export class FileBackedAuthRepository {
     fullName: string;
     inviteCode: string;
   }) {
-    const state = await this.readState();
-    const email = normalizeEmail(input.email);
-    const inviteCode = input.inviteCode.trim();
+    return this.runMutation(async () => {
+      const state = await this.readState();
+      const email = normalizeEmail(input.email);
+      const inviteCode = input.inviteCode.trim();
 
-    const existingUser = state.users.find((user) => user.email === email);
-    if (existingUser) {
-      throw new Error('User already registered');
-    }
+      const existingUser = state.users.find((user) => user.email === email);
+      if (existingUser) {
+        throw new Error('User already registered');
+      }
 
-    const invite = state.invites.find((entry) => entry.email === email && entry.code === inviteCode);
-    if (!invite) {
-      throw new Error('Invite not found for this email');
-    }
+      const invite = state.invites.find((entry) => entry.email === email && entry.code === inviteCode);
+      if (!invite) {
+        throw new Error('Invite not found for this email');
+      }
 
-    if (invite.claimedAt) {
-      throw new Error('Invite already claimed');
-    }
+      if (invite.claimedAt) {
+        throw new Error('Invite already claimed');
+      }
 
-    const now = new Date().toISOString();
-    const user: StoredUser = {
-      id: createId('usr'),
-      email,
-      passwordHash: input.passwordHash,
-      fullName: input.fullName.trim(),
-      inviteCode,
-      theme: 'dark',
-      onboardingCompleted: false,
-      createdAt: now,
-      updatedAt: now,
-    };
+      const now = new Date().toISOString();
+      const user: StoredUser = {
+        id: createId('usr'),
+        email,
+        passwordHash: input.passwordHash,
+        fullName: input.fullName.trim(),
+        inviteCode,
+        theme: 'dark',
+        onboardingCompleted: false,
+        sessionVersion: 0,
+        createdAt: now,
+        updatedAt: now,
+      };
 
-    invite.claimedAt = now;
-    invite.claimedByUserId = user.id;
-    state.users.push(user);
-    await this.writeState(state);
-    return user;
+      invite.claimedAt = now;
+      invite.claimedByUserId = user.id;
+      state.users.push(user);
+      await this.writeState(state);
+      return user;
+    });
   }
 
   async findUserByEmail(email: string) {
@@ -167,24 +181,41 @@ export class FileBackedAuthRepository {
   }
 
   async updateUser(userId: string, patch: Partial<Pick<StoredUser, 'fullName' | 'theme' | 'onboardingCompleted'>>) {
-    const state = await this.readState();
-    const user = state.users.find((entry) => entry.id === userId);
-    if (!user) {
-      throw new Error('User not found');
-    }
+    return this.runMutation(async () => {
+      const state = await this.readState();
+      const user = state.users.find((entry) => entry.id === userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
 
-    if (patch.fullName !== undefined) {
-      user.fullName = patch.fullName.trim();
-    }
-    if (patch.theme !== undefined) {
-      user.theme = patch.theme;
-    }
-    if (patch.onboardingCompleted !== undefined) {
-      user.onboardingCompleted = patch.onboardingCompleted;
-    }
-    user.updatedAt = new Date().toISOString();
+      if (patch.fullName !== undefined) {
+        user.fullName = patch.fullName.trim();
+      }
+      if (patch.theme !== undefined) {
+        user.theme = patch.theme;
+      }
+      if (patch.onboardingCompleted !== undefined) {
+        user.onboardingCompleted = patch.onboardingCompleted;
+      }
+      user.updatedAt = new Date().toISOString();
 
-    await this.writeState(state);
-    return user;
+      await this.writeState(state);
+      return user;
+    });
+  }
+
+  async revokeSessions(userId: string) {
+    return this.runMutation(async () => {
+      const state = await this.readState();
+      const user = state.users.find((entry) => entry.id === userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      user.sessionVersion += 1;
+      user.updatedAt = new Date().toISOString();
+      await this.writeState(state);
+      return user;
+    });
   }
 }

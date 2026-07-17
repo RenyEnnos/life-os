@@ -67,6 +67,7 @@ describe('auth and invite access control', () => {
 
     expect(registration.status).toBe(201);
     expect(registration.body.user.email).toBe('partner@example.com');
+    const copiedBearer = registration.body.token as string;
 
     const verified = await invitedClient.get('/api/auth/verify');
     expect(verified.status).toBe(200);
@@ -75,11 +76,23 @@ describe('auth and invite access control', () => {
     const authedWorkspace = await invitedClient.get('/api/mvp/workspace');
     expect(authedWorkspace.status).toBe(200);
 
-    const logout = await invitedClient.post('/api/auth/logout').send({});
+    const invalidLogout = await invitedClient
+      .post('/api/auth/logout')
+      .set('Origin', 'http://localhost:5173')
+      .send({ unexpected: true });
+    expect(invalidLogout.status).toBe(400);
+    expect((await invitedClient.get('/api/auth/verify')).status).toBe(200);
+
+    const logout = await invitedClient.post('/api/auth/logout').set('Origin', 'http://localhost:5173').send({});
     expect(logout.status).toBe(200);
 
     const verifyAfterLogout = await invitedClient.get('/api/auth/verify');
     expect(verifyAfterLogout.status).toBe(401);
+
+    const copiedBearerAfterLogout = await request(app)
+      .get('/api/auth/verify')
+      .set('Authorization', `Bearer ${copiedBearer}`);
+    expect(copiedBearerAfterLogout.status).toBe(401);
 
     const login = await request(app).post('/api/auth/login').send({
       email: 'partner@example.com',
@@ -87,6 +100,45 @@ describe('auth and invite access control', () => {
     });
     expect(login.status).toBe(200);
     expect(login.body.token).toBeTruthy();
+  });
+
+  it('loads legacy users without a session version as version zero', async () => {
+    await fs.writeFile(authFile, JSON.stringify({
+      invites: [],
+      users: [{
+        id: 'usr_legacy',
+        email: 'legacy@example.test',
+        passwordHash: 'synthetic-hash',
+        fullName: 'Legacy User',
+        inviteCode: 'LEGACY',
+        theme: 'dark',
+        onboardingCompleted: false,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      }],
+    }));
+
+    const user = await new FileBackedAuthRepository(authFile, []).findUserById('usr_legacy');
+    expect(user?.sessionVersion).toBe(0);
+  });
+
+  it('does not let a concurrent profile write roll back session revocation', async () => {
+    const repository = new FileBackedAuthRepository(authFile, [
+      { email: 'race@example.test', code: 'RACE-INVITE' },
+    ]);
+    const user = await repository.registerWithInvite({
+      email: 'race@example.test',
+      passwordHash: 'synthetic-hash',
+      fullName: 'Race User',
+      inviteCode: 'RACE-INVITE',
+    });
+
+    await Promise.all([
+      repository.revokeSessions(user.id),
+      repository.updateUser(user.id, { theme: 'light' }),
+    ]);
+
+    expect((await repository.findUserById(user.id))?.sessionVersion).toBe(1);
   });
 
   it('rejects a persisted fallback invite in controlled-demo', async () => {
@@ -129,7 +181,7 @@ describe('auth and invite access control', () => {
 
       expect(allowed.status).toBe(200);
       expect(allowed.headers['access-control-allow-origin']).toBe('https://demo.example.test');
-      expect(localhost.status).toBe(500);
+      expect(localhost.status).toBe(403);
       expect(localhost.headers['access-control-allow-origin']).toBeUndefined();
     } finally {
       if (previousMode === undefined) delete process.env.LIFEOS_OPERATING_MODE;

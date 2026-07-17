@@ -55,7 +55,7 @@ Trust boundaries:
 
 ### Canonical web identity
 
-For the canonical web runtime, the current identity source is `FileBackedAuthRepository`: registration claims an email-bound invite, bcrypt stores the password hash, and Express issues a seven-day JWT as an HTTP-only same-site cookie while also returning the token in the JSON response and accepting it as a bearer token. `/api/mvp/*` verifies the token and resolves the user before selecting a user-scoped workspace. No session-version, revocation store or token-rotation contract is observed; logout clears the cookie but cannot revoke a copied bearer token.
+For the canonical web runtime, the current identity source is `FileBackedAuthRepository`: registration claims an email-bound invite, bcrypt stores the password hash, and Express issues a seven-day JWT as an HTTP-only same-site cookie while also returning the token in the JSON response and accepting it as a bearer token. `/api/mvp/*` verifies the token, reloads the user, and compares a persisted session version before selecting a user-scoped workspace. Logout increments that version and therefore revokes every existing cookie and copied bearer token for the account. This global-logout policy is deliberate until a real per-device session requirement exists.
 
 The invite grants the right to create one account for the matching email. Once registered, the server session grants access to that user's MVP workspace. Invite metadata in the browser is neither authentication nor continuing authorization.
 
@@ -117,16 +117,13 @@ The shared validator in `shared/operatingMode.ts` is used by Vite and the Expres
 
 ## API, validation and abuse controls
 
-Observed controls: Helmet, credentialed CORS with an origin allowlist, Zod schemas on registration/login, bcrypt, signed expiring JWTs, and a 10-per-15-minute limiter on registration/login.
+Observed controls: Helmet, credentialed CORS with an origin allowlist, strict bounded Zod schemas on every canonical auth/profile/MVP write, a 32 KiB JSON limit, bcrypt, signed expiring versioned JWTs, exact-Origin enforcement for unsafe cookie-authenticated methods, a 10-per-15-minute direct-peer auth limiter, a 120-per-15-minute per-user write limiter, and a 20-per-hour per-user plan-generation limiter. Bearer authorization is explicit authority rather than ambient browser state. Express intentionally keeps `trust proxy=false`; forwarded client-IP headers do not influence these limits in the supported direct topology.
 
 Gaps that block partner-beta:
 
-- MVP request bodies are passed to repositories without equivalent boundary schemas or documented size limits;
-- profile patch accepts only selected primitive values but has no explicit body schema/length limit;
-- the general JSON parser uses its default limit rather than an application contract;
-- MVP write and destructive reset routes have authentication but no CSRF defense beyond SameSite Lax, no per-user write rate limit and no reauthentication/confirmation contract;
+- destructive reset still lacks password reauthentication, exact confirmation, a stricter destructive limiter, and a recoverable export contract; #124 owns this remaining parent requirement;
 - workspace reset immediately replaces the user's workspace and has no export, grace period or recovery contract;
-- the bearer-token response expands exposure beyond an HTTP-only cookie, while logout does not revoke an already copied token;
+- the bearer-token response expands exposure beyond an HTTP-only cookie, although persisted global logout now revokes copied tokens;
 - the read-only admin overview uses an exact server-side email allowlist, but managed role lifecycle and cross-user/cohort administration are not implemented;
 - authentication errors reveal whether an invite is missing, claimed, or an account is registered; this is acceptable only for controlled invitation flows after abuse review;
 - auth file persistence can lose concurrent writes or expose a partial file after process interruption;

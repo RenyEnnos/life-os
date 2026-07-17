@@ -44,6 +44,7 @@ async function resolveDesktopUser(): Promise<StoredUser> {
     inviteCode: 'desktop-local',
     theme: 'dark',
     onboardingCompleted: false,
+    sessionVersion: 0,
     createdAt: new Date(0).toISOString(),
     updatedAt: new Date().toISOString(),
   };
