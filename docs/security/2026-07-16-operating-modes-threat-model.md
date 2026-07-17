@@ -61,14 +61,14 @@ The invite grants the right to create one account for the matching email. Once r
 
 ### Client gates are presentation only
 
-`src/config/routes/access.ts` allows MVP UI access based on development mode, localhost, browser flags or user metadata. It allows the internal admin UI based on development mode, localhost or a browser flag. These conditions only show or route UI. They do not establish an administrator role, and the current Express API exposes no separate server-authorized admin contract.
+`src/config/routes/access.ts` allows MVP UI access based on development mode, localhost, browser flags or user metadata. It allows the internal admin UI based on development mode, localhost or a browser flag. These conditions only show or route UI. They do not establish an administrator role. `GET /api/mvp/admin/overview` separately requires a valid web session whose normalized email exactly matches a valid entry in `LIFEOS_ADMIN_EMAILS`; an empty or malformed allowlist denies all users.
 
 Therefore:
 
 - local UI bypasses are permitted only in local-dev;
 - controlled-demo may not use a build with bypass flags enabled;
 - partner-beta/public must reject such builds;
-- no admin capability is supported beyond local-dev until the server enforces a role or explicit admin allowlist on every privileged operation;
+- the only supported admin capability is the read-only overview authorized by the server allowlist; there is no admin reset or cross-user aggregation;
 - hiding the navigation item or route is never acceptance evidence for authorization.
 
 ### Electron identity
@@ -103,6 +103,7 @@ Unknown or contradictory environment configuration must fail closed. No producti
 | `LIFEOS_SESSION_SECRET` | required, throwaway | required, strong and unique | required, managed and rotatable | required, managed and rotatable |
 | `ALLOWED_ORIGIN` | optional loopback | required exact HTTPS origin | required exact HTTPS origin | required exact HTTPS origin(s) |
 | `LIFEOS_INVITES` | optional; known fallback allowed | required unique seeds | required managed lifecycle until replaced | self-service/managed policy required by new decision |
+| `LIFEOS_ADMIN_EMAILS` | optional; empty denies all | explicit exact emails if admin overview is used | replace or operationalize with managed role lifecycle | managed least-privilege roles required by new decision |
 | bypass/admin Vite flags | may be true | must be absent/false | must be absent/false | must be absent/false |
 | `LIFEOS_MVP_REPOSITORY` | explicit preferred | explicit `file` only for disposable single-instance demo | explicit durable store | explicit durable store |
 | `DATABASE_URL` | optional | prohibited while the candidate profile requires `file` | required for Prisma mode, secret-managed | required, secret-managed |
@@ -126,7 +127,7 @@ Gaps that block partner-beta:
 - MVP write and destructive reset routes have authentication but no CSRF defense beyond SameSite Lax, no per-user write rate limit and no reauthentication/confirmation contract;
 - workspace reset immediately replaces the user's workspace and has no export, grace period or recovery contract;
 - the bearer-token response expands exposure beyond an HTTP-only cookie, while logout does not revoke an already copied token;
-- no server-side admin role/endpoint contract exists;
+- the read-only admin overview uses an exact server-side email allowlist, but managed role lifecycle and cross-user/cohort administration are not implemented;
 - authentication errors reveal whether an invite is missing, claimed, or an account is registered; this is acceptable only for controlled invitation flows after abuse review;
 - auth file persistence can lose concurrent writes or expose a partial file after process interruption;
 - the MVP file repository treats any read or JSON parse failure as an empty store, so corruption can appear as data loss before a later write persists the empty state;

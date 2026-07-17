@@ -125,3 +125,9 @@ export interface MvpWorkspaceSnapshot {
   events: MvpEvent[];
   analytics: MvpAnalyticsSnapshot;
 }
+
+export interface MvpAdminOverview {
+  analytics: MvpAnalyticsSnapshot;
+  events: MvpEvent[];
+  feedback: MvpFeedbackEntry[];
+}

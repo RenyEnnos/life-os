@@ -1,7 +1,7 @@
 # LifeOS Canonical MVP
 
 Status: active source of truth
-Last updated: 2026-03-28
+Last updated: 2026-07-17
 Owner: Product Strategist
 
 ## Product Decision
@@ -45,6 +45,7 @@ Backend contract:
 - `/api/mvp/daily-checkins`
 - `/api/mvp/reflections`
 - `/api/mvp/feedback`
+- `/api/mvp/admin/overview`
 - `/api/mvp/workspace` `DELETE`
 
 ## Scope In
@@ -63,13 +64,13 @@ Backend contract:
 - claiming Electron is the current default product runtime
 - sync or cloud-readiness claims
 - calling the admin view partner-facing
-- partner-production rollout of `/mvp/admin` without role-based authorization
+- treating client route visibility, localhost, invite metadata, or a Vite flag as administrator authority
 
 ## Current Constraints
 
 - default navigation still centers the broader suite instead of the MVP loop
-- `/mvp/admin` is currently accepted for internal/local/dev use with non-role controls (environment, invite, and operator process controls)
-- role-based authorization is required before any partner-production `/mvp/admin` rollout
+- `/mvp/admin` data is server-authorized by exact authenticated email through `LIFEOS_ADMIN_EMAILS`; an empty allowlist denies everyone
+- the current endpoint exposes only the authorized account's analytics, events, and feedback; cross-user/cohort administration is not implemented
 - some MVP copy still overstates readiness
 - the repo still contains stale desktop-first release docs and broad-suite PRD artifacts
 

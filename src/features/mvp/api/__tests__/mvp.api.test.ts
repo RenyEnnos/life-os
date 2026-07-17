@@ -38,4 +38,21 @@ describe('mvpApi desktop transport', () => {
     expect(getWorkspace).toHaveBeenCalledOnce();
     expect(global.window.api.legacy.request).not.toHaveBeenCalled();
   });
+
+  it('does not treat the local desktop bridge as administrative authority', async () => {
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      writable: true,
+      value: {
+        electron: {},
+        api: {
+          mvp: { getWorkspace: vi.fn() },
+          legacy: { request: vi.fn() },
+        },
+      },
+    });
+
+    await expect(mvpApi.getAdminOverview()).rejects.toThrow('authenticated web server');
+    expect(global.window.api.legacy.request).not.toHaveBeenCalled();
+  });
 });

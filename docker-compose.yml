@@ -15,6 +15,7 @@ services:
       - ALLOWED_ORIGIN=${ALLOWED_ORIGIN:?ALLOWED_ORIGIN is required}
       - LIFEOS_SESSION_SECRET=${LIFEOS_SESSION_SECRET:?LIFEOS_SESSION_SECRET is required}
       - LIFEOS_INVITES=${LIFEOS_INVITES:?LIFEOS_INVITES is required}
+      - LIFEOS_ADMIN_EMAILS=${LIFEOS_ADMIN_EMAILS:-}
       - LIFEOS_MVP_REPOSITORY=file
     volumes:
       - life-os-data:/app/.data
