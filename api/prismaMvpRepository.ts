@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+
 import { ActionItemStatus, CommitmentKind, MvpEventType, Prisma, PriorityStatus, ReflectionPeriod, WeeklyPlanStatus } from '@prisma/client';
 import type { PrismaClient } from '@prisma/client';
 
@@ -20,6 +22,7 @@ import type {
 import {
   createWorkspaceExport,
   digestWorkspace,
+  digestWorkspaceExport,
   normalizeWorkspace,
   workspaceExportSchema,
   type MvpWorkspaceExport,
@@ -27,6 +30,45 @@ import {
 } from './workspaceRecovery';
 
 type WorkspaceDb = PrismaClient | Prisma.TransactionClient;
+
+export interface PrismaMigrationTargetFingerprint {
+  identityDigest: string;
+  workspaceDigest: string;
+  recoveries: Array<{ id: string; envelopeDigest: string }>;
+}
+
+function migrationIdentityDigest(identity: {
+  id: string;
+  email: string;
+  inviteCode: string | null;
+  fullName: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}) {
+  return createHash('sha256').update(JSON.stringify({
+    id: identity.id,
+    email: identity.email.trim().toLowerCase(),
+    inviteCode: identity.inviteCode?.trim() ?? '',
+    fullName: identity.fullName?.trim() ?? '',
+    createdAt: identity.createdAt.toISOString(),
+    updatedAt: identity.updatedAt.toISOString(),
+  })).digest('hex');
+}
+
+function migrationTargetFingerprint(
+  identity: Parameters<typeof migrationIdentityDigest>[0],
+  workspace: MvpWorkspaceSnapshot,
+  recoveries: Array<{ id: string; payload: unknown }>,
+): PrismaMigrationTargetFingerprint {
+  return {
+    identityDigest: migrationIdentityDigest(identity),
+    workspaceDigest: digestWorkspace(workspace),
+    recoveries: recoveries.map(({ id, payload }) => ({
+      id,
+      envelopeDigest: digestWorkspaceExport(workspaceExportSchema.parse(payload)),
+    })).sort((left, right) => left.id.localeCompare(right.id)),
+  };
+}
 
 function startOfWeek(date: Date) {
   const next = new Date(date);
@@ -188,6 +230,37 @@ export class PrismaBackedMvpRepository implements MvpRepository {
 
   async restoreWorkspace(userId: string, portableExportInput: MvpWorkspaceExport): Promise<MvpWorkspaceSnapshot> {
     return this.runUserMutation(userId, () => this.restoreWorkspaceUnlocked(userId, portableExportInput));
+  }
+
+  async importMigratedUser(
+    user: StoredUser,
+    workspaceInput: MvpWorkspaceSnapshot,
+    recoveryInputs: MvpWorkspaceRecovery[],
+  ): Promise<MvpWorkspaceSnapshot> {
+    return this.runUserMutation(user.id, () => this.importMigratedUserUnlocked(user, workspaceInput, recoveryInputs));
+  }
+
+  async deleteMigratedUsersIfUnchanged(
+    expected: Array<{ userId: string; fingerprint: PrismaMigrationTargetFingerprint }>,
+  ): Promise<void> {
+    await this.db.$transaction(async (tx) => {
+      for (const entry of expected) {
+        const identity = await tx.user.findUnique({
+          where: { id: entry.userId },
+          select: { id: true, email: true, inviteCode: true, fullName: true, createdAt: true, updatedAt: true },
+        });
+        if (!identity) continue;
+        const [workspace, recoveries] = await Promise.all([
+          this.buildWorkspace(entry.userId, tx),
+          tx.mvpWorkspaceRecovery.findMany({ where: { userId: entry.userId }, select: { id: true, payload: true } }),
+        ]);
+        const fingerprint = migrationTargetFingerprint(identity, workspace, recoveries);
+        if (JSON.stringify(fingerprint) !== JSON.stringify(entry.fingerprint)) {
+          throw new Error(`Rollback refused because target changed for user ${entry.userId}`);
+        }
+      }
+      await tx.user.deleteMany({ where: { id: { in: expected.map(({ userId }) => userId) } } });
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   }
 
   private async saveOnboardingUnlocked(userId: string, input: Omit<MvpOnboardingDraft, 'completedAt'>): Promise<MvpWorkspaceSnapshot> {
@@ -639,6 +712,65 @@ export class PrismaBackedMvpRepository implements MvpRepository {
       await this.deleteWorkspace(userId, tx);
       await this.createWorkspace(userId, workspace, tx);
       return this.buildWorkspace(userId, tx);
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+  }
+
+  private async importMigratedUserUnlocked(
+    user: StoredUser,
+    workspaceInput: MvpWorkspaceSnapshot,
+    recoveryInputs: MvpWorkspaceRecovery[],
+  ): Promise<MvpWorkspaceSnapshot> {
+    const workspace = normalizeWorkspace(workspaceInput);
+    const recoveries = recoveryInputs.map(({ id, export: portableExport }) => ({
+      id,
+      export: workspaceExportSchema.parse(portableExport),
+    }));
+    return this.db.$transaction(async (tx) => {
+      const identity = await tx.user.create({
+        data: {
+          id: user.id,
+          email: user.email.trim().toLowerCase(),
+          inviteCode: user.inviteCode.trim() || null,
+          fullName: user.fullName.trim() || null,
+          createdAt: new Date(user.createdAt),
+          updatedAt: new Date(user.updatedAt),
+        },
+        select: { id: true, email: true, inviteCode: true, fullName: true, createdAt: true, updatedAt: true },
+      });
+      await this.createWorkspace(user.id, workspace, tx);
+      for (const recovery of recoveries) {
+        await tx.mvpWorkspaceRecovery.create({
+          data: {
+            id: recovery.id,
+            userId: user.id,
+            format: recovery.export.format,
+            version: recovery.export.version,
+            exportedAt: new Date(recovery.export.exportedAt),
+            payload: toJsonObject(recovery.export),
+            createdAt: new Date(recovery.export.exportedAt),
+          },
+        });
+      }
+      const [importedWorkspace, importedRecoveries] = await Promise.all([
+        this.buildWorkspace(user.id, tx),
+        tx.mvpWorkspaceRecovery.findMany({ where: { userId: user.id }, select: { id: true, payload: true } }),
+      ]);
+      const expectedFingerprint = migrationTargetFingerprint({
+        id: user.id,
+        email: user.email.trim().toLowerCase(),
+        inviteCode: user.inviteCode.trim() || null,
+        fullName: user.fullName.trim() || null,
+        createdAt: new Date(user.createdAt),
+        updatedAt: new Date(user.updatedAt),
+      }, workspace, recoveries.map(({ id, export: portableExport }) => ({
+        id,
+        payload: portableExport,
+      })));
+      const actualFingerprint = migrationTargetFingerprint(identity, importedWorkspace, importedRecoveries);
+      if (JSON.stringify(actualFingerprint) !== JSON.stringify(expectedFingerprint)) {
+        throw new Error(`Migration import verification failed for user ${user.id}`);
+      }
+      return importedWorkspace;
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   }
 

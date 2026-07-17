@@ -14,6 +14,7 @@ import { ok, fail } from './response';
 import { FileBackedAuthRepository, type StoredUser } from './authRepository';
 import { FileBackedMvpRepository } from './mvpRepository';
 import type { MvpRepository } from './mvpRepository.types';
+import { resolveMvpRepositoryMode } from './mvpRepositoryMode';
 import { PrismaBackedMvpRepository } from './prismaMvpRepository';
 import {
   actionItemIdSchema,
@@ -563,12 +564,7 @@ export function createApp(
 }
 
 function createDefaultMvpRepository(): MvpRepository {
-  const configuredRepository = process.env.LIFEOS_MVP_REPOSITORY;
-  const wantsPrisma = configuredRepository === 'prisma' || (
-    !configuredRepository &&
-    typeof process.env.DATABASE_URL === 'string' &&
-    process.env.DATABASE_URL.trim().length > 0
-  );
-
-  return wantsPrisma ? new PrismaBackedMvpRepository() : new FileBackedMvpRepository();
+  return resolveMvpRepositoryMode(process.env) === 'prisma'
+    ? new PrismaBackedMvpRepository()
+    : new FileBackedMvpRepository();
 }

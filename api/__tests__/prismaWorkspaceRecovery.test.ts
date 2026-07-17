@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createEmptyWorkspace, withComputedAnalytics } from '../../shared/mvp/state';
@@ -7,6 +9,7 @@ import { createWorkspaceExport } from '../workspaceRecovery';
 function transactionDouble() {
   const empty = vi.fn().mockResolvedValue([]);
   return {
+    user: { create: vi.fn(), findUnique: vi.fn(), deleteMany: vi.fn() },
     userProfile: { findUnique: vi.fn().mockResolvedValue(null), create: vi.fn(), deleteMany: vi.fn() },
     goal: { findMany: empty, createMany: vi.fn(), deleteMany: vi.fn() },
     commitment: { findMany: empty, createMany: vi.fn(), deleteMany: vi.fn() },
@@ -108,6 +111,97 @@ describe('Prisma workspace recovery', () => {
     expect(tx.reflectionEntry.createMany).toHaveBeenCalledWith({ data: [expect.objectContaining({ id: 'reflection-1', createdAt: new Date(generatedAt) })] });
     expect(tx.feedbackEntry.createMany).toHaveBeenCalledWith({ data: [expect.objectContaining({ id: 'feedback-1', createdAt: new Date(generatedAt) })] });
     expect(tx.mvpEventLog.createMany).toHaveBeenCalledWith({ data: [expect.objectContaining({ id: 'event-1', createdAt: new Date(generatedAt) })] });
+  });
+
+  it('imports identity, active workspace, and retained recoveries in one Serializable transaction', async () => {
+    const tx = transactionDouble();
+    const db = { $transaction: vi.fn((callback) => callback(tx)) };
+    const repository = new PrismaBackedMvpRepository(db as never);
+    const workspace = createEmptyWorkspace();
+    const recovery = {
+      id: 'recovery-migrated-1',
+      export: createWorkspaceExport(createEmptyWorkspace(), '2026-07-16T12:00:00.000Z'),
+    };
+    tx.user.create.mockResolvedValue({
+      id: 'user-migrated-1', email: 'person@example.com', inviteCode: 'INVITE', fullName: 'Person',
+      createdAt: new Date('2026-07-15T10:00:00.000Z'), updatedAt: new Date('2026-07-15T11:00:00.000Z'),
+    });
+    tx.mvpWorkspaceRecovery.findMany.mockResolvedValue([{ id: recovery.id, payload: recovery.export }]);
+
+    await repository.importMigratedUser({
+      id: 'user-migrated-1',
+      email: ' Person@Example.COM ',
+      passwordHash: 'not-persisted-here',
+      fullName: ' Person ',
+      inviteCode: ' INVITE ',
+      theme: 'dark',
+      onboardingCompleted: false,
+      sessionVersion: 0,
+      createdAt: '2026-07-15T10:00:00.000Z',
+      updatedAt: '2026-07-15T11:00:00.000Z',
+    }, workspace, [recovery]);
+
+    expect(db.$transaction).toHaveBeenCalledOnce();
+    expect(db.$transaction).toHaveBeenCalledWith(expect.any(Function), { isolationLevel: 'Serializable' });
+    expect(tx.user.create).toHaveBeenCalledWith({ data: expect.objectContaining({
+      id: 'user-migrated-1', email: 'person@example.com', inviteCode: 'INVITE', fullName: 'Person',
+    }), select: expect.any(Object) });
+    expect(tx.userProfile.create).toHaveBeenCalled();
+    expect(tx.mvpWorkspaceRecovery.create).toHaveBeenCalledWith({ data: expect.objectContaining({
+      id: 'recovery-migrated-1', userId: 'user-migrated-1', payload: recovery.export,
+    }) });
+    expect(tx.user.create.mock.invocationCallOrder[0])
+      .toBeLessThan(tx.userProfile.create.mock.invocationCallOrder[0]);
+  });
+
+  it('rejects a divergent imported workspace inside the Serializable transaction', async () => {
+    const tx = transactionDouble();
+    tx.user.create.mockResolvedValue({
+      id: 'user-migrated-1', email: 'person@example.com', inviteCode: 'INVITE', fullName: 'Person',
+      createdAt: new Date('2026-07-15T10:00:00.000Z'), updatedAt: new Date('2026-07-15T11:00:00.000Z'),
+    });
+    const db = { $transaction: vi.fn((callback) => callback(tx)) };
+    const repository = new PrismaBackedMvpRepository(db as never);
+    const workspace = withComputedAnalytics({
+      ...createEmptyWorkspace(),
+      reflections: [{ id: 'reflection-missing', period: 'weekly', body: 'Must survive', createdAt: '2026-07-15T10:00:00.000Z' }],
+    });
+
+    await expect(repository.importMigratedUser({
+      id: 'user-migrated-1', email: 'person@example.com', passwordHash: 'not-migrated', fullName: 'Person',
+      inviteCode: 'INVITE', theme: 'dark', onboardingCompleted: false, sessionVersion: 0,
+      createdAt: '2026-07-15T10:00:00.000Z', updatedAt: '2026-07-15T11:00:00.000Z',
+    }, workspace, [])).rejects.toThrow('Migration import verification failed for user user-migrated-1');
+
+    expect(db.$transaction).toHaveBeenCalledOnce();
+    expect(db.$transaction).toHaveBeenCalledWith(expect.any(Function), { isolationLevel: 'Serializable' });
+  });
+
+  it('checks the complete migration fingerprint and deletes in one Serializable transaction', async () => {
+    const tx = transactionDouble();
+    tx.user.findUnique.mockResolvedValue({
+      id: 'user-migrated-1', email: 'person@example.com', inviteCode: 'INVITE', fullName: 'Person',
+      createdAt: new Date('2026-07-15T10:00:00.000Z'), updatedAt: new Date('2026-07-15T11:00:00.000Z'),
+    });
+    tx.mvpWorkspaceRecovery.findMany.mockResolvedValue([]);
+    const db = { $transaction: vi.fn((callback) => callback(tx)) };
+    const repository = new PrismaBackedMvpRepository(db as never);
+    const identityDigest = createHash('sha256').update(JSON.stringify({
+      id: 'user-migrated-1', email: 'person@example.com', inviteCode: 'INVITE', fullName: 'Person',
+      createdAt: '2026-07-15T10:00:00.000Z', updatedAt: '2026-07-15T11:00:00.000Z',
+    })).digest('hex');
+    const workspaceDigest = createHash('sha256')
+      .update(JSON.stringify(createWorkspaceExport(createEmptyWorkspace()).workspace))
+      .digest('hex');
+
+    await repository.deleteMigratedUsersIfUnchanged([{
+      userId: 'user-migrated-1',
+      fingerprint: { identityDigest, workspaceDigest, recoveries: [] },
+    }]);
+
+    expect(db.$transaction).toHaveBeenCalledOnce();
+    expect(db.$transaction).toHaveBeenCalledWith(expect.any(Function), { isolationLevel: 'Serializable' });
+    expect(tx.user.deleteMany).toHaveBeenCalledWith({ where: { id: { in: ['user-migrated-1'] } } });
   });
 
   it('does not start reset while an ordinary mutation for the same user is unsettled', async () => {
