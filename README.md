@@ -67,8 +67,9 @@ Default local endpoints:
 ## Verification
 
 - unit and integration tests: `npm run test`
-- authoritative Electron release smoke: `npm run test:e2e`
-- advisory browser placeholders only: `npm run test:e2e:advisory`
+- authoritative web browser journey: `npm run test:e2e`
+- advisory Electron smoke: `npm run test:e2e:electron-advisory`
+- advisory broad browser placeholders: `npm run test:e2e:advisory`
 - type check: `npm run typecheck`
 - lint: `npm run lint`
 
@@ -79,12 +80,14 @@ The release-verification ladder and the distinction between authoritative versus
 - Canonical package manager is `npm`.
 - The only accepted lockfile is `package-lock.json`.
 - CI must install dependencies with `npm ci` (frozen lockfile behavior).
-- Merge readiness is determined by the `quality-gate` check, which runs:
+- Merge readiness is determined by `web / static-and-unit` and `web / canonical-e2e`.
+- `web / static-and-unit` runs:
   - `npm run typecheck`
   - `npm run lint`
   - `npm run test`
   - `npm run build`
-  - an advisory Electron smoke assertion (non-blocking): `npm run test:e2e -- --grep "desktop smoke: Life OS main window"`
+- `web / canonical-e2e` runs the built SPA through Express with `npm run test:e2e`.
+- Electron smoke remains advisory and separate from merge readiness.
 
 ## License
 

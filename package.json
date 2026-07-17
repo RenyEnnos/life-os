@@ -54,7 +54,7 @@
     "test:watch": "vitest",
     "test:integration": "vitest run src/features/**/__tests__/*.int.test.tsx",
     "test:e2e": "playwright test -c playwright.release.config.ts",
-    "test:e2e:smoke": "playwright test -c playwright.release.config.ts",
+    "test:e2e:electron-advisory": "playwright test -c playwright.electron.config.ts",
     "test:e2e:advisory": "playwright test -c playwright.config.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev",

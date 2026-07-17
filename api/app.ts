@@ -114,7 +114,13 @@ export function createApp(
       credentials: true,
     })
   );
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: { upgradeInsecureRequests: null },
+      },
+    })
+  );
   app.use(cookieParser());
   app.use(express.json());
 

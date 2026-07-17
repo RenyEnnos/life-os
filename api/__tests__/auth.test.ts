@@ -20,6 +20,29 @@ describe('auth and invite access control', () => {
     await fs.rm(authFile, { force: true });
   });
 
+  it('uses the environment-selected auth file when no path is provided', async () => {
+    const previousPath = process.env.LIFEOS_AUTH_DATA_FILE;
+    process.env.LIFEOS_AUTH_DATA_FILE = authFile;
+
+    try {
+      const repository = new FileBackedAuthRepository(undefined, [
+        { email: 'env-partner@example.com', code: 'ENV-001' },
+      ]);
+
+      await repository.registerWithInvite({
+        email: 'env-partner@example.com',
+        passwordHash: 'synthetic-hash',
+        fullName: 'Environment Partner',
+        inviteCode: 'ENV-001',
+      });
+
+      await expect(fs.stat(authFile)).resolves.toBeDefined();
+    } finally {
+      if (previousPath === undefined) delete process.env.LIFEOS_AUTH_DATA_FILE;
+      else process.env.LIFEOS_AUTH_DATA_FILE = previousPath;
+    }
+  });
+
   it('blocks unauthenticated MVP access and only allows invited registration', async () => {
     const app = createApp(
       new FileBackedMvpRepository(mvpFile),
