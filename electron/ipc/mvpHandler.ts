@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-import { app, ipcMain } from 'electron';
+import { app } from 'electron';
 
 import type { StoredUser } from '../../api/authRepository';
 import { FileBackedMvpRepository } from '../../api/mvpRepository';
@@ -13,8 +13,9 @@ import type {
 } from '../../src/features/mvp/types';
 
 import { hydrateDesktopSession } from '../auth/desktopSession';
+import { handleTrusted } from './trustedHandler';
 
-function createDesktopMvpRepository() {
+export function createDesktopMvpRepository() {
   return new FileBackedMvpRepository(
     process.env.LIFEOS_DESKTOP_MVP_DATA_FILE || path.join(app.getPath('userData'), 'mvp-workspace.json'),
   );
@@ -66,43 +67,43 @@ export const setupMvpHandlers = (
   repository: MvpRepository = createDesktopMvpRepository(),
   resolveUser: ResolveDesktopUser = resolveDesktopUser,
 ) => {
-  ipcMain.handle('mvp:getWorkspace', async () =>
+  handleTrusted('mvp:getWorkspace', async () =>
     withDesktopWorkspace(repository, resolveUser, (repo, user) => repo.getWorkspace(user.id)),
   );
 
-  ipcMain.handle('mvp:saveOnboarding', async (_event, input: Omit<MvpOnboardingDraft, 'completedAt'>) =>
+  handleTrusted('mvp:saveOnboarding', async (_event, input: Omit<MvpOnboardingDraft, 'completedAt'>) =>
     withDesktopWorkspace(repository, resolveUser, (repo, user) => repo.saveOnboarding(user.id, input)),
   );
 
-  ipcMain.handle('mvp:generateWeeklyPlan', async (_event, input: Omit<MvpReviewDraft, 'generatedAt' | 'id'>) =>
+  handleTrusted('mvp:generateWeeklyPlan', async (_event, input: Omit<MvpReviewDraft, 'generatedAt' | 'id'>) =>
     withDesktopWorkspace(repository, resolveUser, (repo, user) => repo.generatePlan(user.id, input)),
   );
 
-  ipcMain.handle('mvp:confirmPlan', async (_event, planId: string) =>
+  handleTrusted('mvp:confirmPlan', async (_event, planId: string) =>
     withDesktopWorkspace(repository, resolveUser, (repo, user) => repo.confirmPlan(user.id, planId)),
   );
 
-  ipcMain.handle(
+  handleTrusted(
     'mvp:updateActionStatus',
     async (_event, actionItemId: string, patch: { status?: 'todo' | 'done' | 'deferred'; note?: string }) =>
       withDesktopWorkspace(repository, resolveUser, (repo, user) => repo.updateActionItem(user.id, actionItemId, patch)),
   );
 
-  ipcMain.handle('mvp:saveDailyCheckIn', async (_event, input: Omit<MvpDailyCheckIn, 'createdAt'>) =>
+  handleTrusted('mvp:saveDailyCheckIn', async (_event, input: Omit<MvpDailyCheckIn, 'createdAt'>) =>
     withDesktopWorkspace(repository, resolveUser, (repo, user) => repo.saveDailyCheckIn(user.id, input)),
   );
 
-  ipcMain.handle(
+  handleTrusted(
     'mvp:addReflection',
     async (_event, input: Pick<MvpReflectionEntry, 'period' | 'body'>) =>
       withDesktopWorkspace(repository, resolveUser, (repo, user) => repo.addReflection(user.id, input)),
   );
 
-  ipcMain.handle('mvp:submitFeedback', async (_event, input: { rating: number; message: string }) =>
+  handleTrusted('mvp:submitFeedback', async (_event, input: { rating: number; message: string }) =>
     withDesktopWorkspace(repository, resolveUser, (repo, user) => repo.submitFeedback(user.id, input)),
   );
 
-  ipcMain.handle('mvp:resetWorkspace', async () => {
+  handleTrusted('mvp:resetWorkspace', async () => {
     throw new Error('Desktop workspace reset is disabled until the #111 recovery contract is implemented.');
   });
 };

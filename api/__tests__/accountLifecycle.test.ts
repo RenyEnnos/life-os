@@ -52,7 +52,10 @@ describe('personal data lifecycle', () => {
 
   it('exports only the authenticated account without credentials or another user data', async () => {
     const { alpha } = await fixture();
-    const response = await alpha.post('/api/auth/data-export').set('Origin', origin).send({ password });
+    const response = await alpha.post('/api/auth/data-export').set('Origin', origin).send({
+      password,
+      desktopIdentityClaims: ['local-desktop-a', 'supabase-desktop-b'],
+    });
 
     expect(response.status).toBe(200);
     expect(response.body.data).toMatchObject({
@@ -62,6 +65,10 @@ describe('personal data lifecycle', () => {
     const serialized = JSON.stringify(response.body.data);
     expect(serialized).toContain('ALPHA PRIVATE REFLECTION');
     expect(response.body.data.recoveries).toHaveLength(1);
+    expect(response.body.data.identityMappingClaims).toEqual([
+      { sourceRuntime: 'electron', sourceUserId: 'local-desktop-a', targetWebUserId: response.body.data.account.id, verification: 'user-asserted' },
+      { sourceRuntime: 'electron', sourceUserId: 'supabase-desktop-b', targetWebUserId: response.body.data.account.id, verification: 'user-asserted' },
+    ]);
     expect(serialized).not.toContain('BETA PRIVATE REFLECTION');
     expect(serialized).not.toContain('BETA-PRIVATE');
     expect(serialized).not.toContain('passwordHash');

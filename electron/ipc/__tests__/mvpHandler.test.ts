@@ -24,10 +24,13 @@ vi.mock('electron', () => ({
 
 vi.mock('../../auth/desktopSession', () => ({
   hydrateDesktopSession: vi.fn(),
+  isLocalDesktopAuthAllowed: () => true,
 }));
 
 import { hydrateDesktopSession } from '../../auth/desktopSession';
 import { setupMvpHandlers } from '../mvpHandler';
+
+const trustedEvent = { senderFrame: { url: 'file:///app/dist/index.html' } };
 
 describe('setupMvpHandlers', () => {
   const tempFile = path.join(os.tmpdir(), `lifeos-mvp-ipc-${Date.now()}.json`);
@@ -44,6 +47,7 @@ describe('setupMvpHandlers', () => {
   };
 
   beforeEach(async () => {
+    process.env.DIST = '/app/dist';
     mockState.handlers.clear();
     vi.clearAllMocks();
     await fs.rm(tempFile, { force: true });
@@ -65,10 +69,10 @@ describe('setupMvpHandlers', () => {
     const addReflection = mockState.handlers.get('mvp:addReflection');
     const submitFeedback = mockState.handlers.get('mvp:submitFeedback');
 
-    const initialWorkspace = await getWorkspace?.({});
+    const initialWorkspace = await getWorkspace?.(trustedEvent);
     expect(initialWorkspace).toBeTruthy();
 
-    const onboarding = await saveOnboarding?.({}, {
+    const onboarding = await saveOnboarding?.(trustedEvent, {
       displayName: 'Pedro',
       role: 'Founding Engineer',
       lifeSeason: 'Shipping MVP',
@@ -81,7 +85,7 @@ describe('setupMvpHandlers', () => {
 
     expect((onboarding as { onboarding: { completedAt: string | null } }).onboarding.completedAt).toBeTruthy();
 
-    const generated = await generateWeeklyPlan?.({}, {
+    const generated = await generateWeeklyPlan?.(trustedEvent, {
       wins: ['Desktop auth works'],
       unfinishedWork: ['Replace legacy fallback'],
       constraints: ['Protect focus'],
@@ -98,16 +102,16 @@ describe('setupMvpHandlers', () => {
 
     expect(planId).toBeTruthy();
 
-    const confirmed = await confirmPlan?.({}, planId);
+    const confirmed = await confirmPlan?.(trustedEvent, planId);
     expect((confirmed as { plan: { confirmedAt: string | null } }).plan.confirmedAt).toBeTruthy();
 
-    const updatedAction = await updateActionStatus?.({}, actionId, {
+    const updatedAction = await updateActionStatus?.(trustedEvent, actionId, {
       status: 'done',
       note: 'Completed in the Electron transport test.',
     });
     expect((updatedAction as { analytics: { completedActions: number } }).analytics.completedActions).toBe(1);
 
-    const checkedIn = await saveDailyCheckIn?.({}, {
+    const checkedIn = await saveDailyCheckIn?.(trustedEvent, {
       date: '2026-03-20',
       energy: 4,
       focus: 4,
@@ -116,13 +120,13 @@ describe('setupMvpHandlers', () => {
     });
     expect((checkedIn as { analytics: { dailyCheckIns: number } }).analytics.dailyCheckIns).toBe(1);
 
-    const reflected = await addReflection?.({}, {
+    const reflected = await addReflection?.(trustedEvent, {
       period: 'daily',
       body: 'Explicit transport removed ambiguity.',
     });
     expect((reflected as { reflections: unknown[] }).reflections).toHaveLength(1);
 
-    const feedback = await submitFeedback?.({}, {
+    const feedback = await submitFeedback?.(trustedEvent, {
       rating: 5,
       message: 'Desktop MVP path feels trustworthy now.',
     });
@@ -148,8 +152,8 @@ describe('setupMvpHandlers', () => {
     const getWorkspace = mockState.handlers.get('mvp:getWorkspace');
     const saveOnboarding = mockState.handlers.get('mvp:saveOnboarding');
 
-    await getWorkspace?.({});
-    await saveOnboarding?.({}, {
+    await getWorkspace?.(trustedEvent);
+    await saveOnboarding?.(trustedEvent, {
       displayName: 'Recovered',
       role: 'QA',
       lifeSeason: 'Stability',
@@ -170,8 +174,16 @@ describe('setupMvpHandlers', () => {
   it('confines destructive desktop reset to the recovery work tracked in #111', async () => {
     const resetWorkspace = mockState.handlers.get('mvp:resetWorkspace');
 
-    await expect(resetWorkspace?.({})).rejects.toThrow(
+    await expect(resetWorkspace?.(trustedEvent)).rejects.toThrow(
       'Desktop workspace reset is disabled until the #111 recovery contract is implemented.',
+    );
+  });
+
+  it('rejects MVP access from an unexpected renderer', async () => {
+    const getWorkspace = mockState.handlers.get('mvp:getWorkspace');
+
+    await expect(getWorkspace?.({ senderFrame: { url: 'https://attacker.example/' } })).rejects.toThrow(
+      'Untrusted Electron IPC sender',
     );
   });
 });

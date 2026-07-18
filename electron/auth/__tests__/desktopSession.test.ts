@@ -89,6 +89,7 @@ const createSession = (userId = 'local-user'): Session => ({
 describe('desktopSession', () => {
   beforeEach(() => {
     storedSessionRow = null;
+    process.env.LIFEOS_OPERATING_MODE = 'local-dev';
   });
 
   it('restores a persisted desktop session without a Supabase client', async () => {
@@ -125,5 +126,24 @@ describe('desktopSession', () => {
     });
     expect(result.client).toBe(client);
     expect(result.session?.user.id).toBe('cloud-user');
+  });
+
+  it('refuses plaintext token persistence outside local-dev', () => {
+    persistDesktopSession(createSession('existing-user'));
+    process.env.LIFEOS_OPERATING_MODE = 'controlled-demo';
+
+    expect(() => persistDesktopSession(createSession())).toThrow(
+      'Encrypted desktop auth storage is required outside local-dev',
+    );
+    expect(storedSessionRow?.user_id).toBe('existing-user');
+  });
+
+  it('refuses local session restoration outside local-dev', async () => {
+    persistDesktopSession(createSession());
+    process.env.LIFEOS_OPERATING_MODE = 'controlled-demo';
+
+    await expect(hydrateDesktopSession(null)).rejects.toThrow(
+      'Local desktop authentication is restricted to local-dev',
+    );
   });
 });

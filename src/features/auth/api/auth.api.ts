@@ -30,6 +30,12 @@ export interface PersonalDataExport {
   exportedAt: string;
   account: Record<string, unknown> & { id: string };
   workspace: unknown;
+  identityMappingClaims: Array<{
+    sourceRuntime: 'electron';
+    sourceUserId: string;
+    targetWebUserId: string;
+    verification: 'user-asserted';
+  }>;
 }
 
 const buildProfileFromUser = (user: User): UserProfile => ({
@@ -141,9 +147,9 @@ export const authApi = {
     await apiClient.post(`${AUTH_API_BASE}/logout`, {});
   },
 
-  exportPersonalData: async (password: string) => {
+  exportPersonalData: async (password: string, desktopIdentityClaims: string[] = []) => {
     const response = await apiClient.post<{ success: true; data: PersonalDataExport }>(
-      `${AUTH_API_BASE}/data-export`, { password },
+      `${AUTH_API_BASE}/data-export`, { password, desktopIdentityClaims },
     );
     return response.data;
   },

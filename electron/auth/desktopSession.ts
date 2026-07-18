@@ -24,9 +24,13 @@ interface LocalDesktopSessionOptions {
 }
 
 const ENCRYPTED_TOKEN_PREFIX = 'enc:';
+export const isLocalDesktopAuthAllowed = () => process.env.LIFEOS_OPERATING_MODE === 'local-dev';
 
 const encodeToken = (value: string): string => {
   if (!safeStorage.isEncryptionAvailable()) {
+    if (!isLocalDesktopAuthAllowed()) {
+      throw new Error('Encrypted desktop auth storage is required outside local-dev');
+    }
     return value;
   }
 
@@ -36,6 +40,9 @@ const encodeToken = (value: string): string => {
 
 const decodeToken = (value: string): string => {
   if (!value.startsWith(ENCRYPTED_TOKEN_PREFIX)) {
+    if (!isLocalDesktopAuthAllowed()) {
+      throw new Error('Plaintext desktop auth storage is restricted to local-dev');
+    }
     return value;
   }
 
@@ -94,7 +101,11 @@ export const createLocalDesktopSession = ({
   expiresAt = Math.floor(Date.now() / 1000) + 3600,
   email,
   fullName,
-}: LocalDesktopSessionOptions): Session => ({
+}: LocalDesktopSessionOptions): Session => {
+  if (!isLocalDesktopAuthAllowed()) {
+    throw new Error('Local desktop authentication is restricted to local-dev');
+  }
+  return ({
   access_token: accessToken,
   refresh_token: refreshToken,
   token_type: 'bearer',
@@ -113,7 +124,8 @@ export const createLocalDesktopSession = ({
     },
     created_at: new Date(0).toISOString(),
   },
-});
+  });
+};
 
 const restoreLocalDesktopSession = (storedSession: AuthSessionRow): Session =>
   createLocalDesktopSession({
@@ -135,13 +147,16 @@ export const persistDesktopSession = (session: Session, fallback: AuthSessionRow
     throw new Error('Unable to persist desktop auth session without required tokens');
   }
 
+  const encodedAccessToken = encodeToken(accessToken);
+  const encodedRefreshToken = encodeToken(refreshToken);
+
   db.prepare('DELETE FROM auth_session').run();
   db.prepare(
     `
       INSERT INTO auth_session (id, access_token, refresh_token, user_id, expires_at)
       VALUES (?, ?, ?, ?, ?)
     `
-  ).run(userId, encodeToken(accessToken), encodeToken(refreshToken), userId, expiresAt);
+  ).run(userId, encodedAccessToken, encodedRefreshToken, userId, expiresAt);
 };
 
 export const clearDesktopSession = () => {
@@ -155,6 +170,9 @@ export const hydrateDesktopSession = async (
   const storedSession = getStoredSession();
 
   if (!client) {
+    if (storedSession && !isLocalDesktopAuthAllowed()) {
+      throw new Error('Local desktop authentication is restricted to local-dev');
+    }
     return {
       client: null,
       session: storedSession ? restoreLocalDesktopSession(storedSession) : null,

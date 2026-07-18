@@ -10,19 +10,26 @@ export default function DataLifecycleTab() {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
+  const [desktopSourceIds, setDesktopSourceIds] = useState('');
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  const desktopExportAvailable = typeof window.api?.dataLifecycle?.exportDesktop === 'function';
 
   const exportData = async () => {
     if (!user) return;
     setBusy(true);
     setMessage('');
     try {
-      const data = await withClientData(await authApi.exportPersonalData(password), user.id);
+      const data = desktopExportAvailable
+        ? await window.api.dataLifecycle.exportDesktop()
+        : await withClientData(await authApi.exportPersonalData(
+          password,
+          desktopSourceIds.split(',').map((value) => value.trim()).filter(Boolean),
+        ), user.id);
       const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
       const link = document.createElement('a');
       link.href = url;
-      link.download = `lifeos-account-${new Date().toISOString().slice(0, 10)}.json`;
+      link.download = `lifeos-${desktopExportAvailable ? 'desktop' : 'account'}-${new Date().toISOString().slice(0, 10)}.json`;
       link.click();
       URL.revokeObjectURL(url);
       setMessage('Export created on this device.');
@@ -62,9 +69,15 @@ export default function DataLifecycleTab() {
         Current password
         <input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-3 text-white" />
       </label>
-      <button type="button" disabled={busy || !password} onClick={exportData} className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black disabled:opacity-50">
+      <button type="button" disabled={busy || (!password && !desktopExportAvailable)} onClick={exportData} className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black disabled:opacity-50">
         Download my data
       </button>
+      {!desktopExportAvailable && (
+        <label className="block text-sm text-zinc-300">
+          Claimed Electron source user IDs (optional, unverified, comma-separated)
+          <input value={desktopSourceIds} onChange={(event) => setDesktopSourceIds(event.target.value)} className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-3 text-white" />
+        </label>
+      )}
       <div className="rounded-xl border border-red-500/30 p-4">
         <p className="text-sm text-zinc-300">Deletion removes your account, workspace and retained recovery snapshots. Type DELETE MY ACCOUNT to confirm.</p>
         <label className="mt-4 block text-sm text-zinc-300">

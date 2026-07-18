@@ -73,7 +73,7 @@ Therefore:
 
 ### Electron identity
 
-Electron is experimental under ADR-0001. When Supabase is configured it uses Supabase sessions; otherwise its login/register handlers accept local credentials and create deterministic local identities and bearer-like tokens. Tokens are stored in SQLite and encrypted with Electron `safeStorage` when available, but stored without that encryption when it is unavailable. Smoke-test identities are test fixtures only. None of these identities may be promoted into web beta accounts by copying tokens; migration requires explicit identity mapping and reauthentication.
+Electron is experimental under ADR-0001. When Supabase is configured it uses Supabase sessions; local credentials and plaintext token persistence are confined to explicit `local-dev`. Shared or production-like modes fail closed when configuration or Electron `safeStorage` encryption is unavailable. Auth and MVP IPC accept only the exact packaged renderer or configured local-dev origin; external navigation is blocked and auth payloads are validated. Smoke identities require both `local-dev` and the explicit Playwright test flag. Desktop export excludes tokens and ownerless content; the password-reauthenticated web export records desktop IDs only as unverified user assertions, never as an inferred or proved identity mapping.
 
 ## Fallback classification
 

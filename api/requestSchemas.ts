@@ -98,6 +98,9 @@ export const workspaceRecoveryRequestSchema = z.object({
 
 export const personalDataExportRequestSchema = z.object({
   password: bcryptPassword(1),
+  desktopIdentityClaims: z.array(
+    z.string().trim().min(1).max(128).regex(/^[a-zA-Z0-9_-]+$/),
+  ).max(20).default([]),
 }).strict();
 
 export const accountDeletionRequestSchema = z.object({

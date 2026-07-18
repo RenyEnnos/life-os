@@ -3,6 +3,8 @@ import { setupMvpHandlers } from './ipc/mvpHandler'
 import { setupAuthHandlers } from './ipc/authHandler'
 import { setupTasksHandlers } from './ipc/tasksHandler'
 import { setupResourceHandlers } from './ipc/resourceHandler'
+import { setupDataLifecycleHandlers } from './ipc/dataLifecycleHandler'
+import { isTrustedRendererUrl } from './ipc/trustedHandler'
 import { initDb } from './db/database'
 import { startSyncEngine } from './sync/engine'
 import { app, BrowserWindow, shell, ipcMain, Notification, Tray, Menu, globalShortcut } from 'electron'
@@ -169,6 +171,9 @@ function createWindow() {
     }
     return { action: 'deny' }
   })
+  win.webContents.on('will-navigate', (event, url) => {
+    if (!isTrustedRendererUrl(url)) event.preventDefault()
+  })
 
   win.on('closed', () => {
     win = null
@@ -283,6 +288,7 @@ if (!gotTheLock && !isPlaywrightTest) {
     setupLegacyHandlers();
     setupMvpHandlers();
     setupAuthHandlers();
+    setupDataLifecycleHandlers();
     setupTasksHandlers();
     setupResourceHandlers();
     startSyncEngine();

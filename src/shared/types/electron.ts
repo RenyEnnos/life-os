@@ -71,6 +71,7 @@ export interface MvpBridge {
 }
 
 export interface BridgeAPI {
+  dataLifecycle: { exportDesktop(): Promise<unknown> };
   tasks: TasksBridge;
   mvp: MvpBridge;
   // Generic resource bridge, returns a typed result
