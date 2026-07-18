@@ -7,6 +7,7 @@ const mockState = vi.hoisted(() => ({
   clearDesktopSession: vi.fn(),
   createDesktopSupabaseClient: vi.fn(),
   hydrateDesktopSession: vi.fn(),
+  isLocalDesktopAuthAllowed: vi.fn(() => process.env.LIFEOS_OPERATING_MODE === 'local-dev'),
   persistDesktopSession: vi.fn(),
 }));
 
@@ -22,6 +23,7 @@ vi.mock('../../auth/desktopSession', () => ({
   clearDesktopSession: mockState.clearDesktopSession,
   createDesktopSupabaseClient: mockState.createDesktopSupabaseClient,
   hydrateDesktopSession: mockState.hydrateDesktopSession,
+  isLocalDesktopAuthAllowed: mockState.isLocalDesktopAuthAllowed,
   persistDesktopSession: mockState.persistDesktopSession,
   createLocalDesktopSession: ({ userId, email, fullName }: { userId: string; email?: string; fullName?: string }) =>
     ({
@@ -58,8 +60,12 @@ const createSession = (userId = 'local-user'): Session => ({
   } as User,
 });
 
+const trustedEvent = { senderFrame: { url: 'file:///app/dist/index.html' } };
+
 describe('setupAuthHandlers', () => {
   beforeEach(() => {
+    process.env.DIST = '/app/dist';
+    process.env.LIFEOS_OPERATING_MODE = 'local-dev';
     mockState.registeredHandlers.clear();
     vi.clearAllMocks();
     setupAuthHandlers();
@@ -69,7 +75,7 @@ describe('setupAuthHandlers', () => {
     mockState.createDesktopSupabaseClient.mockReturnValue(null);
 
     const loginHandler = mockState.registeredHandlers.get('auth:login');
-    const result = (await loginHandler?.({}, {
+    const result = (await loginHandler?.(trustedEvent, {
       email: 'local@example.com',
       password: 'Password123!',
     })) as {
@@ -94,7 +100,7 @@ describe('setupAuthHandlers', () => {
     mockState.createDesktopSupabaseClient.mockReturnValue(null);
 
     const registerHandler = mockState.registeredHandlers.get('auth:register');
-    const result = (await registerHandler?.({}, {
+    const result = (await registerHandler?.(trustedEvent, {
       email: 'local@example.com',
       password: 'Password123!',
       name: 'Local User',
@@ -123,7 +129,7 @@ describe('setupAuthHandlers', () => {
     });
 
     const authCheckHandler = mockState.registeredHandlers.get('auth:check');
-    const result = (await authCheckHandler?.({})) as {
+    const result = (await authCheckHandler?.(trustedEvent)) as {
       session: Session | null;
       profile: { id: string } | null;
     };
@@ -161,7 +167,7 @@ describe('setupAuthHandlers', () => {
     mockState.createDesktopSupabaseClient.mockReturnValue(client);
 
     const loginHandler = mockState.registeredHandlers.get('auth:login');
-    const result = (await loginHandler?.({}, {
+    const result = (await loginHandler?.(trustedEvent, {
       email: 'cloud@example.com',
       password: 'Password123!',
     })) as {
@@ -176,5 +182,44 @@ describe('setupAuthHandlers', () => {
     });
     expect(result.user?.id).toBe('cloud-user');
     expect(result.profile?.id).toBe('cloud-user');
+  });
+
+  it('fails closed when Supabase is unavailable outside local-dev', async () => {
+    process.env.LIFEOS_OPERATING_MODE = 'controlled-demo';
+    mockState.createDesktopSupabaseClient.mockReturnValue(null);
+
+    const loginHandler = mockState.registeredHandlers.get('auth:login');
+    await expect(loginHandler?.(trustedEvent, {
+      email: 'shared@example.com',
+      password: 'Password123!',
+    })).rejects.toThrow('Desktop authentication requires Supabase outside local-dev');
+    expect(mockState.persistDesktopSession).not.toHaveBeenCalled();
+  });
+
+  it('rejects malformed credentials before auth or persistence', async () => {
+    const loginHandler = mockState.registeredHandlers.get('auth:login');
+
+    await expect(loginHandler?.(trustedEvent, {
+      email: 'not-an-email', password: 'short', extra: true,
+    })).rejects.toThrow();
+    expect(mockState.createDesktopSupabaseClient).not.toHaveBeenCalled();
+    expect(mockState.persistDesktopSession).not.toHaveBeenCalled();
+  });
+
+  it('rejects auth IPC from an unexpected renderer origin', async () => {
+    const loginHandler = mockState.registeredHandlers.get('auth:login');
+
+    await expect(loginHandler?.({ senderFrame: { url: 'https://attacker.example/' } }, {
+      email: 'user@example.com', password: 'Password123!',
+    })).rejects.toThrow('Untrusted Electron IPC sender');
+    expect(mockState.createDesktopSupabaseClient).not.toHaveBeenCalled();
+  });
+
+  it('rejects a lookalike packaged file path', async () => {
+    const loginHandler = mockState.registeredHandlers.get('auth:login');
+
+    await expect(loginHandler?.({ senderFrame: { url: 'file:///tmp/attacker/dist/index.html' } }, {
+      email: 'user@example.com', password: 'Password123!',
+    })).rejects.toThrow('Untrusted Electron IPC sender');
   });
 });

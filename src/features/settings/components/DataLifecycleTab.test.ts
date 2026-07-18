@@ -26,7 +26,7 @@ it('exports and clears only known private client state', async () => {
   localStorage.setItem('unrelated-host-key', 'keep');
   const serverExport = {
     format: 'lifeos.account.export' as const, version: 1 as const, exportedAt: '2026-07-18T00:00:00.000Z',
-    account: { id: 'user-1' }, workspace: {},
+    account: { id: 'user-1' }, workspace: {}, identityMappingClaims: [],
   };
 
   expect((await withClientData(serverExport, 'user-1')).client.localStorage).toMatchObject({
@@ -46,7 +46,7 @@ it('does not export a previous user global browser state after account switching
   await preparePrivateClientDataForUser('user-b');
   const serverExport = {
     format: 'lifeos.account.export' as const, version: 1 as const, exportedAt: '2026-07-18T00:00:00.000Z',
-    account: { id: 'user-b' }, workspace: {},
+    account: { id: 'user-b' }, workspace: {}, identityMappingClaims: [],
   };
 
   expect(JSON.stringify(await withClientData(serverExport, 'user-b'))).not.toContain('User A');
@@ -60,7 +60,7 @@ it('leaves new account data unowned when account-transition cleanup is incomplet
   await preparePrivateClientDataForUser('user-b');
   const serverExport = {
     format: 'lifeos.account.export' as const, version: 1 as const, exportedAt: '2026-07-18T00:00:00.000Z',
-    account: { id: 'user-b' }, workspace: {},
+    account: { id: 'user-b' }, workspace: {}, identityMappingClaims: [],
   };
 
   expect((await withClientData(serverExport, 'user-b')).client).toEqual({ localStorage: {}, syncLogs: null });

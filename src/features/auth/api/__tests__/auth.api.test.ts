@@ -221,12 +221,14 @@ describe('authApi', () => {
         it('unwraps the portable export from the API response envelope', async () => {
             const portable = {
                 format: 'lifeos.account.export', version: 1, exportedAt: '2026-07-18T00:00:00.000Z',
-                account: { id: 'user-1' }, workspace: {}, recoveries: [],
+                account: { id: 'user-1' }, workspace: {}, recoveries: [], identityMappingClaims: [],
             };
             (apiClient.post as any).mockResolvedValue({ success: true, data: portable });
 
             await expect(authApi.exportPersonalData('Password123!')).resolves.toEqual(portable);
-            expect(apiClient.post).toHaveBeenCalledWith('/api/auth/data-export', { password: 'Password123!' });
+            expect(apiClient.post).toHaveBeenCalledWith('/api/auth/data-export', {
+                password: 'Password123!', desktopIdentityClaims: [],
+            });
         });
     });
 

@@ -1,20 +1,28 @@
-import { ipcMain } from 'electron';
 import { type Session, type User } from '@supabase/supabase-js';
 import { createHash } from 'node:crypto';
+import { z } from 'zod';
 import { getDb } from '../db/database';
 import {
   clearDesktopSession,
   createLocalDesktopSession,
   createDesktopSupabaseClient,
   hydrateDesktopSession,
+  isLocalDesktopAuthAllowed,
   persistDesktopSession,
 } from '../auth/desktopSession';
+import { handleTrusted } from './trustedHandler';
 
 interface AuthCredentials {
   email: string;
   password: string;
   name?: string;
 }
+
+const credentialsSchema = z.object({
+  email: z.string().trim().email().max(254),
+  password: z.string().min(8).max(128),
+  name: z.string().trim().min(1).max(120).optional(),
+}).strict();
 
 const PLAYWRIGHT_SMOKE_EMAIL = process.env.PLAYWRIGHT_SMOKE_EMAIL || '';
 const PLAYWRIGHT_SMOKE_PASSWORD = process.env.PLAYWRIGHT_SMOKE_PASSWORD || '';
@@ -160,12 +168,12 @@ function createSmokeAuthResult(): ReturnType<typeof toAuthResult> {
 }
 
 export const setupAuthHandlers = () => {
-  ipcMain.handle('auth:check', async () => {
+  handleTrusted('auth:check', async () => {
     try {
       const { client, session } = await hydrateDesktopSession();
 
       if (!session) {
-        if (process.env.NODE_ENV !== 'production' && process.env.PLAYWRIGHT_TEST === '1') {
+        if (isLocalDesktopAuthAllowed() && process.env.PLAYWRIGHT_TEST === '1') {
           const smoke = getStoredAuthSessionForSmoke();
           if (smoke) {
             return smoke;
@@ -180,7 +188,7 @@ export const setupAuthHandlers = () => {
       return { session, profile };
     } catch (err) {
       console.error('Failed to check auth', err);
-      if (process.env.NODE_ENV !== 'production' && process.env.PLAYWRIGHT_TEST === '1') {
+      if (isLocalDesktopAuthAllowed() && process.env.PLAYWRIGHT_TEST === '1') {
         const smoke = getStoredAuthSessionForSmoke();
         if (smoke) {
           return smoke;
@@ -191,10 +199,11 @@ export const setupAuthHandlers = () => {
     }
   });
 
-  ipcMain.handle('auth:login', async (_event, credentials: AuthCredentials) => {
+  handleTrusted('auth:login', async (_event, rawCredentials) => {
+    const credentials = credentialsSchema.parse(rawCredentials) as AuthCredentials;
     try {
       if (
-        process.env.NODE_ENV !== 'production' &&
+        isLocalDesktopAuthAllowed() &&
         process.env.PLAYWRIGHT_TEST === '1' &&
         credentials.email === PLAYWRIGHT_SMOKE_EMAIL &&
         credentials.password === PLAYWRIGHT_SMOKE_PASSWORD
@@ -204,6 +213,9 @@ export const setupAuthHandlers = () => {
 
       const client = createDesktopSupabaseClient();
       if (!client) {
+        if (!isLocalDesktopAuthAllowed()) {
+          throw new Error('Desktop authentication requires Supabase outside local-dev');
+        }
         return createLocalDesktopAuthResult(credentials);
       }
       const { data, error } = await client.auth.signInWithPassword({
@@ -229,10 +241,14 @@ export const setupAuthHandlers = () => {
     }
   });
 
-  ipcMain.handle('auth:register', async (_event, credentials: AuthCredentials) => {
+  handleTrusted('auth:register', async (_event, rawCredentials) => {
+    const credentials = credentialsSchema.parse(rawCredentials) as AuthCredentials;
     try {
       const client = createDesktopSupabaseClient();
       if (!client) {
+        if (!isLocalDesktopAuthAllowed()) {
+          throw new Error('Desktop authentication requires Supabase outside local-dev');
+        }
         return createLocalDesktopAuthResult(credentials);
       }
       const { data, error } = await client.auth.signUp({
@@ -264,7 +280,7 @@ export const setupAuthHandlers = () => {
     }
   });
 
-  ipcMain.handle('auth:logout', async () => {
+  handleTrusted('auth:logout', async () => {
     try {
       const { client, session } = await hydrateDesktopSession();
       if (session && client) {
@@ -283,7 +299,9 @@ export const setupAuthHandlers = () => {
     }
   });
 
-  ipcMain.handle('auth:reset-password', async (_event, email: string, redirectTo?: string) => {
+  handleTrusted('auth:reset-password', async (_event, rawEmail, rawRedirectTo) => {
+    const email = z.string().trim().email().max(254).parse(rawEmail);
+    const redirectTo = z.string().url().max(2048).optional().parse(rawRedirectTo);
     const client = createDesktopSupabaseClient();
     if (!client) {
       throw new Error('Desktop authentication is disabled: Supabase config is not set.');
@@ -299,7 +317,8 @@ export const setupAuthHandlers = () => {
     return true;
   });
 
-  ipcMain.handle('auth:update-password', async (_event, password: string) => {
+  handleTrusted('auth:update-password', async (_event, rawPassword) => {
+    const password = z.string().min(8).max(128).parse(rawPassword);
     const { client } = await hydrateDesktopSession();
     if (!client) {
       throw new Error('Desktop authentication is disabled: Supabase config is not set.');
@@ -327,7 +346,8 @@ export const setupAuthHandlers = () => {
     return toAuthResult(session ?? null, data.user ?? null, profile);
   });
 
-  ipcMain.handle('auth:get-profile', async (_event, userId: string) => {
+  handleTrusted('auth:get-profile', async (_event, rawUserId) => {
+    const userId = z.string().trim().min(1).max(128).regex(/^[a-zA-Z0-9_-]+$/).parse(rawUserId);
     const { client } = await hydrateDesktopSession();
     if (!client) {
       return null;

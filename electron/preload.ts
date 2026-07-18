@@ -15,6 +15,9 @@ contextBridge.exposeInMainWorld('electron', {
 })
 
 contextBridge.exposeInMainWorld('api', {
+  dataLifecycle: {
+    exportDesktop: () => ipcRenderer.invoke('data:export-desktop')
+  },
   auth: {
     check: () => ipcRenderer.invoke('auth:check'),
     login: (credentials: AuthCredentials) => ipcRenderer.invoke('auth:login', credentials),

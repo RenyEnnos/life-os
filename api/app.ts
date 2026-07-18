@@ -384,6 +384,12 @@ export function createApp(
         },
         workspace,
         recoveries,
+        identityMappingClaims: (input.desktopIdentityClaims ?? []).map((sourceUserId) => ({
+          sourceRuntime: 'electron' as const,
+          sourceUserId,
+          targetWebUserId: user.id,
+          verification: 'user-asserted' as const,
+        })),
       });
     } catch (error) {
       return next(error);
