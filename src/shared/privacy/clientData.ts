@@ -4,6 +4,7 @@ import type { PersonalDataExport } from '@/features/auth/api/auth.api';
 import { clearAuthToken } from '@/shared/api/authToken';
 import { queryClient, persister } from '@/shared/lib/react-query';
 import { useAuthStore } from '@/shared/stores/authStore';
+import { sanitizePersistedSyncLogs } from '@/shared/privacy/syncLogPrivacy';
 
 const OWNER_KEY = 'lifeos-private-owner';
 const privateKeys = (userId: string) => [
@@ -52,11 +53,12 @@ export async function preparePrivateClientDataForUser(userId: string) {
 
 export async function withClientData(serverExport: PersonalDataExport, userId: string) {
   const owned = localStorage.getItem(OWNER_KEY) === userId;
+  const syncLogs = owned ? sanitizePersistedSyncLogs(await get('sync-logs-storage')) : null;
   return {
     ...serverExport,
     client: owned ? {
       localStorage: Object.fromEntries(privateKeys(userId).map((key) => [key, localStorage.getItem(key)])),
-      syncLogs: await get('sync-logs-storage') ?? null,
+      syncLogs,
     } : { localStorage: {}, syncLogs: null },
   };
 }

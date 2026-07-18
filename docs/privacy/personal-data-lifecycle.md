@@ -27,7 +27,7 @@ This is the enforceable lifecycle for the canonical web MVP. Experimental Electr
 | MVP event names/timestamps and computed counts | product behavior and in-product summaries | selected MVP repository | account lifetime | workspace JSON envelope | removed |
 | Up to five workspace recovery envelopes | recovery after explicit workspace reset | selected MVP repository | until replaced by the five-record cap or account deletion | included in account export | removed |
 | Theme, language, accessibility, onboarding, focus, sanctuary, dynamic-now and user preferences | device experience | browser local storage, guarded by the current account owner marker | until account transition, local clear or account deletion from Settings | added only when the owner marker matches the authenticated account | known LifeOS keys and owner marker are removed |
-| Local sync diagnostics | legacy synchronization status; entries may contain free-text messages or raw error details | browser IndexedDB, capped at 100 entries | until local clear or account deletion | added to downloaded JSON by the browser; inspect before sharing | removed by the Settings deletion flow |
+| Local sync diagnostics | allowlisted synchronization outcome only | browser IndexedDB, capped at 100 entries | until local clear or account deletion | sanitized to id, timestamp, type and a fixed message; legacy arbitrary fields are discarded | removed by the Settings deletion flow |
 | Auth/session state and query cache | offline continuity | browser IndexedDB and local storage | until logout/cache expiry or account deletion | never portable because it can contain credentials/duplicates | removed by the Settings deletion flow |
 
 Derived analytics in the workspace are recomputed from exported records. They are not an independent processor or retention store.
@@ -52,7 +52,7 @@ Run restore drills only in a disposable isolated database, verify user scoping a
 ## Logs and processors
 
 - The canonical Express request-error middleware emits only `MVP API request failed`; request bodies and exception objects are not logged there.
-- The canonical browser error boundary retains only allowlisted name/code and fixed component/action labels. The legacy local sync-log store is a known exception: it may persist/export free-text messages and raw error details, so #138 owns sanitization and exports must be inspected before sharing.
+- The canonical browser error boundary retains only allowlisted name/code and fixed component/action labels. Sync diagnostics store only a fixed message per allowlisted outcome; account export re-sanitizes legacy entries and discards arbitrary fields.
 - Authentication UI does not log email, user agent, credentials or raw errors.
 - Host logs, if retained, expire within 7 days and are accessible only to the maintainer.
 

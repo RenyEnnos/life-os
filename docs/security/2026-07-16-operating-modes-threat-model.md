@@ -155,7 +155,7 @@ Partner-beta requires:
 
 ## Observability and privacy
 
-Logs must not contain passwords, invite codes, session/bearer tokens, raw request bodies, reflection text or third-party secret values. Canonical browser and Express error boundaries emit only stable allowlisted labels or a fixed failure message. The legacy device-local sync-log store is a documented exception that may persist/export free-text or raw error details; #138 must sanitize it before partner-beta. External telemetry SDK initialization and transports are absent from supported MVP builds.
+Logs must not contain passwords, invite codes, session/bearer tokens, raw request bodies, reflection text or third-party secret values. Canonical browser and Express error boundaries emit only stable allowlisted labels or a fixed failure message. Device-local sync diagnostics now persist fixed outcome messages only, and export re-sanitizes legacy entries before inclusion. External telemetry SDK initialization and transports are absent from supported MVP builds.
 
 Sentry, analytics, source maps and vendor UI are disabled for supported shared modes until their exact payload, legal basis/consent where applicable, retention, access owner and deletion process are documented. Source maps may be uploaded privately to an error service after review; they should not be publicly served by default.
 
@@ -169,7 +169,7 @@ Issues #106-#111 delivered and validated the repository controls below. Their co
 | #107 | server-side exact-email read-only admin authorization | managed role lifecycle before beta |
 | #108 | schemas, limits, session/Origin controls and recoverable reset | deployed abuse/edge evidence |
 | #109 | atomic file stores plus tested file-to-Prisma migration/rollback | multi-process topology and live restore drill |
-| #110 | web export, deletion, retention and processor contract | operational request/incident handling; #138 legacy sync-log sanitization |
+| #110/#138 | web export, deletion, retention, processor contract and sync-log sanitization | operational request/incident handling |
 | #111 | Electron token confinement and token-free preservation export | no supported import/reset; runtime remains experimental |
 
 The lazier safe path is to keep beta unsupported and collect the controlled-demo deployment evidence only when a real demonstration is scheduled.

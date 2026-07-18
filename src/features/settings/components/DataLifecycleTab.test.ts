@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { beforeEach, expect, it, vi } from 'vitest';
-import { del } from 'idb-keyval';
+import { del, get } from 'idb-keyval';
 
 import { clearPrivateClientData, preparePrivateClientDataForUser, withClientData } from '@/shared/privacy/clientData';
 import { persister } from '@/shared/lib/react-query';
@@ -51,6 +51,27 @@ it('does not export a previous user global browser state after account switching
 
   expect(JSON.stringify(await withClientData(serverExport, 'user-b'))).not.toContain('User A');
   expect(localStorage.getItem('user_preferences:user-a')).toBeNull();
+});
+
+it('sanitizes legacy sync diagnostics before adding them to an account export', async () => {
+  await preparePrivateClientDataForUser('user-1');
+  vi.mocked(get).mockResolvedValueOnce({ state: { logs: [{
+    id: 'legacy-id', timestamp: 123, type: 'error',
+    message: 'private user content at https://private.example/path',
+    details: { stack: 'secret stack', token: 'private-token' },
+    table: 'tasks/user@example.test', method: 'GET /private/path',
+  }] }, version: 0 });
+  const serverExport = {
+    format: 'lifeos.account.export' as const, version: 1 as const, exportedAt: '2026-07-18T00:00:00.000Z',
+    account: { id: 'user-1' }, workspace: {}, identityMappingClaims: [],
+  };
+
+  const exported = await withClientData(serverExport, 'user-1');
+
+  expect(exported.client.syncLogs).toEqual({ logs: [{
+    id: 'legacy-id', timestamp: 123, type: 'error', message: 'Synchronization failed',
+  }] });
+  expect(JSON.stringify(exported)).not.toMatch(/private|secret|token|user@example/);
 });
 
 it('leaves new account data unowned when account-transition cleanup is incomplete', async () => {
