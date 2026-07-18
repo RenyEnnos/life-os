@@ -1,20 +1,26 @@
 # AGENTS.md
 
-Status: canonical governance entrypoint  
-Authority: repository-wide operating rules for AI agents  
-Owner: repository maintainer  
-Last reviewed: 2026-07-12  
-Related: issues #82, #84, #85, #91
+Status: CANONICAL \
+Authority: repository-wide operating rules for AI agents \
+Audience: contributor; AI agent \
+Owner: repository maintainer \
+Last reviewed: 2026-07-18 \
+Review by: 2027-01-14 \
+Update trigger: agent authority, issue authorization, validation or active exception changes \
+Supersedes: none \
+Superseded by: none \
+Authorizes implementation: no \
+Related: issues #82, #84, #85, #89, #91, #100, #131
 
 ## Purpose
 
-This file defines how AI agents may work in the LifeOS repository. It is intentionally short. Detailed rules live in `docs/governance/`.
+This file defines how AI agents may work in the LifeOS repository. It is intentionally short. Read the current authority, lifecycle, and active-exception index in `docs/README.md`; detailed rules live in `docs/governance/`.
 
 ## Current freeze
 
 LifeOS is under product, architecture, security, documentation, and debloat review.
 
-Until a human-approved decision or implementation issue says otherwise, agents must not:
+Unless a human-approved decision, ready implementation issue, or exact active exception indexed in `docs/README.md` says otherwise, agents must not:
 
 - treat legacy code or the newest code as the desired architecture;
 - add features or dependencies;
@@ -92,12 +98,13 @@ Minimum expectations for code changes normally include:
 - relevant tests
 - `npm run build`
 
-Runtime-specific checks are governed by the active runtime ADR. Until #86 reconciles CI, do not present Electron smoke as evidence for the canonical web release or browser checks as evidence for Electron.
+Runtime-specific checks are governed by the active runtime ADR. Canonical merge evidence is `web / static-and-unit` plus `web / canonical-e2e`; Electron smoke remains advisory and neither runtime's evidence proves the other.
 
 ## Detailed governance
 
 Read:
 
+- `docs/README.md`
 - `docs/governance/README.md`
 - `docs/governance/agent-protocol.md`
 - `docs/governance/readiness-and-done.md`

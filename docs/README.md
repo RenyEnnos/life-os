@@ -1,0 +1,84 @@
+# LifeOS documentation authority index
+
+Status: CANONICAL \
+Authority: repository documentation authority and search index \
+Audience: contributor; AI agent; operator/release; product/business; security \
+Owner: repository maintainer \
+Last reviewed: 2026-07-18 \
+Review by: 2027-01-14 \
+Update trigger: any document status, authority, owner, path, active exception or subject source changes \
+Supersedes: none \
+Superseded by: none \
+Authorizes implementation: no
+
+## How to use this index
+
+Read `AGENTS.md`, then this index, then the assigned issue and its exact linked decision before selecting implementation sources. A document describes intent only within its stated subject and authority. Tests, schemas, workflows and code prove current behavior; they do not override a higher-authority product or architecture decision.
+
+Only one document may be CANONICAL for a subject. When two sources of equal or higher authority conflict, stop and report the conflict in the owning issue. Do not reconcile it from code, recency or inference alone.
+
+## Current authority map
+
+| Subject | Current source | State | Authority source | Audience | Owner | Update trigger | Review by |
+|---|---|---|---|---|---|---|---|
+| Agent entrypoint | [`../AGENTS.md`](../AGENTS.md) | CANONICAL | repository governance; #82/#84 | contributor; AI agent | repository maintainer | agent authority or execution contract | 2027-01-14 |
+| Documentation authority | this file | CANONICAL | #89 and #131 | contributor; AI agent; operator/release; product/business; security | repository maintainer | any indexed field or path | 2027-01-14 |
+| Repository entry and quick start | [`../README.md`](../README.md) | CANONICAL | validated product/runtime decisions #85/#88 | end user; contributor; AI agent | repository maintainer | product surface, runtime, setup or key-path change | 2027-01-14 |
+| Governance map | [`governance/README.md`](governance/README.md) | CANONICAL | #84 and merged governance PR #99 | contributor; AI agent | repository maintainer | governance source or gate | 2027-01-14 |
+| Agent execution protocol | [`governance/agent-protocol.md`](governance/agent-protocol.md) | CANONICAL | #84 and repository governance | contributor; AI agent | repository maintainer | issue authorization, stop condition or execution protocol | 2027-01-14 |
+| Change-control policy | [`governance/policies.md`](governance/policies.md) | CANONICAL | #84 and #89 | contributor; AI agent | repository maintainer | dependency, docs, PR, ADR or rollback policy | 2027-01-14 |
+| Issue readiness and completion | [`governance/readiness-and-done.md`](governance/readiness-and-done.md) | CANONICAL | #84 | contributor; AI agent | repository maintainer | Definition of Ready/Done | 2027-01-14 |
+| Issue taxonomy | [`governance/labels.md`](governance/labels.md) | CANONICAL | #84/#90; `.github/labels.json` is executable catalog | contributor; AI agent | repository maintainer | label state machine or catalog | 2027-01-14 |
+| ADR lifecycle | [`adr/README.md`](adr/README.md) | CANONICAL | #84 and governance policy | contributor; AI agent | repository maintainer | ADR lifecycle or template | 2027-01-14 |
+| Product scope | [`mvp/canonical-mvp.md`](mvp/canonical-mvp.md) | CANONICAL | validated product decision #88 | product/business; contributor; AI agent | repository maintainer | approved user, scope or surface decision | 2027-01-14 |
+| Product positioning | [`product/2026-07-16-product-positioning-brief.md`](product/2026-07-16-product-positioning-brief.md) | ACTIVE_SUPPORTING | provisional decision #88 under #82 | product/business; contributor; AI agent | repository maintainer | research, naming, audience or claim decision | 2026-10-16 |
+| Canonical runtime | [`adr/0001-canonical-runtime.md`](adr/0001-canonical-runtime.md) | ACTIVE_SUPPORTING | provisional runtime decision #85 under #82 | contributor; AI agent; operator/release | repository maintainer | runtime, transport, persistence or release authority | 2026-10-16 |
+| Operating modes and trust boundaries | [`security/2026-07-16-operating-modes-threat-model.md`](security/2026-07-16-operating-modes-threat-model.md) | ACTIVE_SUPPORTING | provisional security decision #87 under #82 | security; operator/release; contributor; AI agent | repository maintainer | auth, secret, deployment or supported-mode boundary | 2026-10-16 |
+| Current architecture map | [`architecture-overview.md`](architecture-overview.md) | CONTRADICTORY | derived from #85; correction owned by #132 | contributor; AI agent | repository maintainer | ADR, schema, router or auth boundary | 2026-07-18 |
+| MVP route/API contract | [`mvp/route-map.md`](mvp/route-map.md) | CONTRADICTORY | executable API/routes; correction owned by #132 | contributor; AI agent; operator/release | repository maintainer | route, payload, auth or repository contract | 2026-07-18 |
+| MVP telemetry vocabulary | [`mvp/telemetry-event-map.md`](mvp/telemetry-event-map.md) | ACTIVE_SUPPORTING | current in-product event contract | product/business; security; contributor; AI agent | repository maintainer | event, transport, processor or retention | 2027-01-14 |
+| Personal-data lifecycle | [`privacy/personal-data-lifecycle.md`](privacy/personal-data-lifecycle.md) | ACTIVE_SUPPORTING | #110 and executable web lifecycle | security; operator/release; contributor; AI agent | repository maintainer | personal data, export, deletion or processor | 2026-10-16 |
+| Release verification | [`release-verification-ladder.md`](release-verification-ladder.md) | ACTIVE_SUPPORTING | #86; Web CI; protection applied in #100 | operator/release; contributor; AI agent | repository maintainer | required check, build, E2E or mode gate | 2026-10-16 |
+| File-to-Prisma migration | [`data/file-to-prisma-migration.md`](data/file-to-prisma-migration.md) | ACTIVE_SUPPORTING | #109 and migration command/tests | operator/release; security; contributor; AI agent | repository maintainer | schema, migration CLI, ledger or drill | 2026-10-16 |
+| Electron preservation/export | [`data/electron-to-web-export.md`](data/electron-to-web-export.md) | ACTIVE_SUPPORTING | #111; Electron remains experimental | operator/release; security; contributor; AI agent | repository maintainer | Electron schema, identity or export envelope | 2026-10-16 |
+| Advisory tooling | [`tooling/advisory-lanes.md`](tooling/advisory-lanes.md) | ACTIVE_SUPPORTING | #116 and real package commands | contributor; AI agent; operator/release | repository maintainer | command, owner, evidence boundary or CI promotion | 2027-01-14 |
+| Contributor setup | [`setup-guide.md`](setup-guide.md) | CONTRADICTORY | correction owned by #132; use root README meanwhile | contributor; AI agent | repository maintainer | runtime, quick-start, env or persistence | 2026-07-18 |
+
+CONTRADICTORY documents are indexed so agents see the stop condition. They are not valid implementation authority until their owning correction issue is merged.
+
+## Executable authority boundaries
+
+- `.github/workflows/ci.yml` and `playwright.release.config.ts` define the two canonical web evidence lanes named in #100.
+- `package.json#scripts` is the command registry. Commands prove only the behavior their owning lane declares.
+- Prisma schema/migrations support the optional canonical web repository; Supabase migrations remain legacy/experimental until #136 documents their consumer boundary.
+- Docker, Electron Playwright, broad Playwright and PWA artifacts are supporting/advisory evidence, not product support claims.
+- GitHub settings applied by #100 are external state. The issue record is the authority; repository prose cannot prove that remote state remains unchanged.
+
+## Active exceptions and provisional decisions
+
+| Source | Scope and effect | Owner | Starts | Ends |
+|---|---|---|---|---|
+| [Recovery mandate #82](https://github.com/RenyEnnos/life-os/issues/82) | permits autonomous issue/PR/configuration execution, self-merge after evidence, and human review after execution; permanent secret/data/production limits remain | repository maintainer | explicit maintainer mandate | program completion, explicit revocation or a later human decision |
+| [Runtime decision #85](https://github.com/RenyEnnos/life-os/issues/85) | web/HTTP canonical; Electron experimental; PWA advisory; Android unsupported | repository maintainer | validated decision | superseding human decision/ADR or mandate termination review |
+| [Security decision #87](https://github.com/RenyEnnos/life-os/issues/87) | only local-dev supported; shared modes fail closed until their gates pass | repository maintainer | validated decision | superseding security decision or mandate termination review |
+| [Product decision #88](https://github.com/RenyEnnos/life-os/issues/88) | narrow invite-only weekly loop and evidence-bounded claims | repository maintainer | validated decision | ratification, rejection or superseding product decision |
+| [GitHub controls #100](https://github.com/RenyEnnos/life-os/issues/100) | PR + two canonical checks for non-bypass actors; admin bypass and zero approvals remain provisional under #82 | repository maintainer | verified configuration | remote reconfiguration or post-mandate governance review |
+
+An exception applies only to its exact recorded scope. The default policy resumes automatically when the exception ends; an agent must not infer a replacement exception from tool access or prior behavior.
+
+## Historical and migration inventory
+
+- Dated evidence remains under `audits/` and never authorizes current implementation. #133 owns snapshot metadata and the March QA relocation.
+- Desktop/broad-suite/root historical documents remain in their current paths only until #133.
+- The obsolete MVP checklist and March root plans are historical and owned by #134.
+- Completed July agent plans/specs are historical and owned by #135.
+- Active taxonomy moves and link repair are deferred to #136, after authority and archive work stabilize.
+- Do not link historical plans or archive paths from Quick Start, Key Paths or issue templates as current authority.
+
+## Conflict and update protocol
+
+1. Identify the subject row and exact authority source.
+2. Compare scope, state, active exception and update trigger—not filename recency.
+3. Treat code/config as observed behavior unless the issue authorizes changing desired intent.
+4. Stop on an equal- or higher-authority conflict and link it to the owning issue.
+5. Update this index in the same PR whenever a path, state, owner, authority, exception or review date changes.
