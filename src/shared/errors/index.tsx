@@ -4,73 +4,32 @@
  */
 
 import { AppError, type ErrorContext } from './AppError';
-import { trackEvent, AnalyticsEvents } from '@/shared/analytics';
-
 interface ErrorReport {
-  message: string;
   name: string;
-  stack?: string;
+  code: string;
   timestamp: string;
-  url: string;
-  userAgent: string;
   context: {
     component: string;
     action: string;
-    userId?: string;
-    metadata: Record<string, unknown>;
   };
 }
 
+const safeLabel = (value: unknown, fallback: string) =>
+  typeof value === 'string' && /^[A-Za-z0-9_.:-]{1,64}$/.test(value) ? value : fallback;
+
 export function captureError(error: Error | AppError | unknown, context?: ErrorContext) {
   const errorReport: ErrorReport = {
-    message: error instanceof Error ? error.message : String(error),
-    name: error instanceof Error ? error.name : 'UnknownError',
-    stack: error instanceof Error ? error.stack : undefined,
+    name: safeLabel(error instanceof Error ? error.name : undefined, 'UnknownError'),
+    code: safeLabel(error instanceof AppError ? error.code : undefined, 'UNCLASSIFIED'),
     timestamp: new Date().toISOString(),
-    url: window.location.href,
-    userAgent: navigator.userAgent,
     context: {
-      component: context?.component || 'Unknown',
-      action: context?.action || 'Unknown',
-      userId: context?.userId,
-      metadata: context?.metadata || {},
+      component: safeLabel(context?.component, 'Unknown'),
+      action: safeLabel(context?.action, 'Unknown'),
     },
   };
 
-  // Send to analytics
-  trackEvent(AnalyticsEvents.ERROR_OCCURRED, {
-    error_name: errorReport.name,
-    error_message: errorReport.message,
-    component: errorReport.context.component || 'Unknown',
-    action: errorReport.context.action || 'Unknown',
-  });
-
-  // Send to error tracking service (Sentry or similar)
-  if (import.meta.env.VITE_SENTRY_DSN && window.Sentry) {
-    const sentryError = error instanceof Error ? error : new Error(String(error));
-    window.Sentry.withScope((scope) => {
-      scope.setTag('component', errorReport.context.component || 'unknown');
-      scope.setTag('action', errorReport.context.action || 'unknown');
-      scope.setContext('app', errorReport.context.metadata || {});
-      window.Sentry.captureException(sentryError);
-    });
-  }
-
-  // Send to custom endpoint if configured
-  if (import.meta.env.VITE_ERROR_ENDPOINT) {
-    fetch(import.meta.env.VITE_ERROR_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(errorReport),
-      keepalive: true,
-    }).catch(() => {
-      // Fail silently
-    });
-  }
-
-  // Log in development
   if (import.meta.env.DEV) {
-    console.error('[Error Captured]', errorReport);
+    console.error('[AppError]', JSON.stringify(errorReport));
   }
 
   return errorReport;
@@ -96,21 +55,6 @@ export function initializeErrorTracking() {
     });
   });
 
-  // Handle React errors (needs to be used with Error Boundary)
-  if (window.React) {
-    const originalConsoleError = console.error;
-    console.error = (...args: unknown[]) => {
-      // Check if it's a React error
-      const error = args.find(arg => arg instanceof Error);
-      if (error) {
-        captureError(error, {
-          component: 'React',
-          action: 'react_error',
-        });
-      }
-      originalConsoleError.apply(console, args);
-    };
-  }
 }
 
 /**
@@ -141,17 +85,4 @@ export function withErrorTracking<P extends object>(
       throw error;
     }
   };
-}
-
-// TypeScript declaration for Sentry
-declare global {
-  interface Window {
-    Sentry: {
-      withScope: (callback: (scope: {
-        setTag: (key: string, value: string) => void;
-        setContext: (key: string, value: Record<string, unknown>) => void;
-      }) => void) => void;
-      captureException: (error: Error) => void;
-    };
-  }
 }

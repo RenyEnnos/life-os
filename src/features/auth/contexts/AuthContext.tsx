@@ -4,6 +4,7 @@ import { useAuthStore } from '@/shared/stores/authStore';
 import { useShallow } from 'zustand/react/shallow';
 import { ApiError } from '@/shared/api/ApiError';
 import { clearAuthToken, setAuthToken } from '@/shared/api/authToken';
+import { clearPrivateClientData, preparePrivateClientDataForUser } from '@/shared/privacy/clientData';
 import type { UserProfile } from '@/shared/types/profile';
 
 interface AuthContextValue {
@@ -46,8 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const profile = await authApi.getProfile(userId);
       setProfile(profile ?? getDefaultProfile(userId));
-    } catch (err) {
-      console.error('Error fetching profile:', err);
+    } catch {
       setProfile(getDefaultProfile(userId));
     }
   };
@@ -60,6 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setError(null);
         setAuth(session);
         if (session?.user) {
+          await preparePrivateClientDataForUser(session.user.id);
           if (profile) {
             setProfile(profile);
           } else {
@@ -75,7 +76,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setProfile(null);
           setError(null);
         } else {
-          console.error('Auth initialization error:', err);
           setError(err instanceof Error ? err.message : 'Failed to initialize session');
         }
       } finally {
@@ -125,6 +125,7 @@ export const useAuth = () => {
     setError(null);
     try {
       const result = await authApi.login(creds);
+      if (result.session?.user?.id) await preparePrivateClientDataForUser(result.session.user.id);
       setAuthToken(result.token ?? result.session?.access_token ?? null);
       setAuth(result.session);
       if (result.session?.user?.id) {
@@ -148,6 +149,7 @@ export const useAuth = () => {
         name: creds.name ?? '',
         inviteCode: creds.inviteCode ?? '',
       });
+      if (result.session?.user?.id) await preparePrivateClientDataForUser(result.session.user.id);
       setAuthToken(result.token ?? result.session?.access_token ?? null);
       setAuth(result.session);
       if (result.session?.user?.id) {
@@ -163,7 +165,7 @@ export const useAuth = () => {
 
   const logout = async () => {
     await authApi.logout();
-    clearAuthToken();
+    await clearPrivateClientData(user?.id ?? 'anonymous');
     clearAuthState();
   };
 

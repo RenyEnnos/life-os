@@ -1,12 +1,15 @@
 # MVP Telemetry Event Map
 
-This document defines the production telemetry contract for the shipped LifeOS MVP loop.
+This document lists the stable event vocabulary used for in-product state. It is not an external telemetry contract.
 
 ## Transport
 
-- Analytics events go through `gtag` when `VITE_GA_MEASUREMENT_ID` is configured.
-- Error telemetry goes through Sentry when `VITE_SENTRY_DSN` is configured.
-- Optional fallback error forwarding uses `VITE_ERROR_ENDPOINT`.
+- Google Analytics: disabled; sampling 0.
+- Sentry tracing and replay: disabled; sampling 0 and replay off.
+- Custom error forwarding: disabled.
+- External retention, access and subject deletion: not applicable because no payload is transmitted.
+
+See `docs/privacy/personal-data-lifecycle.md` before proposing any processor.
 
 ## Event Map
 
@@ -22,7 +25,7 @@ This document defines the production telemetry contract for the shipped LifeOS M
 
 ## Error Capture
 
-The MVP store reports action failures with `component=MvpWorkspace` and an `action` matching the failed operation:
+The MVP error boundary may log only a stable error name/code with `component=MvpWorkspace` and an action matching the failed operation:
 
 - `hydrate_workspace`
 - `save_onboarding`

@@ -16,6 +16,9 @@ async function start() {
 }
 
 void start().catch((error) => {
-  console.error(error instanceof Error ? error.message : 'Server startup failed');
+  const configurationName = error instanceof Error
+    ? error.message.match(/^Invalid operating-mode configuration: ([A-Z0-9_]+)$/)?.[1]
+    : undefined;
+  console.error(configurationName ? `Invalid operating-mode configuration: ${configurationName}` : 'Server startup failed');
   process.exitCode = 1;
 });

@@ -32,6 +32,8 @@ import {
   resetPreparationRequestSchema,
   weeklyReviewRequestSchema,
   workspaceRecoveryRequestSchema,
+  personalDataExportRequestSchema,
+  accountDeletionRequestSchema,
 } from './requestSchemas';
 import {
   digestWorkspaceExport,
@@ -163,6 +165,17 @@ export function createApp(
 ) {
   const app = express();
   app.set('trust proxy', false);
+  const reconcilePendingDeletions = async () => {
+    const userIds = await authRepository.listPendingDeletionUserIds();
+    await Promise.allSettled(userIds.map(async (userId) => {
+      await repository.deleteUserData(userId);
+      await authRepository.finalizeAccountDeletion(userId);
+    }));
+  };
+  const schedulePendingDeletionReconciliation = () => {
+    void reconcilePendingDeletions().catch(() => console.error('Pending account deletion inventory failed'));
+  };
+  schedulePendingDeletionReconciliation();
 
   const ALLOWED_ORIGINS = process.env.LIFEOS_OPERATING_MODE === 'controlled-demo'
     ? [process.env.ALLOWED_ORIGIN].filter(Boolean)
@@ -341,6 +354,70 @@ export function createApp(
       return res.json({ user: serializeUser(user) });
     } catch {
       return fail(res, 'Authentication required', 401);
+    }
+  });
+
+  app.post('/api/auth/data-export', requireAuthentication, requireCookieWriteOrigin, destructiveResetLimiter, async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const input = parseRequest(personalDataExportRequestSchema, req.body, res);
+      if (!input) return;
+      const user = req.authUser!;
+      if (!(await bcrypt.compare(input.password, user.passwordHash))) {
+        return fail(res, 'Password reauthentication failed', 401);
+      }
+      const [workspace, recoveries] = await Promise.all([
+        repository.exportWorkspace(user.id),
+        repository.listRecoveries(user.id),
+      ]);
+      return ok(res, {
+        format: 'lifeos.account.export',
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        account: {
+          id: user.id,
+          email: user.email,
+          fullName: user.fullName,
+          theme: user.theme,
+          onboardingCompleted: user.onboardingCompleted,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        },
+        workspace,
+        recoveries,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  app.post('/api/auth/delete-account', requireAuthentication, requireCookieWriteOrigin, destructiveResetLimiter, async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const input = parseRequest(accountDeletionRequestSchema, req.body, res);
+      if (!input) return;
+      const user = req.authUser!;
+      if (!(await bcrypt.compare(input.password, user.passwordHash))) {
+        return fail(res, 'Password reauthentication failed', 401);
+      }
+      await authRepository.beginAccountDeletion(user.id);
+      try {
+        await repository.deleteUserData(user.id);
+      } catch (error) {
+        await authRepository.cancelAccountDeletion(user.id);
+        throw error;
+      }
+      clearSessionCookie(res);
+      try {
+        await authRepository.finalizeAccountDeletion(user.id);
+        return ok(res, { deleted: true, status: 'completed', processors: 'disabled' });
+      } catch {
+        schedulePendingDeletionReconciliation();
+        return res.status(202).json({
+          success: true,
+          data: { deleted: true, status: 'pending', processors: 'disabled' },
+        });
+      }
+    } catch (error) {
+      return next(error);
     }
   });
 
@@ -553,7 +630,7 @@ export function createApp(
     if (error instanceof Error && error.message === 'Not allowed by CORS') {
       return fail(res, 'Origin verification failed', 403);
     }
-    console.error('MVP API error:', error);
+    console.error('MVP API request failed');
     const message = process.env.NODE_ENV === 'production'
       ? 'Internal server error'
       : (error instanceof Error ? error.message : 'Internal server error');

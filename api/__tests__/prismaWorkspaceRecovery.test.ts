@@ -204,6 +204,30 @@ describe('Prisma workspace recovery', () => {
     expect(tx.user.deleteMany).toHaveBeenCalledWith({ where: { id: { in: ['user-migrated-1'] } } });
   });
 
+  it('deletes exactly one account through the Prisma cascade in a Serializable transaction', async () => {
+    const tx = transactionDouble();
+    const db = { $transaction: vi.fn((callback) => callback(tx)) };
+    const repository = new PrismaBackedMvpRepository(db as never);
+
+    await repository.deleteUserData('user-one');
+
+    expect(db.$transaction).toHaveBeenCalledWith(expect.any(Function), { isolationLevel: 'Serializable' });
+    expect(tx.user.deleteMany).toHaveBeenCalledWith({ where: { id: { in: ['user-one'] } } });
+  });
+
+  it('blocks stale identity recreation as soon as account deletion starts', async () => {
+    let finishDelete!: () => void;
+    const pendingDelete = new Promise<void>((resolve) => { finishDelete = resolve; });
+    const db = { $transaction: vi.fn(() => pendingDelete), user: { upsert: vi.fn() } };
+    const repository = new PrismaBackedMvpRepository(db as never);
+
+    const deletion = repository.deleteUserData('user-one');
+    await expect(repository.ensureUser({ id: 'user-one' } as never)).rejects.toThrow('Account deletion in progress');
+    expect(db.user.upsert).not.toHaveBeenCalled();
+    finishDelete();
+    await deletion;
+  });
+
   it('does not start reset while an ordinary mutation for the same user is unsettled', async () => {
     const tx = transactionDouble();
     let finishFeedback!: (value: unknown[]) => void;

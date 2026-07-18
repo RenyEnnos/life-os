@@ -24,6 +24,14 @@ interface AuthCheckResult {
   profile: UserProfile | null;
 }
 
+export interface PersonalDataExport {
+  format: 'lifeos.account.export';
+  version: 1;
+  exportedAt: string;
+  account: Record<string, unknown> & { id: string };
+  workspace: unknown;
+}
+
 const buildProfileFromUser = (user: User): UserProfile => ({
   id: user.id,
   full_name: (user.user_metadata?.full_name as string | undefined) ?? undefined,
@@ -131,6 +139,21 @@ export const authApi = {
     }
 
     await apiClient.post(`${AUTH_API_BASE}/logout`, {});
+  },
+
+  exportPersonalData: async (password: string) => {
+    const response = await apiClient.post<{ success: true; data: PersonalDataExport }>(
+      `${AUTH_API_BASE}/data-export`, { password },
+    );
+    return response.data;
+  },
+
+  deleteAccount: async (password: string, confirmation: string) => {
+    const response = await apiClient.post<{ success: true; data: { deleted: true; status: 'completed' | 'pending'; processors: 'disabled' } }>(`${AUTH_API_BASE}/delete-account`, {
+      password,
+      confirmation,
+    });
+    return response.data;
   },
 
   verify: async () => {

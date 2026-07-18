@@ -138,7 +138,7 @@ Before beta, validate every path/body/enum/string/date/rating at the HTTP bounda
 
 The MVP may store email, name, theme, invite history, onboarding profile, goals, commitments, weekly reviews/plans, action notes/status, daily check-ins, reflections, ratings, feedback and event timestamps. Electron legacy modules can hold broader journal, health, finance, task and university records, but those are outside the canonical product and must remain preserved during runtime migration.
 
-Current code does not prove a user-facing export, account deletion, retention schedule, restore drill or cross-store migration. Workspace reset is not account deletion: it clears MVP workspace records but retains identity/invite state, and behavior differs by repository.
+The implemented field inventory, export/deletion contract, backup exception and processor policy are maintained in `docs/privacy/personal-data-lifecycle.md`. Workspace reset remains distinct from account deletion.
 
 Partner-beta requires:
 
@@ -151,7 +151,7 @@ Partner-beta requires:
 
 ## Observability and privacy
 
-Logs must not contain passwords, invite codes, session/bearer tokens, raw request bodies, reflection text or third-party secret values. Stable pseudonymous IDs and event names are sufficient for operational diagnosis. Production error responses already suppress exception details when `NODE_ENV=production`; the server console may still receive the underlying error and therefore needs a redaction policy before beta. Current Sentry setup samples all traces and all error replays when a DSN enables it, so merely setting the DSN is not an approved privacy policy.
+Logs must not contain passwords, invite codes, session/bearer tokens, raw request bodies, reflection text or third-party secret values. Browser and server error boundaries now emit only stable allowlisted labels or a fixed failure message. External telemetry SDK initialization and transports are absent from supported MVP builds.
 
 Sentry, analytics, source maps and vendor UI are disabled for supported shared modes until their exact payload, legal basis/consent where applicable, retention, access owner and deletion process are documented. Source maps may be uploaded privately to an error service after review; they should not be publicly served by default.
 

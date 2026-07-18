@@ -13,8 +13,8 @@ export const indexedDBStorage: StateStorage = {
     try {
       const value = await get(name);
       return value ?? null;
-    } catch (e) {
-      console.warn('indexedDB getItem failed', e);
+    } catch {
+      console.warn('indexedDB getItem failed');
       return null;
     }
   },
@@ -22,16 +22,16 @@ export const indexedDBStorage: StateStorage = {
     if (typeof indexedDB === 'undefined') return;
     try {
       await set(name, value);
-    } catch (e) {
-      console.warn('indexedDB setItem failed', e);
+    } catch {
+      console.warn('indexedDB setItem failed');
     }
   },
   removeItem: async (name: string): Promise<void> => {
     if (typeof indexedDB === 'undefined') return;
     try {
       await del(name);
-    } catch (e) {
-      console.warn('indexedDB removeItem failed', e);
+    } catch {
+      console.warn('indexedDB removeItem failed');
     }
   },
 };

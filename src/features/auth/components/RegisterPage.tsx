@@ -87,8 +87,6 @@ export default function RegisterPage() {
                 </div>
             );
         } catch (err: any) {
-            console.error('Registration Error:', err);
-            
             const msg = err?.message || '';
             let userFriendlyError: React.ReactNode = 'Falha ao criar conta.';
             
@@ -96,8 +94,6 @@ export default function RegisterPage() {
                 userFriendlyError = 'Este e-mail já está cadastrado.';
             } else if (msg.includes('Password should be at least 6 characters')) {
                 userFriendlyError = 'A senha deve ter no mínimo 6 caracteres.';
-            } else {
-                userFriendlyError = msg || 'Ocorreu um erro inesperado no cadastro.';
             }
 
             setError(userFriendlyError);

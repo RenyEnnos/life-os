@@ -9,10 +9,12 @@ export function PWAManager() {
         updateServiceWorker,
     } = useRegisterSW({
         onRegistered(r: ServiceWorkerRegistration | undefined) {
-            logger.log('SW Registered: ' + r)
+            void r
+            logger.log('Service worker registered')
         },
         onRegisterError(error: Error) {
-            logger.log('SW registration error', error)
+            void error
+            logger.error('Service worker registration failed')
         },
     })
 

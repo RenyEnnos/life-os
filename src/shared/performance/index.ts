@@ -10,37 +10,6 @@ import { onCLS, onFCP, onLCP, onTTFB, onINP, Metric } from 'web-vitals';
  * Send metrics to analytics
  */
 function sendToAnalytics(metric: Metric) {
-  const body = JSON.stringify({
-    name: metric.name,
-    value: metric.value,
-    rating: metric.rating,
-    delta: metric.delta,
-    id: metric.id,
-    navigationType: metric.navigationType,
-    timestamp: new Date().toISOString(),
-    url: window.location.href,
-    userAgent: navigator.userAgent,
-  });
-
-  // Send to Google Analytics if available
-  if (window.gtag) {
-    window.gtag('event', 'web_vitals', {
-      event_category: 'Web Vitals',
-      event_label: metric.id,
-      value: Math.round(metric.value),
-      metric_name: metric.name,
-      metric_rating: metric.rating,
-      metric_delta: metric.delta,
-      custom_parameter_1: metric.navigationType,
-    });
-  }
-
-  // Send to your analytics endpoint (optional)
-  if (import.meta.env.VITE_ANALYTICS_ENDPOINT) {
-    navigator.sendBeacon(import.meta.env.VITE_ANALYTICS_ENDPOINT, body);
-  }
-
-  // Log in development
   if (import.meta.env.DEV) {
     console.log(`[Web Vitals] ${metric.name}:`, {
       value: metric.value,
@@ -86,16 +55,6 @@ export function measurePerformance(name: string, startMark: string, endMark: str
       const lastEntry = entries[entries.length - 1];
       
       if (lastEntry) {
-        // Send to analytics
-        if (window.gtag) {
-          window.gtag('event', 'custom_performance', {
-            event_category: 'Performance',
-            event_label: name,
-            value: Math.round(lastEntry.duration),
-            metric_name: name,
-          });
-        }
-        
         return lastEntry.duration;
       }
     } catch (e) {
@@ -113,22 +72,7 @@ export function trackResourceLoading() {
     const resources = performance.getEntriesByType('resource');
     
     resources.forEach((resource) => {
-      const res = resource as PerformanceResourceTiming;
-      
-      // Only track significant resources (scripts, styles, images > 100kb)
-      if (res.transferSize > 100000) {
-        const duration = res.responseEnd - res.startTime;
-        
-        if (window.gtag) {
-          window.gtag('event', 'resource_load', {
-            event_category: 'Performance',
-            event_label: res.name,
-            value: Math.round(duration),
-            resource_type: res.initiatorType,
-            resource_size: res.transferSize,
-          });
-        }
-      }
+      void (resource as PerformanceResourceTiming);
     });
   }
 }

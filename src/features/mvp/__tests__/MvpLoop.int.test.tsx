@@ -22,7 +22,7 @@ describe('MVP loop integration', () => {
     useMvpStore.setState({ ...createEmptyWorkspace(), isHydrating: false, error: null });
   });
 
-  it('moves through the MVP loop and emits production telemetry events', { timeout: 15000 }, async () => {
+  it('moves through the MVP loop without external telemetry', { timeout: 15000 }, async () => {
     const user = userEvent.setup({ delay: null });
 
     const onboardingView = renderSurface('onboarding');
@@ -81,48 +81,6 @@ describe('MVP loop integration', () => {
     await user.click(screen.getByRole('button', { name: 'Save daily reflection' }));
     await user.type(screen.getByPlaceholderText('What created clarity or friction?'), 'Weekly plan confirmation made execution obvious.');
     await user.click(screen.getByRole('button', { name: 'Submit feedback' }));
-    await waitFor(() => {
-      expect(window.gtag).toHaveBeenCalledWith(
-        'event',
-        'mvp_user_feedback_submitted',
-        expect.objectContaining({ product_area: 'mvp', rating: 4 })
-      );
-    });
-
-    expect(window.gtag).toHaveBeenCalledWith(
-      'event',
-      'mvp_activation_completed',
-      expect.objectContaining({ product_area: 'mvp', goals_count: 2 })
-    );
-    expect(window.gtag).toHaveBeenCalledWith(
-      'event',
-      'mvp_weekly_review_completed',
-      expect.objectContaining({ product_area: 'mvp', energy_level: 4 })
-    );
-    expect(window.gtag).toHaveBeenCalledWith(
-      'event',
-      'mvp_weekly_plan_generated',
-      expect.objectContaining({ product_area: 'mvp' })
-    );
-    expect(window.gtag).toHaveBeenCalledWith(
-      'event',
-      'mvp_weekly_plan_confirmed',
-      expect.objectContaining({ product_area: 'mvp' })
-    );
-    expect(window.gtag).toHaveBeenCalledWith(
-      'event',
-      'mvp_daily_checkin_completed',
-      expect.objectContaining({ product_area: 'mvp', energy: 3, focus: 3 })
-    );
-    expect(window.gtag).toHaveBeenCalledWith(
-      'event',
-      'mvp_reflection_completed',
-      expect.objectContaining({ product_area: 'mvp', period: 'daily' })
-    );
-    expect(window.gtag).toHaveBeenCalledWith(
-      'event',
-      'mvp_user_feedback_submitted',
-      expect.objectContaining({ product_area: 'mvp', rating: 4 })
-    );
+    expect(window.gtag).not.toHaveBeenCalled();
   });
 });

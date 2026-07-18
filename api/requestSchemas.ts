@@ -95,3 +95,12 @@ export const workspaceRecoveryRequestSchema = z.object({
   confirmation: z.literal('RESTORE MY WORKSPACE'),
   export: workspaceExportSchema,
 }).strict();
+
+export const personalDataExportRequestSchema = z.object({
+  password: bcryptPassword(1),
+}).strict();
+
+export const accountDeletionRequestSchema = z.object({
+  password: bcryptPassword(1),
+  confirmation: z.literal('DELETE MY ACCOUNT'),
+}).strict();

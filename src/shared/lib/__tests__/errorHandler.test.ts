@@ -96,17 +96,15 @@ describe('errorHandler', () => {
   })
 
   describe('createErrorHandler', () => {
-    it('should include context in logs', () => {
+    it('should omit caller context and error text from logs', () => {
       const handler = createErrorHandler('UserService.createUser')
       const error = new ApiError('Bad request', 400)
 
       handler(error)
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('UserService.createUser'),
-        expect.any(String),
-        expect.any(String)
-      )
+      expect(consoleWarnSpy).toHaveBeenCalledWith('[ErrorHandler]', 'validation', 'low', 400)
+      expect(JSON.stringify(consoleWarnSpy.mock.calls)).not.toContain('UserService.createUser')
+      expect(JSON.stringify(consoleWarnSpy.mock.calls)).not.toContain('Bad request')
     })
   })
 
