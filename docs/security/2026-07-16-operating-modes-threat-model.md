@@ -1,10 +1,15 @@
 # LifeOS operating modes and trust-boundary decision
 
-Status: provisional
-Date: 2026-07-16
-Decision owner: repository maintainer
-Operational author: Codex under the autonomous recovery mandate
-Related issues: #82, #83, #85, #86, #87, #89, #106
+Status: ACTIVE_SUPPORTING \
+Authority: provisional security decision #87 under recovery mandate #82 \
+Audience: security; operator/release; contributor; AI agent \
+Owner: repository maintainer \
+Last reviewed: 2026-07-18 \
+Review by: 2026-10-16 \
+Update trigger: authentication, secret, deployment, processor or supported-mode boundary change \
+Supersedes: none \
+Superseded by: none \
+Authorizes implementation: yes, only within the active #82 exception and exact ready issue
 
 ## Decision
 
@@ -39,7 +44,7 @@ Trust boundaries:
 | Express to Prisma/Postgres | `PrismaBackedMvpRepository` | Explicit relational boundary selected only by `LIFEOS_MVP_REPOSITORY=prisma`; live deployment evidence is still required |
 | Electron renderer to main | preload bridge and IPC handlers | Experimental local boundary; renderer input remains untrusted even without a network hop |
 | Electron to Supabase | anon client plus persisted session tokens | Optional cloud identity/data boundary; RLS evidence does not make every desktop path canonical |
-| Electron to SQLite/JSON | `lifeos.db`, desktop MVP JSON, `safeStorage` when available | Local-device boundary; plaintext fallback tokens are observed when OS encryption is unavailable |
+| Electron to SQLite/JSON | `lifeos.db`, desktop MVP JSON, `safeStorage` when available | Local-device boundary; plaintext session persistence/restoration is confined to explicit `local-dev`, and other modes fail closed without encryption |
 | Build/runtime to vendors | Sentry, analytics, badges and source maps when configured | Potential metadata/code disclosure boundary; actual transmission depends on configuration and use |
 
 ## Threat model by operating mode
@@ -73,7 +78,7 @@ Therefore:
 
 ### Electron identity
 
-Electron is experimental under ADR-0001. When Supabase is configured it uses Supabase sessions; local credentials and plaintext token persistence are confined to explicit `local-dev`. Shared or production-like modes fail closed when configuration or Electron `safeStorage` encryption is unavailable. Auth and MVP IPC accept only the exact packaged renderer or configured local-dev origin; external navigation is blocked and auth payloads are validated. Smoke identities require both `local-dev` and the explicit Playwright test flag. Desktop export excludes tokens and ownerless content; the password-reauthenticated web export records desktop IDs only as unverified user assertions, never as an inferred or proved identity mapping.
+Electron is experimental under ADR-0001. When Supabase is configured it uses Supabase sessions; local credentials and plaintext token persistence are confined to explicit `local-dev`. Shared or production-like modes fail closed when configuration or Electron `safeStorage` encryption is unavailable. Auth, MVP and data-export IPC accept only the exact packaged renderer or configured local-dev origin; this does not prove equivalent sender validation for legacy/tasks/resource handlers. External navigation is blocked and auth payloads are validated. Smoke identities require both `local-dev` and the explicit Playwright test flag. Desktop export excludes tokens and ownerless content; the password-reauthenticated web export records desktop IDs only as unverified user assertions, never as an inferred or proved identity mapping.
 
 ## Fallback classification
 
@@ -109,7 +114,7 @@ Unknown or contradictory environment configuration must fail closed. No producti
 | `DATABASE_URL` | optional | prohibited while the candidate profile requires `file` | required for Prisma mode, secret-managed | required, secret-managed |
 | Supabase URL/anon key | optional experimental Electron | not part of canonical demo | explicit architecture decision | explicit architecture decision |
 | service-role key | not needed by observed canonical Express path | must not be supplied without a proved server consumer | least-privilege secret only if required | least-privilege secret only if required |
-| analytics/Sentry | off preferred | off unless explicitly reviewed | documented minimization/retention | documented minimization/retention |
+| analytics/Sentry | disabled in supported MVP paths | disabled; vendor variables rejected | documented minimization/retention | documented minimization/retention |
 
 The existing fail-fast requirement for `LIFEOS_SESSION_SECRET` or `JWT_SECRET` is retained. `LIFEOS_SESSION_SECRET` is the canonical name; the JWT alias is migration compatibility, not a second policy.
 
@@ -121,18 +126,17 @@ Observed controls: Helmet, credentialed CORS with an origin allowlist, strict bo
 
 Observed destructive-recovery controls: canonical reset is two-step and password-reauthenticated, exact phrases are required, the prepared export is a strict versioned envelope, reset retains recovery atomically with deletion, stale preparation is rejected, and restore replaces the workspace transactionally. Reset and recovery have independent per-user throttles. The bodyless web reset surface is removed.
 
-The supported Prisma topology for this control is one Node.js application process. Workspace mutations are serialized per user inside that process; coordination across multiple processes or repository instances remains part of #109's durable concurrency decision and is not claimed here.
+File auth/MVP repositories use strict atomic replacement, last-known-good backups and process-wide per-path serialization. Prisma reset/deletion uses database transactions. Multi-process file locking and a deployed multi-process Prisma topology remain unvalidated and are not claimed here.
 
 Gaps that block partner-beta:
 
 - the bearer-token response expands exposure beyond an HTTP-only cookie, although persisted global logout now revokes copied tokens;
 - the read-only admin overview uses an exact server-side email allowlist, but managed role lifecycle and cross-user/cohort administration are not implemented;
 - authentication errors reveal whether an invite is missing, claimed, or an account is registered; this is acceptable only for controlled invitation flows after abuse review;
-- auth file persistence can lose concurrent writes or expose a partial file after process interruption;
 - JSON files remain intentionally limited to one Node process; sharing a file across processes has no OS-level lock and is unsupported;
-- retained workspace recovery covers the canonical visible MVP snapshot, not archived relational history, full account export/deletion, retention, or Electron data; #110 and #111 own those broader contracts.
+- retained workspace recovery covers the canonical visible MVP snapshot, not archived relational history; full web account lifecycle and experimental Electron preservation/export are implemented under #110/#111, while deployed durability and operations remain unproved.
 
-Before beta, validate every path/body/enum/string/date/rating at the HTTP boundary; set request-size and per-route rate limits; keep repository checks as defense in depth; require explicit confirmation plus a recoverable backup/export for workspace reset; and add CSRF protection appropriate to cookie-authenticated writes. Do not add a generic validation framework: Zod and `express-rate-limit` are already installed.
+Boundary schemas, body limits, per-route limits, exact-Origin cookie protections and recoverable reset are implemented. Before beta, prove them in the chosen deployed topology, complete operational backup/restore and incident ownership, and close any environment-specific high finding. Repository checks remain defense in depth rather than deployment evidence.
 
 ## Personal data lifecycle
 
@@ -151,24 +155,24 @@ Partner-beta requires:
 
 ## Observability and privacy
 
-Logs must not contain passwords, invite codes, session/bearer tokens, raw request bodies, reflection text or third-party secret values. Browser and server error boundaries now emit only stable allowlisted labels or a fixed failure message. External telemetry SDK initialization and transports are absent from supported MVP builds.
+Logs must not contain passwords, invite codes, session/bearer tokens, raw request bodies, reflection text or third-party secret values. Canonical browser and Express error boundaries emit only stable allowlisted labels or a fixed failure message. The legacy device-local sync-log store is a documented exception that may persist/export free-text or raw error details; #138 must sanitize it before partner-beta. External telemetry SDK initialization and transports are absent from supported MVP builds.
 
 Sentry, analytics, source maps and vendor UI are disabled for supported shared modes until their exact payload, legal basis/consent where applicable, retention, access owner and deletion process are documented. Source maps may be uploaded privately to an error service after review; they should not be publicly served by default.
 
-## Ordered remediation backlog
+## Completed repository remediation history
 
-Each item is independently reviewable and must not be bundled into this decision:
+Issues #106-#111 delivered and validated the repository controls below. Their completion does not satisfy the deployment-dependent gates that follow.
 
-| Order | Issue | Slice | Proof required | Blocks |
-|---|---|---|---|---|
-| 1 | #106 | Environment-mode guard plus shared-deployment secret/vendor controls; coordinate CI/Docker evidence with #86 | configuration tests, startup/build failure, secret scan and built-artifact inspection | controlled-demo, beta |
-| 2 | #107 | Server-side admin authorization or removal of admin surface from shared builds | negative/positive API tests; UI test only as secondary evidence | beta |
-| 3 | #108 | Zod boundary schemas, JSON size limits, rate limits, session/CSRF policy and recoverable destructive reset | invalid/oversized/throttled requests, copied-token/logout, cross-origin denial and recovery tests | beta |
-| 4 | #109 | Durable persistence decision and migration from JSON, including corrupt-read failure, atomicity/concurrency, backup and restore | corruption/concurrent-write tests, migration dry run, invariants and restore drill | beta |
-| 5 | #110 | Data export, account deletion, retention, redacted logs and reviewed downstream processors | end-to-end lifecycle tests and operator runbook | beta |
-| 6 | #111 | Electron local-token/fallback confinement and data export before any archival | safeStorage failure tests, inventory/export evidence, no token migration | runtime retirement |
+| Issue | Delivered repository slice | Remaining evidence boundary |
+|---|---|---|
+| #106 | operating-mode and secret/vendor fail-closed guards | deployed host/rotation/expiry/wipe evidence |
+| #107 | server-side exact-email read-only admin authorization | managed role lifecycle before beta |
+| #108 | schemas, limits, session/Origin controls and recoverable reset | deployed abuse/edge evidence |
+| #109 | atomic file stores plus tested file-to-Prisma migration/rollback | multi-process topology and live restore drill |
+| #110 | web export, deletion, retention and processor contract | operational request/incident handling; #138 legacy sync-log sanitization |
+| #111 | Electron token confinement and token-free preservation export | no supported import/reset; runtime remains experimental |
 
-The lazier safe path is to complete #106 for controlled demos while keeping beta unsupported; beta work starts only when real design partners require persistent personal data.
+The lazier safe path is to keep beta unsupported and collect the controlled-demo deployment evidence only when a real demonstration is scheduled.
 
 ## Readiness gates
 

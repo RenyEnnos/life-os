@@ -1,5 +1,16 @@
 # LifeOS MVP Route Map
 
+Status: ACTIVE_SUPPORTING \
+Authority: executable HTTP and browser route contract under #85/#88 \
+Audience: contributor; AI agent; operator/release \
+Owner: repository maintainer \
+Last reviewed: 2026-07-18 \
+Review by: 2026-10-16 \
+Update trigger: route, payload, authentication, authorization or repository contract change \
+Supersedes: none \
+Superseded by: none \
+Authorizes implementation: no
+
 This file documents the implemented route and API contract for the canonical MVP in `docs/mvp/canonical-mvp.md`.
 
 ## Frontend Routes
@@ -21,11 +32,12 @@ This file documents the implemented route and API contract for the canonical MVP
   Current state: client routing is only presentation; data loads from the server-authorized admin endpoint
   Authorization: the authenticated email must exactly match `LIFEOS_ADMIN_EMAILS`
 
-### Legacy broader-suite routes still present in the shell
+### Supporting and redirect routes
 
-These routes exist in `src/config/routes/index.tsx`, but they are not canonical MVP scope:
+`/settings` is a live authenticated supporting route, and `/profile` redirects to it. `/` redirects to `/mvp`.
 
-- `/`
+The following legacy aliases redirect to `/mvp`; they do not expose broader-suite product routes:
+
 - `/tasks`
 - `/habits`
 - `/calendar`
@@ -36,7 +48,6 @@ These routes exist in `src/config/routes/index.tsx`, but they are not canonical 
 - `/ai-assistant`
 - `/focus`
 - `/gamification`
-- `/settings`
 - `/design`
 - `/university`
 
@@ -62,21 +73,24 @@ These routes exist in `src/config/routes/index.tsx`, but they are not canonical 
 - `PATCH /api/auth/profile`
   Input: optional `name`, `theme`
   Output: updated user and profile
+- `POST /api/auth/data-export`
+  Input: current password and optional user-asserted desktop identity claims
+  Output: portable account export without credentials
+- `POST /api/auth/delete-account`
+  Input: current password and exact `DELETE MY ACCOUNT` confirmation
+  Output: completed or pending deletion status
 
 ### MVP workspace
 
 - `GET /api/mvp/workspace`
   Output: current onboarding, plan, execution, analytics, reflections, and feedback state
-- `DELETE /api/mvp/workspace`
-  Output: reset workspace state for the authenticated user
-
 ### Internal administration
 
 - `GET /api/mvp/admin/overview`
   Authorization: authenticated email must exactly match a valid comma-separated entry in `LIFEOS_ADMIN_EMAILS`
   Output: the administrator's analytics, event stream, and feedback only
   Failure: `401` without a valid session; `403` for authenticated non-administrators
-  Destructive operations: none; workspace reset remains a user-scoped endpoint pending the recovery controls tracked in #108
+  Destructive operations: none; user-scoped reset is implemented separately as password-reauthenticated prepare/commit plus retained recovery/restore
 
 ### Onboarding
 
@@ -123,5 +137,5 @@ These routes exist in `src/config/routes/index.tsx`, but they are not canonical 
 - `POST /api/mvp/workspace/reset` repeats password and exact confirmation, verifies the prepared token, rejects changed workspaces with `409`, and retains recovery in the same repository mutation that clears the workspace.
 - `GET /api/mvp/workspace/recovery/latest` retrieves the latest retained user-scoped export; `POST /api/mvp/workspace/recovery` requires password plus exact `RESTORE MY WORKSPACE` and transactionally replaces the workspace from a strict envelope.
 - Reset and recovery each use an independent limit of three attempts per hour per user, including failed reauthentication or validation attempts. Recovery/reset payload routes allow at most 10 MiB after authentication/CSRF/limiting, with the strict envelope capped at 8 MiB, so a portable workspace can exceed the ordinary 32 KiB write limit without raising that global boundary.
-- The former bodyless `DELETE /api/mvp/workspace` and silent canonical web client/store reset are removed. Electron's separate reset bridge is non-canonical and remains explicitly owned by #111.
+- The former bodyless `DELETE /api/mvp/workspace` and silent canonical web client/store reset are removed. Electron reset remains disabled and non-canonical; #111 delivered preservation/export rather than an import or reset authority.
 - The route map should be treated as executable contract documentation, not as a proposal list. If a route is not implemented, do not document it here as current behavior.

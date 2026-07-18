@@ -1,10 +1,15 @@
 # Brief estratégico de produto e posicionamento
 
-Status: decisão operacional provisória  
-Issue: #88, sob o programa #82  
-Base factual: auditoria #83  
-Data da pesquisa: 2026-07-16  
-Escopo: estratégia e linguagem; sem rebrand, UI, assets ou implementação
+Status: ACTIVE_SUPPORTING \
+Authority: provisional product decision #88 under recovery mandate #82 \
+Audience: product/business; contributor; AI agent \
+Owner: repository maintainer \
+Last reviewed: 2026-07-18 \
+Review by: 2026-10-16 \
+Update trigger: research, naming, audience, claim or product-scope decision \
+Supersedes: none \
+Superseded by: none \
+Authorizes implementation: yes, only within the active #82 exception and exact ready issue
 
 ## 1. Decisão provisória
 
@@ -47,7 +52,7 @@ As rotas em `src/config/routes/index.tsx` expõem autenticação, configuraçõe
 
 A geração atual em `shared/mvp/plan.ts` é determinística: seleciona entradas do usuário, limita prioridades e produz ações por templates e fallbacks. O endpoint em `api/app.ts` chama esse contrato; não há provedor de LLM no caminho canônico.
 
-O transporte em `src/features/mvp/api/mvp.api.ts` escolhe IPC quando uma bridge Electron existe e HTTP nos demais casos. Essa coexistência não decide qual runtime deve ser suportado; isso pertence à #85.
+O transporte em `src/features/mvp/api/mvp.api.ts` escolhe IPC quando uma bridge Electron existe e HTTP nos demais casos. A #85 decidiu provisoriamente que web/HTTP é canônico e Electron permanece experimental; coexistência de código não cria paridade suportada.
 
 ### 3.2 Claims não sustentados
 
@@ -57,8 +62,8 @@ O transporte em `src/features/mvp/api/mvp.api.ts` escolhe IPC quando uma bridge 
 | Suíte ampla | Doze rotas legadas redirecionam e 21 módulos continuam no código | Não reativar para justificar o nome |
 | Planejamento por IA | A geração canônica é determinística; a feature de AI assistant está oculta | Não usar IA como diferenciação atual |
 | Produto pronto | A UI mistura `ready` com requisitos de auth, telemetry e seed ainda incompletos | Tratar como protótipo validável, não release |
-| Sync/cloud | “Syncing MVP workspace” sugere garantia não demonstrada | Depender das decisões #85 e #87 |
-| Desktop/offline-first | Existe infraestrutura Electron, mas o smoke Electron empacotado não foi reexecutado na auditoria e não decide runtime canônico | Não prometer antes de #85/#86 |
+| Sync/cloud | “Syncing MVP workspace” sugere garantia não demonstrada | Não prometer; #85/#87 excluem essa garantia dos modos suportados |
+| Desktop/offline-first | Existe infraestrutura Electron, mas #85 a classifica como experimental e #86 mantém seu smoke advisory | Não prometer sem nova decisão e evidência própria |
 | Analytics de resultado | Metas aparecem no código, mas a telemetria produtiva não foi comprovada | Tratar números como targets experimentais |
 
 ### 3.3 Artefatos internos apresentados como produto
@@ -79,7 +84,7 @@ Promessa: conduzir uma revisão curta e transformar evidências da semana em pou
 
 Vantagens:
 
-- corresponde ao caminho implementado e parcialmente coberto por testes; não prova release;
+- corresponde ao caminho implementado e coberto pelo browser E2E canônico; isso não prova deployment compartilhado;
 - reduz concorrência direta com suítes e calendários automáticos;
 - permite validação pequena e reversível;
 - cabe na manutenção de um fundador individual.
@@ -218,7 +223,7 @@ Claims de resultado — “mais foco”, “menos sobrecarga”, “melhores dec
 | Papel | Valor potencial | Risco | Explicabilidade | Privacidade | Custo | Dependência de modelo | Decisão |
 |---|---|---|---|---|---|---|---|
 | Nenhuma IA no core | Fluxo previsível e barato | Menor diferenciação percebida | Total: regras determinísticas inspecionáveis | Sem envio adicional a provider | Baixo | Nenhuma | Padrão atual |
-| IA invisível como infraestrutura | Classificar ou resumir entradas | Uso oculto e surpresa do usuário | Baixa se a transformação não mostrar fonte | Pode enviar contexto sensível sem expectativa clara | Médio e recorrente | Alta, salvo modelo local substituível | Não adotar sem #87 |
+| IA invisível como infraestrutura | Classificar ou resumir entradas | Uso oculto e surpresa do usuário | Baixa se a transformação não mostrar fonte | Pode enviar contexto sensível sem expectativa clara | Médio e recorrente | Alta, salvo modelo local substituível | Não adotar sem nova decisão de provider/dados |
 | Copiloto de planejamento | Sugere trade-offs e formula ações | Usuário pode delegar autoridade demais | Média se cada sugestão citar entradas e critérios | Processa contexto, prioridades e restrições | Médio por ciclo | Média/alta; exigir fallback determinístico | Experimento futuro opt-in |
 | Gerador de planos | Reduz esforço de transformar revisão em ações | Plano plausível pode ocultar premissas erradas | Média somente com provenance e diff antes da confirmação | Usa o conjunto mais amplo de dados do ciclo | Médio/alto por geração e retry | Alta para qualidade; core deve sobreviver sem ele | Não separar do copiloto antes de provar valor incremental |
 | Facilitador de reflexão | Propõe perguntas ligadas às entradas | Inferências psicológicas indevidas | Média se a pergunta apontar a entrada; baixa para “insights” gerais | Entradas podem ser íntimas | Médio | Média; prompts e provider alteram tom | Pesquisa futura restrita |
@@ -231,7 +236,7 @@ Recomendação: manter o core sem IA. Um experimento futuro pode usar copiloto o
 3. o fluxo continuar funcionando sem modelo;
 4. provider, retenção, treinamento, exclusão e custo forem explícitos;
 5. nenhuma ação externa ocorrer sem confirmação;
-6. #87 definir a fronteira de dados e identidade.
+6. exigir nova decisão de provider, payload, consentimento e retenção; #87 mantém transportes externos desabilitados nos modos suportados.
 
 ## 11. Categoria e concorrência
 
@@ -394,18 +399,18 @@ Não usar tarefas concluídas, streaks ou tempo no app isoladamente como evidên
 | Produto atual | Loop semanal estreito | 3 ciclos com 5–10 design partners e ratificação da direção | Mantenedor | #88/follow-up de validação |
 | Público | Profissional individual como hipótese | entrevistas de problema | Mantenedor + pesquisa | nova issue de discovery |
 | Nome | `LifeOS` apenas como codinome | entrevistas, clearance e ratificação explícita antes de marca pública | Mantenedor | nova issue de naming |
-| IA | Fora do core e do claim | valor incremental, consentimento e fronteira de dados | Mantenedor + segurança | #87 + experimento próprio |
+| IA | Fora do core e do claim | valor incremental, consentimento e fronteira de dados | repository maintainer | nova decisão + experimento próprio |
 | Runtime | Não decidido por este brief | contrato de uso e release | Mantenedor/arquitetura | #85 |
-| Segurança | Nenhum claim de publicação | threat model e boundary demo/produto | Segurança/mantenedor | #87 |
-| CI/release | Não inferir release de checks parciais | mapa de gates e smoke | Manutenção/CI | #86 |
-| Docs/copy | Remover metadiscurso após decisões | mapa de autoridade | Mantenedor | #89 |
+| Segurança | Apenas local-dev suportado; nenhum claim de publicação | threat model e evidência de deployment | repository maintainer | #87 validada; gates ativos |
+| CI/release | Dois checks web canônicos; não inferir deployment | mapa de gates e smoke | repository maintainer | #86 validada; #100 aplicado |
+| Docs/copy | Remover metadiscurso por issue própria | mapa de autoridade | repository maintainer | #89/#131 concluídas; #132 ativo |
 | Suíte legada/#68 | Não reativar | evidência de demanda e escopo próprio | Mantenedor | #68 permanece bloqueada |
 
 ## 18. Desdobramentos recomendados
 
 1. Pesquisa com design partners: roteiro acima, critérios de recrutamento, consentimento e síntese sem dados pessoais.
 2. Clearance e naming: somente após evidência de problema/público; incluir busca profissional nos mercados escolhidos.
-3. Copy partner-facing: remover linguagem de engenharia depois de #85/#87, sem antecipar claims.
+3. Copy partner-facing: remover linguagem de engenharia somente por issue própria ready, sem antecipar claims.
 4. Política de IA: provider, consentimento, provenance, retenção, exclusão, fallback e custo antes de qualquer experimento.
 
 ## 19. Limitações

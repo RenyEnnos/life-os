@@ -1,8 +1,15 @@
 # LifeOS Canonical MVP
 
-Status: active source of truth
-Last updated: 2026-07-17
-Owner: Product Strategist
+Status: CANONICAL \
+Authority: validated product decision #88 \
+Audience: product/business; contributor; AI agent \
+Owner: repository maintainer \
+Last reviewed: 2026-07-18 \
+Review by: 2027-01-14 \
+Update trigger: approved user, scope or product-surface decision \
+Supersedes: none \
+Superseded by: none \
+Authorizes implementation: no
 
 ## Product Decision
 
@@ -28,7 +35,7 @@ Frontend routes:
 - `/mvp/weekly-review`
 - `/mvp/today`
 - `/mvp/reflection`
-- `/mvp/admin` for internal analytics only (internal/local/dev use only in current MVP)
+- `/mvp/admin` for internal analytics only; client visibility is presentation, while data always requires the server allowlist
 
 Backend contract:
 
@@ -37,6 +44,8 @@ Backend contract:
 - `/api/auth/verify`
 - `/api/auth/logout`
 - `/api/auth/profile`
+- `/api/auth/data-export`
+- `/api/auth/delete-account`
 - `/api/mvp/workspace`
 - `/api/mvp/onboarding`
 - `/api/mvp/weekly-plans/generate`
@@ -46,7 +55,10 @@ Backend contract:
 - `/api/mvp/reflections`
 - `/api/mvp/feedback`
 - `/api/mvp/admin/overview`
-- `/api/mvp/workspace` `DELETE`
+- `/api/mvp/workspace/reset/export`
+- `/api/mvp/workspace/reset`
+- `/api/mvp/workspace/recovery/latest`
+- `/api/mvp/workspace/recovery`
 
 ## Scope In
 
@@ -68,7 +80,7 @@ Backend contract:
 
 ## Current Constraints
 
-- default navigation still centers the broader suite instead of the MVP loop
+- broader-suite modules and Electron IPC remain in the repository, but their browser aliases redirect to `/mvp`; `/settings` remains an authenticated supporting route
 - `/mvp/admin` data is server-authorized by exact authenticated email through `LIFEOS_ADMIN_EMAILS`; an empty allowlist denies everyone
 - the current endpoint exposes only the authorized account's analytics, events, and feedback; cross-user/cohort administration is not implemented
 - some MVP copy still overstates readiness
@@ -77,5 +89,5 @@ Backend contract:
 ## How To Use This Document
 
 - If a roadmap, spec, or release note conflicts with this file, update that document or mark it superseded.
-- New product requirements should assume this MVP boundary unless the CEO explicitly changes it.
+- New product requirements should assume this MVP boundary unless a higher-authority human decision indexed in `docs/README.md` changes it.
 - Engineering docs should point here instead of redefining the MVP in parallel.

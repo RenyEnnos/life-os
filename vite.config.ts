@@ -39,11 +39,11 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         disable: isElectronMode,
         registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'robots.txt', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png'],
+      includeAssets: ['favicon.svg', 'icon-192.png', 'icon-512.png'],
       manifest: {
         name: 'Life OS',
         short_name: 'LifeOS',
-        description: 'Your Life Operating System',
+        description: 'Invite-only weekly planning and reflection loop',
         theme_color: '#050505',
         start_url: '/',
         display: 'standalone',
@@ -60,11 +60,6 @@ export default defineConfig(({ mode }) => {
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
-          },
-          {
-            src: '/apple-touch-icon.png',
-            sizes: '180x180',
-            type: 'image/png'
           }
         ]
       },

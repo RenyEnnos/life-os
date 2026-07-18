@@ -1,8 +1,19 @@
 # LifeOS
 
-LifeOS is currently shipped in this repo as an invite-only weekly operating loop inside the existing React + Express application.
+Status: CANONICAL \
+Authority: repository entry and contributor quick start \
+Audience: end user; contributor; AI agent \
+Owner: repository maintainer \
+Last reviewed: 2026-07-18 \
+Review by: 2027-01-14 \
+Update trigger: product surface, runtime, setup or key-path change \
+Supersedes: none \
+Superseded by: none \
+Authorizes implementation: no
 
-The canonical MVP framing lives in `docs/mvp/canonical-mvp.md`. If another document disagrees with that file, treat the other document as stale unless it explicitly says otherwise.
+LifeOS is currently implemented in this repo as an invite-only weekly operating loop inside the existing React + Express application. This does not imply a shared or production release.
+
+Use `docs/README.md` to select the current authority for each subject. Equal- or higher-authority conflicts are stop-and-report conditions, not an invitation to select the newest file.
 
 ## Current Product Boundary
 
@@ -30,8 +41,8 @@ Default development and build flow:
 
 - frontend: React 18 + Vite
 - backend: Express
-- auth: file-backed invite registration and session cookies by default
-- MVP persistence: explicitly selected with `LIFEOS_MVP_REPOSITORY=file|prisma`; Prisma also requires `DATABASE_URL`, which never selects a repository by itself
+- auth: file-backed invite registration and session cookies in both MVP repository modes
+- MVP workspace/recovery persistence: explicitly selected with `LIFEOS_MVP_REPOSITORY=file|prisma`; Prisma changes only this store and also requires `DATABASE_URL`, which never selects a repository by itself
 
 Important note:
 
@@ -42,7 +53,7 @@ Important note:
 Install dependencies:
 
 ```bash
-npm install
+npm ci
 ```
 
 Run the default app and API:
@@ -55,7 +66,7 @@ The admin route is only presentation until the server authorizes the signed-in i
 
 The canonical HTTP server rejects JSON bodies above 32 KiB and validates every auth/profile/MVP write with strict bounded schemas. Cookie-authenticated unsafe requests require an exact allowed `Origin`; bearer tokens are explicit request authority. Logout revokes all existing web tokens for the account through a persisted session version. Express deliberately does not trust proxy headers in the supported direct single-process topology.
 
-Canonical workspace reset is a two-step recovery operation, never a bodyless delete: password reauthentication plus the exact `RESET MY WORKSPACE` phrase prepares a versioned portable export and short-lived authorization; commit retains the recovery in the same repository mutation that clears data. `RESTORE MY WORKSPACE` restores a validated envelope, and the latest retained recovery remains available if the reset response is lost. This covers the canonical web workspace only; full account lifecycle is #110 and Electron recovery is #111.
+Canonical workspace reset is a two-step recovery operation, never a bodyless delete: password reauthentication plus the exact `RESET MY WORKSPACE` phrase prepares a versioned portable export and short-lived authorization; commit retains the recovery in the same repository mutation that clears data. `RESTORE MY WORKSPACE` restores a validated envelope, and the latest retained recovery remains available if the reset response is lost. The full web account lifecycle is documented in `docs/privacy/personal-data-lifecycle.md`; experimental Electron preservation/export is documented in `docs/data/electron-to-web-export.md`, while Electron reset/import remains disabled and non-canonical.
 
 The development scripts select `LIFEOS_OPERATING_MODE=local-dev`. Direct builds must select it explicitly:
 
@@ -74,9 +85,9 @@ Default local endpoints:
 
 - `src/features/mvp/`: weekly-loop MVP UI
 - `api/app.ts`: implemented auth and MVP server contract
+- `docs/README.md`: documentation authority and conflict index
 - `docs/mvp/canonical-mvp.md`: canonical product framing
 - `docs/mvp/route-map.md`: implemented route and API map
-- `plans/2026-03-20-canonical-mvp-doc-rewrite.md`: rewrite decision memo
 
 ## Verification
 
@@ -113,6 +124,7 @@ This does not authorize a shared deployment by itself. The actual host must also
   - `npm run lint`
   - `npm run test`
   - `npm run build`
+  - `npm run build:server`
 - `web / canonical-e2e` runs the built SPA through Express with `npm run test:e2e`.
 - Electron smoke remains advisory and separate from merge readiness.
 
