@@ -1,3 +1,9 @@
+Status: HISTORICAL
+Authority: historical decision memo only
+Snapshot date: 2026-03-19
+Current successor: `docs/mvp/canonical-mvp.md` and `docs/product/2026-07-16-product-positioning-brief.md`
+Authorizes implementation: no
+
 # LifeOS Product Audit: MVP Boundary, Scope Drift, and Docs Trust
 
 Date: 2026-03-19
@@ -251,4 +257,3 @@ Reason:
 3. `/mvp/admin` internal-only access control
 4. MVP status language and readiness truthfulness pass
 5. MVP API contract doc alignment
-

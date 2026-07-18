@@ -1,3 +1,9 @@
+Status: HISTORICAL
+Authority: completed delivery record only
+Snapshot date: 2026-03-20
+Current successor: `docs/README.md` and `docs/mvp/canonical-mvp.md`
+Authorizes implementation: no
+
 # LifeOS Canonical MVP Doc Rewrite
 
 Date: 2026-03-20

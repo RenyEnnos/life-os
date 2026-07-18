@@ -1,6 +1,11 @@
-# LifeOS MVP Implementation Checklist
+Status: HISTORICAL
+Authority: historical execution record only
+Snapshot date: 2026-03-19
+Current successor: `docs/mvp/canonical-mvp.md` and the open GitHub issue backlog
+Authorizes implementation: no
+Historical provenance: Paperclip architecture delivery plan in a machine-local workspace; the absolute path is intentionally not retained as authority
 
-Source of truth: `/home/pedro/.paperclip/instances/default/workspaces/aba66bcd-2a37-4871-9854-1b8106f3fe2a/plans/2026-03-19-lifeos-architecture-delivery-plan.md`
+# LifeOS MVP Implementation Checklist
 
 ## Product Boundary
 
