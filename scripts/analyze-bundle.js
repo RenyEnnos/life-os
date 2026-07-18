@@ -6,8 +6,11 @@
  * Usage: npm run analyze
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const distPath = fs.existsSync(path.join(__dirname, '..', 'dist', 'assets', 'js')) ? path.join(__dirname, '..', 'dist', 'assets', 'js') : path.join(__dirname, '..', 'dist', 'assets');
 

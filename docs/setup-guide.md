@@ -54,18 +54,7 @@ life-os/
 └── package.json       # Dependências e scripts
 ```
 
-## 5. UI Components Guide (Storybook)
-
-O Life OS inclui um dicionário de design-system via Storybook.
-Se estiver modificando a UI React, você pode iterar componentes em isolamento via:
-
-```bash
-npm run storybook
-```
-
-Isso executa o portal de design na porta `6006`.
-
-## 6. Build para Produção
+## 5. Build para Produção
 
 ```bash
 # Build do aplicativo desktop para sua plataforma
