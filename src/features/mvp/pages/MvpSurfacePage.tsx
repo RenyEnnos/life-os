@@ -545,7 +545,7 @@ export function MvpSurfacePage({ surface }: MvpSurfacePageProps) {
   const hydrateWorkspace = useMvpStore((state) => state.hydrateWorkspace);
   const isHydrating = useMvpStore((state) => state.isHydrating);
   const error = useMvpStore((state) => state.error);
-  const mvpSurfaces = useMemo(() => getMvpSurfaces(true), []);
+  const mvpSurfaces = useMemo(() => getMvpSurfaces(surface === 'admin'), [surface]);
   const currentIndex = mvpSurfaces.findIndex((item) => item.slug === surface);
   const current = mvpSurfaces[currentIndex];
   const previous = currentIndex > 0 ? mvpSurfaces[currentIndex - 1] : null;

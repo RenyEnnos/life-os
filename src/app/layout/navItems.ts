@@ -1,6 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
 import {
-  GraduationCap,
   Compass,
   Settings,
 } from 'lucide-react';
@@ -17,7 +16,6 @@ export const primaryNav: NavItem[] = [
 
 export const secondaryNav: NavItem[] = [
   { label: 'Configurações', path: '/settings', icon: Settings },
-  { label: 'Interno', path: '/mvp/admin', icon: GraduationCap },
 ];
 
 // Compact list for the mobile dock
