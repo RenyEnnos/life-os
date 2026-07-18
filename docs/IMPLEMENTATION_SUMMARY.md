@@ -1,6 +1,7 @@
 > Superseded on 2026-03-20 by `docs/mvp/canonical-mvp.md`.
 >
-> This file remains historical implementation context, not current MVP framing.
+> This file remains historical implementation context, not current MVP framing or a capability inventory.
+> Lighthouse, Storybook, Android and generated-SEO tooling mentioned below are not supported lanes; their nonfunctional commands and configuration were removed by #116.
 
 # Life OS - Part IA Implementation Summary
 
