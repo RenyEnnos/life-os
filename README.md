@@ -66,7 +66,7 @@ The admin route is only presentation until the server authorizes the signed-in i
 
 The canonical HTTP server rejects JSON bodies above 32 KiB and validates every auth/profile/MVP write with strict bounded schemas. Cookie-authenticated unsafe requests require an exact allowed `Origin`; bearer tokens are explicit request authority. Logout revokes all existing web tokens for the account through a persisted session version. Express deliberately does not trust proxy headers in the supported direct single-process topology.
 
-Canonical workspace reset is a two-step recovery operation, never a bodyless delete: password reauthentication plus the exact `RESET MY WORKSPACE` phrase prepares a versioned portable export and short-lived authorization; commit retains the recovery in the same repository mutation that clears data. `RESTORE MY WORKSPACE` restores a validated envelope, and the latest retained recovery remains available if the reset response is lost. The full web account lifecycle is documented in `docs/privacy/personal-data-lifecycle.md`; experimental Electron preservation/export is documented in `docs/data/electron-to-web-export.md`, while Electron reset/import remains disabled and non-canonical.
+Canonical workspace reset is a two-step recovery operation, never a bodyless delete: password reauthentication plus the exact `RESET MY WORKSPACE` phrase prepares a versioned portable export and short-lived authorization; commit retains the recovery in the same repository mutation that clears data. `RESTORE MY WORKSPACE` restores a validated envelope, and the latest retained recovery remains available if the reset response is lost. The full web account lifecycle is documented in `docs/contracts/personal-data-lifecycle.md`; experimental Electron preservation/export is documented in `docs/operations/electron-to-web-export.md`, while Electron reset/import remains disabled and non-canonical.
 
 The development scripts select `LIFEOS_OPERATING_MODE=local-dev`. Direct builds must select it explicitly:
 
@@ -74,7 +74,7 @@ The development scripts select `LIFEOS_OPERATING_MODE=local-dev`. Direct builds 
 LIFEOS_OPERATING_MODE=local-dev npm run build
 ```
 
-Direct server starts must also select persistence explicitly. `LIFEOS_MVP_REPOSITORY=file` is local, single-process storage with strict corruption errors, atomic replacement, and a last-known-good `.bak`; `prisma` additionally requires `DATABASE_URL`. File-to-Prisma dry-run, backup, apply, verification, and guarded rollback are documented in `docs/data/file-to-prisma-migration.md`.
+Direct server starts must also select persistence explicitly. `LIFEOS_MVP_REPOSITORY=file` is local, single-process storage with strict corruption errors, atomic replacement, and a last-known-good `.bak`; `prisma` additionally requires `DATABASE_URL`. File-to-Prisma dry-run, backup, apply, verification, and guarded rollback are documented in `docs/operations/file-to-prisma-migration.md`.
 
 Default local endpoints:
 
@@ -86,8 +86,8 @@ Default local endpoints:
 - `src/features/mvp/`: weekly-loop MVP UI
 - `api/app.ts`: implemented auth and MVP server contract
 - `docs/README.md`: documentation authority and conflict index
-- `docs/mvp/canonical-mvp.md`: canonical product framing
-- `docs/mvp/route-map.md`: implemented route and API map
+- `docs/product/canonical-mvp.md`: canonical product framing
+- `docs/contracts/mvp-route-map.md`: implemented route and API map
 
 ## Verification
 
@@ -98,7 +98,7 @@ Default local endpoints:
 - type check: `npm run typecheck`
 - lint: `npm run lint`
 
-The release-verification ladder and the distinction between authoritative versus advisory Playwright lanes live in `docs/release-verification-ladder.md`.
+The release-verification ladder and the distinction between authoritative versus advisory Playwright lanes live in `docs/operations/release-verification-ladder.md`.
 
 ## Operating Modes
 

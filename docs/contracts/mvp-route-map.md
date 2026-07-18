@@ -11,7 +11,7 @@ Supersedes: none \
 Superseded by: none \
 Authorizes implementation: no
 
-This file documents the implemented route and API contract for the canonical MVP in `docs/mvp/canonical-mvp.md`.
+This file documents the implemented route and API contract for the canonical MVP in `docs/product/canonical-mvp.md`.
 
 ## Frontend Routes
 

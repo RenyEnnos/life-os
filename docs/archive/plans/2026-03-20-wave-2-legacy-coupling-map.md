@@ -1,7 +1,7 @@
 Status: HISTORICAL
 Authority: historical proposal only
 Snapshot date: 2026-03-20
-Current successor: `docs/architecture-overview.md` and the open GitHub issue backlog
+Current successor: `docs/architecture/overview.md` and the open GitHub issue backlog
 Authorizes implementation: no
 
 # LifeOS Wave 2: Mapa de Acoplamento para Deleção de Legado

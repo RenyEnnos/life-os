@@ -1,7 +1,7 @@
 Status: SUPERSEDED
 Authority: historical context only
 Snapshot date: 2025-12-06
-Current successor: `docs/mvp/canonical-mvp.md` and `docs/product/2026-07-16-product-positioning-brief.md`
+Current successor: `docs/product/canonical-mvp.md` and `docs/product/2026-07-16-product-positioning-brief.md`
 Authorizes implementation: no
 
 # Product Requirements Document (PRD): Life OS v2.2 (The Ultimate Fusion)

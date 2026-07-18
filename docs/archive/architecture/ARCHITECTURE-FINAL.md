@@ -1,7 +1,7 @@
 Status: SUPERSEDED
 Authority: historical context only
 Snapshot date: unknown
-Current successor: `docs/mvp/canonical-mvp.md` and `docs/architecture-overview.md`
+Current successor: `docs/product/canonical-mvp.md` and `docs/architecture/overview.md`
 Authorizes implementation: no
 
 # Life OS - Complete Project Documentation

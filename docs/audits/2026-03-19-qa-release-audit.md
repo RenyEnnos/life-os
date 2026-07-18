@@ -2,7 +2,7 @@ Status: HISTORICAL
 Authority: evidence only
 Snapshot date: 2026-03-19
 Audited SHA: `unknown`
-Current successor: `docs/release-verification-ladder.md`
+Current successor: `docs/operations/release-verification-ladder.md`
 Authorizes implementation: no
 
 # QA Release Audit - 2026-03-19

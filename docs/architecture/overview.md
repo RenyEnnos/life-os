@@ -11,7 +11,7 @@ Supersedes: none \
 Superseded by: none \
 Authorizes implementation: no
 
-This document reflects the current default runtime and product boundary in the repository. The canonical MVP framing is `docs/mvp/canonical-mvp.md`.
+This document reflects the current default runtime and product boundary in the repository. The canonical MVP framing is `docs/product/canonical-mvp.md`.
 
 ## Architecture Decision
 

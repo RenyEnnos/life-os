@@ -39,7 +39,7 @@ Decisões associadas:
 
 ### 3.1 Comportamento comprovado
 
-O contrato canônico em `docs/mvp/canonical-mvp.md` descreve um loop invite-only:
+O contrato canônico em `docs/product/canonical-mvp.md` descreve um loop invite-only:
 
 1. onboarding contextual;
 2. revisão semanal;

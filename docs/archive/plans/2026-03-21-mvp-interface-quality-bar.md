@@ -1,7 +1,7 @@
 Status: HISTORICAL
 Authority: historical product/UX proposal only
 Snapshot date: 2026-03-21
-Current successor: `docs/mvp/canonical-mvp.md` and design-partner discovery issue #104
+Current successor: `docs/product/canonical-mvp.md` and design-partner discovery issue #104
 Authorizes implementation: no
 
 # LifeOS MVP: Barra de Qualidade de Interface e Rubric de Decisão

@@ -1,7 +1,7 @@
 Status: SUPERSEDED
 Authority: historical context only
 Snapshot date: unknown
-Current successor: `docs/mvp/canonical-mvp.md` and the open GitHub issue backlog
+Current successor: `docs/product/canonical-mvp.md` and the open GitHub issue backlog
 Authorizes implementation: no
 
 # Post-MVP Backlog

@@ -1,7 +1,7 @@
 Status: HISTORICAL
 Authority: historical execution record only
 Snapshot date: 2026-03-19
-Current successor: `docs/mvp/canonical-mvp.md` and the open GitHub issue backlog
+Current successor: `docs/product/canonical-mvp.md` and the open GitHub issue backlog
 Authorizes implementation: no
 Historical provenance: Paperclip architecture delivery plan in a machine-local workspace; the absolute path is intentionally not retained as authority
 
