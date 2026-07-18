@@ -32,9 +32,7 @@ export function useTasks() {
                 // Log to our new sync store for visibility in UI
                 import('@/shared/stores/useSyncLogStore').then(m => {
                     m.useSyncLogStore.getState().addLog({
-                        type: 'error',
-                        message: `Falha ao carregar tarefas: ${error.message || 'Erro de rede'}`,
-                        details: error
+                        type: 'error'
                     });
                 });
                 throw error;
