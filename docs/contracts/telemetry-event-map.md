@@ -1,5 +1,16 @@
 # MVP Telemetry Event Map
 
+Status: ACTIVE_SUPPORTING \
+Authority: current in-product event contract \
+Audience: product/business; security; contributor; AI agent \
+Owner: repository maintainer \
+Last reviewed: 2026-07-18 \
+Review by: 2027-01-14 \
+Update trigger: event name, property, transport, processor or retention change \
+Supersedes: none \
+Superseded by: none \
+Authorizes implementation: no
+
 This document lists the stable event vocabulary used for in-product state. It is not an external telemetry contract.
 
 ## Transport
@@ -9,7 +20,7 @@ This document lists the stable event vocabulary used for in-product state. It is
 - Custom error forwarding: disabled.
 - External retention, access and subject deletion: not applicable because no payload is transmitted.
 
-See `docs/privacy/personal-data-lifecycle.md` before proposing any processor.
+See `docs/contracts/personal-data-lifecycle.md` before proposing any processor.
 
 ## Event Map
 

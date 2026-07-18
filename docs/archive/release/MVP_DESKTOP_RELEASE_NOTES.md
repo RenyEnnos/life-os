@@ -1,7 +1,7 @@
 Status: SUPERSEDED
 Authority: historical context only
 Snapshot date: unknown
-Current successor: `docs/mvp/canonical-mvp.md` and `docs/release-verification-ladder.md`
+Current successor: `docs/product/canonical-mvp.md` and `docs/operations/release-verification-ladder.md`
 Authorizes implementation: no
 
 # MVP Desktop Release Notes

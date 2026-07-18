@@ -1,7 +1,7 @@
 Status: SUPERSEDED
 Authority: historical context only
 Snapshot date: unknown
-Current successor: `docs/mvp/canonical-mvp.md` and `docs/README.md`
+Current successor: `docs/product/canonical-mvp.md` and `docs/README.md`
 Authorizes implementation: no
 
 Lighthouse, Storybook, Android and generated-SEO tooling mentioned below are not supported lanes; their nonfunctional commands and configuration were removed by #116.

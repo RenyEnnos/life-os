@@ -4,7 +4,7 @@ Delivered issue: #109
 Delivered PR: #127
 Merged: 2026-07-17
 Merge SHA: `29ec38891856ad4eb1b15d1fd2add929adbbef4a`
-Current successor: `docs/data/file-to-prisma-migration.md`
+Current successor: `docs/operations/file-to-prisma-migration.md`
 Authorizes implementation: no
 
 # Durable persistence and migration design

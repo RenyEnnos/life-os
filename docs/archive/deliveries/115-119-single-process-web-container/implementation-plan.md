@@ -4,7 +4,7 @@ Delivered issue: #115
 Delivered PR: #119
 Merged: 2026-07-16
 Merge SHA: `50dc0eaabf8ba627c70462583c7c4270d6db060b`
-Current successor: `docs/release-verification-ladder.md` and `docs/setup-guide.md`
+Current successor: `docs/operations/release-verification-ladder.md` and `docs/operations/setup-guide.md`
 Authorizes implementation: no
 
 # Single-process Web Container Implementation Plan

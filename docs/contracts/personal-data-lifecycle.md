@@ -11,7 +11,7 @@ Supersedes: none \
 Superseded by: none \
 Authorizes implementation: no
 
-This is the enforceable lifecycle for the canonical web MVP. Experimental Electron confinement and preservation export are documented separately in `../data/electron-to-web-export.md`; they do not create a supported runtime or import contract.
+This is the enforceable lifecycle for the canonical web MVP. Experimental Electron confinement and preservation export are documented separately in `../operations/electron-to-web-export.md`; they do not create a supported runtime or import contract.
 
 ## Inventory and retention
 

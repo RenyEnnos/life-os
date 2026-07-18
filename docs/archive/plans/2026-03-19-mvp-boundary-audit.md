@@ -1,7 +1,7 @@
 Status: HISTORICAL
 Authority: historical decision memo only
 Snapshot date: 2026-03-19
-Current successor: `docs/mvp/canonical-mvp.md` and `docs/product/2026-07-16-product-positioning-brief.md`
+Current successor: `docs/product/canonical-mvp.md` and `docs/product/2026-07-16-product-positioning-brief.md`
 Authorizes implementation: no
 
 # LifeOS Product Audit: MVP Boundary, Scope Drift, and Docs Trust

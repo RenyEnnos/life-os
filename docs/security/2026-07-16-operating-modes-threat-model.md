@@ -142,7 +142,7 @@ Boundary schemas, body limits, per-route limits, exact-Origin cookie protections
 
 The MVP may store email, name, theme, invite history, onboarding profile, goals, commitments, weekly reviews/plans, action notes/status, daily check-ins, reflections, ratings, feedback and event timestamps. Electron legacy modules can hold broader journal, health, finance, task and university records, but those are outside the canonical product and must remain preserved during runtime migration.
 
-The implemented field inventory, export/deletion contract, backup exception and processor policy are maintained in `docs/privacy/personal-data-lifecycle.md`. Workspace reset remains distinct from account deletion.
+The implemented field inventory, export/deletion contract, backup exception and processor policy are maintained in `docs/contracts/personal-data-lifecycle.md`. Workspace reset remains distinct from account deletion.
 
 Partner-beta requires:
 
