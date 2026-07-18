@@ -1,6 +1,17 @@
 # Personal data lifecycle
 
-This is the enforceable lifecycle for the canonical web MVP. Electron-only legacy modules remain outside this contract until #111.
+Status: ACTIVE_SUPPORTING \
+Authority: implemented web account lifecycle under #110 \
+Audience: security; operator/release; contributor; AI agent \
+Owner: repository maintainer \
+Last reviewed: 2026-07-18 \
+Review by: 2026-10-16 \
+Update trigger: personal-data field, export, deletion, recovery, log or processor change \
+Supersedes: none \
+Superseded by: none \
+Authorizes implementation: no
+
+This is the enforceable lifecycle for the canonical web MVP. Experimental Electron confinement and preservation export are documented separately in `../data/electron-to-web-export.md`; they do not create a supported runtime or import contract.
 
 ## Inventory and retention
 
@@ -8,7 +19,7 @@ This is the enforceable lifecycle for the canonical web MVP. Electron-only legac
 | --- | --- | --- | --- | --- | --- |
 | Email, name, theme, onboarding flag, timestamps | authentication and profile | private auth JSON; identity is duplicated in Prisma when that MVP repository is selected | account lifetime | account metadata | user and claimed invite are removed |
 | Password hash, session version | authentication and session revocation | private auth JSON | account lifetime | never exported | removed; issued sessions stop resolving |
-| Invite email/code and claim timestamps | invitation access control | private auth JSON | until claim/account deletion or operator withdrawal | never exported because the code is a credential | claimed invite is removed with the account |
+| Invite email/code and claim timestamps | invitation access control | private auth JSON | until claim/account deletion; removing a configured seed does not purge an already persisted invite | never exported because the code is a credential | claimed invite is removed with the account; unclaimed operator purge is not implemented |
 | SHA-256 digest of a deleted invite identity | prevent configured seed from silently recreating a deleted invitation | private auth JSON | retained while the same invite seed remains configured | not exported | contains no raw email/code; a genuinely new invitation code creates a new identity |
 | Onboarding profile, goals, commitments and constraints | personalize the planning loop | selected MVP repository | account lifetime | workspace JSON envelope | removed |
 | Weekly review, plan, priorities, actions and notes | planning and execution | selected MVP repository | account lifetime | workspace JSON envelope | removed |
@@ -16,7 +27,7 @@ This is the enforceable lifecycle for the canonical web MVP. Electron-only legac
 | MVP event names/timestamps and computed counts | product behavior and in-product summaries | selected MVP repository | account lifetime | workspace JSON envelope | removed |
 | Up to five workspace recovery envelopes | recovery after explicit workspace reset | selected MVP repository | until replaced by the five-record cap or account deletion | included in account export | removed |
 | Theme, language, accessibility, onboarding, focus, sanctuary, dynamic-now and user preferences | device experience | browser local storage, guarded by the current account owner marker | until account transition, local clear or account deletion from Settings | added only when the owner marker matches the authenticated account | known LifeOS keys and owner marker are removed |
-| Local sync diagnostics | offline synchronization status | browser IndexedDB, capped at 100 entries | until local clear or account deletion | added to downloaded JSON by the browser | removed by the Settings deletion flow |
+| Local sync diagnostics | legacy synchronization status; entries may contain free-text messages or raw error details | browser IndexedDB, capped at 100 entries | until local clear or account deletion | added to downloaded JSON by the browser; inspect before sharing | removed by the Settings deletion flow |
 | Auth/session state and query cache | offline continuity | browser IndexedDB and local storage | until logout/cache expiry or account deletion | never portable because it can contain credentials/duplicates | removed by the Settings deletion flow |
 
 Derived analytics in the workspace are recomputed from exported records. They are not an independent processor or retention store.
@@ -24,6 +35,7 @@ Derived analytics in the workspace are recomputed from exported records. They ar
 ## Subject operations
 
 - `POST /api/auth/data-export` requires an authenticated session, allowed write origin and current password. It returns `lifeos.account.export` version 1 without password hashes, invite codes, session versions or another user's records.
+- Optional desktop identity fields are exported only as `user-asserted` claims. Password reauthentication proves the target web account, not a desktop-to-web identity mapping.
 - Settings > Data downloads that server envelope and adds the current device's known LifeOS preference keys.
 - `POST /api/auth/delete-account` additionally requires the exact phrase `DELETE MY ACCOUNT`.
 - Deletion first persists a pending intent that revokes session resolution, then atomically removes the selected MVP user's identity, active records and recoveries, and finally purges auth/invite data. If MVP deletion fails, the intent is cancelled and the account remains usable with old sessions revoked. If only the final auth purge is interrupted, the API returns an accepted/pending result: the account remains inaccessible and reconciliation finishes the purge.
@@ -39,8 +51,8 @@ Run restore drills only in a disposable isolated database, verify user scoping a
 
 ## Logs and processors
 
-- Server errors emit only `MVP API request failed`; request bodies and exception objects are not logged.
-- Browser errors retain only allowlisted name/code and fixed component/action labels. Messages, stacks, URLs, user IDs and arbitrary metadata are discarded.
+- The canonical Express request-error middleware emits only `MVP API request failed`; request bodies and exception objects are not logged there.
+- The canonical browser error boundary retains only allowlisted name/code and fixed component/action labels. The legacy local sync-log store is a known exception: it may persist/export free-text messages and raw error details, so #138 owns sanitization and exports must be inspected before sharing.
 - Authentication UI does not log email, user agent, credentials or raw errors.
 - Host logs, if retained, expire within 7 days and are accessible only to the maintainer.
 

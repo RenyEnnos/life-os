@@ -1,5 +1,16 @@
 # LifeOS Architecture Overview
 
+Status: ACTIVE_SUPPORTING \
+Authority: derived current architecture under ADR-0001 and #85 \
+Audience: contributor; AI agent \
+Owner: repository maintainer \
+Last reviewed: 2026-07-18 \
+Review by: 2026-10-16 \
+Update trigger: ADR, runtime, schema, route, authentication or persistence boundary change \
+Supersedes: none \
+Superseded by: none \
+Authorizes implementation: no
+
 This document reflects the current default runtime and product boundary in the repository. The canonical MVP framing is `docs/mvp/canonical-mvp.md`.
 
 ## Architecture Decision
@@ -18,7 +29,7 @@ graph TD
     MVP["MVP repository"]
     Store[("JSON file store or Prisma-backed Postgres")]
 
-    Client -- "HTTPS / JSON" --> API
+    Client -- "HTTP(S) / JSON" --> API
     API --> Auth
     API --> MVP
     MVP --> Store
@@ -38,7 +49,7 @@ Product structure:
 
 - `src/features/mvp/` contains the canonical MVP loop
 - the rest of `src/features/*` is legacy or broader-suite product surface
-- current navigation still exposes that broader suite, which is why product framing has drifted
+- retained modules and Electron IPC still exist, while legacy browser aliases redirect to `/mvp`
 
 ## Backend
 
@@ -50,7 +61,8 @@ Default backend runtime:
 
 Persistence behavior:
 
-- file-backed repositories are the default local path
+- web auth remains file-backed in every mode; local scripts explicitly select file-backed MVP persistence
+- direct server startup requires `LIFEOS_MVP_REPOSITORY=file|prisma`; there is no implicit repository default
 - Prisma-backed MVP storage becomes active only with `LIFEOS_MVP_REPOSITORY=prisma` and a non-empty `DATABASE_URL`; `DATABASE_URL` alone never changes repository mode
 - File-backed auth and MVP stores use strict schemas, a process-wide queue per resolved path, and same-directory fsync/rename replacement with a last-known-good backup. They remain single-process/local-only; Prisma is the durable MVP target.
 
@@ -63,7 +75,7 @@ In scope:
 - `/mvp/weekly-review`
 - `/mvp/today`
 - `/mvp/reflection`
-- `/mvp/admin` as an internal-only intent, even though the route is not yet access-gated
+- `/mvp/admin` as an internal-only surface: client visibility is presentation and the backend requires an exact configured admin email
 
 Out of scope for canonical MVP framing:
 
@@ -73,9 +85,4 @@ Out of scope for canonical MVP framing:
 
 ## Documentation Precedence
 
-Use this order when documents conflict:
-
-1. `docs/mvp/canonical-mvp.md`
-2. `docs/mvp/route-map.md`
-3. `api/app.ts` and `src/config/routes/index.tsx`
-4. historical docs marked as superseded
+Use `AGENTS.md` then `docs/README.md`, followed by the assigned human decision/ADR, the exact canonical or supporting document, and the applicable executable contract. Equal- or higher-authority conflicts are stop-and-report conditions. Historical documents never authorize implementation.
