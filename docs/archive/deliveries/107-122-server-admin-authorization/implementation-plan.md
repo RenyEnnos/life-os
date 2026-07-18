@@ -1,3 +1,12 @@
+Status: HISTORICAL
+Authority: completed delivery record only
+Delivered issue: #107
+Delivered PR: #122
+Merged: 2026-07-17
+Merge SHA: `34a751d1b257243cb16327e01563c6e798808ed4`
+Current successor: `docs/security/2026-07-16-operating-modes-threat-model.md`
+Authorizes implementation: no
+
 # Server Admin Authorization Implementation Plan
 
 > Issue #107. Execute with TDD and keep the server contract authoritative.

@@ -1,3 +1,12 @@
+Status: HISTORICAL
+Authority: completed delivery record only
+Delivered issue: #106
+Delivered PR: #121
+Merged: 2026-07-17
+Merge SHA: `c19bd87cbb0556137485c091bbc805bc282bc8ce`
+Current successor: `docs/security/2026-07-16-operating-modes-threat-model.md`
+Authorizes implementation: no
+
 # Fail-Closed Operating Mode Design
 
 Issue: #106

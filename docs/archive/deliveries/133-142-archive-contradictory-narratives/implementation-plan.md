@@ -1,3 +1,12 @@
+Status: HISTORICAL
+Authority: completed delivery record only
+Delivered issue: #133
+Delivered PR: #142
+Merged: 2026-07-18
+Merge SHA: `af51c1289525f07db50a907a596e61cde0b32b1e`
+Current successor: `docs/README.md`, `docs/archive/README.md`, and `docs/audits/README.md`
+Authorizes implementation: no
+
 # Archive Contradictory Narratives Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

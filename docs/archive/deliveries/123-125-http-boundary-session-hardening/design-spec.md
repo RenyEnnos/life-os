@@ -1,3 +1,12 @@
+Status: HISTORICAL
+Authority: completed delivery record only
+Delivered issue: #123 (child of #108)
+Delivered PR: #125
+Merged: 2026-07-17
+Merge SHA: `dda40c5837397674a51730a3466619598ca3c1c5`
+Current successor: `docs/security/2026-07-16-operating-modes-threat-model.md`
+Authorizes implementation: no
+
 # HTTP Boundary and Session Hardening Design
 
 Status: approved for autonomous execution

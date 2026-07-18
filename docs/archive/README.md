@@ -9,6 +9,7 @@ This directory preserves superseded product narratives. Archived files remain se
 | Group | Preserved narrative | Current successor |
 | --- | --- | --- |
 | `architecture/` | broad-suite and desktop-first architecture | [`architecture-overview.md`](../architecture-overview.md) and [`adr/0001-canonical-runtime.md`](../adr/0001-canonical-runtime.md) |
+| `deliveries/` | completed agent plans/specs bound to verified issues, PRs and merge commits | [`deliveries/README.md`](deliveries/README.md) and each delivery's active successor |
 | `implementation/` | historical implementation claims | [`mvp/canonical-mvp.md`](../mvp/canonical-mvp.md) and this repository's current code/tests |
 | `mvp/` | obsolete MVP execution checklist | [`mvp/canonical-mvp.md`](../mvp/canonical-mvp.md) and the open GitHub issue backlog |
 | `plans/` | completed or superseded March 2026 planning records | [`README.md`](../README.md), [`mvp/canonical-mvp.md`](../mvp/canonical-mvp.md), and the open GitHub issue backlog |

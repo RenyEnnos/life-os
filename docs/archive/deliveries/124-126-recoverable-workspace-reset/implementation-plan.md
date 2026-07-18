@@ -1,3 +1,12 @@
+Status: HISTORICAL
+Authority: completed delivery record only
+Delivered issue: #124
+Delivered PR: #126
+Merged: 2026-07-17
+Merge SHA: `39d6066f0732ff0f1a008eeb72ff0e60ba8b9307`
+Current successor: `docs/privacy/personal-data-lifecycle.md`
+Authorizes implementation: no
+
 # Recoverable Workspace Reset Implementation Plan
 
 **Goal:** Make canonical workspace reset deliberate, exportable, and recoverable without expanding into account lifecycle or general persistence migration.
