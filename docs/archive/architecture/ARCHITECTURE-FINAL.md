@@ -1,6 +1,8 @@
-> Superseded on 2026-03-20 by `docs/mvp/canonical-mvp.md` and `docs/architecture-overview.md`.
->
-> This file describes a broader product story than the current canonical MVP.
+Status: SUPERSEDED
+Authority: historical context only
+Snapshot date: unknown
+Current successor: `docs/mvp/canonical-mvp.md` and `docs/architecture-overview.md`
+Authorizes implementation: no
 
 # Life OS - Complete Project Documentation
 

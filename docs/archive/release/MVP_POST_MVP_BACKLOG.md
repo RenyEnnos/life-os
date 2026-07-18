@@ -1,6 +1,8 @@
-> Superseded on 2026-03-20 by `docs/mvp/canonical-mvp.md`.
->
-> The backlog assumptions in this file are tied to the previous desktop-first MVP framing.
+Status: SUPERSEDED
+Authority: historical context only
+Snapshot date: unknown
+Current successor: `docs/mvp/canonical-mvp.md` and the open GitHub issue backlog
+Authorizes implementation: no
 
 # Post-MVP Backlog
 

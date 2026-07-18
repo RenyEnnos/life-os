@@ -1,7 +1,12 @@
 # LifeOS Forensic Architecture and AI-Bloat Audit
 
-Status: ready for human review; not authorized to merge
-Authority: issue #83 under recovery program #82; delivery authorized by draft PR #101
+Status: HISTORICAL
+Authority: evidence only
+Snapshot date: 2026-07-13
+Audited SHA: `7d8093fdf588e99d0893f7b66940b402457bcf22`
+Current successor: `docs/README.md`
+Authorizes implementation: no
+Historical authority: issue #83 under recovery program #82; delivered by PR #101
 Owner: repository maintainer
 Executor: read-only terminal analysis agent
 Branch: `agent/forensic-audit-83`
