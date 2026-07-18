@@ -1,3 +1,12 @@
+Status: HISTORICAL
+Authority: completed delivery record only
+Delivered issue: #109
+Delivered PR: #127
+Merged: 2026-07-17
+Merge SHA: `29ec38891856ad4eb1b15d1fd2add929adbbef4a`
+Current successor: `docs/data/file-to-prisma-migration.md`
+Authorizes implementation: no
+
 # Durable persistence and migration design
 
 Issue #109 makes repository selection deliberate, keeps JSON confined to one Node process, and provides an auditable path from file workspaces to Prisma/Postgres. It does not move web password/session authority out of the auth JSON file; full account lifecycle is #110 and Electron data is #111.
@@ -21,4 +30,3 @@ The existing Prisma reset transaction is unchanged: recovery creation and worksp
 ## Limits and rollback
 
 This design deliberately avoids lockfiles or distributed locking for JSON. If more than one Node process must write the same file, stop using file mode and select Prisma. Rollback is: run the ledger rollback for a failed/abandoned import, verify target absence, restore file backups only if the originals were independently damaged, and explicitly select `file`.
-

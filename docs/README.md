@@ -72,7 +72,7 @@ An exception applies only to its exact recorded scope. The default policy resume
 - Dated evidence remains under [`audits/`](audits/README.md), is immutable, and never authorizes current implementation.
 - Superseded desktop and broad-suite narratives remain searchable under [`archive/`](archive/README.md), outside the primary authority path.
 - The obsolete MVP checklist and March planning records are preserved under [`archive/`](archive/README.md) and cannot authorize implementation.
-- Completed July agent plans/specs are historical and owned by #135.
+- Completed agent plans/specs are preserved by verified issue/PR delivery under [`archive/deliveries/`](archive/deliveries/README.md) and cannot be executed as active instructions.
 - Active taxonomy moves and link repair are deferred to #136, after authority and archive work stabilize.
 - Do not link historical plans or archive paths from Quick Start, Key Paths or issue templates as current authority.
 
