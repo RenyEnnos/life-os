@@ -43,8 +43,9 @@ Only one document may be CANONICAL for a subject. When two sources of equal or h
 | Electron preservation/export | [`data/electron-to-web-export.md`](data/electron-to-web-export.md) | ACTIVE_SUPPORTING | #111; Electron remains experimental | operator/release; security; contributor; AI agent | repository maintainer | Electron schema, identity or export envelope | 2026-10-16 |
 | Advisory tooling | [`tooling/advisory-lanes.md`](tooling/advisory-lanes.md) | ACTIVE_SUPPORTING | #116 and real package commands | contributor; AI agent; operator/release | repository maintainer | command, owner, evidence boundary or CI promotion | 2027-01-14 |
 | Contributor setup | [`setup-guide.md`](setup-guide.md) | ACTIVE_SUPPORTING | package scripts and runtime decisions reconciled by #132 | contributor; AI agent | repository maintainer | runtime, quick-start, env or persistence | 2026-10-16 |
+| Audit evidence navigation | [`audits/README.md`](audits/README.md) | ACTIVE_SUPPORTING | #89 and #133; dated snapshots remain evidence only | contributor; AI agent; operator/release; history | repository maintainer | audit addition, relocation, metadata correction or successor | 2027-01-14 |
 
-CONTRADICTORY documents are indexed so agents see the stop condition. They are not valid implementation authority until their owning correction issue is merged.
+Historical and audit material is indexed separately for provenance. It is not current implementation authority.
 
 ## Executable authority boundaries
 
@@ -68,8 +69,8 @@ An exception applies only to its exact recorded scope. The default policy resume
 
 ## Historical and migration inventory
 
-- Dated evidence remains under `audits/` and never authorizes current implementation. #133 owns snapshot metadata and the March QA relocation.
-- Desktop/broad-suite/root historical documents remain in their current paths only until #133.
+- Dated evidence remains under [`audits/`](audits/README.md), is immutable, and never authorizes current implementation.
+- Superseded desktop and broad-suite narratives remain searchable under [`archive/`](archive/README.md), outside the primary authority path.
 - The obsolete MVP checklist and March root plans are historical and owned by #134.
 - Completed July agent plans/specs are historical and owned by #135.
 - Active taxonomy moves and link repair are deferred to #136, after authority and archive work stabilize.

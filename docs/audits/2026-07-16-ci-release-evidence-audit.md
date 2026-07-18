@@ -1,7 +1,11 @@
 # LifeOS CI, test and release-evidence audit
 
-Status: validated evidence report
-Date: 2026-07-16
+Status: HISTORICAL
+Authority: evidence only
+Snapshot date: 2026-07-16
+Audited SHA: `e00b821954ebd701d642137bff3581b413e9ca7b`
+Current successor: `docs/release-verification-ladder.md`
+Authorizes implementation: no
 Audit owner: Codex under the autonomous recovery mandate
 Related issues: #82, #83, #85, #86, #87, #100
 

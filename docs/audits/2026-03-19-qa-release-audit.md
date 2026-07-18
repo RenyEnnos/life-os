@@ -1,6 +1,9 @@
-> Superseded on 2026-03-28 by `docs/mvp/canonical-mvp.md` and `docs/mvp/route-map.md`.
->
-> Historical QA snapshot only. Keep for audit trail, but do not treat this file as current MVP scope authority.
+Status: HISTORICAL
+Authority: evidence only
+Snapshot date: 2026-03-19
+Audited SHA: `unknown`
+Current successor: `docs/release-verification-ladder.md`
+Authorizes implementation: no
 
 # QA Release Audit - 2026-03-19
 

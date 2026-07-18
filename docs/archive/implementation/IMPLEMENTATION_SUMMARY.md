@@ -1,7 +1,10 @@
-> Superseded on 2026-03-20 by `docs/mvp/canonical-mvp.md`.
->
-> This file remains historical implementation context, not current MVP framing or a capability inventory.
-> Lighthouse, Storybook, Android and generated-SEO tooling mentioned below are not supported lanes; their nonfunctional commands and configuration were removed by #116.
+Status: SUPERSEDED
+Authority: historical context only
+Snapshot date: unknown
+Current successor: `docs/mvp/canonical-mvp.md` and `docs/README.md`
+Authorizes implementation: no
+
+Lighthouse, Storybook, Android and generated-SEO tooling mentioned below are not supported lanes; their nonfunctional commands and configuration were removed by #116.
 
 # Life OS - Part IA Implementation Summary
 
@@ -423,7 +426,7 @@ This document summarizes the implementation of 11 advanced features for Life OS 
 
 All features are documented in:
 - `docs/DEPLOYMENT.md` - Deployment guide
-- `docs/IMPLEMENTATION_SUMMARY.md` - This file
+- `docs/archive/implementation/IMPLEMENTATION_SUMMARY.md` - This file
 - Inline code comments
 - TypeScript types
 

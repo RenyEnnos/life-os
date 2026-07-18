@@ -1,6 +1,8 @@
-> Superseded on 2026-03-28 by `docs/mvp/canonical-mvp.md`.
->
-> Historical broad-suite PRD context. This document is not the canonical MVP framing for current product decisions.
+Status: SUPERSEDED
+Authority: historical context only
+Snapshot date: 2025-12-06
+Current successor: `docs/mvp/canonical-mvp.md` and `docs/product/2026-07-16-product-positioning-brief.md`
+Authorizes implementation: no
 
 # Product Requirements Document (PRD): Life OS v2.2 (The Ultimate Fusion)
 

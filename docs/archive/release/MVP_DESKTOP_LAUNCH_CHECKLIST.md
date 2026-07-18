@@ -1,6 +1,8 @@
-> Superseded on 2026-03-28 by `docs/mvp/canonical-mvp.md` and `docs/mvp/route-map.md`.
->
-> Historical artifact only. This checklist documents a prior desktop launch workflow and is not canonical MVP authority.
+Status: SUPERSEDED
+Authority: historical context only
+Snapshot date: unknown
+Current successor: `docs/mvp/canonical-mvp.md` and `docs/release-verification-ladder.md`
+Authorizes implementation: no
 
 # MVP Desktop Launch Checklist
 
