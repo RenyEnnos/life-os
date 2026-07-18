@@ -1,9 +1,15 @@
 # LifeOS Governance
 
-Status: canonical  
-Authority: index for repository governance  
-Owner: repository maintainer  
-Last reviewed: 2026-07-12
+Status: CANONICAL \
+Authority: index for repository governance \
+Audience: contributor; AI agent \
+Owner: repository maintainer \
+Last reviewed: 2026-07-18 \
+Review by: 2027-01-14 \
+Update trigger: governance source, authority hierarchy or operating gate changes \
+Supersedes: none \
+Superseded by: none \
+Authorizes implementation: no
 
 ## Purpose
 
@@ -12,6 +18,7 @@ LifeOS is operated as an AI-native project with human authority. Agents may anal
 ## Governance map
 
 - `AGENTS.md` — mandatory entrypoint for every coding or analysis agent.
+- `../README.md` — central documentation authority, status, owner, lifecycle, and active-exception index.
 - `agent-protocol.md` — execution protocol and stop conditions.
 - `readiness-and-done.md` — Definition of Ready and Definition of Done.
 - `policies.md` — dependencies, documentation, branches, reviews, concurrency, and change control.
@@ -41,7 +48,7 @@ This hierarchy does not mean current code is automatically correct. It means cod
 7. Independent review and validation.
 8. Merge and post-merge verification.
 
-Skipping a gate requires explicit human approval recorded in the relevant issue.
+Skipping a gate requires explicit human approval recorded in the relevant issue and indexed as an active exception in `docs/README.md`.
 
 ## Current recovery program
 

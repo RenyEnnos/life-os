@@ -35,6 +35,10 @@ What problem does this PR solve?
 
 -
 
+## Active authority exception
+
+- None, or exact source/scope/termination entry from `docs/README.md`:
+
 ## Risk
 
 - Risk label:
@@ -61,4 +65,4 @@ What problem does this PR solve?
 
 - [ ] This PR was produced or materially assisted by an AI agent.
 - [ ] The agent stopped at the assigned issue boundary.
-- [ ] Human review is required before merge.
+- [ ] Human review is complete, or an exact active higher-authority exception indexed in `docs/README.md` permits post-execution review.
