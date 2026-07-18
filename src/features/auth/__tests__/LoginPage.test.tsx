@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 
 import LoginPage from '../components/LoginPage';
 
@@ -19,7 +19,7 @@ vi.mock('@/features/auth/contexts/AuthContext', () => ({
   useAuth: () => mockAuth,
 }));
 
-function renderLoginPage() {
+function renderLoginPage(state?: { accountDeleted: boolean; localCleanupComplete: boolean }) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -28,9 +28,9 @@ function renderLoginPage() {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <MemoryRouter initialEntries={[{ pathname: '/login', state }]}>
         <LoginPage />
-      </BrowserRouter>
+      </MemoryRouter>
     </QueryClientProvider>
   );
 }
@@ -85,5 +85,11 @@ describe('LoginPage UI', () => {
         'Erro ao enviar link. Tente novamente.'
       );
     });
+  });
+
+  it('warns when account deletion could not clear every device-local store', async () => {
+    renderLoginPage({ accountDeleted: true, localCleanupComplete: false });
+
+    expect(await screen.findByText(/some data remains on this device/i)).toBeInTheDocument();
   });
 });

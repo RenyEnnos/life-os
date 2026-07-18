@@ -51,9 +51,8 @@ export default function ResetPasswordPage() {
             await updatePassword(password);
             setSuccess(true);
             setTimeout(() => navigate('/login'), 3000);
-        } catch (err: any) {
-            console.error('Reset Password Error:', err);
-            setError(err.message || 'Falha ao atualizar senha.');
+        } catch {
+            setError('Falha ao atualizar senha.');
         } finally {
             setIsSubmitting(false);
         }

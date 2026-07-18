@@ -126,6 +126,9 @@ async function readSource(options: MigrationOptions) {
   ]);
   const auth = authStateSchema.parse(JSON.parse(authRaw.toString('utf8')));
   const store = persistedMvpStoreSchema.parse(JSON.parse(workspaceRaw.toString('utf8')));
+  if (auth.users.some(({ deletionPending }) => deletionPending)) {
+    throw new Error('Pending account deletion must be reconciled before migration');
+  }
   const users: SourceUser[] = auth.users.map((user) => {
     const workspace = store.users[user.id] === undefined
       ? createEmptyWorkspace()

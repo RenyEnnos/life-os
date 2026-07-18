@@ -1,10 +1,11 @@
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { z } from 'zod';
 
 import { parseInviteSeeds, type InviteSeed } from '../shared/operatingMode';
 import { mutateJsonFile, readJsonFile } from './atomicJsonFile';
 
-interface StoredInvite extends InviteSeed {
+export interface StoredInvite extends InviteSeed {
   claimedAt: string | null;
   claimedByUserId: string | null;
 }
@@ -18,6 +19,7 @@ export interface StoredUser {
   theme: 'dark' | 'light';
   onboardingCompleted: boolean;
   sessionVersion: number;
+  deletionPending?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -25,6 +27,7 @@ export interface StoredUser {
 export interface AuthState {
   invites: StoredInvite[];
   users: StoredUser[];
+  revokedInviteDigests: string[];
 }
 
 const inviteSchema = z.object({
@@ -34,16 +37,27 @@ const inviteSchema = z.object({
 const userSchema = z.object({
   id: z.string(), email: z.string(), passwordHash: z.string(), fullName: z.string(), inviteCode: z.string(),
   theme: z.enum(['dark', 'light']), onboardingCompleted: z.boolean(), sessionVersion: z.number().int().nonnegative().optional(),
+  deletionPending: z.boolean().optional(),
   createdAt: z.string(), updatedAt: z.string(),
 }).strict();
-export const authStateSchema = z.object({ invites: z.array(inviteSchema), users: z.array(userSchema) }).strict()
+export const authStateSchema = z.object({
+  invites: z.array(inviteSchema), users: z.array(userSchema),
+  revokedInviteDigests: z.array(z.string().regex(/^[a-f0-9]{64}$/)).optional().default([]),
+}).strict()
   .transform((state): AuthState => ({
     invites: state.invites,
-    users: state.users.map((user) => ({ ...user, sessionVersion: user.sessionVersion ?? 0 })),
+    revokedInviteDigests: state.revokedInviteDigests,
+    users: state.users.map((user) => ({
+      ...user, sessionVersion: user.sessionVersion ?? 0, deletionPending: user.deletionPending ?? false,
+    })),
   })) as z.ZodType<AuthState>;
 
 function emptyAuthState(): AuthState {
-  return { invites: [], users: [] };
+  return { invites: [], users: [], revokedInviteDigests: [] };
+}
+
+function inviteDigest(email: string, code: string) {
+  return createHash('sha256').update(`${normalizeEmail(email)}::${code.trim()}`).digest('hex');
 }
 
 function defaultFilePath() {
@@ -88,6 +102,8 @@ export class FileBackedAuthRepository {
         : controlledDemo
           ? []
           : [{ email: 'partner@lifeos.local', code: 'LIFEOS-INVITE', fullName: 'Design Partner' }];
+    const configuredDigests = new Set(fallbackInvite.map(({ email, code }) => inviteDigest(email, code)));
+    const revokedInviteDigests = state.revokedInviteDigests.filter((digest) => configuredDigests.has(digest));
 
     const byEmailCode = new Set(state.invites.map((invite) => `${invite.email}::${invite.code}`));
     const mergedInvites = [...state.invites];
@@ -99,7 +115,7 @@ export class FileBackedAuthRepository {
         fullName: invite.fullName?.trim() || undefined,
       };
       const key = `${normalizedInvite.email}::${normalizedInvite.code}`;
-      if (!byEmailCode.has(key)) {
+      if (!byEmailCode.has(key) && !revokedInviteDigests.includes(inviteDigest(normalizedInvite.email, normalizedInvite.code))) {
         mergedInvites.push({
           ...normalizedInvite,
           claimedAt: null,
@@ -110,6 +126,7 @@ export class FileBackedAuthRepository {
 
     return {
       invites: mergedInvites,
+      revokedInviteDigests,
       users: state.users.map((user) => ({
         ...user,
         sessionVersion: Number.isInteger(user.sessionVersion) && user.sessionVersion >= 0 ? user.sessionVersion : 0,
@@ -152,6 +169,7 @@ export class FileBackedAuthRepository {
         theme: 'dark',
         onboardingCompleted: false,
         sessionVersion: 0,
+        deletionPending: false,
         createdAt: now,
         updatedAt: now,
       };
@@ -165,19 +183,19 @@ export class FileBackedAuthRepository {
 
   async findUserByEmail(email: string) {
     const state = await this.readState();
-    return state.users.find((user) => user.email === normalizeEmail(email)) ?? null;
+    return state.users.find((user) => user.email === normalizeEmail(email) && !user.deletionPending) ?? null;
   }
 
   async findUserById(userId: string) {
     const state = await this.readState();
-    return state.users.find((user) => user.id === userId) ?? null;
+    return state.users.find((user) => user.id === userId && !user.deletionPending) ?? null;
   }
 
   async updateUser(userId: string, patch: Partial<Pick<StoredUser, 'fullName' | 'theme' | 'onboardingCompleted'>>) {
     return mutateJsonFile(this.filePath, authStateSchema, emptyAuthState, async (stored) => {
       const state = await this.withSeededInvites(stored);
       const user = state.users.find((entry) => entry.id === userId);
-      if (!user) {
+      if (!user || user.deletionPending) {
         throw new Error('User not found');
       }
 
@@ -200,7 +218,7 @@ export class FileBackedAuthRepository {
     return mutateJsonFile(this.filePath, authStateSchema, emptyAuthState, async (stored) => {
       const state = await this.withSeededInvites(stored);
       const user = state.users.find((entry) => entry.id === userId);
-      if (!user) {
+      if (!user || user.deletionPending) {
         throw new Error('User not found');
       }
 
@@ -208,5 +226,47 @@ export class FileBackedAuthRepository {
       user.updatedAt = new Date().toISOString();
       return { state, result: user };
     });
+  }
+
+  async beginAccountDeletion(userId: string): Promise<void> {
+    await mutateJsonFile(this.filePath, authStateSchema, emptyAuthState, async (stored) => {
+      const state = await this.withSeededInvites(stored);
+      const user = state.users.find((entry) => entry.id === userId);
+      if (!user) throw new Error('User not found');
+      user.deletionPending = true;
+      user.sessionVersion += 1;
+      user.updatedAt = new Date().toISOString();
+      return { state, result: undefined };
+    }, { purgePreviousBackup: true });
+  }
+
+  async cancelAccountDeletion(userId: string): Promise<void> {
+    await mutateJsonFile(this.filePath, authStateSchema, emptyAuthState, async (stored) => {
+      const state = await this.withSeededInvites(stored);
+      const user = state.users.find((entry) => entry.id === userId);
+      if (!user) throw new Error('User not found');
+      user.deletionPending = false;
+      return { state, result: undefined };
+    }, { purgePreviousBackup: true });
+  }
+
+  async finalizeAccountDeletion(userId: string): Promise<void> {
+    await mutateJsonFile(this.filePath, authStateSchema, emptyAuthState, async (stored) => {
+      const state = await this.withSeededInvites(stored);
+      const userIndex = state.users.findIndex((entry) => entry.id === userId && entry.deletionPending);
+      if (userIndex < 0) throw new Error('Pending deletion not found');
+      state.users.splice(userIndex, 1);
+      const inviteIndex = state.invites.findIndex((entry) => entry.claimedByUserId === userId);
+      if (inviteIndex >= 0) {
+        const [invite] = state.invites.splice(inviteIndex, 1);
+        state.revokedInviteDigests.push(inviteDigest(invite.email, invite.code));
+      }
+      return { state, result: undefined };
+    }, { purgePreviousBackup: true });
+  }
+
+  async listPendingDeletionUserIds(): Promise<string[]> {
+    const state = await this.readState();
+    return state.users.filter(({ deletionPending }) => deletionPending).map(({ id }) => id);
   }
 }

@@ -30,9 +30,8 @@ export default function PrivacyPage() {
                                     <ul className="list-disc list-inside space-y-3 ml-6">
                                         <li>• <strong>Email:</strong> Endereço de e-mail que você fornece ao criar conta</li>
                                         <li>• <strong>Nome:</strong> Seu nome completo ou nome de exibição</li>
-                                        <li>• <strong>Métricas de Saúde:</strong> Dados de saúde e bem-estar que você possa fornecer (opcional)</li>
-                                        <li>• <strong>Dados de Uso:</strong> Informações sobre como você usa o Life OS para melhorar sua produtividade pessoal</li>
-                                        <li>• <strong>Preferências:</strong> Suas configurações de tema, idioma, notificações</li>
+                                        <li>• <strong>Planejamento:</strong> Objetivos, compromissos, revisões, planos, check-ins, reflexões e feedback que você fornecer</li>
+                                        <li>• <strong>Preferências:</strong> Tema, idioma e estado de onboarding</li>
                                     </ul>
                                 </div>
                                 
@@ -43,11 +42,9 @@ export default function PrivacyPage() {
                                     </p>
                                     <ul className="list-disc list-inside space-y-3 ml-6">
                                         <li>• <strong>Autenticação e Perfil:</strong> Para acessar sua conta, manter seu perfil atualizado</li>
-                                        <li>• <strong>Funcionalidade:</strong> Para fornecer recursos de tarefas, hábitos, finanças, diário, projetos e IA personalizados</li>
-                                        <li>• <strong>Personalização:</strong> Para gerenciar recomendações de IA, gráficos, insights baseados no seu histórico</li>
-                                        <li>• <strong>Suporte Técnico:</strong> Para fins de diagnóstico de bugs, melhoria de performance e otimização do sistema</li>
-                                        <li>• <strong>Análises:</strong> Para gerar estatísticas agregadas sobre uso e tendências (visibilidade, retenção, etc.)</li>
-                                        <li>• <strong>Comunicações:</strong> Para enviar notificações sobre eventos importantes (metas, conquistas, etc.)</li>
+                                        <li>• <strong>Funcionalidade:</strong> Para fornecer o ciclo de planejamento pessoal do MVP</li>
+                                        <li>• <strong>Recuperação:</strong> Para restaurar o workspace após uma redefinição explícita</li>
+                                        <li>• <strong>Diagnóstico:</strong> Apenas códigos e nomes técnicos estáveis, sem texto pessoal</li>
                                     </ul>
                                 </div>
                                 
@@ -58,8 +55,8 @@ export default function PrivacyPage() {
                                     </p>
                                     <ul className="list-disc list-inside space-y-3 ml-6">
                                         <li>• <strong>Você:</strong> Através do Login, apenas você tem acesso ao seu usuário e dados</li>
-                                        <li>• <strong>Equipe:</strong> Apenas membros autorizados da equipe Life OS podem acessar dados anonimizados para fins de suporte técnico e diagnóstico</li>
-                                        <li>• <strong>Parceiros Terceiros:</strong> Jam compartilhamos seus dados pessoais com terceiros sem seu consentimento explícito</li>
+                                        <li>• <strong>Operação:</strong> O mantenedor pode acessar o armazenamento apenas para operação, incidente ou restauração autorizada</li>
+                                        <li>• <strong>Processadores externos:</strong> Google Analytics, Sentry Replay e encaminhamento externo de erros estão desativados</li>
                                     </ul>
                                 </div>
                                 
@@ -70,10 +67,9 @@ export default function PrivacyPage() {
                                     </p>
                                     <ul className="list-disc list-inside space-y-3 ml-6">
                                         <li>• <strong>Acesso:</strong> A qualquer momento, solicitar acesso completo a todos os seus dados pessoais (copiar, exportar, excluir) através da nossa interface</li>
-                                        <li>• <strong>Portabilidade:</strong> Solicitar portabilidade dos seus dados em formato estruturado (JSON, CSV) dentro de 30 dias</li>
+                                        <li>• <strong>Portabilidade:</strong> Baixar imediatamente os dados suportados em JSON estruturado nas Configurações</li>
                                         <li>• <strong>Retificação:</strong> Solicitar correção de quaisquer dados pessoais incompletos ou imprecisos</li>
                                         <li> <strong>Eliminação:</strong> Solicitar a exclusão completa e definitiva de sua conta e todos os dados associados</li>
-                                        <li>• <strong>Revogação de Consentimento:</strong> Você pode revogar o consentimento a qualquer momento, o que interromperá a coleta de certos dados (analytics, cookies)</li>
                                     </ul>
                                 </div>
                                 
@@ -84,8 +80,7 @@ export default function PrivacyPage() {
                                     </p>
                                     <ul className="list-disc list-inside space-y-3 ml-6">
                                         <li><strong>Cookies Essenciais:</strong> Para manter sua sessão ativa, funcionalidades básicas do aplicativo</li>
-                                        <li><strong>Cookies de Analytics:</strong> Para entender como você usa o Life OS e melhorar nossos serviços (de forma anônima)</li>
-                                        <li><strong>Cookies de Terceiros:</strong> Podemos usar cookies para integrar com serviços de terceiros (Google Analytics, Facebook Pixel, etc.) se você optar por isso</li>
+                                        <li><strong>Analytics e replay:</strong> Desativados nos modos suportados do MVP</li>
                                     </ul>
                                 </div>
                                 

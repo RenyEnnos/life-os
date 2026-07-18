@@ -29,5 +29,7 @@ export interface MvpRepository {
     prepared: MvpWorkspaceExport,
   ): Promise<{ workspace: MvpWorkspaceSnapshot; recoveryId: string; export: MvpWorkspaceExport }>;
   getLatestRecovery(userId: string): Promise<MvpWorkspaceRecovery | null>;
+  listRecoveries(userId: string): Promise<MvpWorkspaceRecovery[]>;
   restoreWorkspace(userId: string, portableExport: MvpWorkspaceExport): Promise<MvpWorkspaceSnapshot>;
+  deleteUserData(userId: string): Promise<void>;
 }

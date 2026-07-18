@@ -168,27 +168,22 @@ function toJsonObject(value: unknown): Prisma.InputJsonValue {
 
 export class PrismaBackedMvpRepository implements MvpRepository {
   private readonly mutationQueues = new Map<string, Promise<void>>();
+  private readonly deletedUserIds = new Set<string>();
 
   constructor(private readonly db: PrismaClient = defaultPrisma) {}
 
   async ensureUser(user: StoredUser): Promise<void> {
-    await this.db.user.upsert({
-      where: { id: user.id },
-      update: {
-        email: user.email,
-        inviteCode: user.inviteCode,
-        fullName: user.fullName,
-      },
-      create: {
-        id: user.id,
-        email: user.email,
-        inviteCode: user.inviteCode,
-        fullName: user.fullName,
-      },
+    await this.runUserMutation(user.id, async () => {
+      await this.db.user.upsert({
+        where: { id: user.id },
+        update: { email: user.email, inviteCode: user.inviteCode, fullName: user.fullName },
+        create: { id: user.id, email: user.email, inviteCode: user.inviteCode, fullName: user.fullName },
+      });
     });
   }
 
   async getWorkspace(userId: string): Promise<MvpWorkspaceSnapshot> {
+    this.assertActive(userId);
     return this.buildWorkspace(userId);
   }
 
@@ -230,6 +225,20 @@ export class PrismaBackedMvpRepository implements MvpRepository {
 
   async restoreWorkspace(userId: string, portableExportInput: MvpWorkspaceExport): Promise<MvpWorkspaceSnapshot> {
     return this.runUserMutation(userId, () => this.restoreWorkspaceUnlocked(userId, portableExportInput));
+  }
+
+  async deleteUserData(userId: string): Promise<void> {
+    this.deletedUserIds.add(userId);
+    try {
+      await this.runUserMutation(userId, async () => {
+        await this.db.$transaction(async (tx) => {
+          await tx.user.deleteMany({ where: { id: { in: [userId] } } });
+        }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+      }, true);
+    } catch (error) {
+      this.deletedUserIds.delete(userId);
+      throw error;
+    }
   }
 
   async importMigratedUser(
@@ -697,12 +706,22 @@ export class PrismaBackedMvpRepository implements MvpRepository {
   }
 
   async getLatestRecovery(userId: string): Promise<MvpWorkspaceRecovery | null> {
+    this.assertActive(userId);
     const recovery = await this.db.mvpWorkspaceRecovery.findFirst({
       where: { userId },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     });
     if (!recovery) return null;
     return { id: recovery.id, export: workspaceExportSchema.parse(recovery.payload) };
+  }
+
+  async listRecoveries(userId: string): Promise<MvpWorkspaceRecovery[]> {
+    this.assertActive(userId);
+    const recoveries = await this.db.mvpWorkspaceRecovery.findMany({
+      where: { userId },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    });
+    return recoveries.map(({ id, payload }) => ({ id, export: workspaceExportSchema.parse(payload) }));
   }
 
   private async restoreWorkspaceUnlocked(userId: string, portableExportInput: MvpWorkspaceExport): Promise<MvpWorkspaceSnapshot> {
@@ -786,9 +805,14 @@ export class PrismaBackedMvpRepository implements MvpRepository {
     await tx.userProfile.deleteMany({ where: { userId } });
   }
 
-  private runUserMutation<T>(userId: string, operation: () => Promise<T>): Promise<T> {
+  private runUserMutation<T>(userId: string, operation: () => Promise<T>, allowDeleted = false): Promise<T> {
+    if (!allowDeleted) this.assertActive(userId);
     const queued = this.mutationQueues.get(userId) ?? Promise.resolve();
-    const result = queued.then(operation, operation);
+    const guarded = () => {
+      if (!allowDeleted) this.assertActive(userId);
+      return operation();
+    };
+    const result = queued.then(guarded, guarded);
     const settled = result.then(() => undefined, () => undefined);
     this.mutationQueues.set(userId, settled);
     void settled.then(() => {
@@ -797,6 +821,10 @@ export class PrismaBackedMvpRepository implements MvpRepository {
       }
     });
     return result;
+  }
+
+  private assertActive(userId: string) {
+    if (this.deletedUserIds.has(userId)) throw new Error('Account deletion in progress');
   }
 
   private async createWorkspace(userId: string, workspace: MvpWorkspaceSnapshot, tx: Prisma.TransactionClient) {

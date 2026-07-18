@@ -137,27 +137,11 @@ function isRetryable(error: Error | ApiError | AppError, category: ErrorCategory
  * Log error based on severity and category
  */
 function logError(url: string, error: Error | ApiError | AppError, category: ErrorCategory, severity: ErrorSeverity): void {
-  const context = `[ErrorHandler] ${category.toUpperCase()} on ${url}`
-
-  if (error instanceof AppError) {
-    console.error(`${context}:`, error.message, error.context, error.code || '')
-  } else if (error instanceof ApiError) {
-    // Log 4xx as warnings to avoid console noise
-    if (error.status < 500 && error.status >= 400) {
-      console.warn(`${context}:`, error.message, error.details || '')
-    } else {
-      console.error(`${context}:`, error.message, error.status, error.details || '')
-    }
-  } else {
-    // Non-API errors
-    if (severity === ErrorSeverity.LOW) {
-      console.warn(`${context}:`, error.message)
-    } else if (severity === ErrorSeverity.MEDIUM) {
-      console.warn(`${context}:`, error.message)
-    } else {
-      console.error(`${context}:`, error)
-    }
-  }
+  void url;
+  const status = error instanceof ApiError ? error.status : 0;
+  const write = severity === ErrorSeverity.HIGH || severity === ErrorSeverity.CRITICAL
+    ? console.error : console.warn;
+  write('[ErrorHandler]', category, severity, status);
 }
 
 /**

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
@@ -18,6 +18,7 @@ export default function LoginPage() {
     const [isRecovering, setIsRecovering] = useState(false);
     const { login, resetPassword, user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const {
@@ -70,6 +71,14 @@ export default function LoginPage() {
         }
     }, [user, authLoading, navigate]);
 
+    useEffect(() => {
+        const state = location.state as { accountDeleted?: boolean; localCleanupComplete?: boolean } | null;
+        if (!state?.accountDeleted) return;
+        setSuccessMessage(state.localCleanupComplete
+            ? 'Account deleted.'
+            : 'Account deleted, but some data remains on this device. Clear this site\'s stored data before another person uses it.');
+    }, [location.state]);
+
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
         const width = rect.width;
@@ -85,47 +94,27 @@ export default function LoginPage() {
         y.set(0);
     };
 
-    const logAuthAttempt = (status: string, emailUsed: string) => {
-        const logEntry = {
-            timestamp: new Date().toISOString(),
-            event: 'LOGIN_ATTEMPT',
-            status,
-            email: emailUsed,
-            userAgent: navigator.userAgent
-        };
-        console.log('[AUTH_LOG]', JSON.stringify(logEntry));
-    };
-
     const onSubmit = async (data: LoginFormData) => {
         try {
             setError(null);
             setSuccessMessage('');
             setIsSubmitting(true);
             await login({ email: data.email.trim().toLowerCase(), password: data.password });
-            logAuthAttempt('SUCCESS', data.email);
             navigate('/');
         } catch (err: any) {
-            console.error('Login Error:', err);
             let userFriendlyError: React.ReactNode = 'Falha no login. Verifique suas credenciais.';
-            let logStatus = 'UNKNOWN_ERROR';
 
             const msg = err?.message || '';
             
             if (msg.includes('Invalid login credentials') || msg.includes('invalid_credentials')) {
                 userFriendlyError = 'E-mail ou senha incorretos.';
-                logStatus = 'INVALID_CREDENTIALS';
             } else if (msg.includes('Email not confirmed')) {
                 userFriendlyError = 'Por favor, confirme seu e-mail antes de acessar.';
-                logStatus = 'EMAIL_NOT_CONFIRMED';
             } else if (msg.includes('too many requests')) {
                 userFriendlyError = 'Muitas tentativas. Tente novamente mais tarde.';
-                logStatus = 'RATE_LIMITED';
-            } else {
-                userFriendlyError = msg || 'Ocorreu um erro inesperado no acesso.';
             }
 
             setError(userFriendlyError);
-            logAuthAttempt(logStatus, data.email);
         } finally {
             setIsSubmitting(false);
         }
@@ -143,11 +132,8 @@ export default function LoginPage() {
             setIsSubmitting(true);
             await resetPassword(recoveryEmail);
             setSuccessMessage('Link de recuperação enviado! Verifique seu e-mail.');
-            logAuthAttempt('RECOVERY_REQUESTED', recoveryEmail);
         } catch (err) {
-            console.error(err);
             setError(getErrorMessage(err) ?? recoveryErrorFallback);
-            logAuthAttempt('RECOVERY_FAILED', recoveryEmail);
         } finally {
             setIsSubmitting(false);
         }

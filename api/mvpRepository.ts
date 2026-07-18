@@ -60,13 +60,17 @@ function buildSnapshot(snapshot: MvpWorkspaceSnapshot): MvpWorkspaceSnapshot {
 }
 
 export class FileBackedMvpRepository implements MvpRepository {
+  private readonly deletedUserIds = new Set<string>();
+
   constructor(private readonly dataFilePath = process.env.MVP_DATA_FILE || DEFAULT_DATA_FILE) {}
 
-  async ensureUser(_user: StoredUser): Promise<void> {
+  async ensureUser(user: StoredUser): Promise<void> {
+    this.assertActive(user.id);
     return Promise.resolve();
   }
 
   async getWorkspace(userId: string): Promise<MvpWorkspaceSnapshot> {
+    this.assertActive(userId);
     const store = await this.readStore();
     return buildSnapshot(store.users[userId] ?? defaultWorkspace());
   }
@@ -237,6 +241,7 @@ export class FileBackedMvpRepository implements MvpRepository {
   }
 
   async resetWorkspace(userId: string, preparedInput: MvpWorkspaceExport) {
+    this.assertActive(userId);
     return mutateJsonFile(this.dataFilePath, persistedMvpStoreSchema, emptyStore, async (store) => {
       const parsed = workspaceExportSchema.parse(preparedInput);
       const prepared = createWorkspaceExport(parsed.workspace, parsed.exportedAt);
@@ -257,11 +262,19 @@ export class FileBackedMvpRepository implements MvpRepository {
   }
 
   async getLatestRecovery(userId: string): Promise<MvpWorkspaceRecovery | null> {
+    this.assertActive(userId);
     const store = await this.readStore();
     return store.recoveries[userId]?.[0] ?? null;
   }
 
+  async listRecoveries(userId: string): Promise<MvpWorkspaceRecovery[]> {
+    this.assertActive(userId);
+    const store = await this.readStore();
+    return store.recoveries[userId] ?? [];
+  }
+
   async restoreWorkspace(userId: string, portableExportInput: MvpWorkspaceExport) {
+    this.assertActive(userId);
     return mutateJsonFile(this.dataFilePath, persistedMvpStoreSchema, emptyStore, async (store) => {
       const portableExport = workspaceExportSchema.parse(portableExportInput);
       const restored = normalizeWorkspace(portableExport.workspace);
@@ -270,10 +283,25 @@ export class FileBackedMvpRepository implements MvpRepository {
     });
   }
 
+  async deleteUserData(userId: string): Promise<void> {
+    this.deletedUserIds.add(userId);
+    try {
+      await mutateJsonFile(this.dataFilePath, persistedMvpStoreSchema, emptyStore, (store) => {
+        delete store.users[userId];
+        delete store.recoveries[userId];
+        return { state: store, result: undefined };
+      }, { purgePreviousBackup: true });
+    } catch (error) {
+      this.deletedUserIds.delete(userId);
+      throw error;
+    }
+  }
+
   private async updateWorkspace(
     userId: string,
     update: (workspace: MvpWorkspaceSnapshot) => MvpWorkspaceSnapshot
   ): Promise<MvpWorkspaceSnapshot> {
+    this.assertActive(userId);
     return mutateJsonFile(this.dataFilePath, persistedMvpStoreSchema, emptyStore, async (store) => {
       const current = store.users[userId] ?? defaultWorkspace();
       const next = buildSnapshot(update(current));
@@ -284,5 +312,9 @@ export class FileBackedMvpRepository implements MvpRepository {
 
   private async readStore(): Promise<PersistedMvpStore> {
     return readJsonFile(this.dataFilePath, persistedMvpStoreSchema, emptyStore);
+  }
+
+  private assertActive(userId: string) {
+    if (this.deletedUserIds.has(userId)) throw new Error('Account deletion in progress');
   }
 }

@@ -76,15 +76,16 @@ async function replaceFile(filePath: string, bytes: Uint8Array) {
   }
 }
 
-async function writeWithBackup(filePath: string, state: unknown) {
+async function writeWithBackup(filePath: string, state: unknown, backupCurrent = false) {
   const target = resolved(filePath);
+  const next = Buffer.from(JSON.stringify(state, null, 2));
   try {
     const current = await fs.readFile(target);
-    await replaceFile(backupPathFor(target), current);
+    await replaceFile(backupPathFor(target), backupCurrent ? next : current);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
   }
-  await replaceFile(target, Buffer.from(JSON.stringify(state, null, 2)));
+  await replaceFile(target, next);
 }
 
 export async function mutateJsonFile<T, R>(
@@ -92,12 +93,13 @@ export async function mutateJsonFile<T, R>(
   schema: z.ZodType<T>,
   missing: () => T,
   mutation: (state: T) => Promise<{ state: T; result: R }> | { state: T; result: R },
+  options: { purgePreviousBackup?: boolean } = {},
 ): Promise<R> {
   return inFileQueue(filePath, async () => {
     const current = await readJsonFile(filePath, schema, missing);
     const { state, result } = await mutation(current);
     const validated = schema.parse(state);
-    await writeWithBackup(filePath, validated);
+    await writeWithBackup(filePath, validated, options.purgePreviousBackup === true);
     return result;
   });
 }
