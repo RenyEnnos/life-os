@@ -109,7 +109,7 @@ export function MvpWorkspacePage() {
   }
 
   return (
-    <main className="space-y-6 pb-24 md:pb-8">
+    <main className="space-y-6 md:pb-8">
       <header className="max-w-3xl space-y-2">
         <p className="text-sm font-medium text-primary">Your weekly loop</p>
         <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">A clear week starts with one next step.</h1>

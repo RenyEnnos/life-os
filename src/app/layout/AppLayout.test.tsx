@@ -1,4 +1,4 @@
-import { expect, it, vi } from 'vitest';
+import { beforeEach, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
@@ -13,11 +13,14 @@ vi.mock('@/features/onboarding/OnboardingModal', () => ({
 }));
 
 vi.mock('@/app/layout/NavigationSystem', () => ({
-  NavigationSystem: () => <nav>Navigation</nav>,
+  NavigationSystem: () => <nav aria-label="Navigation">Navigation</nav>,
 }));
 
-it('does not mount the legacy onboarding over the canonical web loop', async () => {
+beforeEach(() => {
   window.scrollTo = vi.fn();
+});
+
+it('does not mount the legacy onboarding over the canonical web loop', async () => {
   localStorage.removeItem('life-os-onboarding-completed');
 
   render(
@@ -27,4 +30,19 @@ it('does not mount the legacy onboarding over the canonical web loop', async () 
   );
 
   expect(screen.queryByText('Legacy onboarding overlay')).not.toBeInTheDocument();
+});
+
+it('reserves mobile content clearance without a second fixed navigation wrapper', () => {
+  render(
+    <MemoryRouter>
+      <AppLayout />
+    </MemoryRouter>
+  );
+
+  expect(screen.getByTestId('mobile-navigation-slot')).not.toHaveClass('fixed');
+  expect(screen.getByTestId('route-content')).toHaveClass(
+    'pb-32',
+    'md:pb-0'
+  );
+  expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
 });

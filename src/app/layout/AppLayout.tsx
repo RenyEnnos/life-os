@@ -57,15 +57,13 @@ export function AppLayout() {
             ) : null}
 
             {/* Sidebar Navigation - Always Visible on Desktop */}
-            <aside className="hidden lg:flex flex-col w-24 h-screen shrink-0 z-50">
+            <aside className="hidden md:flex flex-col w-24 h-screen shrink-0 z-50">
                 <NavigationSystem />
             </aside>
 
             {/* Mobile Navigation - Always Visible on Mobile */}
-            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pointer-events-none">
-                <div className="pointer-events-auto">
-                    <NavigationSystem />
-                </div>
+            <div className="md:hidden" data-testid="mobile-navigation-slot">
+                <NavigationSystem />
             </div>
 
             {/* Main Content Area */}
@@ -78,7 +76,8 @@ export function AppLayout() {
                         animate="animate"
                         exit="exit"
                         transition={pageTransition}
-                        className="w-full min-h-screen"
+                        data-testid="route-content"
+                        className="w-full min-h-screen pb-32 md:pb-0"
                     >
                         <Outlet />
                     </motion.div>
