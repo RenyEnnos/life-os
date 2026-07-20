@@ -12,7 +12,6 @@ import { initializeErrorTracking } from '@/shared/errors';
 import { PWAManager } from "@/shared/components/PWAManager";
 import { Toaster } from 'sonner';
 
-import { OnboardingManager } from "@/features/onboarding/components/OnboardingManager";
 import { SanctuaryOverlay } from "@/shared/ui/sanctuary";
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/shared/i18n';
@@ -50,7 +49,6 @@ export default function App() {
                                         <ConflictResolutionModal />
                                         {!isDesktopApp() ? <PWAManager /> : null}
                                         <Toaster position="bottom-right" toastOptions={{ className: 'glass-panel text-white border-blue-500/30' }} />
-                                        <OnboardingManager />
                                         <SanctuaryOverlay />
                                         <Router>
                                             <AnalyticsTracker />

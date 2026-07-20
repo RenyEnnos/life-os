@@ -83,4 +83,11 @@ describe('MVP loop integration', () => {
     await user.click(screen.getByRole('button', { name: 'Submit feedback' }));
     expect(window.gtag).not.toHaveBeenCalled();
   });
+
+  it('ends partner sequencing at reflection instead of linking to Admin', () => {
+    renderSurface('reflection');
+
+    expect(screen.queryByRole('link', { name: /Admin Analytics/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Today/i })).toHaveAttribute('href', '/mvp/today');
+  });
 });

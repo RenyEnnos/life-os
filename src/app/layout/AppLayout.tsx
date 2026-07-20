@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, type Transition } from 'framer-motion';
 import { NavigationSystem } from './NavigationSystem';
 import { OnboardingModal } from '@/features/onboarding/OnboardingModal';
+import { isDesktopApp } from '@/shared/lib/platform';
 
 const ScrollToTop = () => {
     const { pathname } = useLocation();
@@ -26,14 +27,15 @@ const pageTransition: Transition = {
 export function AppLayout() {
     const [showOnboarding, setShowOnboarding] = useState(false);
     const location = useLocation();
+    const desktopApp = isDesktopApp();
 
     useEffect(() => {
-        if (!localStorage.getItem('life-os-onboarding-completed')) {
+        if (desktopApp && !localStorage.getItem('life-os-onboarding-completed')) {
             setShowOnboarding(true);
         }
         document.documentElement.classList.add('dark');
         localStorage.setItem('theme', 'dark');
-    }, []);
+    }, [desktopApp]);
 
     return (
         <div className="relative min-h-[100dvh] w-full bg-background-dark text-zinc-200 font-display selection:bg-primary/30 flex flex-row overflow-x-hidden">
@@ -47,10 +49,12 @@ export function AppLayout() {
 
 
 
-            <OnboardingModal isOpen={showOnboarding} onClose={() => {
-                localStorage.setItem('life-os-onboarding-completed', 'true');
-                setShowOnboarding(false);
-            }} />
+            {desktopApp ? (
+                <OnboardingModal isOpen={showOnboarding} onClose={() => {
+                    localStorage.setItem('life-os-onboarding-completed', 'true');
+                    setShowOnboarding(false);
+                }} />
+            ) : null}
 
             {/* Sidebar Navigation - Always Visible on Desktop */}
             <aside className="hidden lg:flex flex-col w-24 h-screen shrink-0 z-50">
