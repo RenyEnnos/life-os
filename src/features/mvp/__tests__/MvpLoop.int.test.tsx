@@ -101,6 +101,8 @@ describe('MVP loop integration', () => {
 
     expect(screen.getByRole('heading', { name: heading })).toBeInTheDocument();
     expect(screen.getByText(outcome)).toBeInTheDocument();
+    expect(screen.getByText('Current step status')).toBeInTheDocument();
+    expect(screen.queryByText('Current loop state')).not.toBeInTheDocument();
     expect(screen.queryByText(/Next build steps|Phase \d focus|placeholder|analytics|persist|deterministic AI|cohort|backend/i)).not.toBeInTheDocument();
   });
 });
