@@ -90,4 +90,19 @@ describe('MVP loop integration', () => {
     expect(screen.queryByRole('link', { name: /Admin Analytics/i })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Today/i })).toHaveAttribute('href', '/mvp/today');
   });
+
+  it.each([
+    ['onboarding', 'Build your starting context', /Saving this opens Weekly Review/i],
+    ['weekly-review', 'Shape a realistic week', /Confirming the plan opens Today/i],
+    ['today', "Work from today's next actions", /Completing the work makes Reflection/i],
+    ['reflection', 'Close the loop', /Your reflections become context for the next Weekly Review/i],
+  ] as const)('keeps %s guidance user-facing', (surface, heading, outcome) => {
+    renderSurface(surface);
+
+    expect(screen.getByRole('heading', { name: heading })).toBeInTheDocument();
+    expect(screen.getByText(outcome)).toBeInTheDocument();
+    expect(screen.getByText('Current step status')).toBeInTheDocument();
+    expect(screen.queryByText('Current loop state')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Next build steps|Phase \d focus|placeholder|analytics|persist|deterministic AI|cohort|backend/i)).not.toBeInTheDocument();
+  });
 });

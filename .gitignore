@@ -96,6 +96,8 @@ screenshots/
 
 # Testsprite tests temporary files
 testsprite_tests/tmp/
+testsprite_tests/__pycache__/
+testsprite_tests/*.html
 
 # Android build artifacts
 android/app/build/
@@ -145,3 +147,5 @@ site/public/*.png
 *~
 ehthumbs.db
 Icon?
+
+testsprite_tests/tmp/

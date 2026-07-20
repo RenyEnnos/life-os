@@ -35,6 +35,8 @@ describe('MVP admin surface', () => {
 
     expect(await screen.findByText('Useful signal.')).toBeInTheDocument();
     expect(screen.getByText('user_feedback_submitted')).toBeInTheDocument();
+    expect(screen.getByText('Current loop state')).toBeInTheDocument();
+    expect(screen.queryByText('Current step status')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /reset mvp workspace/i })).not.toBeInTheDocument();
     expect(hydrateWorkspace).not.toHaveBeenCalled();
     expect(getAdminOverview).toHaveBeenCalledOnce();
