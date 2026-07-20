@@ -13,7 +13,7 @@ vi.mock('@/features/onboarding/OnboardingModal', () => ({
 }));
 
 vi.mock('@/app/layout/NavigationSystem', () => ({
-  NavigationSystem: () => <nav>Navigation</nav>,
+  NavigationSystem: () => <nav aria-label="Navigation">Navigation</nav>,
 }));
 
 it('does not mount the legacy onboarding over the canonical web loop', async () => {
@@ -27,4 +27,21 @@ it('does not mount the legacy onboarding over the canonical web loop', async () 
   );
 
   expect(screen.queryByText('Legacy onboarding overlay')).not.toBeInTheDocument();
+});
+
+it('reserves mobile content clearance without a second fixed navigation wrapper', () => {
+  window.scrollTo = vi.fn();
+
+  const { container } = render(
+    <MemoryRouter>
+      <AppLayout />
+    </MemoryRouter>
+  );
+
+  const [, navigation] = screen.getAllByRole('navigation', { name: 'Navigation' });
+  expect(navigation.parentElement?.parentElement).not.toHaveClass('fixed');
+  expect(container.querySelector('main > div')).toHaveClass(
+    'pb-32',
+    'md:pb-0'
+  );
 });
