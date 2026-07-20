@@ -1,0 +1,554 @@
+[
+  {
+    "id": "TC001",
+    "title": "Complete onboarding and unlock weekly guidance",
+    "description": "An invited partner can complete the onboarding step and see the weekly review guidance unlock as the next stage in the loop.",
+    "category": "Onboarding surface guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/onboarding"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the onboarding action field with a valid response"
+      },
+      {
+        "type": "action",
+        "description": "Submit the onboarding step"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the weekly review guidance is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the next recommended action is available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Complete weekly review and unlock today guidance",
+    "description": "An invited partner can complete the weekly review action and see the today surface guidance become available as the next step.",
+    "category": "Weekly review guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/weekly"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the weekly review action field with a valid response"
+      },
+      {
+        "type": "action",
+        "description": "Submit the weekly review step"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the today surface guidance is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the next recommended action is available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Complete reflection and close the weekly loop",
+    "description": "An invited partner can complete the current reflection step and see the unlocked outcome that closes the weekly loop.",
+    "category": "Reflection surface guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login user field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/reflection"
+      },
+      {
+        "type": "action",
+        "description": "Complete the current reflection step"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reflection outcome is unlocked"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the weekly loop is shown as complete"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Complete today action and unlock reflection guidance",
+    "description": "An invited partner can complete the current today action and see reflection guidance as the next step in the loop.",
+    "category": "Today surface guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/today"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the today action field with a valid response"
+      },
+      {
+        "type": "action",
+        "description": "Submit the today action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reflection guidance is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the next recommended action is available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Read onboarding guidance before taking action",
+    "description": "The onboarding surface shows the current partner action and the expected unlock before the step is completed.",
+    "category": "Onboarding surface guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/onboarding"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the current onboarding action is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the unlocked outcome for completing onboarding is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Read weekly review guidance before taking action",
+    "description": "The weekly surface shows the current action and the outcome it unlocks before completion.",
+    "category": "Weekly review guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/weekly"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the current weekly review action is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the unlocked outcome for completing the weekly review is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Read today guidance before taking action",
+    "description": "The today surface shows the current action and the unlocked outcome before the step is completed.",
+    "category": "Today surface guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/today"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the current today action is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the unlocked outcome for completing today’s action is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Return to reflection after completing the weekly loop",
+    "description": "After completing the broader MVP flow, the reflection surface still presents the correct final close-the-loop guidance.",
+    "category": "Reflection surface guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login user field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/onboarding"
+      },
+      {
+        "type": "action",
+        "description": "Complete the current onboarding step"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/weekly"
+      },
+      {
+        "type": "action",
+        "description": "Complete the current weekly step"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/today"
+      },
+      {
+        "type": "action",
+        "description": "Complete the current today step"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/reflection"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the final reflection guidance is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the weekly loop can be closed from reflection"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "See reflection guidance on entry",
+    "description": "An invited partner can open the reflection surface and read the current action before taking any step.",
+    "category": "Reflection surface guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login user field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/reflection"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the current reflection action is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify reflection guidance specific to closing the loop is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Keep reflection state after moving away and back",
+    "description": "A completed reflection step remains completed when the user leaves the surface and returns to it.",
+    "category": "Reflection surface guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login user field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/reflection"
+      },
+      {
+        "type": "action",
+        "description": "Complete the current reflection step"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/weekly"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/reflection"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reflection step remains completed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the unlocked outcome is still visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Move between MVP surfaces and preserve progress",
+    "description": "A partner can move from onboarding to weekly to today to reflection and keep the loop state visible across surfaces.",
+    "category": "Onboarding surface guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/onboarding"
+      },
+      {
+        "type": "action",
+        "description": "Complete the onboarding step with a valid response"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the weekly surface"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the today surface"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the reflection surface"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reflection guidance is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the current action remains specific to the reflection surface"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Show the same reflection guidance after reload",
+    "description": "The reflection surface keeps showing the current action and unlocked outcome after the page is reloaded.",
+    "category": "Reflection surface guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login user field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/reflection"
+      },
+      {
+        "type": "action",
+        "description": "Complete the current reflection step"
+      },
+      {
+        "type": "action",
+        "description": "Scroll the page"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/reflection"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reflection completion state is preserved"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the unlocked next guidance remains visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Return to onboarding and see the same guidance after reload",
+    "description": "A partner can revisit onboarding after progress is made and still see the onboarding-specific guidance persist across navigation.",
+    "category": "Onboarding surface guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/onboarding"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the onboarding action field with a valid response"
+      },
+      {
+        "type": "action",
+        "description": "Submit the onboarding step"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to return to onboarding"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the onboarding guidance is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the completed state or next-step outcome is still visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Require authentication for MVP surfaces",
+    "description": "An unauthenticated visitor is prevented from viewing an MVP surface and is redirected or blocked according to the app’s auth-required behavior.",
+    "category": "Onboarding surface guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/onboarding"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the auth-required behavior is shown"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC015",
+    "title": "Switch to reflection from another MVP surface",
+    "description": "An invited partner can move from another MVP surface to reflection and see reflection-specific guidance instead of the previous surface's guidance.",
+    "category": "Reflection surface guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login user field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/today"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to reflection"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify reflection guidance is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify today surface guidance is no longer displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC016",
+    "title": "Handle an empty reflection action gracefully",
+    "description": "If the reflection surface has no current action content, the user sees a clear empty state instead of a broken workflow.",
+    "category": "Reflection surface guidance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login user field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /mvp/reflection"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no reflection action form is shown"
+      }
+    ],
+    "priority": "Low"
+  }
+]

@@ -16,61 +16,51 @@ interface MvpSurfacePageProps {
   surface: MvpSurface['slug'];
 }
 
-const surfaceCopy: Record<MvpSurface['slug'], { focus: string[]; nextBuild: string[] }> = {
+const surfaceCopy: Record<MvpSurface['slug'], { guidanceTitle: string; focus: string[]; outcome: string; nextBuild?: string[] }> = {
   'onboarding': {
+    guidanceTitle: 'Build your starting context',
     focus: [
-      'Capture role, goals, obligations, and current planning pain in one sitting.',
-      'Preserve enough structure to seed the first weekly review without manual cleanup.',
-      'Reach a useful first plan within the first session.',
+      'Name the goals that deserve attention this week.',
+      'Add the commitments that already claim your time.',
+      'Include real constraints so the plan stays achievable.',
     ],
-    nextBuild: [
-      'Replace static prompts with validated form state.',
-      'Persist draft progress and completion state.',
-      'Emit onboarding lifecycle analytics.',
-    ],
+    outcome: 'Saving this opens Weekly Review with the context it needs.',
   },
   'weekly-review': {
+    guidanceTitle: 'Shape a realistic week',
     focus: [
-      'Summarize unfinished work, commitments, and constraints.',
-      'Generate 3 to 5 priorities with human-editable rationale.',
-      'Require explicit confirmation before the week becomes active.',
+      'Bring forward only the unfinished work that still matters.',
+      'Choose one focus and keep the priority list deliberately small.',
+      'Confirm the plan only when the week feels achievable.',
     ],
-    nextBuild: [
-      'Store review inputs and generated output together.',
-      'Add deterministic AI generation with fallbacks.',
-      'Lock and version weekly plans after confirmation.',
-    ],
+    outcome: 'Confirming the plan opens Today with a short list of next actions.',
   },
   today: {
+    guidanceTitle: "Work from today's next actions",
     focus: [
-      'Show only active priorities and actionable next steps.',
-      'Keep updates fast: complete, defer, or add a small note.',
-      'Anchor each day to the current weekly plan.',
+      'Start with the next action under each confirmed priority.',
+      'Complete or defer work without rebuilding the whole plan.',
+      'Save a short check-in when context changes during the day.',
     ],
-    nextBuild: [
-      'Hydrate from action items instead of static placeholders.',
-      'Add lightweight daily check-in persistence.',
-      'Implement carry-forward rules for unfinished work.',
-    ],
+    outcome: 'Completing the work makes Reflection the next useful step.',
   },
   reflection: {
+    guidanceTitle: 'Close the loop',
     focus: [
-      'Capture qualitative signal at the end of the day and week.',
-      'Make reflection inputs useful for both the user and product learning.',
-      'Keep the prompts short enough to finish consistently.',
+      'Capture what helped the week move forward.',
+      'Record friction worth accounting for next time.',
+      'Keep the reflection brief enough to repeat every week.',
     ],
-    nextBuild: [
-      'Persist daily and weekly reflections separately.',
-      'Feed themes into the internal analytics surface.',
-      'Connect reflection prompts to weekly plan outcomes.',
-    ],
+    outcome: 'Your reflections become context for the next Weekly Review.',
   },
   admin: {
+    guidanceTitle: 'Internal product signals',
     focus: [
       'Track activation, weekly review completion, retention, and feedback.',
       'Make design-partner friction visible without log diving.',
       'Keep this view internal only.',
     ],
+    outcome: 'Use these signals to prioritize the next validated product change.',
     nextBuild: [
       'Replace placeholder KPIs with tracked events.',
       'Add cohort views for invited users.',
@@ -603,11 +593,13 @@ export function MvpSurfacePage({ surface }: MvpSurfacePageProps) {
 
         <Card className="space-y-5">
           <CardHeader>
-            <CardTitle>{current.phase} focus</CardTitle>
+            <CardTitle>{surface === 'admin' ? `${current.phase} focus` : copy.guidanceTitle}</CardTitle>
           </CardHeader>
 
           <div className="rounded-2xl border border-white/8 bg-black/10 p-4">
-            <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Current loop state</p>
+            <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+              {surface === 'admin' ? 'Current loop state' : 'Current step status'}
+            </p>
             <p className="mt-2 text-xl font-semibold text-white">{activeSummary[surface]}</p>
           </div>
 
@@ -618,21 +610,30 @@ export function MvpSurfacePage({ surface }: MvpSurfacePageProps) {
               </div>
             ))}
           </div>
+
+          {surface !== 'admin' ? (
+            <div className="border-t border-white/8 pt-5">
+              <p className="text-xs font-medium text-zinc-500">When this step is complete</p>
+              <p className="mt-2 text-sm leading-6 text-zinc-200">{copy.outcome}</p>
+            </div>
+          ) : null}
         </Card>
 
-        <Card className="space-y-5">
-          <CardHeader>
-            <CardTitle>Next build steps</CardTitle>
-          </CardHeader>
+        {surface === 'admin' && copy.nextBuild ? (
+          <Card className="space-y-5">
+            <CardHeader>
+              <CardTitle>Next build steps</CardTitle>
+            </CardHeader>
 
-          <ul className="space-y-3 text-sm text-zinc-300">
-            {copy.nextBuild.map((item) => (
-              <li key={item} className="rounded-2xl border border-white/6 bg-black/10 p-4">
-                {item}
-              </li>
-            ))}
-          </ul>
-        </Card>
+            <ul className="space-y-3 text-sm text-zinc-300">
+              {copy.nextBuild.map((item) => (
+                <li key={item} className="rounded-2xl border border-white/6 bg-black/10 p-4">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </Card>
+        ) : null}
       </section>
 
       <section className="grid gap-4 md:grid-cols-2">
