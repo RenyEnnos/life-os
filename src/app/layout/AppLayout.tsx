@@ -62,7 +62,7 @@ export function AppLayout() {
             </aside>
 
             {/* Mobile Navigation - Always Visible on Mobile */}
-            <div className="md:hidden">
+            <div className="md:hidden" data-testid="mobile-navigation-slot">
                 <NavigationSystem />
             </div>
 
@@ -76,6 +76,7 @@ export function AppLayout() {
                         animate="animate"
                         exit="exit"
                         transition={pageTransition}
+                        data-testid="route-content"
                         className="w-full min-h-screen pb-32 md:pb-0"
                     >
                         <Outlet />
