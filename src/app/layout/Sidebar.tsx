@@ -12,7 +12,7 @@ export const Sidebar = ({ className }: { className?: string }) => {
                 </div>
             </div>
 
-            <nav className="flex flex-col gap-6 w-full px-4 flex-1 overflow-y-auto no-scrollbar items-center">
+            <nav aria-label="Navigation" className="flex flex-col gap-6 w-full px-4 flex-1 overflow-y-auto no-scrollbar items-center">
                 {primaryNav.map((item) => (
                     <NavLink
                         key={item.path}

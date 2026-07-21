@@ -131,7 +131,12 @@ const DockIcon = ({
                 to={href}
                 aria-label={label}
                 aria-current={active ? 'page' : undefined}
-                className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9B87F5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08070B]"
+                className={cn(
+                    "rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9B87F5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08070B]",
+                    active
+                        ? "border border-[#7357D9]/35 bg-[#7357D9]/14 text-[#B7A7FF]"
+                        : "border border-transparent text-zinc-500",
+                )}
                 onClick={onClick}
             >
                 {content}
